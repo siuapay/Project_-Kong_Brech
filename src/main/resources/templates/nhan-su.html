@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân sự - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle active">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html" class="active">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <div class="page-hero">
+                <h1><i class="fas fa-id-card"></i> Nhân sự hội thánh</h1>
+                <p class="lead">Danh sách nhân sự và phân công công tác</p>
+            </div>
+
+            <div class="staff-content">
+                <!-- Bộ lọc -->
+                <div class="filter-section">
+                    <div class="filter-controls">
+                        <select id="department-filter">
+                            <option value="">Tất cả ban ngành</option>
+                            <option value="mucvu">Ban Mục vụ</option>
+                            <option value="giaoduc">Ban Giáo dục</option>
+                            <option value="thanhnien">Ban Thanh niên</option>
+                            <option value="hoiphunu">Ban Hội phụ nữ</option>
+                            <option value="taichinh">Ban Tài chính</option>
+                            <option value="xaydung">Ban Xây dựng</option>
+                            <option value="truyenthong">Ban Truyền thông</option>
+                        </select>
+                        <input type="text" id="search-staff" placeholder="Tìm kiếm nhân sự...">
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+
+                <!-- Danh sách nhân sự -->
+                <div class="staff-grid" id="staff-list">
+                    <!-- Mục vụ -->
+                    <div class="staff-card" data-department="mucvu">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Mục sư [Tên]</h4>
+                            <p class="position">Chấp sự trưởng</p>
+                            <p class="department">Ban Mục vụ</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                                <p><i class="fas fa-envelope"></i> mucsu@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2015</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Giảng dạy</span>
+                                <span class="responsibility-tag">Mục vụ</span>
+                                <span class="responsibility-tag">Lãnh đạo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="staff-card" data-department="mucvu">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Truyền đạo [Tên]</h4>
+                            <p class="position">Phó Chấp sự</p>
+                            <p class="department">Ban Mục vụ</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 790</p>
+                                <p><i class="fas fa-envelope"></i> truyendao@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2018</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Giảng dạy</span>
+                                <span class="responsibility-tag">Thăm viếng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Giáo dục -->
+                    <div class="staff-card" data-department="giaoduc">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Anh/Chị [Tên]</h4>
+                            <p class="position">Trưởng ban Giáo dục</p>
+                            <p class="department">Ban Giáo dục</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 802</p>
+                                <p><i class="fas fa-envelope"></i> giaoduc@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2019</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Trường CN</span>
+                                <span class="responsibility-tag">Đào tạo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="staff-card" data-department="giaoduc">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Cô [Tên]</h4>
+                            <p class="position">Giáo viên Trường CN</p>
+                            <p class="department">Ban Giáo dục</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 812</p>
+                                <p><i class="fas fa-envelope"></i> truongcn@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2020</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Dạy trẻ em</span>
+                                <span class="responsibility-tag">Chương trình</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thanh niên -->
+                    <div class="staff-card" data-department="thanhnien">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Anh [Tên]</h4>
+                            <p class="position">Trưởng ban Thanh niên</p>
+                            <p class="department">Ban Thanh niên</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 803</p>
+                                <p><i class="fas fa-envelope"></i> thanhnien@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2021</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Tổ chức sự kiện</span>
+                                <span class="responsibility-tag">Âm nhạc</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hội phụ nữ -->
+                    <div class="staff-card" data-department="hoiphunu">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Chị [Tên]</h4>
+                            <p class="position">Trưởng ban Hội phụ nữ</p>
+                            <p class="department">Ban Hội phụ nữ</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 804</p>
+                                <p><i class="fas fa-envelope"></i> hoiphunu@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2017</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Chăm sóc gia đình</span>
+                                <span class="responsibility-tag">Từ thiện</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tài chính -->
+                    <div class="staff-card" data-department="taichinh">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Anh [Tên]</h4>
+                            <p class="position">Thủ quỹ</p>
+                            <p class="department">Ban Tài chính</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 805</p>
+                                <p><i class="fas fa-envelope"></i> thuquy@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2016</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Quản lý quỹ</span>
+                                <span class="responsibility-tag">Kế toán</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Xây dựng -->
+                    <div class="staff-card" data-department="xaydung">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Anh [Tên]</h4>
+                            <p class="position">Trưởng ban Xây dựng</p>
+                            <p class="department">Ban Xây dựng</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 806</p>
+                                <p><i class="fas fa-envelope"></i> xaydung@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2018</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Bảo trì</span>
+                                <span class="responsibility-tag">Xây dựng</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Truyền thông -->
+                    <div class="staff-card" data-department="truyenthong">
+                        <div class="staff-photo">
+                            <img src="https://via.placeholder.com/120x150" alt="Nhân sự">
+                            <div class="staff-status active">Đang phục vụ</div>
+                        </div>
+                        <div class="staff-info">
+                            <h4>Anh/Chị [Tên]</h4>
+                            <p class="position">Trưởng ban Truyền thông</p>
+                            <p class="department">Ban Truyền thông</p>
+                            <div class="staff-details">
+                                <p><i class="fas fa-phone"></i> 0123 456 807</p>
+                                <p><i class="fas fa-envelope"></i> truyenthong@httlkongbrech.org</p>
+                                <p><i class="fas fa-calendar"></i> Phục vụ từ: 2022</p>
+                            </div>
+                            <div class="staff-responsibilities">
+                                <span class="responsibility-tag">Website</span>
+                                <span class="responsibility-tag">Âm thanh</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thống kê -->
+                <div class="stats-section">
+                    <h2><i class="fas fa-chart-bar"></i> Thống kê nhân sự</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">25</div>
+                            <div class="stat-label">Tổng nhân sự</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">7</div>
+                            <div class="stat-label">Ban ngành</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">23</div>
+                            <div class="stat-label">Đang phục vụ</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">2</div>
+                            <div class="stat-label">Tạm nghỉ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="nhan-su.html">Nhân sự</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Filter functionality
+        document.getElementById('department-filter').addEventListener('change', filterStaff);
+        document.getElementById('search-staff').addEventListener('input', filterStaff);
+        document.getElementById('search-btn').addEventListener('click', filterStaff);
+
+        function filterStaff() {
+            const departmentFilter = document.getElementById('department-filter').value;
+            const searchTerm = document.getElementById('search-staff').value.toLowerCase();
+            const staffCards = document.querySelectorAll('.staff-card');
+
+            staffCards.forEach(card => {
+                const department = card.dataset.department;
+                const name = card.querySelector('h4').textContent.toLowerCase();
+                const position = card.querySelector('.position').textContent.toLowerCase();
+
+                const matchesDepartment = !departmentFilter || department === departmentFilter;
+                const matchesSearch = !searchTerm || name.includes(searchTerm) || position.includes(searchTerm);
+
+                if (matchesDepartment && matchesSearch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Chi Tiết Loại Sự Kiện</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div th:replace="fragments/admin-layout :: admin-layout">
+        <div th:fragment="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Chi Tiết Loại Sự Kiện</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/loai-su-kien">Loại Sự Kiện</a></li>
+                            <li class="breadcrumb-item active">Chi tiết</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a th:href="@{'/admin/loai-su-kien/' + ${loaiSuKien.id} + '/edit'}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Chỉnh sửa
+                    </a>
+                    <a href="/admin/loai-su-kien" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Info -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex align-items-center">
+                                <div class="color-indicator me-3" 
+                                     th:style="'width: 30px; height: 30px; border-radius: 6px; background-color: ' + ${loaiSuKien.mauSac ?: '#6c757d'}"></div>
+                                <div>
+                                    <h5 class="card-title mb-0 d-flex align-items-center">
+                                        <span th:if="${loaiSuKien.icon}" class="me-2">
+                                            <i th:class="${'fas fa-' + loaiSuKien.icon}"></i>
+                                        </span>
+                                        <span th:text="${loaiSuKien.tenLoai}">Tên loại sự kiện</span>
+                                    </h5>
+                                    <small class="text-muted">ID: <span th:text="${loaiSuKien.id}">1</span></small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>Thông tin cơ bản</h6>
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td class="text-muted" style="width: 120px;">Tên loại:</td>
+                                            <td><strong th:text="${loaiSuKien.tenLoai}">Tên loại</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Thứ tự:</td>
+                                            <td>
+                                                <span class="badge bg-secondary" th:text="${loaiSuKien.thuTu}">0</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Trạng thái:</td>
+                                            <td>
+                                                <span th:if="${loaiSuKien.kichHoat}" class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Kích hoạt
+                                                </span>
+                                                <span th:unless="${loaiSuKien.kichHoat}" class="badge bg-warning">
+                                                    <i class="fas fa-pause"></i> Tạm dừng
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>Hiển thị</h6>
+                                    <table class="table table-borderless table-sm">
+                                        <tr>
+                                            <td class="text-muted" style="width: 120px;">Màu sắc:</td>
+                                            <td>
+                                                <div th:if="${loaiSuKien.mauSac}" class="d-flex align-items-center">
+                                                    <div class="color-box me-2" 
+                                                         th:style="'width: 20px; height: 20px; border-radius: 3px; background-color: ' + ${loaiSuKien.mauSac}"></div>
+                                                    <code th:text="${loaiSuKien.mauSac}">#FFFFFF</code>
+                                                </div>
+                                                <span th:unless="${loaiSuKien.mauSac}" class="text-muted">Chưa thiết lập</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Icon:</td>
+                                            <td>
+                                                <span th:if="${loaiSuKien.icon}">
+                                                    <i th:class="${'fas fa-' + loaiSuKien.icon}"></i>
+                                                    <code th:text="${'fa-' + loaiSuKien.icon}" class="ms-2">fa-icon</code>
+                                                </span>
+                                                <span th:unless="${loaiSuKien.icon}" class="text-muted">Chưa thiết lập</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div th:if="${loaiSuKien.moTa}" class="mt-4">
+                                <h6>Mô tả</h6>
+                                <p th:text="${loaiSuKien.moTa}" class="text-muted">Mô tả loại sự kiện</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Usage Statistics (placeholder for future implementation) -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-bar"></i> Thống kê sử dụng
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-primary mb-1">0</h4>
+                                        <small class="text-muted">Sự kiện đang diễn ra</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-success mb-1">0</h4>
+                                        <small class="text-muted">Sự kiện đã hoàn thành</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3">
+                                        <h4 class="text-info mb-1">0</h4>
+                                        <small class="text-muted">Tổng số sự kiện</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <small class="text-muted">Thống kê sẽ được cập nhật khi có sự kiện sử dụng loại này</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Actions -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-cogs"></i> Thao tác
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{'/admin/loai-su-kien/' + ${loaiSuKien.id} + '/edit'}" 
+                                   class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Chỉnh sửa thông tin
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" 
+                                        onclick="confirmDelete()"
+                                        th:data-url="@{'/admin/loai-su-kien/' + ${loaiSuKien.id} + '/delete'}"
+                                        th:data-name="${loaiSuKien.tenLoai}">
+                                    <i class="fas fa-trash"></i> Xóa loại sự kiện
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Info -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Thông tin hệ thống
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless table-sm">
+                                <tr>
+                                    <td class="text-muted">Ngày tạo:</td>
+                                    <td>
+                                        <small th:text="${#temporals.format(loaiSuKien.createdAt, 'dd/MM/yyyy HH:mm:ss')}">
+                                            01/01/2024 10:00:00
+                                        </small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Cập nhật cuối:</td>
+                                    <td>
+                                        <small th:text="${#temporals.format(loaiSuKien.updatedAt, 'dd/MM/yyyy HH:mm:ss')}">
+                                            01/01/2024 10:00:00
+                                        </small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Trạng thái xóa:</td>
+                                    <td>
+                                        <span th:if="${loaiSuKien.deleted}" class="badge bg-danger">Đã xóa</span>
+                                        <span th:unless="${loaiSuKien.deleted}" class="badge bg-success">Hoạt động</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-eye"></i> Xem trước
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-item p-3 border rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="color-indicator me-2" 
+                                         th:style="'width: 20px; height: 20px; border-radius: 3px; background-color: ' + ${loaiSuKien.mauSac ?: '#6c757d'}"></div>
+                                    <span th:if="${loaiSuKien.icon}" class="me-2">
+                                        <i th:class="${'fas fa-' + loaiSuKien.icon}"></i>
+                                    </span>
+                                    <strong th:text="${loaiSuKien.tenLoai}">Tên loại</strong>
+                                </div>
+                                <p th:if="${loaiSuKien.moTa}" th:text="${loaiSuKien.moTa}" class="text-muted small mb-2">Mô tả</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-secondary" th:text="'Thứ tự: ' + ${loaiSuKien.thuTu}">Thứ tự: 0</span>
+                                    <span th:if="${loaiSuKien.kichHoat}" class="badge bg-success">Kích hoạt</span>
+                                    <span th:unless="${loaiSuKien.kichHoat}" class="badge bg-warning">Tạm dừng</span>
+                                </div>
+                            </div>
+                            <div class="form-text mt-2">
+                                Đây là cách loại sự kiện sẽ hiển thị trong danh sách
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa loại sự kiện <strong th:text="${loaiSuKien.tenLoai}">Tên loại</strong>?</p>
+                    <p class="text-muted small">Loại sự kiện sẽ được chuyển vào thùng rác và có thể khôi phục sau.</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Lưu ý:</strong> Nếu có sự kiện đang sử dụng loại này, bạn cần cập nhật chúng trước khi xóa.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmDelete() {
+            const button = document.querySelector('[onclick="confirmDelete()"]');
+            const url = button.getAttribute('data-url');
+            
+            document.getElementById('deleteForm').action = url;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html>

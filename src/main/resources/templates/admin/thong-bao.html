@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/admin-layout :: head"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="fragments/admin-layout :: sidebar"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="fragments/admin-layout :: topnav"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="fragments/admin-layout :: messages"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-secondary"><i class="fas fa-bullhorn me-2"></i>Quản Lý Thông Báo</h2>
+                    <p class="text-muted mb-0">Quản lý thông báo và tin tức của chi hội</p>
+                </div>
+                <button class="btn btn-secondary">
+                    <i class="fas fa-plus me-2"></i>Thêm Thông Báo
+                </button>
+            </div>
+
+            <!-- Content Card -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">Danh Sách Thông Báo</h5>
+                        </div>
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Tìm kiếm thông báo...">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="text-center py-5">
+                        <i class="fas fa-bullhorn fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">Chức năng đang phát triển</h4>
+                        <p class="text-muted">Tính năng quản lý thông báo sẽ được hoàn thiện trong phiên bản tiếp theo.</p>
+                        <button class="btn btn-secondary">
+                            <i class="fas fa-cog me-2"></i>Cấu hình
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="fragments/admin-layout :: scripts"></div>
+</body>
+</html>

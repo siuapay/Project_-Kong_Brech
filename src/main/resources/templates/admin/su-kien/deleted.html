@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/admin-layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
+    
+    <div class="main-content">
+        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
+        
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div th:replace="~{fragments/admin-layout :: messages}"></div>
+                
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-danger">
+                            <i class="fas fa-trash me-2"></i>Thùng Rác Sự Kiện
+                        </h2>
+                        <p class="text-muted mb-0">Các sự kiện đã bị xóa mềm</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Search -->
+                <div class="card shadow border-0 mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0"><i class="fas fa-search me-2"></i>Tìm Kiếm</h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/su-kien/deleted}" method="get">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" name="search" th:value="${search}" 
+                                               placeholder="Tìm kiếm theo tên sự kiện...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a th:href="@{/admin/su-kien/deleted}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Deleted Events List -->
+                <div class="card shadow border-0">
+                    <div class="card-header bg-white">
+                        <h6 class="m-0 font-weight-bold text-danger">
+                            <i class="fas fa-trash me-2"></i>Danh Sách Sự Kiện Đã Xóa
+                            <span class="badge bg-danger ms-2" th:text="${suKienPage.totalElements}">0</span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${suKienPage.content.empty}" class="text-center py-4">
+                            <i class="fas fa-trash-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Thùng rác trống</h5>
+                            <p class="text-muted">Không có sự kiện nào trong thùng rác</p>
+                            <a th:href="@{/admin/su-kien}" class="btn btn-primary">
+                                <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh Sách
+                            </a>
+                        </div>
+                        
+                        <div th:unless="${suKienPage.content.empty}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Tên Sự Kiện</th>
+                                        <th>Loại</th>
+                                        <th>Ngày Diễn Ra</th>
+                                        <th>Ngày Xóa</th>
+                                        <th class="text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="suKien : ${suKienPage.content}">
+                                        <td class="ps-3" th:text="${suKien.id}">1</td>
+                                        <td>
+                                            <div class="fw-bold text-muted" th:text="${suKien.tenSuKien}">Tên sự kiện</div>
+                                            <small class="text-muted" th:text="${#strings.abbreviate(suKien.moTa, 50)}">Mô tả ngắn</small>
+                                        </td>
+                                        <td>
+                                            <span th:if="${suKien.loaiSuKien}" 
+                                                  class="badge bg-secondary"
+                                                  th:text="${suKien.loaiSuKien.tenLoai}">
+                                            </span>
+                                            <span th:unless="${suKien.loaiSuKien}" class="badge bg-light text-dark">Không xác định</span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${suKien.ngayDienRa}">
+                                                <div th:text="${suKien.ngayDienRa.toLocalDate()}"></div>
+                                                <small class="text-muted" th:text="${suKien.ngayDienRa.toLocalTime()}"></small>
+                                            </div>
+                                            <span th:unless="${suKien.ngayDienRa}" class="text-muted">Chưa xác định</span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${suKien.deletedAt}">
+                                                <div th:text="${suKien.deletedAt.toLocalDate()}"></div>
+                                                <small class="text-muted" th:text="${suKien.deletedAt.toLocalTime()}"></small>
+                                            </div>
+                                            <span th:unless="${suKien.deletedAt}" class="text-muted">Không có</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-outline-success" 
+                                                        th:data-id="${suKien.id}"
+                                                        th:data-name="${suKien.tenSuKien}"
+                                                        onclick="confirmRestore(this.dataset.id, this.dataset.name)"
+                                                        title="Khôi phục">
+                                                    <i class="fas fa-undo"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        th:data-id="${suKien.id}"
+                                                        th:data-name="${suKien.tenSuKien}"
+                                                        onclick="confirmHardDelete(this.dataset.id, this.dataset.name)"
+                                                        title="Xóa vĩnh viễn">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div th:if="${suKienPage.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <span class="text-muted">
+                                    Hiển thị <span th:text="${suKienPage.numberOfElements}">10</span> 
+                                    trong tổng số <span th:text="${suKienPage.totalElements}">100</span> sự kiện đã xóa
+                                </span>
+                            </div>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" th:classappend="${suKienPage.first} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/su-kien/deleted(page=${suKienPage.number - 1}, search=${search})}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <li th:each="pageNum : ${#numbers.sequence(0, suKienPage.totalPages - 1)}" 
+                                        class="page-item" th:classappend="${pageNum == suKienPage.number} ? 'active'">
+                                        <a class="page-link" 
+                                           th:href="@{/admin/su-kien/deleted(page=${pageNum}, search=${search})}"
+                                           th:text="${pageNum + 1}">1</a>
+                                    </li>
+                                    
+                                    <li class="page-item" th:classappend="${suKienPage.last} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/su-kien/deleted(page=${suKienPage.number + 1}, search=${search})}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restore Confirmation Modal -->
+    <div class="modal fade" id="restoreModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Khôi Phục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn khôi phục sự kiện <strong id="restoreItemName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="restoreForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success">Khôi Phục</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hard Delete Confirmation Modal -->
+    <div class="modal fade" id="hardDeleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa Vĩnh Viễn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa vĩnh viễn sự kiện <strong id="hardDeleteItemName"></strong>?</p>
+                    <p class="text-danger"><strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="hardDeleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Xóa Vĩnh Viễn</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmRestore(id, name) {
+            document.getElementById('restoreItemName').textContent = name;
+            document.getElementById('restoreForm').action = '/admin/su-kien/' + id + '/restore';
+            new bootstrap.Modal(document.getElementById('restoreModal')).show();
+        }
+        
+        function confirmHardDelete(id, name) {
+            document.getElementById('hardDeleteItemName').textContent = name;
+            document.getElementById('hardDeleteForm').action = '/admin/su-kien/' + id + '/hard-delete';
+            new bootstrap.Modal(document.getElementById('hardDeleteModal')).show();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-layer-group me-2"></i>Chi Tiết Nhóm
+                    </h2>
+                    <p class="text-muted mb-0">Thông tin chi tiết và đầy đủ của nhóm</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                    </a>
+                    <a th:href="@{/admin/nhom}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Profile Card -->
+                <div class="col-lg-4">
+                    <div class="card shadow-lg border-0">
+                        <div class="card-body text-center p-4">
+                            <!-- Group Icon -->
+                            <div class="mb-4">
+                                <div class="group-icon bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-users fa-3x"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Name & Basic Info -->
+                            <h3 class="text-primary mb-1" th:text="${nhom.tenNhom}">Tên Nhóm</h3>
+                            <p class="text-muted mb-3" th:text="${nhom.diemNhom?.tenDiemNhom ?: 'Chưa phân công điểm nhóm'}">Điểm nhóm</p>
+                            
+                            <!-- Status Badge -->
+                            <div class="mb-4">
+                                <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i>Đang Hoạt Động
+                                </span>
+                                <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning fs-6 px-3 py-2">
+                                    <i class="fas fa-pause-circle me-1"></i>Tạm Nghỉ
+                                </span>
+                                <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger fs-6 px-3 py-2">
+                                    <i class="fas fa-times-circle me-1"></i>Đóng Cửa
+                                </span>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="stat-item">
+                                        <h4 class="text-primary mb-0" th:text="${nhom.soLuongTinHuu}">0</h4>
+                                        <small class="text-muted">Tin Hữu</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stat-item">
+                                        <h4 class="text-success mb-0" th:text="${nhom.trangThai.name() == 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}">Trạng thái</h4>
+                                        <small class="text-muted">Tình trạng</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow border-0 mt-4">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                                </a>
+                                <button type="button" class="btn btn-danger" 
+                                        th:data-id="${nhom.id}"
+                                        th:data-name="${nhom.tenNhom}"
+                                        onclick="confirmDelete(this.dataset.id, this.dataset.name)">
+                                    <i class="fas fa-trash me-2"></i>Xóa Nhóm
+                                </button>
+                                <hr>
+                                <a th:href="@{/admin/nhom}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-list me-2"></i>Danh Sách
+                                </a>
+                                <a th:href="@{/admin/nhom/new}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus me-2"></i>Thêm Mới
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Information -->
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="text-primary mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Cơ Bản
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Tên Nhóm</label>
+                                        <div class="info-value" th:text="${nhom.tenNhom}">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Trạng Thái</label>
+                                        <div class="info-value">
+                                            <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                            </span>
+                                            <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
+                                                <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
+                                            </span>
+                                            <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Đóng cửa
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Điểm Nhóm</label>
+                                        <div class="info-value">
+                                            <span th:if="${nhom.diemNhom}">
+                                                <i class="fas fa-map-marker-alt text-success me-2"></i>
+                                                <span th:text="${nhom.diemNhom.tenDiemNhom}"></span>
+                                            </span>
+                                            <span th:unless="${nhom.diemNhom}" class="text-muted">Chưa phân công</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Số Lượng Tin Hữu</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-info fs-6" th:text="${nhom.soLuongTinHuu}">0</span>
+                                            <small class="text-muted ms-1">thành viên</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Mô Tả</label>
+                                        <div class="info-value">
+                                            <div class="note-box bg-light border-start border-4 border-info p-3 rounded">
+                                                <i class="fas fa-align-left text-info me-2"></i>
+                                                <span th:if="${nhom.moTa}" th:text="${nhom.moTa}"></span>
+                                                <span th:unless="${nhom.moTa}" class="text-muted">Chưa có mô tả</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Điểm Nhóm Information -->
+                    <div class="card shadow border-0 mb-4" th:if="${nhom.diemNhom}">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="text-success mb-0">
+                                <i class="fas fa-map-marker-alt me-2"></i>Thông Tin Điểm Nhóm
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Tên Điểm Nhóm</label>
+                                        <div class="info-value" th:text="${nhom.diemNhom.tenDiemNhom}">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Trạng Thái Điểm Nhóm</label>
+                                        <div class="info-value">
+                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                            </span>
+                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'CHUAN_BI'}" class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Chuẩn bị
+                                            </span>
+                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-secondary">
+                                                <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
+                                            </span>
+                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Đóng cửa
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12" th:if="${nhom.diemNhom.diaChi}">
+                                    <div class="info-item">
+                                        <label class="info-label">Địa Chỉ</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                            <span th:text="${nhom.diemNhom.diaChi}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Information -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="text-secondary mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Hệ Thống
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">ID Nhóm</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-primary fs-6" th:text="'#' + ${nhom.id}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Ngày Tạo</label>
+                                        <div class="info-value">
+                                            <span th:if="${nhom.createdAt}">
+                                                <i class="fas fa-calendar-plus text-success me-1"></i>
+                                                <span th:text="${#temporals.format(nhom.createdAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${nhom.createdAt}" class="text-muted">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Cập Nhật Cuối</label>
+                                        <div class="info-value">
+                                            <span th:if="${nhom.updatedAt}">
+                                                <i class="fas fa-edit text-warning me-1"></i>
+                                                <span th:text="${#temporals.format(nhom.updatedAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${nhom.updatedAt}" class="text-muted">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa nhóm <strong id="deleteName"></strong>?</p>
+                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/nhom/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+    
+    <style>
+        .group-icon {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .info-item {
+            padding: 12px 0;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .stat-item {
+            padding: 1rem 0;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card {
+            transition: transform 0.2s ease-in-out;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .note-box {
+            background-color: #f8f9fa !important;
+            border-left: 4px solid #17a2b8 !important;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+    </style>
+</body>
+</html>

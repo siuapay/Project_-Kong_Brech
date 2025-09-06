@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="text-primary">
+              <i class="fas fa-user-plus me-2"></i>
+              <span
+                th:text="${tinHuu.id != null ? 'Chỉnh Sửa Tin Hữu' : 'Thêm Tin Hữu Mới'}"
+                >Thêm Tin Hữu Mới</span
+              >
+            </h2>
+            <p class="text-muted mb-0">Nhập thông tin chi tiết của tin hữu</p>
+          </div>
+          <a th:href="@{/admin/tin-huu}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+          </a>
+        </div>
+
+        <!-- Form -->
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="fas fa-user-edit me-2"></i>Thông Tin Cá Nhân
+                </h5>
+              </div>
+              <div class="card-body">
+                <form
+                  th:action="@{/admin/tin-huu/save}"
+                  th:object="${tinHuu}"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
+                  <input type="hidden" th:field="*{id}" />
+                  <input type="hidden" th:field="*{createdAt}" />
+                  <input type="hidden" th:field="*{avatarUrl}" />
+
+                  <!-- Avatar Upload Section -->
+                  <div class="row mb-4">
+                    <div class="col-12">
+                      <h6 class="text-primary mb-3">
+                        <i class="fas fa-user-circle me-2"></i>Ảnh Đại Diện
+                      </h6>
+                      <div class="d-flex align-items-start gap-3">
+                        <!-- Current Avatar Preview -->
+                        <div class="avatar-preview">
+                          <img 
+                            id="avatarPreview" 
+                            th:src="${tinHuu.avatarUrl != null ? tinHuu.avatarUrl : '/static/images/default-avatar.svg'}"
+                            alt="Avatar Preview"
+                            class="rounded-circle border"
+                            style="width: 120px; height: 120px; object-fit: cover;"
+                          />
+                        </div>
+                        
+                        <!-- Upload Controls -->
+                        <div class="flex-grow-1">
+                          <div class="mb-3">
+                            <label for="avatarFile" class="form-label">Chọn ảnh mới</label>
+                            <input 
+                              type="file" 
+                              class="form-control" 
+                              id="avatarFile" 
+                              name="avatarFile"
+                              accept="image/jpeg,image/jpg,image/png,image/gif"
+                              onchange="previewAvatar(this)"
+                            />
+                            <div class="form-text">
+                              <i class="fas fa-info-circle me-1"></i>
+                              Chấp nhận: JPG, JPEG, PNG, GIF. Tối đa 5MB.
+                            </div>
+                          </div>
+                          
+                          <!-- Upload Status -->
+                          <div id="uploadStatus" class="d-none">
+                            <div class="alert alert-info mb-0">
+                              <i class="fas fa-upload me-2"></i>
+                              Ảnh mới đã được chọn. Nhấn "Lưu" để cập nhật.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr class="my-4" />
+
+                  <!-- Basic Information -->
+                  <div class="row">
+                    <div class="col-md-8 mb-3">
+                      <label for="hoTen" class="form-label">
+                        Họ và Tên <span class="text-danger">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="hoTen"
+                        th:field="*{hoTen}"
+                        required
+                        placeholder="Nhập họ và tên đầy đủ"
+                      />
+                      <div class="invalid-feedback">
+                        Vui lòng nhập họ và tên.
+                      </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                      <label for="gioiTinh" class="form-label">Giới Tính</label>
+                      <select
+                        class="form-select"
+                        id="gioiTinh"
+                        th:field="*{gioiTinh}"
+                        required
+                      >
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="namSinh" class="form-label">Năm Sinh</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="namSinh"
+                        th:field="*{namSinh}"
+                        min="1900"
+                        placeholder="Ví dụ: 1990"
+                      />
+                      <div class="form-text">Năm sinh không được vượt quá năm hiện tại</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="ngheNghiep" class="form-label"
+                        >Nghề Nghiệp</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="ngheNghiep"
+                        th:field="*{ngheNghiep}"
+                        placeholder="Ví dụ: Giáo viên, Kỹ sư..."
+                      />
+                    </div>
+                  </div>
+
+                  <!-- Contact Information -->
+                  <hr class="my-4" />
+                  <h6 class="text-primary mb-3">
+                    <i class="fas fa-address-book me-2"></i>Thông Tin Liên Hệ
+                  </h6>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="dienThoai" class="form-label"
+                        >Số Điện Thoại</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="dienThoai"
+                        th:field="*{dienThoai}"
+                        pattern="[0-9]{10,11}"
+                        title="Số điện thoại phải có 10-11 chữ số"
+                        placeholder="0123456789"
+                      />
+                      <div class="form-text">Chỉ nhập số, từ 10-11 chữ số</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="email" class="form-label">Email</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        th:field="*{email}"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="diaChi" class="form-label">Địa Chỉ</label>
+                    <textarea
+                      class="form-control"
+                      id="diaChi"
+                      rows="3"
+                      th:field="*{diaChi}"
+                      placeholder="Nhập địa chỉ đầy đủ"
+                    ></textarea>
+                  </div>
+
+                  <!-- Church Information -->
+                  <hr class="my-4" />
+                  <h6 class="text-primary mb-3">
+                    <i class="fas fa-church me-2"></i>Thông Tin Tôn Giáo
+                  </h6>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="ngayBaoTin" class="form-label"
+                        >Ngày Báo Tin</label
+                      >
+                      <input
+                        type="date"
+                        class="form-control"
+                        id="ngayBaoTin"
+                        name="ngayBaoTin"
+                        th:value="${tinHuu.ngayBaoTin != null ? tinHuu.ngayBaoTin : ''}"
+                      />
+
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="trangThai" class="form-label"
+                        >Trạng Thái</label
+                      >
+                      <select
+                        class="form-select"
+                        id="trangThai"
+                        th:field="*{trangThai}"
+                      >
+                        <option value="HOAT_DONG">Hoạt động</option>
+                        <option value="TAM_NGHI">Tạm nghỉ</option>
+                        <option value="CHUYEN_DI">Chuyển đi</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="ghiChu" class="form-label">Ghi Chú</label>
+                    <textarea
+                      class="form-control"
+                      id="ghiChu"
+                      rows="3"
+                      th:field="*{ghiChu}"
+                      placeholder="Ghi chú thêm về tin hữu..."
+                    ></textarea>
+                  </div>
+
+                  <!-- Form Actions -->
+                  <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a th:href="@{/admin/tin-huu}" class="btn btn-secondary">
+                      <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-save me-2"></i>
+                      <span th:text="${tinHuu.id != null ? 'Cập Nhật' : 'Lưu'}"
+                        >Lưu</span
+                      >
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sidebar Info -->
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-primary">Thông tin bắt buộc:</h6>
+                  <ul class="list-unstyled">
+                    <li>
+                      <i class="fas fa-check text-success me-2"></i>Họ và tên
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-primary">Lưu ý:</h6>
+                  <ul class="list-unstyled small text-muted">
+                    <li>
+                      <i class="fas fa-info me-2"></i>Số điện thoại nên có 10-11
+                      chữ số
+                    </li>
+                    <li>
+                      <i class="fas fa-info me-2"></i>Email phải có định dạng
+                      hợp lệ
+                    </li>
+                    <li>
+                      <i class="fas fa-info me-2"></i>Năm sinh từ 1900 đến hiện
+                      tại
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="alert alert-warning">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <strong>Chú ý:</strong> Thông tin tin hữu sẽ được sử dụng cho
+                  các hoạt động của chi hội.
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats (if editing) -->
+            <div class="card mt-3" th:if="${tinHuu.id != null}">
+              <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-chart-bar me-2"></i>Thông Tin Thêm
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-6">
+                    <div class="border-end">
+                      <h5 class="text-primary mb-0" th:text="${tinHuu.id}">
+                        -
+                      </h5>
+                      <small class="text-muted">ID</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <h5 class="text-success mb-0">
+                      <span
+                        th:if="${tinHuu.createdAt}"
+                        th:text="${#temporals.format(tinHuu.createdAt, 'dd/MM/yyyy')}"
+                        >-</span
+                      >
+                      <span th:unless="${tinHuu.createdAt}">-</span>
+                    </h5>
+                    <small class="text-muted">Ngày tạo</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+      // Form validation
+      (function () {
+        "use strict";
+        window.addEventListener(
+          "load",
+          function () {
+            var forms = document.getElementsByClassName("needs-validation");
+            var validation = Array.prototype.filter.call(
+              forms,
+              function (form) {
+                form.addEventListener(
+                  "submit",
+                  function (event) {
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add("was-validated");
+                  },
+                  false
+                );
+              }
+            );
+          },
+          false
+        );
+      })();
+
+      // Phone number validation
+      const phoneInput = document.getElementById("dienThoai");
+      phoneInput.addEventListener("input", function (e) {
+        // Chỉ cho phép nhập số
+        this.value = this.value.replace(/[^0-9]/g, "");
+        
+        // Giới hạn độ dài 10-11 số
+        if (this.value.length > 11) {
+          this.value = this.value.slice(0, 11);
+        }
+        
+        // Validation feedback
+        if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
+          this.setCustomValidity('Số điện thoại phải có 10-11 chữ số');
+        } else {
+          this.setCustomValidity('');
+        }
+      });
+
+      // Birth year validation
+      const birthYearInput = document.getElementById("namSinh");
+      const currentYear = new Date().getFullYear();
+      birthYearInput.setAttribute('max', currentYear);
+      
+      birthYearInput.addEventListener("change", function (e) {
+        const birthYear = parseInt(e.target.value);
+
+        if (birthYear > currentYear) {
+          alert("Năm sinh không thể lớn hơn năm hiện tại!");
+          e.target.value = "";
+        } else if (birthYear < 1900) {
+          alert("Năm sinh không hợp lệ!");
+          e.target.value = "";
+        }
+      });
+
+      // Avatar preview function
+      function previewAvatar(input) {
+        const file = input.files[0];
+        const preview = document.getElementById('avatarPreview');
+        const status = document.getElementById('uploadStatus');
+        
+        if (file) {
+          // Validate file size (5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+            input.value = '';
+            return;
+          }
+          
+          // Validate file type
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+          if (!allowedTypes.includes(file.type)) {
+            alert('Định dạng file không được hỗ trợ! Chỉ chấp nhận JPG, JPEG, PNG, GIF.');
+            input.value = '';
+            return;
+          }
+          
+          // Show preview
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            preview.src = e.target.result;
+            status.classList.remove('d-none');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          // Reset to original avatar if no file selected
+          const originalSrc = preview.getAttribute('data-original') || '/images/default-avatar.svg';
+          preview.src = originalSrc;
+          status.classList.add('d-none');
+        }
+      }
+      
+      // Store original avatar URL for reset
+      document.addEventListener('DOMContentLoaded', function() {
+        const preview = document.getElementById('avatarPreview');
+        preview.setAttribute('data-original', preview.src);
+      });
+      
+      // Form validation and cleanup
+      document.querySelector('form').addEventListener('submit', function(e) {
+        const hoTen = document.getElementById('hoTen').value.trim();
+        const phoneValue = phoneInput.value;
+        const birthYearValue = birthYearInput.value;
+        
+        if (!hoTen) {
+          alert('Vui lòng nhập họ tên!');
+          e.preventDefault();
+          return;
+        }
+        
+        // Validate phone number
+        if (phoneValue && (phoneValue.length < 10 || phoneValue.length > 11 || !/^[0-9]+$/.test(phoneValue))) {
+          e.preventDefault();
+          alert('Số điện thoại không hợp lệ! Vui lòng nhập 10-11 chữ số.');
+          phoneInput.focus();
+          return;
+        }
+        
+        // Validate birth year
+        if (birthYearValue) {
+          const birthYear = parseInt(birthYearValue);
+          const currentYear = new Date().getFullYear();
+          
+          if (birthYear > currentYear || birthYear < 1900) {
+            e.preventDefault();
+            alert('Năm sinh không hợp lệ!');
+            birthYearInput.focus();
+            return;
+          }
+        }
+        
+        // Clean up empty fields to ensure they are submitted as empty (will be converted to null)
+        const fields = ['gioiTinh', 'email', 'dienThoai', 'diaChi', 'ngheNghiep', 'ghiChu', 'tinhTrangHonNhan'];
+        fields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (field && field.value.trim() === '') {
+            field.value = '';
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

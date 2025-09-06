@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="text-primary">
+              <i class="fas fa-map-marker-alt me-2"></i>
+              <span
+                th:text="${diemNhom.id != null ? 'Chỉnh Sửa Điểm Nhóm' : 'Thêm Điểm Nhóm Mới'}"
+                >Thêm Điểm Nhóm</span
+              >
+            </h2>
+            <p class="text-muted mb-0">Nhập thông tin chi tiết của điểm nhóm</p>
+          </div>
+          <a th:href="@{/admin/diem-nhom}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+          </a>
+        </div>
+
+        <!-- Form -->
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="card shadow border-0">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="fas fa-info-circle me-2"></i>Thông Tin Điểm Nhóm
+                </h5>
+              </div>
+              <div class="card-body">
+                <form
+                  th:action="@{/admin/diem-nhom/save}"
+                  method="post"
+                  th:object="${diemNhom}"
+                >
+                  <input type="hidden" th:field="*{id}" />
+
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label for="tenDiemNhom" class="form-label"
+                        >Tên Điểm Nhóm <span class="text-danger">*</span></label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="tenDiemNhom"
+                        th:field="*{tenDiemNhom}"
+                        placeholder="Nhập tên điểm nhóm"
+                        required
+                      />
+                    </div>
+
+                    <div class="col-md-6">
+                      <label for="banNganh" class="form-label">Ban Ngành</label>
+                      <select
+                        class="form-select"
+                        id="banNganh"
+                        th:field="*{banNganh.id}"
+                      >
+                        <option value="">-- Chọn Ban Ngành --</option>
+                        <option
+                          th:each="banNganh : ${banNganhList}"
+                          th:value="${banNganh.id}"
+                          th:text="${banNganh.tenBan}"
+                        ></option>
+                      </select>
+                    </div>
+
+                    <div class="col-12">
+                      <label for="diaChi" class="form-label"
+                        >Địa Chỉ <span class="text-danger">*</span></label
+                      >
+                      <textarea
+                        class="form-control"
+                        id="diaChi"
+                        th:field="*{diaChi}"
+                        rows="2"
+                        placeholder="Nhập địa chỉ chi tiết của điểm nhóm"
+                        required
+                      ></textarea>
+                    </div>
+
+                    <div class="col-md-4">
+                      <label for="thuSinhHoat" class="form-label"
+                        >Thứ Sinh Hoạt</label
+                      >
+                      <select
+                        class="form-select"
+                        id="thuSinhHoat"
+                        th:field="*{thuSinhHoat}"
+                      >
+                        <option value="">-- Chọn Thứ --</option>
+                        <option value="1">Chủ Nhật</option>
+                        <option value="2">Thứ 2</option>
+                        <option value="3">Thứ 3</option>
+                        <option value="4">Thứ 4</option>
+                        <option value="5">Thứ 5</option>
+                        <option value="6">Thứ 6</option>
+                        <option value="7">Thứ 7</option>
+                      </select>
+                    </div>
+
+                    <div class="col-md-4">
+                      <label for="gioSinhHoat" class="form-label"
+                        >Giờ Sinh Hoạt</label
+                      >
+                      <input
+                        type="time"
+                        class="form-control"
+                        id="gioSinhHoat"
+                        th:field="*{gioSinhHoat}"
+                      />
+                    </div>
+
+                    <div class="col-md-4">
+                      <label for="trangThai" class="form-label"
+                        >Trạng Thái <span class="text-danger">*</span></label
+                      >
+                      <select
+                        class="form-select"
+                        id="trangThai"
+                        th:field="*{trangThai}"
+                        required
+                      >
+                        <option value="HOAT_DONG">Hoạt động</option>
+                        <option value="CHUAN_BI">Chuẩn bị</option>
+                        <option value="TAM_NGHI">Tạm nghỉ</option>
+                        <option value="DONG_CUA">Đóng cửa</option>
+                      </select>
+                    </div>
+
+                    <div class="col-12">
+                      <label for="thoiGianSinhHoat" class="form-label"
+                        >Thời Gian Sinh Hoạt</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="thoiGianSinhHoat"
+                        th:field="*{thoiGianSinhHoat}"
+                        placeholder="VD: Thứ 7 hàng tuần, 19:00 - 21:00"
+                      />
+                    </div>
+
+                    <div class="col-12">
+                      <label for="moTa" class="form-label">Mô Tả</label>
+                      <textarea
+                        class="form-control"
+                        id="moTa"
+                        th:field="*{moTa}"
+                        rows="3"
+                        placeholder="Mô tả về điểm nhóm, đặc điểm, ghi chú..."
+                      ></textarea>
+                    </div>
+                  </div>
+
+                  <hr class="my-4" />
+
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                      <i class="fas fa-save me-2"></i>
+                      <span
+                        th:text="${diemNhom.id != null ? 'Cập Nhật' : 'Thêm Mới'}"
+                        >Lưu</span
+                      >
+                    </button>
+                    <a
+                      th:href="@{/admin/diem-nhom}"
+                      class="btn btn-outline-secondary"
+                    >
+                      <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <!-- Help Card -->
+            <div class="card shadow border-0">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0">
+                  <i class="fas fa-lightbulb me-2"></i>Hướng Dẫn
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-primary">Tên Điểm Nhóm</h6>
+                  <p class="small text-muted mb-0">
+                    Tên địa điểm sinh hoạt (VD: Nhà Thờ Chính, Hội Trường)
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-primary">Địa Chỉ</h6>
+                  <p class="small text-muted mb-0">
+                    Địa chỉ chi tiết để tin hữu có thể tìm đến
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-primary">Thời Gian Sinh Hoạt</h6>
+                  <p class="small text-muted mb-0">
+                    Có thể nhập chi tiết hoặc chọn thứ/giờ cụ thể
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-primary">Trạng Thái</h6>
+                  <ul class="small text-muted mb-0">
+                    <li>
+                      <strong>Hoạt động:</strong> Đang sinh hoạt bình thường
+                    </li>
+                    <li>
+                      <strong>Chuẩn bị:</strong> Đang chuẩn bị mở điểm nhóm
+                    </li>
+                    <li><strong>Tạm nghỉ:</strong> Tạm thời ngưng sinh hoạt</li>
+                    <li><strong>Đóng cửa:</strong> Đã chính thức đóng cửa</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div
+              class="card shadow border-0 mt-4"
+              th:if="${diemNhom.id != null}"
+            >
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="fas fa-info me-2"></i>Thông Tin Hiện Tại
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <small class="text-muted">Số nhóm:</small>
+                  <div>
+                    <span
+                      class="badge bg-info"
+                      th:text="${#lists.size(diemNhom.danhSachNhom)}"
+                      >0</span
+                    >
+                    nhóm
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <small class="text-muted">Tổng tin hữu:</small>
+                  <div>
+                    <span
+                      class="badge bg-success"
+                      th:text="${diemNhom.tongSoTinHuu}"
+                      >0</span
+                    >
+                    người
+                  </div>
+                </div>
+                <div class="mb-2">
+                  <small class="text-muted">Ngày tạo:</small>
+                  <div
+                    th:if="${diemNhom.createdAt}"
+                    th:text="${#temporals.format(diemNhom.createdAt, 'dd/MM/yyyy HH:mm')}"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+      // Form validation and cleanup
+      document.querySelector("form").addEventListener("submit", function (e) {
+        const tenDiemNhom = document.getElementById("tenDiemNhom").value.trim();
+        const diaChi = document.getElementById("diaChi").value.trim();
+        const trangThai = document.getElementById("trangThai").value;
+
+        // Validate required fields
+        if (!tenDiemNhom) {
+          alert("Vui lòng nhập tên điểm nhóm!");
+          e.preventDefault();
+          return;
+        }
+
+        if (!diaChi) {
+          alert("Vui lòng nhập địa chỉ!");
+          e.preventDefault();
+          return;
+        }
+
+        if (!trangThai) {
+          alert("Vui lòng chọn trạng thái!");
+          e.preventDefault();
+          return;
+        }
+
+        // Clean up optional fields (convert empty to null)
+        const optionalFields = ["moTa", "thoiGianSinhHoat"];
+        optionalFields.forEach((fieldId) => {
+          const field = document.getElementById(fieldId);
+          if (field && field.value.trim() === "") {
+            field.value = "";
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

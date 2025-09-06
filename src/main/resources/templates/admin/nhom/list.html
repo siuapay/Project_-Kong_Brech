@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-layer-group me-2"></i>Quản Lý Nhóm
+                    </h2>
+                    <p class="text-muted mb-0">Quản lý thông tin các nhóm trong chi hội</p>
+                </div>
+                <a th:href="@{/admin/nhom/new}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Thêm Nhóm Mới
+                </a>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc</h6>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#advancedFilters" aria-expanded="false">
+                            <i class="fas fa-cog me-1"></i>Bộ lọc nâng cao
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/admin/nhom}" id="filterForm">
+                        <!-- Basic Search -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="search" 
+                                           th:value="${search}" placeholder="Tìm kiếm theo tên nhóm, mô tả...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                                    </button>
+                                    <a th:href="@{/admin/nhom}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Filters -->
+                        <div class="collapse" id="advancedFilters">
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Trạng Thái</label>
+                                    <select class="form-select" name="trangThai">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="HOAT_DONG" th:selected="${trangThai == 'HOAT_DONG'}">Hoạt động</option>
+                                        <option value="TAM_NGHI" th:selected="${trangThai == 'TAM_NGHI'}">Tạm nghỉ</option>
+                                        <option value="DONG_CUA" th:selected="${trangThai == 'DONG_CUA'}">Đóng cửa</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Điểm Nhóm</label>
+                                    <select class="form-select" name="diemNhomId">
+                                        <option value="">Tất cả điểm nhóm</option>
+                                        <option th:each="diemNhom : ${diemNhomList}" 
+                                                th:value="${diemNhom.id}" 
+                                                th:text="${diemNhom.tenDiemNhom}"
+                                                th:selected="${diemNhomId != null && diemNhomId == diemNhom.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ngày Tạo</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="date" class="form-control" name="fromDate" th:value="${fromDate}" 
+                                               placeholder="Từ ngày">
+                                        <span class="input-group-text">đến</span>
+                                        <input type="date" class="form-control" name="toDate" th:value="${toDate}" 
+                                               placeholder="Đến ngày">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-filter me-1"></i>Áp dụng bộ lọc
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" onclick="clearAdvancedFilters()">
+                                            <i class="fas fa-eraser me-1"></i>Xóa bộ lọc nâng cao
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Nhom List -->
+            <div class="card shadow border-0">
+                <div class="card-header bg-light border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Danh Sách Nhóm
+                            <span class="badge bg-primary ms-2" th:text="${nhomPage.totalElements}">0</span>
+                        </h5>
+                        <small class="text-muted">
+                            Trang <span th:text="${nhomPage.number + 1}">1</span> 
+                            / <span th:text="${nhomPage.totalPages}">1</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Tên Nhóm</th>
+                                    <th width="20%">Điểm Nhóm</th>
+                                    <th width="15%">Số Tin Hữu</th>
+                                    <th width="15%">Trạng Thái</th>
+                                    <th width="15%">Ngày Tạo</th>
+                                    <th width="5%">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${nhomPage.content.empty}">
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        Không có nhóm nào được tìm thấy
+                                    </td>
+                                </tr>
+                                <tr th:each="nhom, iterStat : ${nhomPage.content}" class="align-middle">
+                                    <td>
+                                        <span class="fw-bold text-primary" 
+                                              th:text="${nhomPage.number * nhomPage.size + iterStat.index + 1}">1</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                                <i class="fas fa-users"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0" th:text="${nhom.tenNhom}">Tên Nhóm</h6>
+                                                <small class="text-muted" th:text="${nhom.moTa ?: 'Chưa có mô tả'}">Mô tả</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:if="${nhom.diemNhom}" th:text="${nhom.diemNhom.tenDiemNhom}">Điểm Nhóm</span>
+                                        <span th:unless="${nhom.diemNhom}" class="text-muted">Chưa phân công</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info fs-6" th:text="${nhom.soLuongTinHuu}">0</span>
+                                        <small class="text-muted">tin hữu</small>
+                                    </td>
+                                    <td>
+                                        <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                        </span>
+                                        <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
+                                            <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
+                                        </span>
+                                        <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Đóng cửa
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${nhom.createdAt}" 
+                                              th:text="${#temporals.format(nhom.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                                        <span th:unless="${nhom.createdAt}" class="text-muted">-</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/nhom/view/{id}(id=${nhom.id})}" 
+                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" 
+                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="Xóa nhóm"
+                                                    th:data-id="${nhom.id}"
+                                                    th:data-name="${nhom.tenNhom}"
+                                                    onclick="confirmDelete(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer bg-light border-0" th:if="${nhomPage.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" th:classappend="${nhomPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/nhom(page=${nhomPage.number - 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <li th:each="pageNum : ${#numbers.sequence(0, nhomPage.totalPages - 1)}"
+                                class="page-item" th:classappend="${pageNum == nhomPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/nhom(page=${pageNum}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${nhomPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/nhom(page=${nhomPage.number + 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa nhóm <strong id="deleteName"></strong>?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Các tin hữu trong nhóm này sẽ được chuyển về trạng thái "Chưa phân nhóm".
+                    </div>
+                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Hành động này không thể hoàn tác!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/nhom/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+        
+        // Clear advanced filters
+        function clearAdvancedFilters() {
+            document.querySelector('select[name="trangThai"]').value = '';
+            document.querySelector('select[name="diemNhomId"]').value = '';
+            document.querySelector('input[name="fromDate"]').value = '';
+            document.querySelector('input[name="toDate"]').value = '';
+        }
+    </script>
+    
+    <style>
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
+        }
+        
+        .table th {
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .btn-group .btn {
+            border-radius: 4px !important;
+            margin-right: 2px;
+        }
+        
+        .btn-group .btn:last-child {
+            margin-right: 0;
+        }
+    </style>
+</body>
+</html>

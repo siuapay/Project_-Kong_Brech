@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Tín hữu - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle active">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html" class="active">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <div class="page-hero">
+                <h1><i class="fas fa-users"></i> Danh sách Tín hữu</h1>
+                <p class="lead">Thông tin các thành viên hội thánh HTTL Kông Brech</p>
+            </div>
+
+            <div class="members-content">
+                <!-- Bộ lọc và tìm kiếm -->
+                <div class="filter-section">
+                    <div class="filter-controls">
+                        <select id="group-filter">
+                            <option value="">Tất cả nhóm</option>
+                            <option value="nhom1">Nhóm 1</option>
+                            <option value="nhom2">Nhóm 2</option>
+                            <option value="nhom3">Nhóm 3</option>
+                            <option value="nhom4">Nhóm 4</option>
+                            <option value="nhom5">Nhóm 5</option>
+                        </select>
+                        <select id="age-filter">
+                            <option value="">Tất cả độ tuổi</option>
+                            <option value="tre-em">Trẻ em (0-12)</option>
+                            <option value="thieu-nien">Thiếu niên (13-17)</option>
+                            <option value="thanh-nien">Thanh niên (18-35)</option>
+                            <option value="trung-nien">Trung niên (36-60)</option>
+                            <option value="cao-tuoi">Cao tuổi (60+)</option>
+                        </select>
+                        <input type="text" id="search-member" placeholder="Tìm kiếm tín hữu...">
+                        <button id="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportList()">
+                            <i class="fas fa-download"></i> Xuất danh sách
+                        </button>
+                        <button class="btn btn-success" onclick="addMember()">
+                            <i class="fas fa-plus"></i> Thêm tín hữu
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="overview-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3>245</h3>
+                            <p>Tổng tín hữu</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-home"></i></div>
+                        <div class="stat-info">
+                            <h3>68</h3>
+                            <p>Gia đình</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-child"></i></div>
+                        <div class="stat-info">
+                            <h3>45</h3>
+                            <p>Trẻ em</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                        <div class="stat-info">
+                            <h3>78</h3>
+                            <p>Thanh niên</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách tín hữu -->
+                <div class="members-table-container">
+                    <table class="members-table" id="members-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Họ và tên</th>
+                                <th>Năm sinh</th>
+                                <th>Giới tính</th>
+                                <th>Nhóm</th>
+                                <th>Điện thoại</th>
+                                <th>Địa chỉ</th>
+                                <th>Ghi chú</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-group="nhom1" data-age="trung-nien">
+                                <td>001</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Nguyễn Văn A</span>
+                                    </div>
+                                </td>
+                                <td>1975</td>
+                                <td><span class="gender male">Nam</span></td>
+                                <td><span class="group-tag nhom1">Nhóm 1</span></td>
+                                <td>0123 456 789</td>
+                                <td>123 Đường ABC, Kông Brech</td>
+                                <td>Trưởng gia đình</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(1)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-group="nhom1" data-age="trung-nien">
+                                <td>002</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Trần Thị B</span>
+                                    </div>
+                                </td>
+                                <td>1978</td>
+                                <td><span class="gender female">Nữ</span></td>
+                                <td><span class="group-tag nhom1">Nhóm 1</span></td>
+                                <td>0123 456 790</td>
+                                <td>123 Đường ABC, Kông Brech</td>
+                                <td>Vợ anh A</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(2)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-group="nhom2" data-age="thanh-nien">
+                                <td>003</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Lê Văn C</span>
+                                    </div>
+                                </td>
+                                <td>1995</td>
+                                <td><span class="gender male">Nam</span></td>
+                                <td><span class="group-tag nhom2">Nhóm 2</span></td>
+                                <td>0123 456 791</td>
+                                <td>456 Đường DEF, Kông Brech</td>
+                                <td>Sinh viên</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(3)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-group="nhom2" data-age="thanh-nien">
+                                <td>004</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Phạm Thị D</span>
+                                    </div>
+                                </td>
+                                <td>1992</td>
+                                <td><span class="gender female">Nữ</span></td>
+                                <td><span class="group-tag nhom2">Nhóm 2</span></td>
+                                <td>0123 456 792</td>
+                                <td>789 Đường GHI, Kông Brech</td>
+                                <td>Giáo viên</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(4)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(4)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-group="nhom3" data-age="cao-tuoi">
+                                <td>005</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Hoàng Văn E</span>
+                                    </div>
+                                </td>
+                                <td>1955</td>
+                                <td><span class="gender male">Nam</span></td>
+                                <td><span class="group-tag nhom3">Nhóm 3</span></td>
+                                <td>0123 456 793</td>
+                                <td>321 Đường JKL, Kông Brech</td>
+                                <td>Hưu trí</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(5)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(5)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr data-group="nhom3" data-age="tre-em">
+                                <td>006</td>
+                                <td>
+                                    <div class="member-name">
+                                        <img src="https://via.placeholder.com/40x40" alt="Avatar">
+                                        <span>Nguyễn Thị F</span>
+                                    </div>
+                                </td>
+                                <td>2015</td>
+                                <td><span class="gender female">Nữ</span></td>
+                                <td><span class="group-tag nhom3">Nhóm 3</span></td>
+                                <td>-</td>
+                                <td>654 Đường MNO, Kông Brech</td>
+                                <td>Học sinh</td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editMember(6)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteMember(6)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Phân trang -->
+                <div class="pagination">
+                    <button class="page-btn" onclick="changePage(-1)">
+                        <i class="fas fa-chevron-left"></i> Trước
+                    </button>
+                    <span class="page-info">Trang 1 / 5</span>
+                    <button class="page-btn" onclick="changePage(1)">
+                        Sau <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="tin-huu.html">Tín hữu</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Filter and search functionality
+        document.getElementById('group-filter').addEventListener('change', filterMembers);
+        document.getElementById('age-filter').addEventListener('change', filterMembers);
+        document.getElementById('search-member').addEventListener('input', filterMembers);
+        document.getElementById('search-btn').addEventListener('click', filterMembers);
+
+        function filterMembers() {
+            const groupFilter = document.getElementById('group-filter').value;
+            const ageFilter = document.getElementById('age-filter').value;
+            const searchTerm = document.getElementById('search-member').value.toLowerCase();
+            const rows = document.querySelectorAll('#members-table tbody tr');
+
+            rows.forEach(row => {
+                const group = row.dataset.group;
+                const age = row.dataset.age;
+                const name = row.querySelector('.member-name span').textContent.toLowerCase();
+
+                const matchesGroup = !groupFilter || group === groupFilter;
+                const matchesAge = !ageFilter || age === ageFilter;
+                const matchesSearch = !searchTerm || name.includes(searchTerm);
+
+                if (matchesGroup && matchesAge && matchesSearch) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function editMember(id) {
+            alert(`Chỉnh sửa thông tin tín hữu ID: ${id}`);
+        }
+
+        function deleteMember(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa tín hữu này?')) {
+                alert(`Đã xóa tín hữu ID: ${id}`);
+            }
+        }
+
+        function addMember() {
+            alert('Mở form thêm tín hữu mới');
+        }
+
+        function exportList() {
+            alert('Xuất danh sách tín hữu ra file Excel');
+        }
+
+        function changePage(direction) {
+            alert(`Chuyển trang ${direction > 0 ? 'sau' : 'trước'}`);
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>

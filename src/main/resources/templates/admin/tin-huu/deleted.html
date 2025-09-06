@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="text-danger">
+              <i class="fas fa-trash me-2"></i>Thùng Rác - Tin Hữu Đã Xóa
+            </h2>
+            <p class="text-muted mb-0">Quản lý tin hữu đã bị xóa mềm</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a th:href="@{/admin/tin-huu}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh Sách
+            </a>
+          </div>
+        </div>
+
+        <!-- Search & Stats -->
+        <div class="row mb-4">
+          <div class="col-md-8">
+            <form
+              th:action="@{/admin/tin-huu/deleted}"
+              method="get"
+              class="d-flex"
+            >
+              <input
+                type="text"
+                name="search"
+                th:value="${search}"
+                class="form-control me-2"
+                placeholder="Tìm kiếm tin hữu đã xóa..."
+              />
+              <button type="submit" class="btn btn-outline-primary">
+                <i class="fas fa-search"></i>
+              </button>
+            </form>
+          </div>
+          <div class="col-md-4 text-end">
+            <div class="badge bg-danger fs-6 px-3 py-2">
+              <i class="fas fa-trash me-1"></i>
+              <span th:text="${tinHuuPage.totalElements}">0</span> tin hữu đã
+              xóa
+            </div>
+          </div>
+        </div>
+
+        <!-- Deleted Tin Huu Table -->
+        <div class="card shadow border-0">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-list me-2"></i>Danh Sách Tin Hữu Đã Xóa
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            <div
+              th:if="${tinHuuPage.content.size() == 0}"
+              class="text-center py-5"
+            >
+              <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+              <h5 class="text-muted">Thùng rác trống</h5>
+              <p class="text-muted">Không có tin hữu nào bị xóa.</p>
+            </div>
+
+            <div
+              th:if="${tinHuuPage.content.size() > 0}"
+              class="table-responsive"
+            >
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>ID</th>
+                    <th>Tin Hữu</th>
+                    <th>Năm Sinh</th>
+                    <th>Giới Tính</th>
+                    <th>Điện Thoại</th>
+                    <th>Ngày Xóa</th>
+                    <th class="text-center">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    th:each="tinHuu : ${tinHuuPage.content}"
+                    class="table-danger"
+                  >
+                    <td
+                      class="ps-3 fw-bold text-danger"
+                      th:text="${tinHuu.id}"
+                    ></td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="me-2">
+                          <img
+                            th:src="${tinHuu.avatarUrl != null ? tinHuu.avatarUrl : '/images/default-avatar.svg'}"
+                            alt="Avatar"
+                            class="rounded-circle border opacity-50"
+                            style="width: 40px; height: 40px; object-fit: cover"
+                          />
+                        </div>
+                        <div>
+                          <div
+                            class="fw-semibold text-decoration-line-through"
+                            th:text="${tinHuu.hoTen}"
+                          ></div>
+                          <small
+                            class="text-muted"
+                            th:text="${tinHuu.ngheNghiep}"
+                          ></small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span
+                        th:if="${tinHuu.namSinh}"
+                        th:text="${tinHuu.namSinh}"
+                      ></span>
+                      <span th:unless="${tinHuu.namSinh}" class="text-muted"
+                        >Chưa cập nhật</span
+                      >
+                    </td>
+                    <td>
+                      <span
+                        th:if="${tinHuu.gioiTinh == 'Nam'}"
+                        class="badge bg-secondary"
+                        >Nam</span
+                      >
+                      <span
+                        th:if="${tinHuu.gioiTinh == 'Nữ'}"
+                        class="badge bg-secondary"
+                        >Nữ</span
+                      >
+                      <span th:unless="${tinHuu.gioiTinh}" class="text-muted"
+                        >-</span
+                      >
+                    </td>
+                    <td>
+                      <span
+                        th:if="${tinHuu.dienThoai}"
+                        th:text="${tinHuu.dienThoai}"
+                      ></span>
+                      <span th:unless="${tinHuu.dienThoai}" class="text-muted"
+                        >Chưa có</span
+                      >
+                    </td>
+                    <td>
+                      <span
+                        th:if="${tinHuu.deletedAt}"
+                        th:text="${#temporals.format(tinHuu.deletedAt, 'dd/MM/yyyy HH:mm')}"
+                        class="text-danger fw-bold"
+                      ></span>
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group" role="group">
+                        <!-- Restore Button -->
+                        <form
+                          th:action="@{/admin/tin-huu/restore/{id}(id=${tinHuu.id})}"
+                          method="post"
+                          class="d-inline"
+                        >
+                          <button
+                            type="submit"
+                            class="btn btn-sm btn-success"
+                            title="Khôi phục"
+                            onclick="return confirm('Bạn có chắc muốn khôi phục tin hữu này?')"
+                          >
+                            <i class="fas fa-undo"></i>
+                          </button>
+                        </form>
+
+                        <!-- Hard Delete Button -->
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-danger"
+                          title="Xóa vĩnh viễn"
+                          th:data-id="${tinHuu.id}"
+                          th:data-name="${tinHuu.hoTen}"
+                          onclick="confirmHardDelete(this.dataset.id, this.dataset.name)"
+                        >
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div
+          th:if="${tinHuuPage.totalPages > 1}"
+          class="d-flex justify-content-center mt-4"
+        >
+          <nav>
+            <ul class="pagination">
+              <li
+                class="page-item"
+                th:classappend="${tinHuuPage.first} ? 'disabled'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/tin-huu/deleted(page=${tinHuuPage.number - 1}, search=${search})}"
+                >
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+
+              <li
+                th:each="pageNum : ${#numbers.sequence(0, tinHuuPage.totalPages - 1)}"
+                class="page-item"
+                th:classappend="${pageNum == tinHuuPage.number} ? 'active'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/tin-huu/deleted(page=${pageNum}, search=${search})}"
+                  th:text="${pageNum + 1}"
+                  >1</a
+                >
+              </li>
+
+              <li
+                class="page-item"
+                th:classappend="${tinHuuPage.last} ? 'disabled'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/tin-huu/deleted(page=${tinHuuPage.number + 1}, search=${search})}"
+                >
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </main>
+
+    <!-- Hard Delete Confirmation Modal -->
+    <div class="modal fade" id="hardDeleteModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+              <i class="fas fa-exclamation-triangle me-2"></i>Xác Nhận Xóa Vĩnh
+              Viễn
+            </h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger">
+              <i class="fas fa-warning me-2"></i>
+              <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+            </div>
+            <p>
+              Bạn có chắc chắn muốn xóa vĩnh viễn tin hữu
+              <strong id="deleteName"></strong>?
+            </p>
+            <p class="text-muted">
+              Tất cả dữ liệu liên quan sẽ bị xóa hoàn toàn khỏi hệ thống.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-2"></i>Hủy
+            </button>
+            <form id="hardDeleteForm" method="post" class="d-inline">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt me-2"></i>Xóa Vĩnh Viễn
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+      function confirmHardDelete(id, name) {
+        document.getElementById("deleteName").textContent = name;
+        document.getElementById("hardDeleteForm").action =
+          "/admin/tin-huu/hard-delete/" + id;
+        new bootstrap.Modal(document.getElementById("hardDeleteModal")).show();
+      }
+    </script>
+  </body>
+</html>

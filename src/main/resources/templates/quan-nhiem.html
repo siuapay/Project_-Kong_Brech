@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản nhiệm hội thánh - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle active">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html" class="active">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <div class="page-hero">
+                <h1><i class="fas fa-tasks"></i> Quản nhiệm hội thánh</h1>
+                <p class="lead">Hệ thống quản lý và theo dõi các hoạt động của hội thánh</p>
+                
+                <!-- Search and Quick Tools -->
+                <div class="management-tools">
+                    <div class="search-container">
+                        <input type="text" id="dashboardSearch" placeholder="Tìm kiếm tín hữu, sự kiện..." class="search-input">
+                        <button onclick="performSearch()" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                    <div class="quick-tools">
+                        <button onclick="exportAllData()" class="tool-btn" title="Xuất tất cả dữ liệu">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button onclick="printDashboard()" class="tool-btn" title="In báo cáo">
+                            <i class="fas fa-print"></i>
+                        </button>
+                        <button onclick="refreshDashboard()" class="tool-btn" title="Làm mới">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                        <button onclick="openSettings()" class="tool-btn" title="Cài đặt">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="management-content">
+                <!-- Dashboard Overview -->
+                <section class="dashboard-overview">
+                    <h2><i class="fas fa-chart-line"></i> Tổng quan hoạt động</h2>
+                    <div class="overview-cards">
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>245</h3>
+                                <p>Tổng tín hữu</p>
+                                <span class="trend up">+5 tháng này</span>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>12</h3>
+                                <p>Sự kiện tháng này</p>
+                                <span class="trend neutral">Theo kế hoạch</span>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-donate"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>85M</h3>
+                                <p>Dâng hiến tháng này</p>
+                                <span class="trend up">+12% so với tháng trước</span>
+                            </div>
+                        </div>
+                        <div class="overview-card">
+                            <div class="card-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>5</h3>
+                                <p>Điểm nhóm</p>
+                                <span class="trend up">+1 điểm mới</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="quick-actions">
+                    <h2><i class="fas fa-bolt"></i> Thao tác nhanh</h2>
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="openModal('add-member')">
+                            <i class="fas fa-user-plus"></i>
+                            <h4>Thêm tín hữu mới</h4>
+                            <p>Đăng ký thành viên mới cho hội thánh</p>
+                        </div>
+                        <div class="action-card" onclick="openModal('schedule-event')">
+                            <i class="fas fa-calendar-plus"></i>
+                            <h4>Lên lịch sự kiện</h4>
+                            <p>Tạo sự kiện hoặc hoạt động mới</p>
+                        </div>
+                        <div class="action-card" onclick="openModal('financial-report')">
+                            <i class="fas fa-chart-bar"></i>
+                            <h4>Báo cáo tài chính</h4>
+                            <p>Xem và tạo báo cáo tài chính</p>
+                        </div>
+                        <div class="action-card" onclick="openModal('send-notification')">
+                            <i class="fas fa-bell"></i>
+                            <h4>Gửi thông báo</h4>
+                            <p>Thông báo đến tín hữu và nhân sự</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Activities -->
+                <section class="recent-activities">
+                    <h2><i class="fas fa-history"></i> Hoạt động gần đây</h2>
+                    <div class="activities-container">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Tín hữu mới gia nhập</h4>
+                                <p>Anh Nguyễn Văn X đã gia nhập hội thánh</p>
+                                <span class="activity-time">2 giờ trước</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Sự kiện được tạo</h4>
+                                <p>Chương trình Giáng sinh 2024 đã được lên lịch</p>
+                                <span class="activity-time">1 ngày trước</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Dâng hiến được ghi nhận</h4>
+                                <p>Dâng hiến Chúa nhật: 15,500,000 VNĐ</p>
+                                <span class="activity-time">3 ngày trước</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            <div class="activity-content">
+                                <h4>Họp Ban Chấp sự</h4>
+                                <p>Họp định kỳ tháng 1/2025 đã hoàn thành</p>
+                                <span class="activity-time">1 tuần trước</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Management Modules -->
+                <section class="management-modules">
+                    <h2><i class="fas fa-th-large"></i> Các module quản lý</h2>
+                    <div class="modules-grid">
+                        <!-- Quản lý tín hữu -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-users"></i>
+                                <h3>Quản lý tín hữu</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">245</span>
+                                        <span class="label">Tổng tín hữu</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">68</span>
+                                        <span class="label">Gia đình</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <a href="tin-huu.html" class="module-btn">Xem danh sách</a>
+                                    <button class="module-btn secondary" onclick="exportMembers()">Xuất Excel</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quản lý tài chính -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-coins"></i>
+                                <h3>Quản lý tài chính</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">85M</span>
+                                        <span class="label">Thu tháng này</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">72M</span>
+                                        <span class="label">Chi tháng này</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <button class="module-btn" onclick="openFinancialReport()">Báo cáo</button>
+                                    <button class="module-btn secondary" onclick="addTransaction()">Ghi thu chi</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quản lý sự kiện -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>Quản lý sự kiện</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">12</span>
+                                        <span class="label">Sự kiện tháng này</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">3</span>
+                                        <span class="label">Sắp diễn ra</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <button class="module-btn" onclick="viewCalendar()">Xem lịch</button>
+                                    <button class="module-btn secondary" onclick="createEvent()">Tạo sự kiện</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quản lý điểm nhóm -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-map-marked-alt"></i>
+                                <h3>Quản lý điểm nhóm</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">5</span>
+                                        <span class="label">Điểm nhóm</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">10</span>
+                                        <span class="label">Nhân sự phụ trách</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <a href="nhan-su-diem-nhom.html" class="module-btn">Xem chi tiết</a>
+                                    <button class="module-btn secondary" onclick="addLocation()">Thêm điểm</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Báo cáo thống kê -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>Báo cáo thống kê</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">95%</span>
+                                        <span class="label">Tham dự lễ thờ phượng</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">78%</span>
+                                        <span class="label">Tham gia nhóm</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <button class="module-btn" onclick="viewReports()">Xem báo cáo</button>
+                                    <button class="module-btn secondary" onclick="generateReport()">Tạo báo cáo</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thông báo -->
+                        <div class="module-card">
+                            <div class="module-header">
+                                <i class="fas fa-bullhorn"></i>
+                                <h3>Hệ thống thông báo</h3>
+                            </div>
+                            <div class="module-content">
+                                <div class="module-stats">
+                                    <div class="stat">
+                                        <span class="number">156</span>
+                                        <span class="label">Thông báo đã gửi</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="number">89%</span>
+                                        <span class="label">Tỷ lệ đọc</span>
+                                    </div>
+                                </div>
+                                <div class="module-actions">
+                                    <button class="module-btn" onclick="viewNotifications()">Xem thông báo</button>
+                                    <button class="module-btn secondary" onclick="sendNotification()">Gửi thông báo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Upcoming Events -->
+                <section class="upcoming-events">
+                    <h2><i class="fas fa-calendar-week"></i> Sự kiện sắp tới</h2>
+                    <div class="events-timeline">
+                        <div class="event-item">
+                            <div class="event-date">
+                                <span class="day">15</span>
+                                <span class="month">Th1</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Lễ thờ phượng Chúa nhật</h4>
+                                <p><i class="fas fa-clock"></i> 8:00 - 10:30</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Hội thánh chính</p>
+                                <span class="event-type worship">Thờ phượng</span>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">
+                                <span class="day">18</span>
+                                <span class="month">Th1</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Họp Ban Thanh niên</h4>
+                                <p><i class="fas fa-clock"></i> 19:00 - 21:00</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Phòng họp</p>
+                                <span class="event-type meeting">Họp</span>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">
+                                <span class="day">22</span>
+                                <span class="month">Th1</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Chương trình từ thiện</h4>
+                                <p><i class="fas fa-clock"></i> 14:00 - 17:00</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Thôn Ea Súp</p>
+                                <span class="event-type charity">Từ thiện</span>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-date">
+                                <span class="day">25</span>
+                                <span class="month">Th1</span>
+                            </div>
+                            <div class="event-content">
+                                <h4>Sinh nhật hội thánh</h4>
+                                <p><i class="fas fa-clock"></i> 18:00 - 21:00</p>
+                                <p><i class="fas fa-map-marker-alt"></i> Sân hội thánh</p>
+                                <span class="event-type celebration">Kỷ niệm</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="quan-nhiem.html">Quản nhiệm</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Tổ chức</h3>
+                <ul>
+                    <li><a href="chap-su.html">Chấp sự</a></li>
+                    <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                    <li><a href="nhan-su.html">Nhân sự</a></li>
+                    <li><a href="tin-huu.html">Tín hữu</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="quan-nhiem.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

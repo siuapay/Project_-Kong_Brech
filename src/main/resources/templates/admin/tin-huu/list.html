@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary"><i class="fas fa-users me-2"></i>Quản Lý Tin Hữu</h2>
+                    <p class="text-muted mb-0">Quản lý thông tin các tin hữu trong chi hội</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/tin-huu/deleted}" class="btn btn-outline-danger">
+                        <i class="fas fa-trash me-2"></i>Thùng Rác
+                    </a>
+                    <a th:href="@{/admin/tin-huu/new}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Thêm Tin Hữu
+                    </a>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc</h6>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#advancedFilters" aria-expanded="false">
+                            <i class="fas fa-cog me-1"></i>Bộ lọc nâng cao
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/tin-huu}" method="get" id="filterForm">
+                        <!-- Basic Search -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-8">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" class="form-control" name="search" th:value="${search}" 
+                                           placeholder="Tìm kiếm theo tên, email, điện thoại...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                                    </button>
+                                    <a th:href="@{/admin/tin-huu}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Advanced Filters -->
+                        <div class="collapse" id="advancedFilters">
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Trạng Thái</label>
+                                    <select class="form-select" name="trangThai">
+                                        <option value="">Tất cả trạng thái</option>
+                                        <option value="HOAT_DONG" th:selected="${trangThai == 'HOAT_DONG'}">Hoạt động</option>
+                                        <option value="TAM_NGHI" th:selected="${trangThai == 'TAM_NGHI'}">Tạm nghỉ</option>
+                                        <option value="CHUYEN_DI" th:selected="${trangThai == 'CHUYEN_DI'}">Chuyển đi</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Điểm Nhóm</label>
+                                    <select class="form-select" name="diemNhomId" id="diemNhomSelect">
+                                        <option value="">Tất cả điểm nhóm</option>
+                                        <option th:each="diemNhom : ${diemNhomList}" 
+                                                th:value="${diemNhom.id}" 
+                                                th:text="${diemNhom.tenDiemNhom}"
+                                                th:selected="${diemNhomId != null && diemNhomId == diemNhom.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Nhóm</label>
+                                    <select class="form-select" name="nhomId" id="nhomSelect">
+                                        <option value="">Tất cả nhóm</option>
+                                        <option th:each="nhom : ${nhomList}" 
+                                                th:value="${nhom.id}" 
+                                                th:text="${nhom.tenNhom}"
+                                                th:selected="${nhomId != null && nhomId == nhom.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Ngày Báo Tin</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="date" class="form-control" name="fromDate" th:value="${fromDate}" 
+                                               placeholder="Từ ngày">
+                                        <span class="input-group-text">đến</span>
+                                        <input type="date" class="form-control" name="toDate" th:value="${toDate}" 
+                                               placeholder="Đến ngày">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fas fa-filter me-1"></i>Áp dụng bộ lọc
+                                        </button>
+                                        <button type="button" class="btn btn-outline-warning" onclick="clearAdvancedFilters()">
+                                            <i class="fas fa-eraser me-1"></i>Xóa bộ lọc nâng cao
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list me-2"></i>Danh Sách Tin Hữu
+                                <span class="badge bg-primary ms-2" th:text="${tinHuuPage.totalElements}">0</span>
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <small class="text-muted">
+                                Trang <span th:text="${tinHuuPage.number + 1}">1</span> 
+                                / <span th:text="${tinHuuPage.totalPages}">1</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3">ID</th>
+                                    <th>Họ Tên</th>
+                                    <th>Nhóm</th>
+                                    <th>Ngày Sinh</th>
+                                    <th>Giới Tính</th>
+                                    <th>Điện Thoại</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Ngày Tạo</th>
+                                    <th class="text-center">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="tinHuu : ${tinHuuPage.content}">
+                                    <td class="ps-3 fw-bold text-primary" th:text="${tinHuu.id}"></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-2">
+                                                <img 
+                                                    th:src="${tinHuu.avatarUrl != null ? tinHuu.avatarUrl : '/static/images/default-avatar.svg'}"
+                                                    alt="Avatar"
+                                                    class="rounded-circle border"
+                                                    style="width: 40px; height: 40px; object-fit: cover;"
+                                                />
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold" th:text="${tinHuu.hoTen}"></div>
+                                                <small class="text-muted" th:text="${tinHuu.ngheNghiep}"></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div th:if="${tinHuu.nhom}">
+                                            <div class="fw-semibold text-primary" th:text="${tinHuu.nhom.tenNhom}"></div>
+                                            <small class="text-muted" th:if="${tinHuu.nhom.diemNhom}" 
+                                                   th:text="${tinHuu.nhom.diemNhom.tenDiemNhom}"></small>
+                                        </div>
+                                        <span th:unless="${tinHuu.nhom}" class="text-muted">Chưa phân nhóm</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${tinHuu.namSinh}" th:text="${tinHuu.namSinh}"></span>
+                                        <span th:unless="${tinHuu.namSinh}" class="text-muted">Chưa cập nhật</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${tinHuu.gioiTinh == 'Nam'}" class="badge bg-info">Nam</span>
+                                        <span th:if="${tinHuu.gioiTinh == 'Nữ'}" class="badge bg-pink">Nữ</span>
+                                        <span th:unless="${tinHuu.gioiTinh}" class="text-muted">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${tinHuu.dienThoai}" th:text="${tinHuu.dienThoai}"></span>
+                                        <span th:unless="${tinHuu.dienThoai}" class="text-muted">Chưa có</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${tinHuu.trangThai == 'HOAT_DONG'}" class="badge bg-success">Hoạt động</span>
+                                        <span th:if="${tinHuu.trangThai == 'TAM_NGHI'}" class="badge bg-warning">Tạm nghỉ</span>
+                                        <span th:if="${tinHuu.trangThai == 'CHUYEN_DI'}" class="badge bg-secondary">Chuyển đi</span>
+                                        <span th:unless="${tinHuu.trangThai}" class="badge bg-success">Hoạt động</span>
+                                    </td>
+                                    <td>
+                                        <div th:if="${tinHuu.createdAt}">
+                                            <div th:text="${#temporals.format(tinHuu.createdAt, 'dd/MM/yyyy')}"></div>
+                                            <small class="text-muted" th:text="${#temporals.format(tinHuu.createdAt, 'HH:mm')}"></small>
+                                        </div>
+                                        <span th:unless="${tinHuu.createdAt}" class="text-muted">Chưa có</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/tin-huu/view/{id}(id=${tinHuu.id})}" 
+                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/tin-huu/edit/{id}(id=${tinHuu.id})}" 
+                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="Chuyển vào thùng rác"
+                                                    th:data-id="${tinHuu.id}"
+                                                    th:data-name="${tinHuu.hoTen}"
+                                                    onclick="showDeleteModal(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(tinHuuPage.content)}">
+                                    <td colspan="8" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <i class="fas fa-users fa-3x mb-3"></i>
+                                            <h5>Không có dữ liệu</h5>
+                                            <p>Chưa có tin hữu nào được thêm vào hệ thống.</p>
+                                            <a th:href="@{/admin/tin-huu/new}" class="btn btn-primary">
+                                                <i class="fas fa-plus me-2"></i>Thêm Tin Hữu Đầu Tiên
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${tinHuuPage.totalPages > 1}">
+                    <nav aria-label="Pagination">
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" th:classappend="${tinHuuPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number - 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                    <i class="fas fa-chevron-left"></i> Trước
+                                </a>
+                            </li>
+                            
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, tinHuuPage.totalPages - 1)}"
+                                th:if="${i >= tinHuuPage.number - 2 && i <= tinHuuPage.number + 2}"
+                                th:classappend="${i == tinHuuPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${i}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}" 
+                                   th:text="${i + 1}"></a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${tinHuuPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number + 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                    Sau <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Soft Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title">
+                        <i class="fas fa-trash me-2"></i>Xác Nhận Chuyển Vào Thùng Rác
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Tin hữu sẽ được chuyển vào thùng rác và có thể khôi phục sau này.
+                    </div>
+                    <p>Bạn có chắc chắn muốn chuyển tin hữu <strong id="deleteName"></strong> vào thùng rác?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-trash me-2"></i>Chuyển Vào Thùng Rác
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmSoftDelete(id, name) {
+            console.log('confirmSoftDelete called with id:', id, 'name:', name);
+            
+            // Simple confirm dialog as fallback
+            if (confirm('Bạn có chắc chắn muốn chuyển tin hữu "' + name + '" vào thùng rác?\n\nTin hữu sẽ có thể được khôi phục sau này.')) {
+                // Create and submit form
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/tin-huu/delete/' + id;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        
+        // Alternative modal function
+        function showDeleteModal(id, name) {
+            const deleteNameElement = document.getElementById('deleteName');
+            const deleteFormElement = document.getElementById('deleteForm');
+            const deleteModalElement = document.getElementById('deleteModal');
+            
+            if (deleteNameElement) {
+                deleteNameElement.textContent = name;
+            }
+            
+            if (deleteFormElement) {
+                deleteFormElement.action = '/admin/tin-huu/delete/' + id;
+            }
+            
+            if (deleteModalElement) {
+                // Try Bootstrap modal first
+                try {
+                    if (typeof bootstrap !== 'undefined') {
+                        new bootstrap.Modal(deleteModalElement).show();
+                    } else {
+                        // Fallback to jQuery if available
+                        if (typeof $ !== 'undefined') {
+                            $(deleteModalElement).modal('show');
+                        } else {
+                            // Last resort: use confirm
+                            confirmSoftDelete(id, name);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Modal error:', error);
+                    confirmSoftDelete(id, name);
+                }
+            }
+        }
+        
+        // Clear advanced filters
+        function clearAdvancedFilters() {
+            document.querySelector('select[name="trangThai"]').value = '';
+            document.querySelector('select[name="diemNhomId"]').value = '';
+            document.querySelector('select[name="nhomId"]').value = '';
+            document.querySelector('input[name="fromDate"]').value = '';
+            document.querySelector('input[name="toDate"]').value = '';
+        }
+        
+        // Filter nhóm based on điểm nhóm selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const diemNhomSelect = document.getElementById('diemNhomSelect');
+            const nhomSelect = document.getElementById('nhomSelect');
+            const originalNhomOptions = Array.from(nhomSelect.options);
+            
+            if (diemNhomSelect && nhomSelect) {
+                diemNhomSelect.addEventListener('change', function() {
+                    const selectedDiemNhomId = this.value;
+                    
+                    // Clear current options except the first one
+                    nhomSelect.innerHTML = '<option value="">Tất cả nhóm</option>';
+                    
+                    if (selectedDiemNhomId) {
+                        // Filter nhóm options based on selected điểm nhóm
+                        // Note: This requires additional data attribute on nhom options
+                        // For now, we'll show all nhóm
+                        originalNhomOptions.slice(1).forEach(option => {
+                            nhomSelect.appendChild(option.cloneNode(true));
+                        });
+                    } else {
+                        // Show all nhóm
+                        originalNhomOptions.slice(1).forEach(option => {
+                            nhomSelect.appendChild(option.cloneNode(true));
+                        });
+                    }
+                });
+            }
+            
+            console.log('Page loaded, Bootstrap available:', typeof bootstrap !== 'undefined');
+            console.log('jQuery available:', typeof $ !== 'undefined');
+        });
+    </script>
+    
+    <style>
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+        .bg-pink {
+            background-color: #e91e63 !important;
+        }
+    </style>
+</body>
+</html>

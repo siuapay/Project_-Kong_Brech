@@ -1,0 +1,146 @@
+package com.branch.demo.domain;
+
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "diem_nhom")
+public class DiemNhom {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(name = "ten_diem_nhom", nullable = false, length = 255)
+    private String tenDiemNhom;
+    
+    @Column(name = "dia_chi", length = 500)
+    private String diaChi;
+    
+    @Column(name = "mo_ta", length = 1000)
+    private String moTa;
+    
+    @Column(name = "thoi_gian_sinh_hoat", length = 255)
+    private String thoiGianSinhHoat;
+    
+    @Column(name = "gio_sinh_hoat")
+    private LocalTime gioSinhHoat;
+    
+    @Column(name = "thu_sinh_hoat")
+    private Integer thuSinhHoat; // 1=CN, 2=T2, ..., 7=T7
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ban_nganh_id")
+    private BanNganh banNganh;
+    
+    @OneToMany(mappedBy = "diemNhom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Nhom> danhSachNhom = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "diemNhom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<NhanSuDiemNhom> danhSachNhanSu = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "diemNhom", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<NhanSu> danhSachNhanSuTrucTiep = new ArrayList<>();
+    
+    @Column(name = "trang_thai")
+    @Enumerated(EnumType.STRING)
+    private TrangThaiDiemNhom trangThai = TrangThaiDiemNhom.HOAT_DONG;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
+    // Constructors
+    public DiemNhom() {}
+    
+    public DiemNhom(String tenDiemNhom, String diaChi) {
+        this.tenDiemNhom = tenDiemNhom;
+        this.diaChi = diaChi;
+    }
+    
+    // Getters and Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public String getTenDiemNhom() { return tenDiemNhom; }
+    public void setTenDiemNhom(String tenDiemNhom) { this.tenDiemNhom = tenDiemNhom; }
+    
+    public String getDiaChi() { return diaChi; }
+    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
+    
+    public String getMoTa() { return moTa; }
+    public void setMoTa(String moTa) { this.moTa = moTa; }
+    
+    public String getThoiGianSinhHoat() { return thoiGianSinhHoat; }
+    public void setThoiGianSinhHoat(String thoiGianSinhHoat) { this.thoiGianSinhHoat = thoiGianSinhHoat; }
+    
+    public LocalTime getGioSinhHoat() { return gioSinhHoat; }
+    public void setGioSinhHoat(LocalTime gioSinhHoat) { this.gioSinhHoat = gioSinhHoat; }
+    
+    public Integer getThuSinhHoat() { return thuSinhHoat; }
+    public void setThuSinhHoat(Integer thuSinhHoat) { this.thuSinhHoat = thuSinhHoat; }
+    
+    public BanNganh getBanNganh() { return banNganh; }
+    public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }
+    
+    public List<Nhom> getDanhSachNhom() { return danhSachNhom; }
+    public void setDanhSachNhom(List<Nhom> danhSachNhom) { this.danhSachNhom = danhSachNhom; }
+    
+    public List<NhanSuDiemNhom> getDanhSachNhanSu() { return danhSachNhanSu; }
+    public void setDanhSachNhanSu(List<NhanSuDiemNhom> danhSachNhanSu) { this.danhSachNhanSu = danhSachNhanSu; }
+    
+    public List<NhanSu> getDanhSachNhanSuTrucTiep() { return danhSachNhanSuTrucTiep; }
+    public void setDanhSachNhanSuTrucTiep(List<NhanSu> danhSachNhanSuTrucTiep) { this.danhSachNhanSuTrucTiep = danhSachNhanSuTrucTiep; }
+    
+    public TrangThaiDiemNhom getTrangThai() { return trangThai; }
+    public void setTrangThai(TrangThaiDiemNhom trangThai) { this.trangThai = trangThai; }
+    
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    // Helper methods
+    public void addNhom(Nhom nhom) {
+        danhSachNhom.add(nhom);
+        nhom.setDiemNhom(this);
+    }
+    
+    public void removeNhom(Nhom nhom) {
+        danhSachNhom.remove(nhom);
+        nhom.setDiemNhom(null);
+    }
+    
+    public int getTongSoTinHuu() {
+        return danhSachNhom.stream()
+                .mapToInt(Nhom::getSoLuongTinHuu)
+                .sum();
+    }
+    
+    // Enums
+    public enum TrangThaiDiemNhom {
+        HOAT_DONG, CHUAN_BI, TAM_NGHI, DONG_CUA
+    }
+}

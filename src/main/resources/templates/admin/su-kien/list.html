@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/admin-layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
+    
+    <div class="main-content">
+        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
+        
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div th:replace="~{fragments/admin-layout :: messages}"></div>
+                
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-primary py-4">
+                            <i class="fas fa-calendar-alt me-2"></i>Quản Lý Sự Kiện
+                        </h2>
+                        <p class="text-muted mb-0">Quản lý thông tin các sự kiện trong chi hội</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/admin/su-kien/deleted}" class="btn btn-outline-danger">
+                            <i class="fas fa-trash me-2"></i>Thùng Rác
+                        </a>
+                        <a th:href="@{/admin/su-kien/new}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm Sự Kiện Mới
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc
+                        </h6>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-success" onclick="exportData()" title="Xuất dữ liệu">
+                                <i class="fas fa-download me-1"></i>Xuất Excel
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" 
+                                    data-bs-toggle="collapse" data-bs-target="#advancedFilters" 
+                                    aria-expanded="false" aria-controls="advancedFilters">
+                                <i class="fas fa-cog me-1"></i>Bộ lọc nâng cao
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/su-kien}" method="get" id="filterForm">
+                            <!-- Basic Search -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" name="search" th:value="${search}" 
+                                               placeholder="Tìm kiếm theo tên sự kiện, mô tả, địa điểm...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a th:href="@{/admin/su-kien}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Filters -->
+                            <div class="row mb-3">
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span class="text-muted small me-2">Lọc nhanh:</span>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                onclick="quickFilter('trangThai', 'DANG_CHUAN_BI')">
+                                            🟡 Đang chuẩn bị
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-success" 
+                                                onclick="quickFilter('trangThai', 'DANG_DIEN_RA')">
+                                            🟢 Đang diễn ra
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                onclick="quickFilter('trangThai', 'DA_KET_THUC')">
+                                            ⚫ Đã kết thúc
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="quickFilter('trangThai', 'DA_HUY')">
+                                            🔴 Đã hủy
+                                        </button>
+                                        <div class="vr"></div>
+                                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                                onclick="setDateFilter('today')">
+                                            Hôm nay
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                                onclick="setDateFilter('thisWeek')">
+                                            Tuần này
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                                onclick="setDateFilter('thisMonth')">
+                                            Tháng này
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Filters -->
+                            <div class="collapse" id="advancedFilters">
+                                <hr>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-tag me-1"></i>Loại Sự Kiện
+                                        </label>
+                                        <select class="form-select" name="loaiSuKienId">
+                                            <option value="">-- Chọn loại sự kiện --</option>
+                                            <option th:each="loai : ${loaiSuKienList}" 
+                                                    th:value="${loai.id}" 
+                                                    th:text="${loai.tenLoai}"
+                                                    th:selected="${loaiSuKienId != null && loaiSuKienId.toString() == loai.id.toString()}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-info-circle me-1"></i>Trạng Thái
+                                        </label>
+                                        <select class="form-select" name="trangThai">
+                                            <option value="">-- Chọn trạng thái --</option>
+                                            <option value="DANG_CHUAN_BI" th:selected="${trangThai == 'DANG_CHUAN_BI'}">
+                                                🟡 Đang chuẩn bị
+                                            </option>
+                                            <option value="DANG_DIEN_RA" th:selected="${trangThai == 'DANG_DIEN_RA'}">
+                                                🟢 Đang diễn ra
+                                            </option>
+                                            <option value="DA_KET_THUC" th:selected="${trangThai == 'DA_KET_THUC'}">
+                                                ⚫ Đã kết thúc
+                                            </option>
+                                            <option value="DA_HUY" th:selected="${trangThai == 'DA_HUY'}">
+                                                🔴 Đã hủy
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-sort-amount-down me-1"></i>Sắp xếp theo
+                                        </label>
+                                        <select class="form-select" name="sortBy">
+                                            <option value="createdAt" th:selected="${sortBy == 'createdAt'}">Ngày tạo (mới nhất)</option>
+                                            <option value="ngayDienRa" th:selected="${sortBy == 'ngayDienRa'}">Ngày diễn ra</option>
+                                            <option value="tenSuKien" th:selected="${sortBy == 'tenSuKien'}">Tên sự kiện</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label">
+                                            <i class="fas fa-calendar-alt me-1"></i>Thời Gian Diễn Ra
+                                        </label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">Từ</span>
+                                            <input type="date" class="form-control" name="fromDate" th:value="${fromDate}">
+                                            <span class="input-group-text">đến</span>
+                                            <input type="date" class="form-control" name="toDate" th:value="${toDate}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">
+                                            <i class="fas fa-list-ol me-1"></i>Số lượng hiển thị
+                                        </label>
+                                        <select class="form-select" name="size">
+                                            <option value="10" th:selected="${size == 10}">10 sự kiện/trang</option>
+                                            <option value="20" th:selected="${size == 20}">20 sự kiện/trang</option>
+                                            <option value="50" th:selected="${size == 50}">50 sự kiện/trang</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-filter me-1"></i>Áp dụng bộ lọc
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning" onclick="clearAdvancedFilters()">
+                                                <i class="fas fa-eraser me-1"></i>Xóa bộ lọc nâng cao
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Events List -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Danh Sách Sự Kiện
+                            <span class="badge bg-secondary ms-2" th:text="${suKienPage.totalElements}">0</span>
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${suKienPage.content.empty}" class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Không có sự kiện nào</h5>
+                            <p class="text-muted">Hãy thêm sự kiện đầu tiên của bạn!</p>
+                            <a th:href="@{/admin/su-kien/new}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Thêm Sự Kiện
+                            </a>
+                        </div>
+                        
+                        <div th:unless="${suKienPage.content.empty}" class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Hình Ảnh</th>
+                                        <th>Tên Sự Kiện</th>
+                                        <th>Loại</th>
+                                        <th>Ngày Diễn Ra</th>
+                                        <th>Địa Điểm</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Ngày Tạo</th>
+                                        <th class="text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="suKien : ${suKienPage.content}">
+                                        <td class="ps-3" th:text="${suKien.id}">1</td>
+                                        <td>
+                                            <img th:if="${suKien.hinhAnhUrl}" 
+                                                 th:src="${suKien.hinhAnhUrl}" 
+                                                 alt="Event Image" 
+                                                 class="rounded" 
+                                                 style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div th:unless="${suKien.hinhAnhUrl}" 
+                                                 class="bg-light rounded d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold" th:text="${suKien.tenSuKien}">Tên sự kiện</div>
+                                            <small class="text-muted" th:text="${#strings.abbreviate(suKien.moTa, 50)}">Mô tả ngắn</small>
+                                        </td>
+                                        <td>
+                                            <span th:if="${suKien.loaiSuKien}" 
+                                                  class="badge" 
+                                                  th:style="'background-color: ' + ${suKien.loaiSuKien.mauSac ?: '#6c757d'}"
+                                                  th:text="${suKien.loaiSuKien.tenLoai}">
+                                            </span>
+                                            <span th:unless="${suKien.loaiSuKien}" class="badge bg-light text-dark">Không xác định</span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${suKien.ngayDienRa}">
+                                                <div th:text="${suKien.ngayDienRa.toLocalDate()}"></div>
+                                                <small class="text-muted" th:text="${suKien.ngayDienRa.toLocalTime()}"></small>
+                                            </div>
+                                            <span th:unless="${suKien.ngayDienRa}" class="text-muted">Chưa xác định</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${suKien.diaDiem ?: 'Chưa xác định'}" class="text-truncate" style="max-width: 150px;"></span>
+                                        </td>
+                                        <td>
+                                            <span th:switch="${suKien.trangThai?.name()}">
+                                                <span th:case="'DANG_CHUAN_BI'" class="badge bg-warning">Đang chuẩn bị</span>
+                                                <span th:case="'DANG_DIEN_RA'" class="badge bg-success">Đang diễn ra</span>
+                                                <span th:case="'DA_KET_THUC'" class="badge bg-secondary">Đã kết thúc</span>
+                                                <span th:case="'DA_HUY'" class="badge bg-danger">Đã hủy</span>
+                                                <span th:case="*" class="badge bg-light text-dark">Không xác định</span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${suKien.createdAt}">
+                                                <div th:text="${suKien.createdAt.toLocalDate()}"></div>
+                                                <small class="text-muted" th:text="${suKien.createdAt.toLocalTime()}"></small>
+                                            </div>
+                                            <span th:unless="${suKien.createdAt}" class="text-muted">Chưa có</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/admin/su-kien/{id}(id=${suKien.id})}" 
+                                                   class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        th:data-id="${suKien.id}"
+                                                        th:data-name="${suKien.tenSuKien}"
+                                                        onclick="confirmDelete(this.dataset.id, this.dataset.name)"
+                                                        title="Xóa">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div th:if="${suKienPage.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
+                            <div>
+                                <span class="text-muted">
+                                    Hiển thị <span th:text="${suKienPage.numberOfElements}">10</span> 
+                                    trong tổng số <span th:text="${suKienPage.totalElements}">100</span> sự kiện
+                                </span>
+                            </div>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" th:classappend="${suKienPage.first} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/su-kien(page=${suKienPage.number - 1}, search=${search}, loaiSuKienId=${loaiSuKienId}, trangThai=${trangThai}, fromDate=${fromDate}, toDate=${toDate}, sortBy=${sortBy}, size=${size})}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <li th:each="pageNum : ${#numbers.sequence(0, suKienPage.totalPages - 1)}" 
+                                        class="page-item" th:classappend="${pageNum == suKienPage.number} ? 'active'">
+                                        <a class="page-link" 
+                                           th:href="@{/admin/su-kien(page=${pageNum}, search=${search}, loaiSuKienId=${loaiSuKienId}, trangThai=${trangThai}, fromDate=${fromDate}, toDate=${toDate}, sortBy=${sortBy}, size=${size})}"
+                                           th:text="${pageNum + 1}">1</a>
+                                    </li>
+                                    
+                                    <li class="page-item" th:classappend="${suKienPage.last} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/admin/su-kien(page=${suKienPage.number + 1}, search=${search}, loaiSuKienId=${loaiSuKienId}, trangThai=${trangThai}, fromDate=${fromDate}, toDate=${toDate}, sortBy=${sortBy}, size=${size})}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa sự kiện <strong id="deleteItemName"></strong>?</p>
+                    <p class="text-danger"><small>Hành động này không thể hoàn tác!</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/su-kien/' + id + '/delete';
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+        
+        function clearAdvancedFilters() {
+            document.querySelector('select[name="loaiSuKienId"]').value = '';
+            document.querySelector('select[name="trangThai"]').value = '';
+            document.querySelector('select[name="sortBy"]').value = 'createdAt';
+            document.querySelector('select[name="size"]').value = '10';
+            document.querySelector('input[name="fromDate"]').value = '';
+            document.querySelector('input[name="toDate"]').value = '';
+        }
+        
+        // Auto submit form when filters change
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterSelects = document.querySelectorAll('#advancedFilters select, #advancedFilters input[type="date"]');
+            filterSelects.forEach(select => {
+                select.addEventListener('change', function() {
+                    // Auto submit after a short delay to allow multiple quick changes
+                    clearTimeout(window.filterTimeout);
+                    window.filterTimeout = setTimeout(() => {
+                        document.getElementById('filterForm').submit();
+                    }, 500);
+                });
+            });
+            
+            // Show advanced filters if any filter is active
+            const hasActiveFilters = document.querySelector('select[name="loaiSuKienId"]').value ||
+                                   document.querySelector('select[name="trangThai"]').value ||
+                                   document.querySelector('input[name="fromDate"]').value ||
+                                   document.querySelector('input[name="toDate"]').value;
+            
+            if (hasActiveFilters) {
+                document.getElementById('advancedFilters').classList.add('show');
+            }
+        });
+        
+        // Quick filter buttons
+        function quickFilter(type, value) {
+            document.querySelector(`select[name="${type}"]`).value = value;
+            document.getElementById('filterForm').submit();
+        }
+        
+        // Date filter functions
+        function setDateFilter(period) {
+            const today = new Date();
+            const fromDateInput = document.querySelector('input[name="fromDate"]');
+            const toDateInput = document.querySelector('input[name="toDate"]');
+            
+            let fromDate, toDate;
+            
+            switch(period) {
+                case 'today':
+                    fromDate = toDate = today.toISOString().split('T')[0];
+                    break;
+                case 'thisWeek':
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay());
+                    const endOfWeek = new Date(startOfWeek);
+                    endOfWeek.setDate(startOfWeek.getDate() + 6);
+                    fromDate = startOfWeek.toISOString().split('T')[0];
+                    toDate = endOfWeek.toISOString().split('T')[0];
+                    break;
+                case 'thisMonth':
+                    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    fromDate = startOfMonth.toISOString().split('T')[0];
+                    toDate = endOfMonth.toISOString().split('T')[0];
+                    break;
+            }
+            
+            fromDateInput.value = fromDate;
+            toDateInput.value = toDate;
+            document.getElementById('filterForm').submit();
+        }
+        
+        // Export functionality (placeholder)
+        function exportData() {
+            alert('Tính năng xuất dữ liệu sẽ được phát triển trong phiên bản tiếp theo!');
+        }
+    </script>
+</body>
+</html>

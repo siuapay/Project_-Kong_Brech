@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liên hệ - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html" class="active">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contact Content -->
+    <main class="contact-content">
+        <div class="container">
+            <div class="contact-hero">
+                <h1>Liên hệ với chúng tôi</h1>
+                <p class="lead">Chúng tôi luôn sẵn sàng lắng nghe ý kiến và phản hồi từ độc giả</p>
+            </div>
+
+            <div class="contact-sections">
+                <!-- Contact Info -->
+                <section class="contact-info-section">
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Địa chỉ</h3>
+                                <p>123 Đường Nguyễn Huệ<br>Quận 1, TP. Hồ Chí Minh<br>Việt Nam</p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Điện thoại</h3>
+                                <p>Hotline: <a href="tel:0123456789">0123 456 789</a><br>
+                                Fax: <a href="tel:0123456790">0123 456 790</a></p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <p>Tổng hợp: <a href="mailto:contact@tintuc24h.com">contact@tintuc24h.com</a><br>
+                                Quảng cáo: <a href="mailto:ads@tintuc24h.com">ads@tintuc24h.com</a></p>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Giờ làm việc</h3>
+                                <p>Thứ 2 - Thứ 6: 8:00 - 18:00<br>
+                                Thứ 7: 8:00 - 12:00<br>
+                                Chủ nhật: Nghỉ</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Contact Form -->
+                <section class="contact-form-section">
+                    <div class="form-container">
+                        <div class="form-header">
+                            <h2><i class="fas fa-paper-plane"></i> Gửi tin nhắn cho chúng tôi</h2>
+                            <p>Điền thông tin vào form bên dưới, chúng tôi sẽ phản hồi trong vòng 24h</p>
+                        </div>
+                        
+                        <div id="contact-message"></div>
+                        
+                        <form id="contact-form" class="contact-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="name">Họ và tên *</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email *</label>
+                                    <input type="email" id="email" name="email" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="phone">Số điện thoại</label>
+                                    <input type="tel" id="phone" name="phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="subject">Chủ đề *</label>
+                                    <select id="subject" name="subject" required>
+                                        <option value="">Chọn chủ đề</option>
+                                        <option value="feedback">Góp ý</option>
+                                        <option value="complaint">Khiếu nại</option>
+                                        <option value="suggestion">Đề xuất</option>
+                                        <option value="advertisement">Quảng cáo</option>
+                                        <option value="cooperation">Hợp tác</option>
+                                        <option value="other">Khác</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message">Nội dung tin nhắn *</label>
+                                <textarea id="message" name="message" rows="6" required placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="newsletter" name="newsletter">
+                                    <span class="checkmark"></span>
+                                    Đăng ký nhận bản tin hàng tuần
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Gửi tin nhắn
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Map Section -->
+                <section class="map-section">
+                    <h2><i class="fas fa-map"></i> Vị trí của chúng tôi</h2>
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4326002932!2d106.69741831533309!3d10.776530192318146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f4b3328eb59%3A0x92dcba2950430867!2zTmd1eeG7hW4gSHXhu4csIFF1YW4gMSwgVGjDoG5oIHBo4buRIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1640995200000!5m2!1svi!2s" 
+                            width="100%" 
+                            height="400" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </section>
+
+                <!-- FAQ Section -->
+                <section class="faq-section">
+                    <h2><i class="fas fa-question-circle"></i> Câu hỏi thường gặp</h2>
+                    <div class="faq-container">
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Làm thế nào để gửi tin bài cho tòa soạn?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Bạn có thể gửi tin bài qua email: <a href="mailto:toasoan@tintuc24h.com">toasoan@tintuc24h.com</a> hoặc sử dụng form liên hệ trên trang này. Chúng tôi sẽ xem xét và phản hồi trong vòng 24-48h.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Tôi có thể đăng quảng cáo trên website không?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Có, chúng tôi nhận đăng quảng cáo với nhiều hình thức khác nhau. Vui lòng liên hệ qua email: <a href="mailto:ads@tintuc24h.com">ads@tintuc24h.com</a> để biết thêm chi tiết về bảng giá và các gói quảng cáo.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Làm sao để đăng ký nhận bản tin?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Bạn có thể đăng ký nhận bản tin bằng cách tick vào ô "Đăng ký nhận bản tin" trong form liên hệ hoặc gửi email đến: <a href="mailto:newsletter@tintuc24h.com">newsletter@tintuc24h.com</a></p>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question">
+                                <h3>Tôi muốn hợp tác với HTTL Kông Brech?</h3>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <p>Chúng tôi luôn chào đón các cơ hội hợp tác. Vui lòng gửi đề xuất chi tiết qua email: <a href="mailto:partnership@tintuc24h.com">partnership@tintuc24h.com</a> hoặc sử dụng form liên hệ với chủ đề "Hợp tác".</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Nguồn tin tức đáng tin cậy, cập nhật 24/7</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                    <li><a href="admin.html">Quản trị</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> contact@tintuc24h.com</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Đường ABC, Quận 1, TP.HCM</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="contact.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

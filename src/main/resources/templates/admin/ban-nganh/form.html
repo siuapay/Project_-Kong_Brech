@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-sitemap me-2"></i>
+                        <span th:text="${banNganh.id != null ? 'Chỉnh Sửa Ban Ngành' : 'Thêm Ban Ngành Mới'}">Thêm Ban Ngành</span>
+                    </h2>
+                    <p class="text-muted mb-0">Nhập thông tin chi tiết của ban ngành</p>
+                </div>
+                <a th:href="@{/admin/ban-nganh}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Ban Ngành
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/ban-nganh/save}" method="post" th:object="${banNganh}">
+                                <input type="hidden" th:field="*{id}">
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label for="tenBan" class="form-label">Tên Ban Ngành <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="tenBan" th:field="*{tenBan}" 
+                                               placeholder="Nhập tên ban ngành" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="maBan" class="form-label">Mã Ban <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="maBan" th:field="*{maBan}" 
+                                               placeholder="VD: BN001" required>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="moTa" class="form-label">Mô Tả</label>
+                                        <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3"
+                                                  placeholder="Mô tả về chức năng, nhiệm vụ của ban ngành..."></textarea>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="emailLienHe" class="form-label">Email Liên Hệ</label>
+                                        <input type="email" class="form-control" id="emailLienHe" th:field="*{emailLienHe}" 
+                                               placeholder="email@example.com">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="dienThoaiLienHe" class="form-label">Điện Thoại Liên Hệ</label>
+                                        <input type="tel" class="form-control" id="dienThoaiLienHe" th:field="*{dienThoaiLienHe}" 
+                                               placeholder="0123456789">
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="trangThai" class="form-label">Trạng Thái</label>
+                                        <select class="form-select" id="trangThai" th:field="*{trangThai}">
+                                            <option value="HOAT_DONG">Hoạt động</option>
+                                            <option value="TAM_NGHI">Tạm nghỉ</option>
+                                            <option value="GIAI_TAN">Giải tán</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-4">
+                                
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${banNganh.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Lưu</span>
+                                    </button>
+                                    <a th:href="@{/admin/ban-nganh}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Hủy
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Help Card -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-lightbulb me-2"></i>Hướng Dẫn
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary">Tên Ban Ngành</h6>
+                                <p class="small text-muted mb-0">Tên đầy đủ của ban ngành (VD: Ban Truyền Giáo, Ban Thanh Niên)</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Mã Ban</h6>
+                                <p class="small text-muted mb-0">Mã định danh duy nhất (VD: BTG001, BTN002)</p>
+                            </div>
+                            <div class="mb-3">
+                                <h6 class="text-primary">Trạng Thái</h6>
+                                <ul class="small text-muted mb-0">
+                                    <li><strong>Hoạt động:</strong> Ban ngành đang hoạt động bình thường</li>
+                                    <li><strong>Tạm nghỉ:</strong> Tạm thời ngưng hoạt động</li>
+                                    <li><strong>Giải tán:</strong> Đã chính thức giải tán</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview Card -->
+                    <div class="card shadow border-0 mt-4" th:if="${banNganh.id != null}">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info me-2"></i>Thông Tin Hiện Tại
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Ngày tạo:</small>
+                                <div th:if="${banNganh.createdAt}" 
+                                     th:text="${#temporals.format(banNganh.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+                            </div>
+                            <div class="mb-2">
+                                <small class="text-muted">Cập nhật cuối:</small>
+                                <div th:if="${banNganh.updatedAt}" 
+                                     th:text="${#temporals.format(banNganh.updatedAt, 'dd/MM/yyyy HH:mm')}"></div>
+                            </div>
+                            <div>
+                                <small class="text-muted">Số nhân sự:</small>
+                                <div>
+                                    <span class="badge bg-info" th:text="${banNganh.soLuongNhanSu}">0</span> người
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        // Auto-generate maBan from tenBan
+        document.getElementById('tenBan').addEventListener('input', function() {
+            const tenBan = this.value;
+            const maBanField = document.getElementById('maBan');
+            
+            // Only auto-generate if maBan is empty (for new records)
+            if (!maBanField.value && tenBan) {
+                // Simple logic to generate code
+                const words = tenBan.split(' ');
+                let code = 'BN';
+                words.forEach(word => {
+                    if (word.length > 0) {
+                        code += word.charAt(0).toUpperCase();
+                    }
+                });
+                code += '001';
+                maBanField.value = code;
+            }
+        });
+        
+        // Auto uppercase maBan
+        document.getElementById('maBan').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+        
+        // Form validation and cleanup
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const tenBan = document.getElementById('tenBan').value.trim();
+            const maBan = document.getElementById('maBan').value.trim();
+            
+            if (!tenBan) {
+                alert('Vui lòng nhập tên ban ngành!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!maBan) {
+                alert('Vui lòng nhập mã ban!');
+                e.preventDefault();
+                return;
+            }
+            
+            // Clean up empty fields to ensure they are submitted as empty (will be converted to null)
+            const moTa = document.getElementById('moTa');
+            const emailLienHe = document.getElementById('emailLienHe');
+            const dienThoaiLienHe = document.getElementById('dienThoaiLienHe');
+            
+            if (moTa.value.trim() === '') moTa.value = '';
+            if (emailLienHe.value.trim() === '') emailLienHe.value = '';
+            if (dienThoaiLienHe.value.trim() === '') dienThoaiLienHe.value = '';
+        });
+    </script>
+</body>
+</html>

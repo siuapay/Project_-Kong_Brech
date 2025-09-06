@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân sự điểm nhóm - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle active">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html" class="active">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-content">
+        <div class="container">
+            <div class="page-hero">
+                <h1><i class="fas fa-map-marked-alt"></i> Nhân sự điểm nhóm</h1>
+                <p class="lead">Danh sách nhân sự phụ trách các điểm nhóm và khu vực</p>
+            </div>
+
+            <div class="locations-content">
+                <!-- Bản đồ tổng quan -->
+                <div class="map-overview">
+                    <h2><i class="fas fa-map"></i> Bản đồ các điểm nhóm</h2>
+                    <div class="map-container">
+                        <div class="map-placeholder">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <p>Bản đồ các điểm nhóm HTTL Kông Brech</p>
+                            <small>Tích hợp Google Maps hoặc bản đồ tương tự</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh sách điểm nhóm -->
+                <div class="locations-grid">
+                    <!-- Điểm nhóm 1 -->
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3><i class="fas fa-home"></i> Điểm nhóm Kông Brech Trung tâm</h3>
+                            <span class="location-status active">Hoạt động</span>
+                        </div>
+                        <div class="location-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 123 Đường Trần Hưng Đạo, Kông Brech</p>
+                            <p><i class="fas fa-users"></i> Số tín hữu: 85 người</p>
+                            <p><i class="fas fa-clock"></i> Thời gian nhóm: Thứ 7, 19:00</p>
+                        </div>
+                        <div class="location-staff">
+                            <h4>Nhân sự phụ trách:</h4>
+                            <div class="staff-list">
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Trưởng nhóm">
+                                    <div class="staff-info">
+                                        <h5>Anh Nguyễn Văn A</h5>
+                                        <p>Trưởng nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 801</p>
+                                    </div>
+                                </div>
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Phó nhóm">
+                                    <div class="staff-info">
+                                        <h5>Chị Trần Thị B</h5>
+                                        <p>Phó nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 802</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Điểm nhóm 2 -->
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3><i class="fas fa-home"></i> Điểm nhóm Kông Brech Đông</h3>
+                            <span class="location-status active">Hoạt động</span>
+                        </div>
+                        <div class="location-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 456 Đường Lê Lợi, Kông Brech Đông</p>
+                            <p><i class="fas fa-users"></i> Số tín hữu: 62 người</p>
+                            <p><i class="fas fa-clock"></i> Thời gian nhóm: Chủ nhật, 14:00</p>
+                        </div>
+                        <div class="location-staff">
+                            <h4>Nhân sự phụ trách:</h4>
+                            <div class="staff-list">
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Trưởng nhóm">
+                                    <div class="staff-info">
+                                        <h5>Anh Lê Văn C</h5>
+                                        <p>Trưởng nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 803</p>
+                                    </div>
+                                </div>
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Phó nhóm">
+                                    <div class="staff-info">
+                                        <h5>Anh Phạm Văn D</h5>
+                                        <p>Phó nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 804</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Điểm nhóm 3 -->
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3><i class="fas fa-home"></i> Điểm nhóm Kông Brech Tây</h3>
+                            <span class="location-status active">Hoạt động</span>
+                        </div>
+                        <div class="location-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 789 Đường Nguyễn Huệ, Kông Brech Tây</p>
+                            <p><i class="fas fa-users"></i> Số tín hữu: 48 người</p>
+                            <p><i class="fas fa-clock"></i> Thời gian nhóm: Thứ 6, 19:30</p>
+                        </div>
+                        <div class="location-staff">
+                            <h4>Nhân sự phụ trách:</h4>
+                            <div class="staff-list">
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Trưởng nhóm">
+                                    <div class="staff-info">
+                                        <h5>Chị Hoàng Thị E</h5>
+                                        <p>Trưởng nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 805</p>
+                                    </div>
+                                </div>
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Phó nhóm">
+                                    <div class="staff-info">
+                                        <h5>Anh Vũ Văn F</h5>
+                                        <p>Phó nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 806</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Điểm nhóm 4 -->
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3><i class="fas fa-home"></i> Điểm nhóm Ea Súp</h3>
+                            <span class="location-status active">Hoạt động</span>
+                        </div>
+                        <div class="location-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 321 Thôn Ea Súp, Kông Brech</p>
+                            <p><i class="fas fa-users"></i> Số tín hữu: 35 người</p>
+                            <p><i class="fas fa-clock"></i> Thời gian nhóm: Thứ 7, 18:00</p>
+                        </div>
+                        <div class="location-staff">
+                            <h4>Nhân sự phụ trách:</h4>
+                            <div class="staff-list">
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Trưởng nhóm">
+                                    <div class="staff-info">
+                                        <h5>Anh Y Jút</h5>
+                                        <p>Trưởng nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 807</p>
+                                    </div>
+                                </div>
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Phó nhóm">
+                                    <div class="staff-info">
+                                        <h5>Chị H'Nia</h5>
+                                        <p>Phó nhóm</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 808</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Điểm nhóm 5 -->
+                    <div class="location-card">
+                        <div class="location-header">
+                            <h3><i class="fas fa-home"></i> Điểm nhóm Ea Tul</h3>
+                            <span class="location-status planning">Đang chuẩn bị</span>
+                        </div>
+                        <div class="location-info">
+                            <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: Thôn Ea Tul, Kông Brech</p>
+                            <p><i class="fas fa-users"></i> Số tín hữu: 15 người</p>
+                            <p><i class="fas fa-clock"></i> Thời gian nhóm: Đang lên kế hoạch</p>
+                        </div>
+                        <div class="location-staff">
+                            <h4>Nhân sự phụ trách:</h4>
+                            <div class="staff-list">
+                                <div class="staff-member">
+                                    <img src="https://via.placeholder.com/50x50" alt="Phụ trách">
+                                    <div class="staff-info">
+                                        <h5>Anh Đặng Văn G</h5>
+                                        <p>Phụ trách chuẩn bị</p>
+                                        <p><i class="fas fa-phone"></i> 0123 456 809</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thống kê tổng quan -->
+                <div class="summary-stats">
+                    <h2><i class="fas fa-chart-pie"></i> Thống kê tổng quan</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">Điểm nhóm</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">245</div>
+                            <div class="stat-label">Tổng tín hữu</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">10</div>
+                            <div class="stat-label">Nhân sự phụ trách</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">4</div>
+                            <div class="stat-label">Điểm đang hoạt động</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lịch sinh hoạt -->
+                <div class="schedule-section">
+                    <h2><i class="fas fa-calendar-week"></i> Lịch sinh hoạt các điểm nhóm</h2>
+                    <div class="schedule-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Điểm nhóm</th>
+                                    <th>Thời gian</th>
+                                    <th>Địa điểm</th>
+                                    <th>Trưởng nhóm</th>
+                                    <th>Liên hệ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Kông Brech Trung tâm</td>
+                                    <td>Thứ 7, 19:00</td>
+                                    <td>123 Đường Trần Hưng Đạo</td>
+                                    <td>Anh Nguyễn Văn A</td>
+                                    <td>0123 456 801</td>
+                                </tr>
+                                <tr>
+                                    <td>Kông Brech Đông</td>
+                                    <td>Chủ nhật, 14:00</td>
+                                    <td>456 Đường Lê Lợi</td>
+                                    <td>Anh Lê Văn C</td>
+                                    <td>0123 456 803</td>
+                                </tr>
+                                <tr>
+                                    <td>Kông Brech Tây</td>
+                                    <td>Thứ 6, 19:30</td>
+                                    <td>789 Đường Nguyễn Huệ</td>
+                                    <td>Chị Hoàng Thị E</td>
+                                    <td>0123 456 805</td>
+                                </tr>
+                                <tr>
+                                    <td>Ea Súp</td>
+                                    <td>Thứ 7, 18:00</td>
+                                    <td>321 Thôn Ea Súp</td>
+                                    <td>Anh Y Jút</td>
+                                    <td>0123 456 807</td>
+                                </tr>
+                                <tr class="planning">
+                                    <td>Ea Tul</td>
+                                    <td>Đang chuẩn bị</td>
+                                    <td>Thôn Ea Tul</td>
+                                    <td>Anh Đặng Văn G</td>
+                                    <td>0123 456 809</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Liên hệ điều phối -->
+                <div class="coordination-contact">
+                    <h2><i class="fas fa-phone-alt"></i> Liên hệ điều phối</h2>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <i class="fas fa-user-tie"></i>
+                            <h4>Phụ trách điều phối chung</h4>
+                            <p>Truyền đạo [Tên]</p>
+                            <p><i class="fas fa-phone"></i> 0123 456 790</p>
+                            <p><i class="fas fa-envelope"></i> dieuphoi@httlkongbrech.org</p>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <h4>Lịch sinh hoạt</h4>
+                            <p>Anh/Chị [Tên]</p>
+                            <p><i class="fas fa-phone"></i> 0123 456 791</p>
+                            <p><i class="fas fa-envelope"></i> lich@httlkongbrech.org</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

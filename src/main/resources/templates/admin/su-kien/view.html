@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/admin-layout :: head}"></div>
+</head>
+<body>
+    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
+    
+    <div class="main-content">
+        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
+        
+        <div class="content-wrapper">
+            <div class="container-fluid">
+                <div th:replace="~{fragments/admin-layout :: messages}"></div>
+                
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-primary py-4">
+                            <i class="fas fa-calendar-alt me-2"></i>Chi Tiết Sự Kiện
+                        </h2>
+                        <p class="text-muted mb-0">Xem thông tin chi tiết của sự kiện</p>
+                    </div>
+                    <div class="btn-group gap-2">
+                        <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                        <a th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                        </a>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Main Info -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    <span th:text="${suKien.tenSuKien}">Tên Sự Kiện</span>
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <!-- Event Image -->
+                                <div th:if="${suKien.hinhAnhUrl}" class="text-center mb-4">
+                                    <img th:src="${suKien.hinhAnhUrl}" alt="Event Image" 
+                                         class="img-fluid rounded shadow" style="max-height: 400px;">
+                                </div>
+                                
+                                <!-- Event Details -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Loại sự kiện:</label>
+                                        <div>
+                                            <span th:if="${suKien.loaiSuKien}" 
+                                                  class="badge fs-6" 
+                                                  th:style="'background-color: ' + ${suKien.loaiSuKien.mauSac ?: '#6c757d'}"
+                                                  th:text="${suKien.loaiSuKien.tenLoai}">
+                                            </span>
+                                            <span th:unless="${suKien.loaiSuKien}" class="badge bg-light text-dark fs-6">Không xác định</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Trạng thái:</label>
+                                        <div>
+                                            <span th:switch="${suKien.trangThai?.name()}">
+                                                <span th:case="'DANG_CHUAN_BI'" class="badge bg-warning fs-6">Đang chuẩn bị</span>
+                                                <span th:case="'DANG_DIEN_RA'" class="badge bg-success fs-6">Đang diễn ra</span>
+                                                <span th:case="'DA_KET_THUC'" class="badge bg-secondary fs-6">Đã kết thúc</span>
+                                                <span th:case="'DA_HUY'" class="badge bg-danger fs-6">Đã hủy</span>
+                                                <span th:case="*" class="badge bg-light text-dark fs-6">Không xác định</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Ngày diễn ra:</label>
+                                        <div th:if="${suKien.ngayDienRa}">
+                                            <i class="fas fa-calendar me-2 text-primary"></i>
+                                            <span th:text="${#temporals.format(suKien.ngayDienRa, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                        </div>
+                                        <div th:unless="${suKien.ngayDienRa}" class="text-muted">
+                                            <i class="fas fa-calendar-times me-2"></i>Chưa xác định
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label fw-bold">Địa điểm:</label>
+                                        <div th:if="${suKien.diaDiem}">
+                                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                            <span th:text="${suKien.diaDiem}">Địa điểm</span>
+                                        </div>
+                                        <div th:unless="${suKien.diaDiem}" class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-2"></i>Chưa xác định
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3" th:if="${suKien.soLuongThamGiaDuKien != null}">
+                                        <label class="form-label fw-bold">Số lượng dự kiến:</label>
+                                        <div>
+                                            <i class="fas fa-users me-2 text-info"></i>
+                                            <span th:text="${suKien.soLuongThamGiaDuKien}">0</span> người
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3" th:if="${suKien.soLuongThamGiaThucTe != null}">
+                                        <label class="form-label fw-bold">Số lượng thực tế:</label>
+                                        <div>
+                                            <i class="fas fa-user-check me-2 text-success"></i>
+                                            <span th:text="${suKien.soLuongThamGiaThucTe}">0</span> người
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Description -->
+                                <div th:if="${suKien.moTa}" class="mb-4">
+                                    <label class="form-label fw-bold">Mô tả:</label>
+                                    <div class="bg-light p-3 rounded">
+                                        <p class="mb-0" th:text="${suKien.moTa}">Mô tả sự kiện</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Content -->
+                                <div th:if="${suKien.noiDung}" class="mb-4">
+                                    <label class="form-label fw-bold">Nội dung chi tiết:</label>
+                                    <div class="bg-light p-3 rounded">
+                                        <div th:utext="${#strings.replace(suKien.noiDung, '\\n', '<br>')}">Nội dung chi tiết</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notes -->
+                                <div th:if="${suKien.ghiChu}" class="mb-4">
+                                    <label class="form-label fw-bold">Ghi chú:</label>
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded border-start border-warning border-4">
+                                        <p class="mb-0" th:text="${suKien.ghiChu}">Ghi chú</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Side Info -->
+                    <div class="col-lg-4">
+                        <!-- Quick Actions -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-cogs me-2"></i>Thao Tác
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}" class="btn btn-primary">
+                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa sự kiện
+                                    </a>
+                                    <button type="button" class="btn btn-danger" 
+                                            th:data-id="${suKien.id}"
+                                            th:data-name="${suKien.tenSuKien}"
+                                            onclick="confirmDelete(this.dataset.id, this.dataset.name)"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <i class="fas fa-trash me-2"></i>Xóa sự kiện
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Event Stats -->
+                        <div class="card mb-3" th:if="${suKien.soLuongThamGiaDuKien != null or suKien.soLuongThamGiaThucTe != null}">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-success">
+                                    <i class="fas fa-chart-bar me-2"></i>Thống Kê Tham Gia
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${suKien.soLuongThamGiaDuKien != null}" class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Dự kiến:</span>
+                                        <strong th:text="${suKien.soLuongThamGiaDuKien}">0</strong>
+                                    </div>
+                                </div>
+                                <div th:if="${suKien.soLuongThamGiaThucTe != null}" class="mb-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Thực tế:</span>
+                                        <strong th:text="${suKien.soLuongThamGiaThucTe}">0</strong>
+                                    </div>
+                                </div>
+                                <div th:if="${suKien.soLuongThamGiaDuKien != null and suKien.soLuongThamGiaThucTe != null}">
+                                    <hr>
+                                    <div class="d-flex justify-content-between">
+                                        <span>Tỷ lệ tham gia:</span>
+                                        <strong>
+                                            <span th:text="${suKien.soLuongThamGiaDuKien > 0 ? #numbers.formatDecimal(suKien.soLuongThamGiaThucTe * 100.0 / suKien.soLuongThamGiaDuKien, 1, 1) : '0'}">0</span>%
+                                        </strong>
+                                    </div>
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar" role="progressbar" 
+                                             th:style="'width: ' + (${suKien.soLuongThamGiaDuKien > 0 ? suKien.soLuongThamGiaThucTe * 100.0 / suKien.soLuongThamGiaDuKien : 0}) + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Info -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="m-0 font-weight-bold text-info">
+                                    <i class="fas fa-info-circle me-2"></i>Thông Tin Hệ Thống
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-2">
+                                    <small class="text-muted">ID:</small>
+                                    <div th:text="${suKien.id}">1</div>
+                                </div>
+                                <div class="mb-2" th:if="${suKien.createdAt}">
+                                    <small class="text-muted">Ngày tạo:</small>
+                                    <div th:text="${#temporals.format(suKien.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
+                                </div>
+                                <div class="mb-2" th:if="${suKien.updatedAt}">
+                                    <small class="text-muted">Cập nhật lần cuối:</small>
+                                    <div th:text="${#temporals.format(suKien.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa sự kiện <strong id="deleteItemName"></strong>?</p>
+                    <p class="text-danger"><small>Hành động này không thể hoàn tác!</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/su-kien/' + id + '/delete';
+        }
+    </script>
+</body>
+</html>

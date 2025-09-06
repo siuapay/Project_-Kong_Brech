@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-layer-group me-2"></i>
+                        <span th:text="${nhom.id != null ? 'Chỉnh Sửa Nhóm' : 'Thêm Nhóm Mới'}">Thêm Nhóm Mới</span>
+                    </h2>
+                    <p class="text-muted mb-0">Điền thông tin chi tiết của nhóm</p>
+                </div>
+                <a th:href="@{/admin/nhom}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Main Form -->
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="mb-0">
+                                <i class="fas fa-edit me-2"></i>Thông Tin Nhóm
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/nhom/save}" th:object="${nhom}" method="post">
+                                <input type="hidden" th:field="*{id}">
+                                
+                                <div class="row g-4">
+                                    <!-- Tên Nhóm -->
+                                    <div class="col-12">
+                                        <label for="tenNhom" class="form-label required">Tên Nhóm <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-users text-primary"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="tenNhom" 
+                                                   th:field="*{tenNhom}" placeholder="Nhập tên nhóm..." required>
+                                        </div>
+                                        <div class="form-text">Tên nhóm phải rõ ràng và dễ nhận biết</div>
+                                    </div>
+
+                                    <!-- Điểm Nhóm -->
+                                    <div class="col-md-6">
+                                        <label for="diemNhom" class="form-label">Điểm Nhóm <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-map-marker-alt text-success"></i>
+                                            </span>
+                                            <select class="form-select" id="diemNhom" th:field="*{diemNhom.id}" required>
+                                                <option value="">-- Chọn Điểm Nhóm --</option>
+                                                <option th:each="diemNhom : ${diemNhomList}" 
+                                                        th:value="${diemNhom.id}" 
+                                                        th:text="${diemNhom.tenDiemNhom}">Điểm Nhóm</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-text">Chọn điểm nhóm mà nhóm này thuộc về</div>
+                                    </div>
+
+                                    <!-- Trạng Thái -->
+                                    <div class="col-md-6">
+                                        <label for="trangThai" class="form-label required">Trạng Thái <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-toggle-on text-info"></i>
+                                            </span>
+                                            <select class="form-select" id="trangThai" th:field="*{trangThai}" required>
+                                                <option value="HOAT_DONG">Hoạt Động</option>
+                                                <option value="TAM_NGHI">Tạm Nghỉ</option>
+                                                <option value="DONG_CUA">Đóng Cửa</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mô Tả -->
+                                    <div class="col-12">
+                                        <label for="moTa" class="form-label">Mô Tả</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text align-items-start pt-2">
+                                                <i class="fas fa-align-left text-warning"></i>
+                                            </span>
+                                            <textarea class="form-control" id="moTa" th:field="*{moTa}" 
+                                                      rows="4" placeholder="Nhập mô tả về nhóm..."></textarea>
+                                        </div>
+                                        <div class="form-text">Mô tả ngắn gọn về mục đích, hoạt động của nhóm</div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                    <a th:href="@{/admin/nhom}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Hủy Bỏ
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${nhom.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Thêm Mới</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Info -->
+                <div class="col-lg-4">
+                    <!-- Help Card -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng Dẫn</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="help-item mb-3">
+                                <h6 class="text-primary"><i class="fas fa-users me-2"></i>Tên Nhóm</h6>
+                                <p class="small text-muted mb-0">Đặt tên rõ ràng, dễ nhận biết. Ví dụ: "Nhóm Thanh Niên", "Nhóm Gia Đình"</p>
+                            </div>
+                            <div class="help-item mb-3">
+                                <h6 class="text-success"><i class="fas fa-map-marker-alt me-2"></i>Điểm Nhóm</h6>
+                                <p class="small text-muted mb-0">Chọn điểm nhóm phù hợp với địa lý và hoạt động của nhóm</p>
+                            </div>
+                            <div class="help-item">
+                                <h6 class="text-warning"><i class="fas fa-align-left me-2"></i>Mô Tả</h6>
+                                <p class="small text-muted mb-0">Mô tả ngắn gọn về mục đích, đối tượng tham gia của nhóm</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Info -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light border-0">
+                            <h6 class="mb-0"><i class="fas fa-toggle-on me-2"></i>Trạng Thái Nhóm</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-item d-flex align-items-center mb-2">
+                                <span class="badge bg-success me-2">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
+                                <div>
+                                    <strong>Hoạt Động</strong>
+                                    <div class="small text-muted">Nhóm đang hoạt động bình thường</div>
+                                </div>
+                            </div>
+                            <div class="status-item d-flex align-items-center mb-2">
+                                <span class="badge bg-warning me-2">
+                                    <i class="fas fa-pause-circle"></i>
+                                </span>
+                                <div>
+                                    <strong>Tạm Nghỉ</strong>
+                                    <div class="small text-muted">Nhóm tạm thời ngừng hoạt động</div>
+                                </div>
+                            </div>
+                            <div class="status-item d-flex align-items-center">
+                                <span class="badge bg-danger me-2">
+                                    <i class="fas fa-times-circle"></i>
+                                </span>
+                                <div>
+                                    <strong>Đóng Cửa</strong>
+                                    <div class="small text-muted">Nhóm đã ngừng hoạt động vĩnh viễn</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const tenNhomInput = document.getElementById('tenNhom');
+            
+            // Auto-focus on name input
+            tenNhomInput.focus();
+            
+            // Form submission validation
+            form.addEventListener('submit', function(e) {
+                const tenNhom = tenNhomInput.value.trim();
+                
+                if (tenNhom.length < 2) {
+                    e.preventDefault();
+                    alert('Tên nhóm phải có ít nhất 2 ký tự');
+                    tenNhomInput.focus();
+                    return false;
+                }
+                
+                if (tenNhom.length > 100) {
+                    e.preventDefault();
+                    alert('Tên nhóm không được vượt quá 100 ký tự');
+                    tenNhomInput.focus();
+                    return false;
+                }
+            });
+        });
+        
+        // Form validation and cleanup
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const tenNhom = document.getElementById('tenNhom').value.trim();
+            const diemNhomId = document.getElementById('diemNhom').value;
+            const trangThai = document.getElementById('trangThai').value;
+            
+            // Validate required fields
+            if (!tenNhom) {
+                alert('Vui lòng nhập tên nhóm!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!diemNhomId) {
+                alert('Vui lòng chọn điểm nhóm!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!trangThai) {
+                alert('Vui lòng chọn trạng thái!');
+                e.preventDefault();
+                return;
+            }
+            
+            // Clean up mô tả field (convert empty to null)
+            const moTa = document.getElementById('moTa');
+            if (moTa && moTa.value.trim() === '') {
+                moTa.value = '';
+            }
+        });
+    </script>
+    
+    <style>
+        .required::after {
+            content: " *";
+            color: #dc3545;
+        }
+        
+        .help-item h6 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+</body>
+</html>

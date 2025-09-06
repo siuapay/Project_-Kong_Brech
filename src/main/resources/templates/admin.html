@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị - HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link active"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Admin Dashboard -->
+    <main class="admin-main">
+        <div class="admin-container">
+            <!-- Admin Header -->
+            <div class="admin-header">
+                <div class="admin-title">
+                    <h1><i class="fas fa-tachometer-alt"></i> Bảng điều khiển quản trị</h1>
+                    <p>Quản lý toàn bộ nội dung website HTTL Kông Brech</p>
+                </div>
+                <div class="admin-user">
+                    <div class="user-info">
+                        <span class="user-name">Admin</span>
+                        <span class="user-role">Quản trị viên</span>
+                    </div>
+                    <div class="user-avatar">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon news">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-articles">0</h3>
+                        <p>Bài viết</p>
+                        <span class="stat-change positive">+5 tuần này</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon views">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-views">1,234</h3>
+                        <p>Lượt xem</p>
+                        <span class="stat-change positive">+12% tháng này</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon messages">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-messages">8</h3>
+                        <p>Tin nhắn mới</p>
+                        <span class="stat-change neutral">Cần xử lý</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon media">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="total-media">156</h3>
+                        <p>Media files</p>
+                        <span class="stat-change positive">+3 hôm nay</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-button active" onclick="showTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="tab-button" onclick="showTab('articles')">
+                    <i class="fas fa-newspaper"></i> Quản lý bài viết
+                </button>
+                <button class="tab-button" onclick="showTab('pages')">
+                    <i class="fas fa-file-alt"></i> Quản lý trang
+                </button>
+                <button class="tab-button" onclick="showTab('media')">
+                    <i class="fas fa-images"></i> Thư viện Media
+                </button>
+                <button class="tab-button" onclick="showTab('users')">
+                    <i class="fas fa-users"></i> Quản lý người dùng
+                </button>
+                <button class="tab-button" onclick="showTab('contacts')">
+                    <i class="fas fa-envelope"></i> Tin nhắn liên hệ
+                </button>
+                <button class="tab-button" onclick="showTab('settings')">
+                    <i class="fas fa-cog"></i> Cài đặt
+                </button>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="dashboard-grid">
+                    <!-- Recent Articles -->
+                    <div class="dashboard-widget">
+                        <div class="widget-header">
+                            <h3><i class="fas fa-newspaper"></i> Bài viết gần đây</h3>
+                            <a href="#" onclick="showTab('articles')" class="widget-link">Xem tất cả</a>
+                        </div>
+                        <div class="widget-content">
+                            <div id="recent-articles">
+                                <!-- Recent articles will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Messages -->
+                    <div class="dashboard-widget">
+                        <div class="widget-header">
+                            <h3><i class="fas fa-envelope"></i> Tin nhắn mới</h3>
+                            <a href="#" onclick="showTab('contacts')" class="widget-link">Xem tất cả</a>
+                        </div>
+                        <div class="widget-content">
+                            <div id="recent-messages">
+                                <!-- Recent messages will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Chart -->
+                    <div class="dashboard-widget full-width">
+                        <div class="widget-header">
+                            <h3><i class="fas fa-chart-line"></i> Thống kê truy cập</h3>
+                        </div>
+                        <div class="widget-content">
+                            <canvas id="analytics-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Articles Tab -->
+            <div id="articles-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-newspaper"></i> Quản lý bài viết</h2>
+                    <button class="btn btn-primary" onclick="openArticleModal()">
+                        <i class="fas fa-plus"></i> Thêm bài viết mới
+                    </button>
+                </div>
+
+                <!-- Articles Filter -->
+                <div class="content-filters">
+                    <div class="filter-group">
+                        <select id="article-category-filter" onchange="filterArticles()">
+                            <option value="">Tất cả danh mục</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="article-status-filter" onchange="filterArticles()">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="published">Đã xuất bản</option>
+                            <option value="draft">Bản nháp</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="article-search" placeholder="Tìm kiếm bài viết..." onkeyup="searchArticles()">
+                    </div>
+                </div>
+
+                <!-- Articles List -->
+                <div class="content-list">
+                    <div id="articles-container">
+                        <!-- Articles will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pages Tab -->
+            <div id="pages-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-file-alt"></i> Quản lý trang</h2>
+                    <button class="btn btn-primary" onclick="openPageModal()">
+                        <i class="fas fa-plus"></i> Thêm trang mới
+                    </button>
+                </div>
+
+                <div class="pages-grid">
+                    <div class="page-item" data-page="index.html">
+                        <div class="page-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Trang chủ</h4>
+                            <p>index.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('index.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="page-item" data-page="about.html">
+                        <div class="page-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Giới thiệu</h4>
+                            <p>about.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('about.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="page-item" data-page="contact.html">
+                        <div class="page-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Liên hệ</h4>
+                            <p>contact.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('contact.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="page-item" data-page="chap-su.html">
+                        <div class="page-icon">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Chấp sự</h4>
+                            <p>chap-su.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('chap-su.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="page-item" data-page="dac-trach.html">
+                        <div class="page-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Đặc trách ban ngành</h4>
+                            <p>dac-trach.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('dac-trach.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="page-item" data-page="nhan-su.html">
+                        <div class="page-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="page-info">
+                            <h4>Nhân sự</h4>
+                            <p>nhan-su.html</p>
+                        </div>
+                        <div class="page-actions">
+                            <button class="btn btn-sm btn-primary" onclick="editPage('nhan-su.html')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media Tab -->
+            <div id="media-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-images"></i> Thư viện Media</h2>
+                    <button class="btn btn-primary" onclick="openMediaUpload()">
+                        <i class="fas fa-upload"></i> Upload file
+                    </button>
+                </div>
+
+                <div class="media-filters">
+                    <div class="filter-group">
+                        <select id="media-type-filter" onchange="filterMedia()">
+                            <option value="">Tất cả loại file</option>
+                            <option value="image">Hình ảnh</option>
+                            <option value="video">Video</option>
+                            <option value="document">Tài liệu</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <input type="text" id="media-search" placeholder="Tìm kiếm file..." onkeyup="searchMedia()">
+                    </div>
+                </div>
+
+                <div class="media-grid" id="media-container">
+                    <!-- Media files will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-users"></i> Quản lý người dùng</h2>
+                    <button class="btn btn-primary" onclick="openUserModal()">
+                        <i class="fas fa-user-plus"></i> Thêm người dùng
+                    </button>
+                </div>
+
+                <div class="users-list">
+                    <div id="users-container">
+                        <!-- Users will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts Tab -->
+            <div id="contacts-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-envelope"></i> Tin nhắn liên hệ</h2>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary" onclick="markAllAsRead()">
+                            <i class="fas fa-check-double"></i> Đánh dấu đã đọc
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteAllMessages()">
+                            <i class="fas fa-trash"></i> Xóa tất cả
+                        </button>
+                    </div>
+                </div>
+
+                <div class="contacts-list">
+                    <div id="contacts-container">
+                        <!-- Contact messages will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settings-tab" class="tab-content">
+                <div class="content-header">
+                    <h2><i class="fas fa-cog"></i> Cài đặt website</h2>
+                </div>
+
+                <div class="settings-grid">
+                    <div class="settings-section">
+                        <h3><i class="fas fa-globe"></i> Cài đặt chung</h3>
+                        <form id="general-settings-form">
+                            <div class="form-group">
+                                <label>Tên website</label>
+                                <input type="text" name="site_name" value="HTTL Kông Brech">
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả website</label>
+                                <textarea name="site_description">Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Email liên hệ</label>
+                                <input type="email" name="contact_email" value="info@httlkongbrech.org">
+                            </div>
+                            <div class="form-group">
+                                <label>Số điện thoại</label>
+                                <input type="tel" name="contact_phone" value="0123 456 789">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Lưu cài đặt</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3><i class="fas fa-shield-alt"></i> Bảo mật</h3>
+                        <form id="security-settings-form">
+                            <div class="form-group">
+                                <label>Đổi mật khẩu admin</label>
+                                <input type="password" name="current_password" placeholder="Mật khẩu hiện tại">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" name="new_password" placeholder="Mật khẩu mới">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" name="confirm_password" placeholder="Xác nhận mật khẩu mới">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                        </form>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3><i class="fas fa-database"></i> Sao lưu & Khôi phục</h3>
+                        <div class="backup-actions">
+                            <button class="btn btn-success" onclick="createBackup()">
+                                <i class="fas fa-download"></i> Tạo bản sao lưu
+                            </button>
+                            <button class="btn btn-warning" onclick="restoreBackup()">
+                                <i class="fas fa-upload"></i> Khôi phục từ sao lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Article Modal -->
+    <div id="article-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="article-modal-title">Thêm bài viết mới</h3>
+                <span class="close" onclick="closeModal('article-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="article-form" enctype="multipart/form-data">
+                    <input type="hidden" id="article-id" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tiêu đề bài viết *</label>
+                            <input type="text" name="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Danh mục *</label>
+                            <select name="category" required>
+                                <option value="">Chọn danh mục</option>
+                                <option value="tin-tuc">Tin tức</option>
+                                <option value="su-kien">Sự kiện</option>
+                                <option value="thong-bao">Thông báo</option>
+                                <option value="chia-se">Chia sẻ</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tóm tắt</label>
+                        <textarea name="excerpt" rows="3" placeholder="Mô tả ngắn gọn về bài viết..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nội dung bài viết *</label>
+                        <div id="article-editor" style="height: 300px;"></div>
+                        <textarea name="content" style="display: none;"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Tác giả</label>
+                            <input type="text" name="author" value="Admin">
+                        </div>
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <select name="status">
+                                <option value="draft">Bản nháp</option>
+                                <option value="published">Xuất bản</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hình ảnh đại diện</label>
+                        <div class="file-upload-area" onclick="document.getElementById('article-image').click()">
+                            <input type="file" id="article-image" name="featured_image" accept="image/*" style="display: none;">
+                            <div class="upload-placeholder">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Click để chọn hình ảnh</p>
+                            </div>
+                            <img id="article-image-preview" style="display: none; max-width: 100%; height: 200px; object-fit: cover;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('article-modal')">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="saveArticle()">Lưu bài viết</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Editor Modal -->
+    <div id="page-modal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="page-modal-title">Chỉnh sửa trang</h3>
+                <span class="close" onclick="closeModal('page-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="page-editor">
+                    <div class="editor-toolbar">
+                        <button type="button" class="btn btn-sm" onclick="insertHTML('header')">
+                            <i class="fas fa-heading"></i> Header
+                        </button>
+                        <button type="button" class="btn btn-sm" onclick="insertHTML('section')">
+                            <i class="fas fa-layer-group"></i> Section
+                        </button>
+                        <button type="button" class="btn btn-sm" onclick="insertHTML('image')">
+                            <i class="fas fa-image"></i> Hình ảnh
+                        </button>
+                        <button type="button" class="btn btn-sm" onclick="insertHTML('button')">
+                            <i class="fas fa-mouse-pointer"></i> Button
+                        </button>
+                    </div>
+                    <textarea id="page-content" rows="20" placeholder="Nội dung HTML của trang..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('page-modal')">Hủy</button>
+                <button type="button" class="btn btn-success" onclick="previewPage()">Xem trước</button>
+                <button type="button" class="btn btn-primary" onclick="savePage()">Lưu trang</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Media Upload Modal -->
+    <div id="media-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Upload Media</h3>
+                <span class="close" onclick="closeModal('media-modal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="media-files" multiple accept="image/*,video/*,.pdf,.doc,.docx">
+                    <div class="upload-placeholder">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Kéo thả file vào đây hoặc click để chọn</p>
+                        <small>Hỗ trợ: JPG, PNG, GIF, MP4, PDF, DOC</small>
+                    </div>
+                </div>
+                <div id="upload-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p class="progress-text">Đang upload...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('media-modal')">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="uploadMedia()">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="quan-nhiem.html">Quản nhiệm</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Tổ chức</h3>
+                <ul>
+                    <li><a href="chap-su.html">Chấp sự</a></li>
+                    <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                    <li><a href="nhan-su.html">Nhân sự</a></li>
+                    <li><a href="tin-huu.html">Tín hữu</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="admin.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

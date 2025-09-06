@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">Form Loại Sự Kiện</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div th:replace="fragments/admin-layout :: admin-layout">
+        <div th:fragment="content">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1" th:text="${pageTitle}">Form Loại Sự Kiện</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="/admin/loai-su-kien">Loại Sự Kiện</a></li>
+                            <li class="breadcrumb-item active" th:text="${loaiSuKien.id != null ? 'Chỉnh sửa' : 'Thêm mới'}">Form</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div>
+                    <a href="/admin/loai-su-kien" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            </div>
+
+            <!-- Flash Messages -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Form -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-info-circle"></i> Thông tin loại sự kiện
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/loai-su-kien/save}" method="post" th:object="${loaiSuKien}">
+                                <input type="hidden" th:field="*{id}">
+                                
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="mb-3">
+                                            <label for="tenLoai" class="form-label">
+                                                Tên loại sự kiện <span class="text-danger">*</span>
+                                            </label>
+                                            <input type="text" class="form-control" id="tenLoai" th:field="*{tenLoai}" 
+                                                   placeholder="Nhập tên loại sự kiện" required maxlength="100">
+                                            <div class="form-text">Tên loại sự kiện phải là duy nhất</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="mb-3">
+                                            <label for="thuTu" class="form-label">Thứ tự hiển thị</label>
+                                            <input type="number" class="form-control" id="thuTu" th:field="*{thuTu}" 
+                                                   placeholder="0" min="0" max="999">
+                                            <div class="form-text">Số thứ tự để sắp xếp hiển thị</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="moTa" class="form-label">Mô tả</label>
+                                    <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3" 
+                                              placeholder="Nhập mô tả cho loại sự kiện" maxlength="500"></textarea>
+                                    <div class="form-text">Mô tả chi tiết về loại sự kiện này</div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="mauSac" class="form-label">Màu sắc</label>
+                                            <div class="input-group">
+                                                <input type="color" class="form-control form-control-color" id="mauSac" 
+                                                       th:field="*{mauSac}" title="Chọn màu sắc">
+                                                <input type="text" class="form-control" th:field="*{mauSac}" 
+                                                       placeholder="#FFFFFF" pattern="^#[0-9A-Fa-f]{6}$">
+                                            </div>
+                                            <div class="form-text">Màu sắc đại diện cho loại sự kiện</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="icon" class="form-label">Icon</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text">
+                                                    <i id="iconPreview" th:class="${loaiSuKien.icon != null ? 'fas fa-' + loaiSuKien.icon : 'fas fa-tag'}"></i>
+                                                </span>
+                                                <input type="text" class="form-control" id="icon" th:field="*{icon}" 
+                                                       placeholder="tag" maxlength="50">
+                                            </div>
+                                            <div class="form-text">
+                                                Tên icon FontAwesome (không cần tiền tố "fa-"). 
+                                                <a href="https://fontawesome.com/icons" target="_blank">Xem danh sách</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="kichHoat" th:field="*{kichHoat}">
+                                        <label class="form-check-label" for="kichHoat">
+                                            Kích hoạt loại sự kiện
+                                        </label>
+                                        <div class="form-text">Chỉ các loại sự kiện được kích hoạt mới hiển thị trong form tạo sự kiện</div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> 
+                                        <span th:text="${loaiSuKien.id != null ? 'Cập nhật' : 'Thêm mới'}">Lưu</span>
+                                    </button>
+                                    <a href="/admin/loai-su-kien" class="btn btn-secondary">
+                                        <i class="fas fa-times"></i> Hủy
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Card -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-eye"></i> Xem trước
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="preview-item p-3 border rounded">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="color-indicator me-2" id="colorPreview" 
+                                         style="width: 20px; height: 20px; border-radius: 3px; background-color: #6c757d;"></div>
+                                    <span class="me-2">
+                                        <i id="iconPreviewCard" class="fas fa-tag"></i>
+                                    </span>
+                                    <strong id="namePreview">Tên loại sự kiện</strong>
+                                </div>
+                                <p id="descPreview" class="text-muted small mb-2">Mô tả loại sự kiện</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-secondary" id="orderPreview">Thứ tự: 0</span>
+                                    <span class="badge" id="statusPreview">Kích hoạt</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h6>Gợi ý màu sắc:</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #17a2b8; width: 30px; height: 30px;" 
+                                            data-color="#17a2b8" title="Xanh dương"></button>
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #28a745; width: 30px; height: 30px;" 
+                                            data-color="#28a745" title="Xanh lá"></button>
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #ffc107; width: 30px; height: 30px;" 
+                                            data-color="#ffc107" title="Vàng"></button>
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #dc3545; width: 30px; height: 30px;" 
+                                            data-color="#dc3545" title="Đỏ"></button>
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #6f42c1; width: 30px; height: 30px;" 
+                                            data-color="#6f42c1" title="Tím"></button>
+                                    <button type="button" class="btn btn-sm color-suggestion" 
+                                            style="background-color: #fd7e14; width: 30px; height: 30px;" 
+                                            data-color="#fd7e14" title="Cam"></button>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <h6>Gợi ý icon:</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="calendar" title="calendar">
+                                        <i class="fas fa-calendar"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="users" title="users">
+                                        <i class="fas fa-users"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="heart" title="heart">
+                                        <i class="fas fa-heart"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="star" title="star">
+                                        <i class="fas fa-star"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="gift" title="gift">
+                                        <i class="fas fa-gift"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
+                                            data-icon="music" title="music">
+                                        <i class="fas fa-music"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Preview functionality
+        function updatePreview() {
+            const tenLoai = document.getElementById('tenLoai').value || 'Tên loại sự kiện';
+            const moTa = document.getElementById('moTa').value || 'Mô tả loại sự kiện';
+            const mauSac = document.querySelector('input[type="color"]').value || '#6c757d';
+            const icon = document.getElementById('icon').value || 'tag';
+            const thuTu = document.getElementById('thuTu').value || '0';
+            const kichHoat = document.getElementById('kichHoat').checked;
+
+            document.getElementById('namePreview').textContent = tenLoai;
+            document.getElementById('descPreview').textContent = moTa;
+            document.getElementById('colorPreview').style.backgroundColor = mauSac;
+            document.getElementById('iconPreviewCard').className = `fas fa-${icon}`;
+            document.getElementById('iconPreview').className = `fas fa-${icon}`;
+            document.getElementById('orderPreview').textContent = `Thứ tự: ${thuTu}`;
+            
+            const statusBadge = document.getElementById('statusPreview');
+            if (kichHoat) {
+                statusBadge.className = 'badge bg-success';
+                statusBadge.textContent = 'Kích hoạt';
+            } else {
+                statusBadge.className = 'badge bg-warning';
+                statusBadge.textContent = 'Tạm dừng';
+            }
+
+            // Update color input text
+            document.querySelector('input[type="text"][name="mauSac"]').value = mauSac;
+        }
+
+        // Event listeners
+        document.getElementById('tenLoai').addEventListener('input', updatePreview);
+        document.getElementById('moTa').addEventListener('input', updatePreview);
+        document.querySelector('input[type="color"]').addEventListener('input', updatePreview);
+        document.getElementById('icon').addEventListener('input', updatePreview);
+        document.getElementById('thuTu').addEventListener('input', updatePreview);
+        document.getElementById('kichHoat').addEventListener('change', updatePreview);
+
+        // Color suggestions
+        document.querySelectorAll('.color-suggestion').forEach(button => {
+            button.addEventListener('click', function() {
+                const color = this.getAttribute('data-color');
+                document.querySelector('input[type="color"]').value = color;
+                updatePreview();
+            });
+        });
+
+        // Icon suggestions
+        document.querySelectorAll('.icon-suggestion').forEach(button => {
+            button.addEventListener('click', function() {
+                const icon = this.getAttribute('data-icon');
+                document.getElementById('icon').value = icon;
+                updatePreview();
+            });
+        });
+
+        // Sync color inputs
+        document.querySelector('input[type="text"][name="mauSac"]').addEventListener('input', function() {
+            const colorValue = this.value;
+            if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
+                document.querySelector('input[type="color"]').value = colorValue;
+                updatePreview();
+            }
+        });
+
+        // Initial preview update
+        updatePreview();
+    </script>
+</body>
+</html>

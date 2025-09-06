@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - Admin Chi Hội Kong Brech'">Admin Chi Hội Kong Brech</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 12px 20px;
+            margin: 2px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .sidebar .nav-link:hover {
+            color: #fff;
+            background-color: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .main-content {
+            margin-left: 250px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            width: calc(100% - 250px);
+        }
+        @media (max-width: 767px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        /* Dropdown hover styles */
+        .dropdown-hover .submenu {
+            display: none;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        .dropdown-hover:hover .submenu {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .dropdown-hover .submenu-arrow {
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+        .dropdown-hover:hover .submenu-arrow {
+            transform: rotate(90deg);
+        }
+        .dropdown-hover .submenu .nav-link {
+            font-size: 0.9em;
+            padding: 8px 15px;
+            margin: 1px 5px;
+        }
+    </style>
+</head>
+
+<!-- Sidebar Fragment -->
+<nav th:fragment="sidebar" class="sidebar" id="sidebar">
+    <div class="h-100 d-flex flex-column">
+        <!-- Header -->
+        <div class="text-center text-white p-3 border-bottom border-light border-opacity-25">
+            <i class="fas fa-church fa-2x mb-2"></i>
+            <h5 class="mb-1">Admin Panel</h5>
+            <small class="opacity-75">Chi Hội Kong Brech</small>
+        </div>
+        
+        <!-- Navigation Menu -->
+        <div class="flex-grow-1 py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin}" th:classappend="${#strings.equals(activeMenu, 'dashboard')} ? 'active'">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item dropdown-hover">
+                    <a class="nav-link" th:href="@{/admin/tin-huu}" th:classappend="${#strings.equals(activeMenu, 'tin-huu')} ? 'active'">
+                        <i class="fas fa-users me-2"></i>Tin Hữu
+                        <i class="fas fa-chevron-right ms-auto submenu-arrow"></i>
+                    </a>
+                    <!-- Sub-menu for Tin Huu -->
+                    <ul class="nav flex-column ms-3 submenu">
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/tin-huu}">
+                                <i class="fas fa-list me-2"></i>Danh Sách
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/tin-huu/deleted}">
+                                <i class="fas fa-trash me-2"></i>Thùng Rác
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown-hover">
+                    <a class="nav-link" th:href="@{/admin/nhom}" th:classappend="${#strings.equals(activeMenu, 'nhom') or #strings.equals(activeMenu, 'diem-nhom')} ? 'active'">
+                        <i class="fas fa-layer-group me-2"></i>Nhóm
+                        <i class="fas fa-chevron-right ms-auto submenu-arrow"></i>
+                    </a>
+                    <!-- Sub-menu for Nhom -->
+                    <ul class="nav flex-column ms-3 submenu">
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/diem-nhom}">
+                                <i class="fas fa-map-marker-alt me-2"></i>Điểm Nhóm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/nhom}">
+                                <i class="fas fa-users me-2"></i>Nhóm
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/ban-nganh}" th:classappend="${#strings.equals(activeMenu, 'ban-nganh')} ? 'active'">
+                        <i class="fas fa-sitemap me-2"></i>Ban Ngành
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/nhan-su}" th:classappend="${#strings.equals(activeMenu, 'nhan-su')} ? 'active'">
+                        <i class="fas fa-user-tie me-2"></i>Nhân Sự
+                    </a>
+                </li>
+                <li class="nav-item dropdown-hover">
+                    <a class="nav-link" th:href="@{/admin/su-kien}" th:classappend="${#strings.equals(activeMenu, 'su-kien') or #strings.equals(activeMenu, 'su-kien')} ? 'active'">
+                        <i class="fas fa-calendar-alt me-2"></i>Sự Kiện
+                        <i class="fas fa-chevron-right ms-auto submenu-arrow"></i>
+                    </a>
+                    <!-- Sub-menu for Su Kien -->
+                    <ul class="nav flex-column ms-3 submenu">
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/su-kien}">
+                                <i class="fas fa-list me-2"></i>Danh Sách Sự Kiện
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/loai-su-kien}">
+                                <i class="fas fa-tags me-2"></i>Loại Sự Kiện
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light opacity-75 py-1" th:href="@{/admin/su-kien/deleted}">
+                                <i class="fas fa-trash me-2"></i>Thùng Rác
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/thong-bao}" th:classappend="${#strings.equals(activeMenu, 'thong-bao')} ? 'active'">
+                        <i class="fas fa-bullhorn me-2"></i>Thông Báo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/admin/tai-chinh}" th:classappend="${#strings.equals(activeMenu, 'tai-chinh')} ? 'active'">
+                        <i class="fas fa-dollar-sign me-2"></i>Tài Chính
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- Footer Menu -->
+        <div class="border-top border-light border-opacity-25 py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fas fa-home me-2"></i>Về Trang Chủ
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="logout()">
+                        <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Top Navigation Fragment -->
+<nav th:fragment="topnav" class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
+    <div class="container-fluid">
+        <button class="btn btn-outline-primary d-md-none me-2" type="button" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        <span class="navbar-brand mb-0 h4 text-primary" th:text="${pageTitle}">Admin</span>
+        <div class="ms-auto d-flex align-items-center">
+            <span class="text-muted me-3 d-none d-sm-inline">
+                <i class="fas fa-user-circle me-1"></i>Admin
+            </span>
+            <span class="text-muted">
+                <i class="fas fa-clock me-1"></i>
+                <span id="currentTime"></span>
+            </span>
+        </div>
+    </div>
+</nav>
+
+<!-- Flash Messages Fragment -->
+<div th:fragment="messages">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <span th:text="${warning}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${info}" class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="fas fa-info-circle me-2"></i>
+        <span th:text="${info}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- Scripts Fragment -->
+<div th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Update current time
+        function updateTime() {
+            try {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                const timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            } catch (error) {
+                console.error('Error updating time:', error);
+            }
+        }
+        
+        // Update time every second
+        setInterval(updateTime, 1000);
+        // Initial call
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+        });
+        
+        // Toggle sidebar for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('show');
+            }
+        }
+        
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = event.target.closest('[onclick="toggleSidebar()"]');
+            
+            if (window.innerWidth <= 767 && sidebar && !sidebar.contains(event.target) && !toggleBtn) {
+                sidebar.classList.remove('show');
+            }
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Bạn có chắc chắn muốn đăng xuất?')) {
+                window.location.href = '/';
+            }
+        }
+        
+        // Auto-hide flash message alerts after 5 seconds (not content alerts)
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert.alert-dismissible');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+</div>
+
+</html>

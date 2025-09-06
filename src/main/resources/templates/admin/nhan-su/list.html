@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <div class="container-fluid">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        <span th:text="${pageTitle}">Quản Lý Nhân Sự</span>
+                    </h2>
+                    <a href="/admin/nhan-su/new" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Thêm Nhân Sự
+                    </a>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="card mb-4">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc
+                        </h6>
+                        <button class="btn btn-sm btn-outline-primary" type="button" 
+                                data-bs-toggle="collapse" data-bs-target="#advancedFilters" 
+                                aria-expanded="false" aria-controls="advancedFilters">
+                            <i class="fas fa-cog me-1"></i>Bộ lọc nâng cao
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/admin/nhan-su}" method="get" id="filterForm">
+                            <!-- Basic Search -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" name="search" th:value="${search}" 
+                                               placeholder="Tìm kiếm theo tên, email, điện thoại...">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search me-1"></i>Tìm kiếm
+                                        </button>
+                                        <a th:href="@{/admin/nhan-su}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Filters -->
+                            <div class="collapse" id="advancedFilters">
+                                <hr>
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Trạng Thái</label>
+                                        <select class="form-select" name="trangThai">
+                                            <option value="">Tất cả trạng thái</option>
+                                            <option value="HOAT_DONG" th:selected="${trangThai == 'HOAT_DONG'}">Hoạt động</option>
+                                            <option value="DANG_PHUC_VU" th:selected="${trangThai == 'DANG_PHUC_VU'}">Đang phục vụ</option>
+                                            <option value="NGHI_VIEC" th:selected="${trangThai == 'NGHI_VIEC'}">Nghỉ việc</option>
+                                            <option value="TAM_NGHI" th:selected="${trangThai == 'TAM_NGHI'}">Tạm nghỉ</option>
+                                            <option value="CHUYEN_BAN" th:selected="${trangThai == 'CHUYEN_BAN'}">Chuyển ban</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ban Ngành</label>
+                                        <select class="form-select" name="banNganhId" id="banNganhFilter">
+                                            <option value="">Tất cả ban ngành</option>
+                                            <option th:each="banNganh : ${banNganhList}" 
+                                                    th:value="${banNganh.id}" 
+                                                    th:text="${banNganh.tenBan}"
+                                                    th:selected="${banNganhId != null and banNganhId == banNganh.id}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Điểm Nhóm</label>
+                                        <select class="form-select" name="diemNhomId" id="diemNhomFilter">
+                                            <option value="">Tất cả điểm nhóm</option>
+                                            <option th:each="diemNhom : ${diemNhomList}" 
+                                                    th:value="${diemNhom.id}" 
+                                                    th:text="${diemNhom.tenDiemNhom}"
+                                                    th:selected="${diemNhomId != null and diemNhomId == diemNhom.id}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">Ngày Tạo</label>
+                                        <div class="input-group input-group-sm">
+                                            <input type="date" class="form-control" name="fromDate" th:value="${fromDate}" 
+                                                   placeholder="Từ ngày">
+                                            <span class="input-group-text">đến</span>
+                                            <input type="date" class="form-control" name="toDate" th:value="${toDate}" 
+                                                   placeholder="Đến ngày">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-filter me-1"></i>Áp dụng bộ lọc
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning" onclick="clearAdvancedFilters()">
+                                                <i class="fas fa-eraser me-1"></i>Xóa bộ lọc nâng cao
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Flash Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">ID</th>
+                                        <th>Họ Tên</th>
+                                        <th>Chức Vụ</th>
+                                        <th>Ban Ngành</th>
+                                        <th>Điểm Nhóm</th>
+                                        <th>Điện Thoại</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Ngày Tạo</th>
+                                        <th class="text-center">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="nhanSu : ${nhanSuPage.content}">
+                                        <td class="ps-3 fw-bold text-primary" th:text="${nhanSu.id}"></td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="me-2">
+                                                    <img 
+                                                        th:src="${nhanSu.avatarUrl != null ? nhanSu.avatarUrl : '/static/images/default-avatar.svg'}"
+                                                        alt="Avatar"
+                                                        class="rounded-circle border"
+                                                        style="width: 40px; height: 40px; object-fit: cover;"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <div class="fw-semibold" th:text="${nhanSu.hoTen}"></div>
+                                                    <small class="text-muted" th:text="${nhanSu.email ?: 'Chưa có email'}"></small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span th:if="${nhanSu.chucVu}" th:text="${nhanSu.chucVu}" class="fw-semibold"></span>
+                                            <span th:unless="${nhanSu.chucVu}" class="text-muted">Chưa xác định</span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${nhanSu.banNganh}">
+                                                <div class="fw-semibold text-primary" th:text="${nhanSu.banNganh.tenBan}"></div>
+                                                <small class="text-muted" th:text="${nhanSu.banNganh.maBan}"></small>
+                                            </div>
+                                            <span th:unless="${nhanSu.banNganh}" class="text-muted">Chưa phân công</span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${nhanSu.diemNhom}">
+                                                <div class="fw-semibold text-success" th:text="${nhanSu.diemNhom.tenDiemNhom}"></div>
+                                                <small class="text-muted" th:if="${nhanSu.diemNhom.diaChi}" th:text="${nhanSu.diemNhom.diaChi}"></small>
+                                            </div>
+                                            <span th:unless="${nhanSu.diemNhom}" class="text-muted">Chưa phân công</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${nhanSu.dienThoai}" th:text="${nhanSu.dienThoai}"></span>
+                                            <span th:unless="${nhanSu.dienThoai}" class="text-muted">Chưa có</span>
+                                        </td>
+                                        <td>
+                                            <span th:switch="${nhanSu.trangThai?.name()}">
+                                                <span th:case="'HOAT_DONG'" class="badge bg-success">Hoạt động</span>
+                                                <span th:case="'DANG_PHUC_VU'" class="badge bg-success">Đang phục vụ</span>
+                                                <span th:case="'NGHI_VIEC'" class="badge bg-danger">Nghỉ việc</span>
+                                                <span th:case="'TAM_NGHI'" class="badge bg-warning">Tạm nghỉ</span>
+                                                <span th:case="'CHUYEN_BAN'" class="badge bg-info">Chuyển ban</span>
+                                                <span th:case="*" class="badge bg-secondary">Không xác định</span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div th:if="${nhanSu.createdAt}">
+                                                <div th:text="${#temporals.format(nhanSu.createdAt, 'dd/MM/yyyy')}"></div>
+                                                <small class="text-muted" th:text="${#temporals.format(nhanSu.createdAt, 'HH:mm')}"></small>
+                                            </div>
+                                            <span th:unless="${nhanSu.createdAt}" class="text-muted">Chưa có</span>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/admin/nhan-su/{id}(id=${nhanSu.id})}" 
+                                                   class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a th:href="@{/admin/nhan-su/{id}/edit(id=${nhanSu.id})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                        title="Xóa" onclick="confirmDelete([[${nhanSu.id}]], '[[${nhanSu.hoTen}]]')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav th:if="${nhanSuPage.totalPages > 1}">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" th:classappend="${nhanSuPage.first} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/admin/nhan-su(page=${nhanSuPage.number - 1}, search=${search}, trangThai=${trangThai}, banNganhId=${banNganhId}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                        Trước
+                                    </a>
+                                </li>
+                                <li th:each="i : ${#numbers.sequence(0, nhanSuPage.totalPages - 1)}" 
+                                    class="page-item" th:classappend="${i == nhanSuPage.number} ? 'active'">
+                                    <a class="page-link" th:href="@{/admin/nhan-su(page=${i}, search=${search}, trangThai=${trangThai}, banNganhId=${banNganhId}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}" 
+                                       th:text="${i + 1}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${nhanSuPage.last} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/admin/nhan-su(page=${nhanSuPage.number + 1}, search=${search}, trangThai=${trangThai}, banNganhId=${banNganhId}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                        Sau
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Xác nhận xóa</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Bạn có chắc chắn muốn xóa nhân sự <strong id="deleteItemName"></strong>?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <form id="deleteForm" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger">Xóa</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        // Ensure Bootstrap is loaded and initialize collapse manually if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if Bootstrap is available
+            if (typeof bootstrap === 'undefined') {
+                console.error('Bootstrap is not loaded!');
+                return;
+            }
+            
+            // Initialize collapse manually
+            const collapseButton = document.querySelector('[data-bs-target="#advancedFilters"]');
+            const collapseElement = document.getElementById('advancedFilters');
+            
+            if (collapseButton && collapseElement) {
+                // Create Bootstrap collapse instance
+                const bsCollapse = new bootstrap.Collapse(collapseElement, {
+                    toggle: false
+                });
+                
+                // Add click event listener
+                collapseButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    bsCollapse.toggle();
+                });
+            }
+        });
+
+        function confirmDelete(id, name) {
+            document.getElementById('deleteItemName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/nhan-su/' + id + '/delete';
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Clear advanced filters function
+        function clearAdvancedFilters() {
+            // Reset all advanced filter fields
+            document.querySelector('select[name="trangThai"]').value = '';
+            document.querySelector('select[name="banNganhId"]').value = '';
+            document.querySelector('select[name="diemNhomId"]').value = '';
+            document.querySelector('input[name="fromDate"]').value = '';
+            document.querySelector('input[name="toDate"]').value = '';
+            
+            // Reset điểm nhóm options to show all
+            const diemNhomSelect = document.getElementById('diemNhomFilter');
+            diemNhomSelect.innerHTML = '<option value="">Tất cả điểm nhóm</option>';
+            
+            // Re-populate all điểm nhóm options
+            fetch('/admin/api/all-diem-nhom')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(diemNhom => {
+                        const option = document.createElement('option');
+                        option.value = diemNhom.id;
+                        option.textContent = diemNhom.tenDiemNhom;
+                        diemNhomSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading all điểm nhóm:', error);
+                });
+        }
+
+        // Filter điểm nhóm theo ban ngành
+        document.getElementById('banNganhFilter').addEventListener('change', function() {
+            const banNganhId = this.value;
+            const diemNhomSelect = document.getElementById('diemNhomFilter');
+            
+            // Reset điểm nhóm options
+            diemNhomSelect.innerHTML = '<option value="">Tất cả điểm nhóm</option>';
+            
+            if (banNganhId) {
+                // Fetch điểm nhóm theo ban ngành
+                fetch('/admin/api/diem-nhom-by-ban-nganh/' + banNganhId)
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(diemNhom => {
+                            const option = document.createElement('option');
+                            option.value = diemNhom.id;
+                            option.textContent = diemNhom.tenDiemNhom;
+                            diemNhomSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching điểm nhóm:', error);
+                    });
+            } else {
+                // Load all điểm nhóm when no ban ngành selected
+                fetch('/admin/api/all-diem-nhom')
+                    .then(response => response.json())
+                    .then(data => {
+                        data.forEach(diemNhom => {
+                            const option = document.createElement('option');
+                            option.value = diemNhom.id;
+                            option.textContent = diemNhom.tenDiemNhom;
+                            diemNhomSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading all điểm nhóm:', error);
+                    });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <div class="container-fluid">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        <span th:text="${pageTitle}">Thêm Nhân Sự</span>
+                    </h2>
+                    <a href="/admin/nhan-su" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại
+                    </a>
+                </div>
+
+                <!-- Form -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <form th:action="@{/admin/nhan-su/save}" method="post" th:object="${nhanSu}" enctype="multipart/form-data">
+                                    <input type="hidden" th:field="*{id}">
+                                    <input type="hidden" th:field="*{createdAt}">
+                                    <input type="hidden" th:field="*{avatarUrl}">
+
+                                    <!-- Avatar Upload Section -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <h6 class="text-primary mb-3">
+                                                <i class="fas fa-user-circle me-2"></i>Ảnh Đại Diện
+                                            </h6>
+                                            <div class="d-flex align-items-start gap-3">
+                                                <!-- Current Avatar Preview -->
+                                                <div class="avatar-preview">
+                                                    <img 
+                                                        id="avatarPreview" 
+                                                        th:src="${nhanSu.avatarUrl != null ? nhanSu.avatarUrl : '/static/images/default-avatar.svg'}"
+                                                        alt="Avatar Preview"
+                                                        class="rounded-circle border"
+                                                        style="width: 120px; height: 120px; object-fit: cover;"
+                                                    />
+                                                </div>
+                                                
+                                                <!-- Upload Controls -->
+                                                <div class="flex-grow-1">
+                                                    <div class="mb-3">
+                                                        <label for="avatarFile" class="form-label">Chọn ảnh mới</label>
+                                                        <input 
+                                                            type="file" 
+                                                            class="form-control" 
+                                                            id="avatarFile" 
+                                                            name="avatarFile"
+                                                            accept="image/jpeg,image/jpg,image/png,image/gif"
+                                                            onchange="previewAvatar(this)"
+                                                        />
+                                                        <div class="form-text">
+                                                            <i class="fas fa-info-circle me-1"></i>
+                                                            Chấp nhận: JPG, JPEG, PNG, GIF. Tối đa 5MB.
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <!-- Upload Status -->
+                                                    <div id="uploadStatus" class="d-none">
+                                                        <div class="alert alert-info mb-0">
+                                                            <i class="fas fa-upload me-2"></i>
+                                                            Ảnh mới đã được chọn. Nhấn "Lưu" để cập nhật.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="hoTen" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="chucVu" class="form-label">Chức vụ</label>
+                                            <input type="text" class="form-control" id="chucVu" th:field="*{chucVu}" 
+                                                   placeholder="VD: Trưởng ban, Phó ban, Thành viên...">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="banNganh" class="form-label">Ban ngành <span class="text-danger">*</span></label>
+                                            <div id="banNganhDropdown"></div>
+                                            <input type="hidden" id="banNganh" th:field="*{banNganh.id}" required>
+                                            <div class="invalid-feedback" id="banNganhError">Vui lòng chọn ban ngành</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="diemNhom" class="form-label">Điểm nhóm</label>
+                                            <div id="diemNhomDropdown"></div>
+                                            <input type="hidden" id="diemNhom" th:field="*{diemNhom.id}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" th:field="*{email}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="dienThoai" class="form-label">Số điện thoại</label>
+                                            <input type="tel" class="form-control" id="dienThoai" th:field="*{dienThoai}" 
+                                                   pattern="[0-9]{10,11}" 
+                                                   title="Số điện thoại phải có 10-11 chữ số"
+                                                   placeholder="VD: 0123456789">
+                                            <div class="form-text">Chỉ nhập số, từ 10-11 chữ số</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="ngaySinh" class="form-label">Ngày sinh</label>
+                                            <input type="date" class="form-control" id="ngaySinh" th:field="*{ngaySinh}">
+                                            <div class="form-text">Ngày sinh không được vượt quá thời gian hiện tại</div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="trangThai" class="form-label">Trạng thái</label>
+                                            <select class="form-select" id="trangThai" th:field="*{trangThai}">
+                                                <option th:value="HOAT_DONG" th:selected="*{trangThai?.name() == 'HOAT_DONG'}">Hoạt động</option>
+                                                <option th:value="DANG_PHUC_VU" th:selected="*{trangThai?.name() == 'DANG_PHUC_VU'}">Đang phục vụ</option>
+                                                <option th:value="NGHI_VIEC" th:selected="*{trangThai?.name() == 'NGHI_VIEC'}">Nghỉ việc</option>
+                                                <option th:value="TAM_NGHI" th:selected="*{trangThai?.name() == 'TAM_NGHI'}">Tạm nghỉ</option>
+                                                <option th:value="CHUYEN_BAN" th:selected="*{trangThai?.name() == 'CHUYEN_BAN'}">Chuyển ban</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="diaChi" class="form-label">Địa chỉ</label>
+                                        <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="ghiChu" class="form-label">Ghi chú</label>
+                                        <textarea class="form-control" id="ghiChu" th:field="*{ghiChu}" rows="3"></textarea>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="/admin/nhan-su" class="btn btn-secondary">Hủy</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-2"></i>Lưu
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Hướng dẫn</h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
+                                        Họ tên và ban ngành là trường bắt buộc
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                        Chọn ban ngành trước để lọc điểm nhóm
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                        Điểm nhóm sẽ được lọc theo ban ngành đã chọn
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-info-circle text-info me-2"></i>
+                                        Các trường khác là tùy chọn
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+ <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/searchable-dropdown.js"></script>
+    <script>
+        let banNganhDropdown;
+        let diemNhomDropdown;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo searchable dropdown cho ban ngành
+            banNganhDropdown = new SearchableDropdown('banNganhDropdown', {
+                placeholder: 'Chọn ban ngành...',
+                searchPlaceholder: 'Tìm kiếm ban ngành...',
+                displayField: 'tenBan',
+                valueField: 'id',
+                onSelect: function(item) {
+                    // Cập nhật hidden input
+                    document.getElementById('banNganh').value = item.id;
+                    // Clear error state
+                    const banNganhDropdownElement = document.getElementById('banNganhDropdown');
+                    banNganhDropdownElement.style.border = '';
+                    // Load điểm nhóm theo ban ngành được chọn (không có callback = clear selection)
+                    loadDiemNhomByBanNganh(item.id);
+                }
+            });
+            
+            // Khởi tạo searchable dropdown cho điểm nhóm
+            diemNhomDropdown = new SearchableDropdown('diemNhomDropdown', {
+                placeholder: 'Chọn điểm nhóm...',
+                searchPlaceholder: 'Tìm kiếm điểm nhóm...',
+                displayField: 'tenDiemNhom',
+                valueField: 'id',
+                onSelect: function(item) {
+                    // Cập nhật hidden input
+                    document.getElementById('diemNhom').value = item.id;
+                }
+            });
+            
+            // Load ban ngành
+            loadAllBanNganh();
+            
+            // Load tất cả điểm nhóm ban đầu
+            loadAllDiemNhom();
+            
+            // Set giá trị hiện tại nếu có (cho edit mode)
+            const currentBanNganhValue = document.getElementById('banNganh').value;
+            const currentDiemNhomValue = document.getElementById('diemNhom').value;
+            
+            console.log('Debug - Ban Nganh Value:', currentBanNganhValue);
+            console.log('Debug - Diem Nhom Value:', currentDiemNhomValue);
+            
+            if (currentBanNganhValue && currentDiemNhomValue) {
+                // Nếu có cả ban ngành và điểm nhóm (edit mode)
+                console.log('Debug - Edit mode: có cả ban ngành và điểm nhóm');
+                setTimeout(() => {
+                    banNganhDropdown.setValue(currentBanNganhValue);
+                    // Load điểm nhóm theo ban ngành trước
+                    loadDiemNhomByBanNganh(currentBanNganhValue, () => {
+                        // Sau khi load xong thì set giá trị điểm nhóm
+                        console.log('Debug - Setting diem nhom value:', currentDiemNhomValue);
+                        setTimeout(() => {
+                            diemNhomDropdown.setValue(currentDiemNhomValue);
+                        }, 200);
+                    });
+                }, 500);
+            } else if (currentBanNganhValue) {
+                // Chỉ có ban ngành
+                console.log('Debug - Chỉ có ban ngành');
+                setTimeout(() => {
+                    banNganhDropdown.setValue(currentBanNganhValue);
+                }, 500);
+            } else if (currentDiemNhomValue) {
+                // Chỉ có điểm nhóm (trường hợp hiếm)
+                console.log('Debug - Chỉ có điểm nhóm');
+                setTimeout(() => {
+                    diemNhomDropdown.setValue(currentDiemNhomValue);
+                }, 500);
+            } else {
+                console.log('Debug - Create mode: không có giá trị nào');
+            }
+        });
+        
+        // Load tất cả ban ngành
+        function loadAllBanNganh() {
+            fetch('/admin/api/all-ban-nganh')
+                .then(response => response.json())
+                .then(data => {
+                    banNganhDropdown.setData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading ban ngành:', error);
+                });
+        }
+        
+        // Load tất cả điểm nhóm
+        function loadAllDiemNhom() {
+            console.log('Debug - Loading all diem nhom...');
+            fetch('/admin/api/all-diem-nhom')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Debug - All diem nhom loaded:', data);
+                    diemNhomDropdown.setData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading điểm nhóm:', error);
+                });
+        }
+        
+        // Lọc điểm nhóm theo ban ngành
+        function loadDiemNhomByBanNganh(banNganhId, callback) {
+            console.log('Debug - Loading diem nhom by ban nganh:', banNganhId);
+            if (banNganhId) {
+                // Fetch điểm nhóm theo ban ngành
+                fetch('/admin/api/diem-nhom-by-ban-nganh/' + banNganhId)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Debug - Diem nhom by ban nganh loaded:', data);
+                        diemNhomDropdown.setData(data);
+                        
+                        // Chỉ clear khi không có callback (tức là user thay đổi, không phải edit mode)
+                        if (!callback) {
+                            diemNhomDropdown.clear();
+                            document.getElementById('diemNhom').value = '';
+                        }
+                        
+                        // Gọi callback nếu có
+                        if (callback && typeof callback === 'function') {
+                            callback();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching điểm nhóm:', error);
+                    });
+            } else {
+                // Load tất cả điểm nhóm khi không chọn ban ngành
+                loadAllDiemNhom();
+                if (!callback) {
+                    diemNhomDropdown.clear();
+                    document.getElementById('diemNhom').value = '';
+                }
+                
+                if (callback && typeof callback === 'function') {
+                    callback();
+                }
+            }
+        }
+
+        // Avatar preview function
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                
+                // Validate file size (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Định dạng file không được hỗ trợ. Vui lòng chọn file JPG, PNG hoặc GIF.');
+                    input.value = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                    document.getElementById('uploadStatus').classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Validation functions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Phone number validation
+            const phoneInput = document.getElementById('dienThoai');
+            phoneInput.addEventListener('input', function(e) {
+                // Chỉ cho phép nhập số
+                this.value = this.value.replace(/[^0-9]/g, '');
+                
+                // Giới hạn độ dài 10-11 số
+                if (this.value.length > 11) {
+                    this.value = this.value.slice(0, 11);
+                }
+                
+                // Validation feedback
+                if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
+                    this.setCustomValidity('Số điện thoại phải có 10-11 chữ số');
+                } else {
+                    this.setCustomValidity('');
+                }
+            });
+
+            // Birth date validation
+            const birthDateInput = document.getElementById('ngaySinh');
+            const today = new Date().toISOString().split('T')[0];
+            birthDateInput.setAttribute('max', today);
+            
+            birthDateInput.addEventListener('change', function(e) {
+                const selectedDate = new Date(this.value);
+                const currentDate = new Date();
+                
+                if (selectedDate > currentDate) {
+                    alert('Ngày sinh không được vượt quá thời gian hiện tại!');
+                    this.value = '';
+                }
+            });
+
+            // Form submission validation
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(e) {
+                const phoneValue = phoneInput.value;
+                const birthDateValue = birthDateInput.value;
+                const banNganhValue = document.getElementById('banNganh').value;
+                
+                // Validate ban nganh (required)
+                if (!banNganhValue || banNganhValue.trim() === '') {
+                    e.preventDefault();
+                    alert('Vui lòng chọn ban ngành!');
+                    // Highlight the dropdown
+                    const banNganhDropdownElement = document.getElementById('banNganhDropdown');
+                    banNganhDropdownElement.style.border = '2px solid #dc3545';
+                    setTimeout(() => {
+                        banNganhDropdownElement.style.border = '';
+                    }, 3000);
+                    return;
+                }
+                
+                // Validate phone number
+                if (phoneValue && (phoneValue.length < 10 || phoneValue.length > 11 || !/^[0-9]+$/.test(phoneValue))) {
+                    e.preventDefault();
+                    alert('Số điện thoại không hợp lệ! Vui lòng nhập 10-11 chữ số.');
+                    phoneInput.focus();
+                    return;
+                }
+                
+                // Validate birth date
+                if (birthDateValue) {
+                    const selectedDate = new Date(birthDateValue);
+                    const currentDate = new Date();
+                    
+                    if (selectedDate > currentDate) {
+                        e.preventDefault();
+                        alert('Ngày sinh không được vượt quá thời gian hiện tại!');
+                        birthDateInput.focus();
+                        return;
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

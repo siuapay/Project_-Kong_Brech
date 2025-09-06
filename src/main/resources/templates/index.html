@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTL Kông Brech</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><i class="fas fa-church"></i> HTTL Kông Brech</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Trang chủ</a></li>
+                <li><a href="about.html">Giới thiệu</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Tổ chức <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="chap-su.html">Chấp sự</a></li>
+                        <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                        <li><a href="nhan-su.html">Nhân sự</a></li>
+                        <li><a href="quan-nhiem.html">Quản nhiệm hội thánh</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle">Danh sách <i class="fas fa-chevron-down"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="tin-huu.html">Tín hữu</a></li>
+                        <li><a href="nhan-su-diem-nhom.html">Nhân sự điểm nhóm</a></li>
+                    </ul>
+                </li>
+                <li><a href="contact.html">Liên hệ</a></li>
+                <li><a href="admin.html" class="admin-link"><i class="fas fa-cog"></i> Quản trị</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Tìm kiếm tin tức...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="category-filter">
+                <select id="category-filter">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Featured News -->
+        <section class="featured-news" id="news">
+            <h2>Tin Nổi Bật</h2>
+            <div class="news-grid">
+                <article class="news-card featured">
+                    <img src="https://via.placeholder.com/600x300" alt="Tin chính">
+                    <div class="news-content">
+                        <span class="category">Chính trị</span>
+                        <h3>Tiêu đề tin tức chính quan trọng nhất trong ngày</h3>
+                        <p>Mô tả ngắn gọn về nội dung tin tức này, giúp người đọc hiểu được thông tin cơ bản...</p>
+                        <div class="news-meta">
+                            <span><i class="fas fa-clock"></i> 2 giờ trước</span>
+                            <span><i class="fas fa-user"></i> Phóng viên ABC</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- News Grid -->
+        <section class="news-section">
+            <div class="news-grid">
+                <article class="news-card">
+                    <img src="https://via.placeholder.com/400x200" alt="Tin tức 1">
+                    <div class="news-content">
+                        <span class="category">Kinh tế</span>
+                        <h3>Thị trường chứng khoán biến động mạnh</h3>
+                        <p>Phân tích về tình hình thị trường và dự báo xu hướng...</p>
+                        <div class="news-meta">
+                            <span><i class="fas fa-clock"></i> 4 giờ trước</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <img src="https://via.placeholder.com/400x200" alt="Tin tức 2">
+                    <div class="news-content">
+                        <span class="category">Thể thao</span>
+                        <h3>Đội tuyển Việt Nam thắng đậm 3-0</h3>
+                        <p>Chiến thắng ấn tượng trước đối thủ mạnh tại giải đấu...</p>
+                        <div class="news-meta">
+                            <span><i class="fas fa-clock"></i> 6 giờ trước</span>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="news-card">
+                    <img src="https://via.placeholder.com/400x200" alt="Tin tức 3">
+                    <div class="news-content">
+                        <span class="category">Công nghệ</span>
+                        <h3>Ra mắt công nghệ AI mới nhất</h3>
+                        <p>Breakthrough trong lĩnh vực trí tuệ nhân tạo...</p>
+                        <div class="news-meta">
+                            <span><i class="fas fa-clock"></i> 8 giờ trước</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Video Section -->
+        <section class="video-section" id="video">
+            <h2>Video Tin Tức</h2>
+            <div class="video-grid">
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="https://via.placeholder.com/400x225" alt="Video 1">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <h3>Bản tin thời sự 19h hôm nay</h3>
+                    <p>Tổng hợp các tin tức quan trọng trong ngày</p>
+                </div>
+
+                <div class="video-card">
+                    <div class="video-thumbnail">
+                        <img src="https://via.placeholder.com/400x225" alt="Video 2">
+                        <div class="play-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <h3>Phóng sự đặc biệt về kinh tế</h3>
+                    <p>Phân tích sâu về tình hình kinh tế hiện tại</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HTTL Kông Brech</h3>
+                <p>Hội Thánh Tin Lành Kông Brech - Nơi chia sẻ tình yêu Chúa</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fas fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Liên kết nhanh</h3>
+                <ul>
+                    <li><a href="index.html">Trang chủ</a></li>
+                    <li><a href="about.html">Giới thiệu</a></li>
+                    <li><a href="quan-nhiem.html">Quản nhiệm</a></li>
+                    <li><a href="contact.html">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Tổ chức</h3>
+                <ul>
+                    <li><a href="chap-su.html">Chấp sự</a></li>
+                    <li><a href="dac-trach.html">Đặc trách ban ngành</a></li>
+                    <li><a href="nhan-su.html">Nhân sự</a></li>
+                    <li><a href="tin-huu.html">Tín hữu</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Liên hệ</h3>
+                <p><i class="fas fa-envelope"></i> info@httlkongbrech.org</p>
+                <p><i class="fas fa-phone"></i> 0123 456 789</p>
+                <p><i class="fas fa-map-marker-alt"></i> Kông Brech, Đắk Lắk</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 HTTL Kông Brech. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
