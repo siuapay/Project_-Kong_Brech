@@ -163,25 +163,7 @@
                                         <span th:unless="${diemNhom.diaChi}" class="text-muted">Chưa có địa chỉ</span>
                                     </td>
                                     <td>
-                                        <div th:if="${diemNhom.thuSinhHoat != null || diemNhom.gioSinhHoat != null}">
-                                            <small th:if="${diemNhom.thuSinhHoat}" class="d-block">
-                                                <i class="fas fa-calendar text-primary me-1"></i>
-                                                <span th:switch="${diemNhom.thuSinhHoat}">
-                                                    <span th:case="1">Chủ Nhật</span>
-                                                    <span th:case="2">Thứ 2</span>
-                                                    <span th:case="3">Thứ 3</span>
-                                                    <span th:case="4">Thứ 4</span>
-                                                    <span th:case="5">Thứ 5</span>
-                                                    <span th:case="6">Thứ 6</span>
-                                                    <span th:case="7">Thứ 7</span>
-                                                </span>
-                                            </small>
-                                            <small th:if="${diemNhom.gioSinhHoat}" class="d-block">
-                                                <i class="fas fa-clock text-success me-1"></i>
-                                                <span th:text="${#temporals.format(diemNhom.gioSinhHoat, 'HH:mm')}"></span>
-                                            </small>
-                                        </div>
-                                        <span th:unless="${diemNhom.thuSinhHoat != null || diemNhom.gioSinhHoat != null}" class="text-muted">Chưa có</span>
+                                        <span class="text-muted">-</span>
                                     </td>
                                     <td>
                                         <span class="badge bg-info fs-6" th:text="${#lists.size(diemNhom.danhSachNhom)}">0</span>

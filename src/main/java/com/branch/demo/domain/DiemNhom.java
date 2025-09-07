@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,15 +23,6 @@ public class DiemNhom {
     
     @Column(name = "mo_ta", length = 1000)
     private String moTa;
-    
-    @Column(name = "thoi_gian_sinh_hoat", length = 255)
-    private String thoiGianSinhHoat;
-    
-    @Column(name = "gio_sinh_hoat")
-    private LocalTime gioSinhHoat;
-    
-    @Column(name = "thu_sinh_hoat")
-    private Integer thuSinhHoat; // 1=CN, 2=T2, ..., 7=T7
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ban_nganh_id")
@@ -91,15 +81,6 @@ public class DiemNhom {
     
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
-    
-    public String getThoiGianSinhHoat() { return thoiGianSinhHoat; }
-    public void setThoiGianSinhHoat(String thoiGianSinhHoat) { this.thoiGianSinhHoat = thoiGianSinhHoat; }
-    
-    public LocalTime getGioSinhHoat() { return gioSinhHoat; }
-    public void setGioSinhHoat(LocalTime gioSinhHoat) { this.gioSinhHoat = gioSinhHoat; }
-    
-    public Integer getThuSinhHoat() { return thuSinhHoat; }
-    public void setThuSinhHoat(Integer thuSinhHoat) { this.thuSinhHoat = thuSinhHoat; }
     
     public BanNganh getBanNganh() { return banNganh; }
     public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }

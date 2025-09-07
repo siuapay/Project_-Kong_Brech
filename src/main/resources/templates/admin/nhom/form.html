@@ -88,6 +88,19 @@
                                         </div>
                                     </div>
 
+                                    <!-- Thời Gian Sinh Hoạt -->
+                                    <div class="col-12">
+                                        <label for="thoiGianSinhHoat" class="form-label">Thời Gian Sinh Hoạt</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i class="fas fa-clock text-info"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="thoiGianSinhHoat" 
+                                                   th:field="*{thoiGianSinhHoat}" placeholder="VD: T2-T4 19:00, Chủ nhật 14:00">
+                                        </div>
+                                        <div class="form-text">Thời gian sinh hoạt của nhóm (VD: T2-T4 19:00, Chủ nhật 14:00)</div>
+                                    </div>
+
                                     <!-- Mô Tả -->
                                     <div class="col-12">
                                         <label for="moTa" class="form-label">Mô Tả</label>
@@ -132,6 +145,10 @@
                             <div class="help-item mb-3">
                                 <h6 class="text-success"><i class="fas fa-map-marker-alt me-2"></i>Điểm Nhóm</h6>
                                 <p class="small text-muted mb-0">Chọn điểm nhóm phù hợp với địa lý và hoạt động của nhóm</p>
+                            </div>
+                            <div class="help-item mb-3">
+                                <h6 class="text-info"><i class="fas fa-clock me-2"></i>Thời Gian Sinh Hoạt</h6>
+                                <p class="small text-muted mb-0">Ví dụ: "T2-T4 19:00", "Chủ nhật 14:00", "Thứ 7 hàng tuần 19:30"</p>
                             </div>
                             <div class="help-item">
                                 <h6 class="text-warning"><i class="fas fa-align-left me-2"></i>Mô Tả</h6>
@@ -236,11 +253,14 @@
                 return;
             }
             
-            // Clean up mô tả field (convert empty to null)
-            const moTa = document.getElementById('moTa');
-            if (moTa && moTa.value.trim() === '') {
-                moTa.value = '';
-            }
+            // Clean up optional fields (convert empty to null)
+            const optionalFields = ['moTa', 'thoiGianSinhHoat'];
+            optionalFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field && field.value.trim() === '') {
+                    field.value = '';
+                }
+            });
         });
     </script>
     

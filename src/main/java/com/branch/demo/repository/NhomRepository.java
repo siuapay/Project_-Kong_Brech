@@ -15,6 +15,10 @@ public interface NhomRepository extends JpaRepository<Nhom, Long> {
     // Tìm theo tên nhóm
     List<Nhom> findByTenNhomContainingIgnoreCase(String tenNhom);
     
+    // Tìm theo tên nhóm hoặc mô tả với phân trang
+    org.springframework.data.domain.Page<Nhom> findByTenNhomContainingIgnoreCaseOrMoTaContainingIgnoreCase(
+            String tenNhom, String moTa, org.springframework.data.domain.Pageable pageable);
+    
     // Tìm theo điểm nhóm
     List<Nhom> findByDiemNhomId(Long diemNhomId);
     

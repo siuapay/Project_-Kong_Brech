@@ -136,17 +136,18 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="25%">Tên Nhóm</th>
-                                    <th width="20%">Điểm Nhóm</th>
-                                    <th width="15%">Số Tin Hữu</th>
-                                    <th width="15%">Trạng Thái</th>
+                                    <th width="20%">Tên Nhóm</th>
+                                    <th width="15%">Điểm Nhóm</th>
+                                    <th width="15%">Sinh Hoạt</th>
+                                    <th width="10%">Số Tin Hữu</th>
+                                    <th width="10%">Trạng Thái</th>
                                     <th width="15%">Ngày Tạo</th>
-                                    <th width="5%">Thao Tác</th>
+                                    <th width="10%">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${nhomPage.content.empty}">
-                                    <td colspan="7" class="text-center py-4 text-muted">
+                                    <td colspan="8" class="text-center py-4 text-muted">
                                         <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                         Không có nhóm nào được tìm thấy
                                     </td>
@@ -172,8 +173,22 @@
                                         <span th:unless="${nhom.diemNhom}" class="text-muted">Chưa phân công</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info fs-6" th:text="${nhom.soLuongTinHuu}">0</span>
-                                        <small class="text-muted">tin hữu</small>
+                                        <span th:if="${nhom.thoiGianSinhHoat}">
+                                            <i class="fas fa-clock text-info me-1"></i>
+                                            <small th:text="${nhom.thoiGianSinhHoat}">T2-T4 19:00</small>
+                                        </span>
+                                        <span th:unless="${nhom.thoiGianSinhHoat}" class="text-muted">
+                                            <small>Chưa có</small>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-link p-0 text-decoration-none tin-huu-btn" 
+                                                th:data-nhom-id="${nhom.id}"
+                                                th:data-nhom-name="${nhom.tenNhom}"
+                                                th:disabled="${nhom.soLuongTinHuu == 0}">
+                                            <span class="badge bg-info fs-6" th:text="${nhom.soLuongTinHuu}">0</span>
+                                            <small class="text-muted ms-1">tin hữu</small>
+                                        </button>
                                     </td>
                                     <td>
                                         <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
@@ -272,6 +287,40 @@
         </div>
     </div>
 
+    <!-- Tin Huu Modal -->
+    <div class="modal fade" id="tinHuuModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-users me-2"></i>Danh Sách Tin Hữu - <span id="modalNhomName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="tinHuuLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang tải danh sách tin hữu...</p>
+                    </div>
+                    <div id="tinHuuContent" style="display: none;">
+                        <div class="row" id="tinHuuList">
+                            <!-- Tin huu items will be loaded here -->
+                        </div>
+                    </div>
+                    <div id="tinHuuEmpty" style="display: none;" class="text-center py-4 text-muted">
+                        <i class="fas fa-user-slash fa-2x mb-2 d-block"></i>
+                        <p>Nhóm này chưa có tin hữu nào</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
@@ -287,6 +336,94 @@
             document.querySelector('select[name="diemNhomId"]').value = '';
             document.querySelector('input[name="fromDate"]').value = '';
             document.querySelector('input[name="toDate"]').value = '';
+        }
+
+        // Add event listeners for tin huu buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.tin-huu-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const nhomId = this.getAttribute('data-nhom-id');
+                    const nhomName = this.getAttribute('data-nhom-name');
+                    showTinHuuModal(nhomId, nhomName);
+                });
+            });
+        });
+
+        // Show tin huu modal
+        function showTinHuuModal(nhomId, nhomName) {
+            document.getElementById('modalNhomName').textContent = nhomName;
+            
+            // Show loading
+            document.getElementById('tinHuuLoading').style.display = 'block';
+            document.getElementById('tinHuuContent').style.display = 'none';
+            document.getElementById('tinHuuEmpty').style.display = 'none';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('tinHuuModal'));
+            modal.show();
+            
+            // Load tin huu data
+            fetch(`/admin/api/nhom/${nhomId}/tin-huu`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('tinHuuLoading').style.display = 'none';
+                    
+                    if (data.length === 0) {
+                        document.getElementById('tinHuuEmpty').style.display = 'block';
+                    } else {
+                        document.getElementById('tinHuuContent').style.display = 'block';
+                        renderTinHuuList(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading tin huu:', error);
+                    document.getElementById('tinHuuLoading').style.display = 'none';
+                    document.getElementById('tinHuuEmpty').style.display = 'block';
+                    document.getElementById('tinHuuEmpty').innerHTML = `
+                        <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
+                        <p>Có lỗi xảy ra khi tải danh sách tin hữu</p>
+                    `;
+                });
+        }
+
+        function renderTinHuuList(tinHuuList) {
+            const container = document.getElementById('tinHuuList');
+            container.innerHTML = '';
+            
+            tinHuuList.forEach(tinHuu => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 mb-3';
+                
+                const avatarUrl = tinHuu.avatarUrl || '/static/images/default-avatar.svg';
+                const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
+                const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
+                const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' : 
+                                   gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
+                
+                col.innerHTML = `
+                    <div class="card h-100 tin-huu-card" onclick="window.open('/admin/tin-huu/view/${tinHuu.id}', '_blank')" style="cursor: pointer;">
+                        <div class="card-body p-3">
+                            <div class="d-flex align-items-center">
+                                <img src="${avatarUrl}" alt="Avatar" 
+                                     class="rounded-circle me-3" 
+                                     style="width: 50px; height: 50px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">${tinHuu.hoTen}</h6>
+                                    <div class="small text-muted">
+                                        <div><i class="fas fa-birthday-cake me-1"></i>Năm sinh: ${namSinh}</div>
+                                        <div><i class="${gioiTinhIcon} me-1"></i>Giới tính: ${gioiTinh}</div>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <i class="fas fa-external-link-alt text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(col);
+            });
         }
     </script>
     
@@ -310,6 +447,25 @@
         
         .btn-group .btn:last-child {
             margin-right: 0;
+        }
+        
+        .tin-huu-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #dee2e6;
+        }
+        
+        .tin-huu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        
+        .text-pink {
+            color: #e91e63 !important;
+        }
+        
+        .modal-lg {
+            max-width: 800px;
         }
     </style>
 </body>

@@ -10,45 +10,45 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Arrays;
+import java.time.LocalTime;
 
 @Service
 public class DataInitializationService implements CommandLineRunner {
 
     @Autowired
     private BanNganhRepository banNganhRepository;
-    
+
     @Autowired
     private DiemNhomRepository diemNhomRepository;
-    
+
     @Autowired
     private NhomRepository nhomRepository;
-    
+
     @Autowired
     private TinHuuRepository tinHuuRepository;
-    
+
     @Autowired
     private NhanSuRepository nhanSuRepository;
-    
+
     @Autowired
     private NhanSuDiemNhomRepository nhanSuDiemNhomRepository;
-    
+
     @Autowired
     private ChapSuRepository chapSuRepository;
-    
+
     @Autowired
     private SuKienRepository suKienRepository;
-    
+
     @Autowired
     private TaiChinhRepository taiChinhRepository;
-    
+
     @Autowired
     private ThongBaoRepository thongBaoRepository;
-    
+
     @Autowired
     private LienHeRepository lienHeRepository;
-    
+
     @Autowired
     private LoaiSuKienRepository loaiSuKienRepository;
 
@@ -62,33 +62,46 @@ public class DataInitializationService implements CommandLineRunner {
 
     private void initializeData() {
         // Tạo các loại sự kiện trước
-        LoaiSuKien loaiLeHoi = createLoaiSuKien("Lễ hội tôn giáo", "Các lễ hội và ngày lễ tôn giáo", "#dc3545", "fas fa-church", 1);
-        LoaiSuKien loaiSinhHoatThuongKy = createLoaiSuKien("Sinh hoạt thường kỳ", "Các hoạt động sinh hoạt định kỳ", "#17a2b8", "fas fa-calendar-week", 2);
-        LoaiSuKien loaiTuThien = createLoaiSuKien("Hoạt động từ thiện", "Các chương trình từ thiện và xã hội", "#28a745", "fas fa-heart", 3);
-        LoaiSuKien loaiSinhHoatDacBiet = createLoaiSuKien("Sinh hoạt đặc biệt", "Các hoạt động sinh hoạt đặc biệt", "#ffc107", "fas fa-star", 4);
-        LoaiSuKien loaiCongTacXaHoi = createLoaiSuKien("Công tác xã hội", "Các hoạt động công tác xã hội", "#6f42c1", "fas fa-users", 5);
+        LoaiSuKien loaiLeHoi = createLoaiSuKien("Lễ hội tôn giáo", "Các lễ hội và ngày lễ tôn giáo", "#dc3545",
+                "fas fa-church", 1);
+        LoaiSuKien loaiSinhHoatThuongKy = createLoaiSuKien("Sinh hoạt thường kỳ", "Các hoạt động sinh hoạt định kỳ",
+                "#17a2b8", "fas fa-calendar-week", 2);
+        LoaiSuKien loaiTuThien = createLoaiSuKien("Hoạt động từ thiện", "Các chương trình từ thiện và xã hội",
+                "#28a745", "fas fa-heart", 3);
+        LoaiSuKien loaiSinhHoatDacBiet = createLoaiSuKien("Sinh hoạt đặc biệt", "Các hoạt động sinh hoạt đặc biệt",
+                "#ffc107", "fas fa-star", 4);
+        LoaiSuKien loaiCongTacXaHoi = createLoaiSuKien("Công tác xã hội", "Các hoạt động công tác xã hội", "#6f42c1",
+                "fas fa-users", 5);
         LoaiSuKien loaiKhac = createLoaiSuKien("Khác", "Các sự kiện khác", "#6c757d", "fas fa-ellipsis-h", 6);
-        
+
         // Tạo các ban ngành
-        BanNganh banMucVu = createBanNganh("Ban Mục vụ", "MUCVU", "Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh", "mucvu@httlkongbrech.org");
-        BanNganh banGiaoDuc = createBanNganh("Ban Giáo dục", "GIAODUC", "Phụ trách công tác giáo dục và đào tạo", "giaoduc@httlkongbrech.org");
-        BanNganh banThanhNien = createBanNganh("Ban Thanh niên", "THANHNIEN", "Phụ trách công tác thanh niên và sinh viên", "thanhnien@httlkongbrech.org");
-        BanNganh banHoiPhuNu = createBanNganh("Ban Hội phụ nữ", "HOIPHUNU", "Phụ trách công tác hội phụ nữ và gia đình", "hoiphunu@httlkongbrech.org");
-        BanNganh banTaiChinh = createBanNganh("Ban Tài chính", "TAICHINH", "Phụ trách quản lý tài chính và kế toán", "taichinh@httlkongbrech.org");
-        BanNganh banXayDung = createBanNganh("Ban Xây dựng", "XAYDUNG", "Phụ trách công tác xây dựng và bảo trì", "xaydung@httlkongbrech.org");
-        BanNganh banTruyenThong = createBanNganh("Ban Truyền thông", "TRUYENTHONG", "Phụ trách công tác truyền thông và công nghệ", "truyenthong@httlkongbrech.org");
+        BanNganh banMucVu = createBanNganh("Ban Mục vụ", "MUCVU",
+                "Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh", "mucvu@httlkongbrech.org");
+        BanNganh banGiaoDuc = createBanNganh("Ban Giáo dục", "GIAODUC", "Phụ trách công tác giáo dục và đào tạo",
+                "giaoduc@httlkongbrech.org");
+        BanNganh banThanhNien = createBanNganh("Ban Thanh niên", "THANHNIEN",
+                "Phụ trách công tác thanh niên và sinh viên", "thanhnien@httlkongbrech.org");
+        BanNganh banHoiPhuNu = createBanNganh("Ban Hội phụ nữ", "HOIPHUNU", "Phụ trách công tác hội phụ nữ và gia đình",
+                "hoiphunu@httlkongbrech.org");
+        BanNganh banTaiChinh = createBanNganh("Ban Tài chính", "TAICHINH", "Phụ trách quản lý tài chính và kế toán",
+                "taichinh@httlkongbrech.org");
+        BanNganh banXayDung = createBanNganh("Ban Xây dựng", "XAYDUNG", "Phụ trách công tác xây dựng và bảo trì",
+                "xaydung@httlkongbrech.org");
+        BanNganh banTruyenThong = createBanNganh("Ban Truyền thông", "TRUYENTHONG",
+                "Phụ trách công tác truyền thông và công nghệ", "truyenthong@httlkongbrech.org");
 
         // Tạo chấp sự
         createChapSu("Mục sư Nguyễn Văn A", "Chấp sự trưởng", "Mục sư", "0123456789", "mucsu@httlkongbrech.org", 1970);
-        createChapSu("Truyền đạo Trần Văn B", "Phó Chấp sự", "Truyền đạo", "0123456790", "truyendao@httlkongbrech.org", 1975);
+        createChapSu("Truyền đạo Trần Văn B", "Phó Chấp sự", "Truyền đạo", "0123456790", "truyendao@httlkongbrech.org",
+                1975);
         createChapSu("Anh Lê Văn C", "Thư ký", "Chấp sự", "0123456791", "thuky@httlkongbrech.org", 1980);
         createChapSu("Chị Phạm Thị D", "Thủ quỹ", "Chấp sự", "0123456792", "thuquy@httlkongbrech.org", 1978);
 
         // Tạo điểm nhóm
-        DiemNhom diemTrungTam = createDiemNhom("Kông Brech Trung tâm", "123 Đường Trần Hưng Đạo, Kông Brech", "Thứ 7, 19:00", LocalTime.of(19, 0), 7);
-        DiemNhom diemDong = createDiemNhom("Kông Brech Đông", "456 Đường Lê Lợi, Kông Brech Đông", "Chủ nhật, 14:00", LocalTime.of(14, 0), 1);
-        DiemNhom diemTay = createDiemNhom("Kông Brech Tây", "789 Đường Nguyễn Huệ, Kông Brech Tây", "Thứ 6, 19:30", LocalTime.of(19, 30), 6);
-        DiemNhom diemEaSup = createDiemNhom("Ea Súp", "321 Thôn Ea Súp, Kông Brech", "Thứ 7, 18:00", LocalTime.of(18, 0), 7);
+        DiemNhom diemTrungTam = createDiemNhom("Kông Brech Trung tâm", "123 Đường Trần Hưng Đạo, Kông Brech");
+        DiemNhom diemDong = createDiemNhom("Kông Brech Đông", "456 Đường Lê Lợi, Kông Brech Đông");
+        DiemNhom diemTay = createDiemNhom("Kông Brech Tây", "789 Đường Nguyễn Huệ, Kông Brech Tây");
+        DiemNhom diemEaSup = createDiemNhom("Ea Súp", "321 Thôn Ea Súp, Kông Brech");
 
         // Tạo nhóm
         Nhom nhom1 = createNhom("Nhóm 1", "Nhóm tín hữu trung tâm", diemTrungTam);
@@ -114,22 +127,32 @@ public class DataInitializationService implements CommandLineRunner {
         createNhanSuDiemNhom("Anh Lê Văn Tài", "Trưởng nhóm", diemDong, "0123456822");
 
         // Tạo sự kiện
-        createSuKien("Lễ thờ phượng Chúa nhật", "Lễ thờ phượng hàng tuần", LocalDate.now().plusDays(1), LocalTime.of(8, 0), LocalTime.of(10, 30), "Hội thánh chính", loaiLeHoi);
-        createSuKien("Họp Ban Thanh niên", "Họp định kỳ ban thanh niên", LocalDate.now().plusDays(3), LocalTime.of(19, 0), LocalTime.of(21, 0), "Phòng họp", loaiSinhHoatThuongKy);
-        createSuKien("Chương trình từ thiện", "Thăm và tặng quà cho người nghèo", LocalDate.now().plusDays(7), LocalTime.of(14, 0), LocalTime.of(17, 0), "Thôn Ea Súp", loaiTuThien);
+        createSuKien("Lễ thờ phượng Chúa nhật", "Lễ thờ phượng hàng tuần", LocalDate.now().plusDays(1),
+                LocalTime.of(8, 0), LocalTime.of(10, 30), "Hội thánh chính", loaiLeHoi);
+        createSuKien("Họp Ban Thanh niên", "Họp định kỳ ban thanh niên", LocalDate.now().plusDays(3),
+                LocalTime.of(19, 0), LocalTime.of(21, 0), "Phòng họp", loaiSinhHoatThuongKy);
+        createSuKien("Chương trình từ thiện", "Thăm và tặng quà cho người nghèo", LocalDate.now().plusDays(7),
+                LocalTime.of(14, 0), LocalTime.of(17, 0), "Thôn Ea Súp", loaiTuThien);
 
         // Tạo giao dịch tài chính
-        createTaiChinh(TaiChinh.LoaiGiaoDich.THU, new BigDecimal("15500000"), "Dâng hiến Chúa nhật", "Dâng hiến", LocalDate.now().minusDays(1));
-        createTaiChinh(TaiChinh.LoaiGiaoDich.CHI, new BigDecimal("2000000"), "Mua vật dụng thờ phượng", "Vật dụng", LocalDate.now().minusDays(2));
-        createTaiChinh(TaiChinh.LoaiGiaoDich.THU, new BigDecimal("5000000"), "Quyên góp từ thiện", "Từ thiện", LocalDate.now().minusDays(3));
+        createTaiChinh(TaiChinh.LoaiGiaoDich.THU, new BigDecimal("15500000"), "Dâng hiến Chúa nhật", "Dâng hiến",
+                LocalDate.now().minusDays(1));
+        createTaiChinh(TaiChinh.LoaiGiaoDich.CHI, new BigDecimal("2000000"), "Mua vật dụng thờ phượng", "Vật dụng",
+                LocalDate.now().minusDays(2));
+        createTaiChinh(TaiChinh.LoaiGiaoDich.THU, new BigDecimal("5000000"), "Quyên góp từ thiện", "Từ thiện",
+                LocalDate.now().minusDays(3));
 
         // Tạo thông báo
-        createThongBao("Thông báo lễ Giáng sinh 2024", "Kính mời tất cả tín hữu tham dự lễ Giáng sinh...", ThongBao.LoaiThongBao.SU_KIEN, ThongBao.MucDoUuTien.CAO);
-        createThongBao("Họp Ban Chấp sự", "Thông báo họp Ban Chấp sự tháng 1/2025", ThongBao.LoaiThongBao.HOP, ThongBao.MucDoUuTien.BINH_THUONG);
+        createThongBao("Thông báo lễ Giáng sinh 2024", "Kính mời tất cả tín hữu tham dự lễ Giáng sinh...",
+                ThongBao.LoaiThongBao.SU_KIEN, ThongBao.MucDoUuTien.CAO);
+        createThongBao("Họp Ban Chấp sự", "Thông báo họp Ban Chấp sự tháng 1/2025", ThongBao.LoaiThongBao.HOP,
+                ThongBao.MucDoUuTien.BINH_THUONG);
 
         // Tạo liên hệ
-        createLienHe("Nguyễn Văn Test", "test@example.com", "0987654321", "Góp ý", "Tôi muốn góp ý về chương trình...", LienHe.LoaiLienHe.GOP_Y);
-        createLienHe("Trần Thị Demo", "demo@example.com", "0987654322", "Hợp tác", "Tôi muốn hợp tác với hội thánh...", LienHe.LoaiLienHe.HOP_TAC);
+        createLienHe("Nguyễn Văn Test", "test@example.com", "0987654321", "Góp ý", "Tôi muốn góp ý về chương trình...",
+                LienHe.LoaiLienHe.GOP_Y);
+        createLienHe("Trần Thị Demo", "demo@example.com", "0987654322", "Hợp tác", "Tôi muốn hợp tác với hội thánh...",
+                LienHe.LoaiLienHe.HOP_TAC);
     }
 
     private BanNganh createBanNganh(String tenBan, String maBan, String moTa, String email) {
@@ -139,7 +162,8 @@ public class DataInitializationService implements CommandLineRunner {
         return banNganhRepository.save(banNganh);
     }
 
-    private ChapSu createChapSu(String hoTen, String chucVu, String capBac, String dienThoai, String email, int namSinh) {
+    private ChapSu createChapSu(String hoTen, String chucVu, String capBac, String dienThoai, String email,
+            int namSinh) {
         ChapSu chapSu = new ChapSu(hoTen, chucVu, capBac);
         chapSu.setDienThoai(dienThoai);
         chapSu.setEmail(email);
@@ -149,11 +173,8 @@ public class DataInitializationService implements CommandLineRunner {
         return chapSuRepository.save(chapSu);
     }
 
-    private DiemNhom createDiemNhom(String tenDiemNhom, String diaChi, String thoiGianSinhHoat, LocalTime gioSinhHoat, int thuSinhHoat) {
+    private DiemNhom createDiemNhom(String tenDiemNhom, String diaChi) {
         DiemNhom diemNhom = new DiemNhom(tenDiemNhom, diaChi);
-        diemNhom.setThoiGianSinhHoat(thoiGianSinhHoat);
-        diemNhom.setGioSinhHoat(gioSinhHoat);
-        diemNhom.setThuSinhHoat(thuSinhHoat);
         return diemNhomRepository.save(diemNhom);
     }
 
@@ -164,7 +185,8 @@ public class DataInitializationService implements CommandLineRunner {
         return nhomRepository.save(nhom);
     }
 
-    private TinHuu createTinHuu(String hoTen, int namSinh, String gioiTinh, Nhom nhom, String dienThoai, String diaChi, String ghiChu) {
+    private TinHuu createTinHuu(String hoTen, int namSinh, String gioiTinh, Nhom nhom, String dienThoai, String diaChi,
+            String ghiChu) {
         TinHuu tinHuu = new TinHuu(hoTen);
         tinHuu.setNamSinh(namSinh);
         tinHuu.setGioiTinh(gioiTinh);
@@ -200,7 +222,8 @@ public class DataInitializationService implements CommandLineRunner {
         return loaiSuKienRepository.save(loaiSuKien);
     }
 
-    private SuKien createSuKien(String tenSuKien, String moTa, LocalDate ngayDienRa, LocalTime gioBatDau, LocalTime gioKetThuc, String diaDiem, LoaiSuKien loaiSuKien) {
+    private SuKien createSuKien(String tenSuKien, String moTa, LocalDate ngayDienRa, LocalTime gioBatDau,
+            LocalTime gioKetThuc, String diaDiem, LoaiSuKien loaiSuKien) {
         LocalDateTime ngayGioDienRa = LocalDateTime.of(ngayDienRa, gioBatDau);
         SuKien suKien = new SuKien(tenSuKien, ngayGioDienRa, loaiSuKien);
         suKien.setMoTa(moTa);
@@ -209,7 +232,8 @@ public class DataInitializationService implements CommandLineRunner {
         return suKienRepository.save(suKien);
     }
 
-    private TaiChinh createTaiChinh(TaiChinh.LoaiGiaoDich loaiGiaoDich, BigDecimal soTien, String moTa, String danhMuc, LocalDate ngayGiaoDich) {
+    private TaiChinh createTaiChinh(TaiChinh.LoaiGiaoDich loaiGiaoDich, BigDecimal soTien, String moTa, String danhMuc,
+            LocalDate ngayGiaoDich) {
         TaiChinh taiChinh = new TaiChinh(loaiGiaoDich, soTien, moTa);
         taiChinh.setDanhMuc(danhMuc);
         taiChinh.setNgayGiaoDich(ngayGiaoDich);
@@ -217,7 +241,8 @@ public class DataInitializationService implements CommandLineRunner {
         return taiChinhRepository.save(taiChinh);
     }
 
-    private ThongBao createThongBao(String tieuDe, String noiDung, ThongBao.LoaiThongBao loaiThongBao, ThongBao.MucDoUuTien mucDoUuTien) {
+    private ThongBao createThongBao(String tieuDe, String noiDung, ThongBao.LoaiThongBao loaiThongBao,
+            ThongBao.MucDoUuTien mucDoUuTien) {
         ThongBao thongBao = new ThongBao(tieuDe, noiDung, loaiThongBao);
         thongBao.setMucDoUuTien(mucDoUuTien);
         thongBao.setNguoiGui("Admin");
@@ -227,7 +252,8 @@ public class DataInitializationService implements CommandLineRunner {
         return thongBaoRepository.save(thongBao);
     }
 
-    private LienHe createLienHe(String hoTen, String email, String dienThoai, String chuDe, String noiDung, LienHe.LoaiLienHe loaiLienHe) {
+    private LienHe createLienHe(String hoTen, String email, String dienThoai, String chuDe, String noiDung,
+            LienHe.LoaiLienHe loaiLienHe) {
         LienHe lienHe = new LienHe(hoTen, email, chuDe, noiDung);
         lienHe.setDienThoai(dienThoai);
         lienHe.setLoaiLienHe(loaiLienHe);

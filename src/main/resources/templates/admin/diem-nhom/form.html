@@ -94,37 +94,7 @@
                       ></textarea>
                     </div>
 
-                    <div class="col-md-4">
-                      <label for="thuSinhHoat" class="form-label"
-                        >Thứ Sinh Hoạt</label
-                      >
-                      <select
-                        class="form-select"
-                        id="thuSinhHoat"
-                        th:field="*{thuSinhHoat}"
-                      >
-                        <option value="">-- Chọn Thứ --</option>
-                        <option value="1">Chủ Nhật</option>
-                        <option value="2">Thứ 2</option>
-                        <option value="3">Thứ 3</option>
-                        <option value="4">Thứ 4</option>
-                        <option value="5">Thứ 5</option>
-                        <option value="6">Thứ 6</option>
-                        <option value="7">Thứ 7</option>
-                      </select>
-                    </div>
 
-                    <div class="col-md-4">
-                      <label for="gioSinhHoat" class="form-label"
-                        >Giờ Sinh Hoạt</label
-                      >
-                      <input
-                        type="time"
-                        class="form-control"
-                        id="gioSinhHoat"
-                        th:field="*{gioSinhHoat}"
-                      />
-                    </div>
 
                     <div class="col-md-4">
                       <label for="trangThai" class="form-label"
@@ -141,19 +111,6 @@
                         <option value="TAM_NGHI">Tạm nghỉ</option>
                         <option value="DONG_CUA">Đóng cửa</option>
                       </select>
-                    </div>
-
-                    <div class="col-12">
-                      <label for="thoiGianSinhHoat" class="form-label"
-                        >Thời Gian Sinh Hoạt</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control"
-                        id="thoiGianSinhHoat"
-                        th:field="*{thoiGianSinhHoat}"
-                        placeholder="VD: Thứ 7 hàng tuần, 19:00 - 21:00"
-                      />
                     </div>
 
                     <div class="col-12">
@@ -309,7 +266,7 @@
         }
 
         // Clean up optional fields (convert empty to null)
-        const optionalFields = ["moTa", "thoiGianSinhHoat"];
+        const optionalFields = ["moTa"];
         optionalFields.forEach((fieldId) => {
           const field = document.getElementById(fieldId);
           if (field && field.value.trim() === "") {

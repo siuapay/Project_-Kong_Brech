@@ -311,6 +311,18 @@ public class AdminController {
         return "admin/nhom/view";
     }
 
+    @GetMapping("/api/nhom/{id}/tin-huu")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getTinHuuByNhom(@PathVariable Long id) {
+        return adminService.getTinHuuByNhomId(id);
+    }
+
+    @GetMapping("/api/diem-nhom/{id}/tin-huu")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getTinHuuByDiemNhom(@PathVariable Long id) {
+        return adminService.getTinHuuByDiemNhomId(id);
+    }
+
     @GetMapping("/ban-nganh")
     public String banNganhList(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "") String search,

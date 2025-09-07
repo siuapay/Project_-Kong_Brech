@@ -161,65 +161,65 @@ public class AdminService {
         softDeleteTinHuu(id);
     }
 
-    // ==================== NHÓM MANAGEMENT METHODS ====================
+    // // ==================== NHÓM MANAGEMENT METHODS ====================
 
-    public Page<com.branch.demo.domain.Nhom> getNhomPage(int page, String search) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        if (search == null || search.trim().isEmpty()) {
-            return nhomRepository.findAll(pageable);
-        }
-        return nhomRepository.findByTenNhomContainingIgnoreCase(search).stream()
-                .collect(java.util.stream.Collectors.collectingAndThen(
-                        java.util.stream.Collectors.toList(),
-                        list -> new org.springframework.data.domain.PageImpl<>(
-                                list.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())
-                                        .collect(java.util.stream.Collectors.toList()),
-                                pageable,
-                                list.size())));
-    }
+    // public Page<com.branch.demo.domain.Nhom> getNhomPage(int page, String search) {
+    //     Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+    //     if (search == null || search.trim().isEmpty()) {
+    //         return nhomRepository.findAll(pageable);
+    //     }
+    //     return nhomRepository.findByTenNhomContainingIgnoreCase(search).stream()
+    //             .collect(java.util.stream.Collectors.collectingAndThen(
+    //                     java.util.stream.Collectors.toList(),
+    //                     list -> new org.springframework.data.domain.PageImpl<>(
+    //                             list.stream().skip(pageable.getOffset()).limit(pageable.getPageSize())
+    //                                     .collect(java.util.stream.Collectors.toList()),
+    //                             pageable,
+    //                             list.size())));
+    // }
 
-    public com.branch.demo.domain.Nhom getNhomById(Long id) {
-        return nhomRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm với ID: " + id));
-    }
+    // public com.branch.demo.domain.Nhom getNhomById(Long id) {
+    //     return nhomRepository.findById(id)
+    //             .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm với ID: " + id));
+    // }
 
-    public com.branch.demo.domain.Nhom saveNhom(com.branch.demo.domain.Nhom nhom) {
-        // Xử lý null cho mô tả (field không bắt buộc)
-        if (nhom.getMoTa() != null && nhom.getMoTa().trim().isEmpty()) {
-            nhom.setMoTa(null);
-        }
+    // public com.branch.demo.domain.Nhom saveNhom(com.branch.demo.domain.Nhom nhom) {
+    //     // Xử lý null cho mô tả (field không bắt buộc)
+    //     if (nhom.getMoTa() != null && nhom.getMoTa().trim().isEmpty()) {
+    //         nhom.setMoTa(null);
+    //     }
 
-        // Nếu có điểm nhóm ID, tìm và set điểm nhóm
-        if (nhom.getDiemNhom() != null && nhom.getDiemNhom().getId() != null) {
-            com.branch.demo.domain.DiemNhom diemNhom = diemNhomRepository.findById(nhom.getDiemNhom().getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm"));
-            nhom.setDiemNhom(diemNhom);
-        }
+    //     // Nếu có điểm nhóm ID, tìm và set điểm nhóm
+    //     if (nhom.getDiemNhom() != null && nhom.getDiemNhom().getId() != null) {
+    //         com.branch.demo.domain.DiemNhom diemNhom = diemNhomRepository.findById(nhom.getDiemNhom().getId())
+    //                 .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm"));
+    //         nhom.setDiemNhom(diemNhom);
+    //     }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (nhom.getId() != null) {
-            com.branch.demo.domain.Nhom existingNhom = nhomRepository.findById(nhom.getId()).orElse(null);
-            if (existingNhom != null && existingNhom.getCreatedAt() != null) {
-                nhom.setCreatedAt(existingNhom.getCreatedAt());
-            }
-        }
+    //     // Nếu là update (có ID), giữ nguyên createdAt
+    //     if (nhom.getId() != null) {
+    //         com.branch.demo.domain.Nhom existingNhom = nhomRepository.findById(nhom.getId()).orElse(null);
+    //         if (existingNhom != null && existingNhom.getCreatedAt() != null) {
+    //             nhom.setCreatedAt(existingNhom.getCreatedAt());
+    //         }
+    //     }
 
-        return nhomRepository.save(nhom);
-    }
+    //     return nhomRepository.save(nhom);
+    // }
 
-    public void deleteNhom(Long id) {
-        com.branch.demo.domain.Nhom nhom = getNhomById(id);
+    // public void deleteNhom(Long id) {
+    //     com.branch.demo.domain.Nhom nhom = getNhomById(id);
 
-        // Set nhóm của các tin hữu thành null trước khi xóa nhóm
-        if (!nhom.getDanhSachTinHuu().isEmpty()) {
-            for (com.branch.demo.domain.TinHuu tinHuu : nhom.getDanhSachTinHuu()) {
-                tinHuu.setNhom(null);
-                tinHuuRepository.save(tinHuu);
-            }
-        }
+    //     // Set nhóm của các tin hữu thành null trước khi xóa nhóm
+    //     if (!nhom.getDanhSachTinHuu().isEmpty()) {
+    //         for (com.branch.demo.domain.TinHuu tinHuu : nhom.getDanhSachTinHuu()) {
+    //             tinHuu.setNhom(null);
+    //             tinHuuRepository.save(tinHuu);
+    //         }
+    //     }
 
-        nhomRepository.deleteById(id);
-    }
+    //     nhomRepository.deleteById(id);
+    // }
 
     public java.util.List<com.branch.demo.domain.DiemNhom> getAllActiveDiemNhom() {
         return diemNhomRepository.findByTrangThai(com.branch.demo.domain.DiemNhom.TrangThaiDiemNhom.HOAT_DONG);
@@ -272,9 +272,6 @@ public class AdminService {
         if (diemNhom.getMoTa() != null && diemNhom.getMoTa().trim().isEmpty()) {
             diemNhom.setMoTa(null);
         }
-        if (diemNhom.getThoiGianSinhHoat() != null && diemNhom.getThoiGianSinhHoat().trim().isEmpty()) {
-            diemNhom.setThoiGianSinhHoat(null);
-        }
 
         // Nếu có ban ngành ID, tìm và set ban ngành
         if (diemNhom.getBanNganh() != null && diemNhom.getBanNganh().getId() != null) {
@@ -321,6 +318,125 @@ public class AdminService {
 
     public java.util.List<com.branch.demo.domain.Nhom> getAllActiveNhom() {
         return nhomRepository.findAll();
+    }
+
+    // ==================== NHÓM MANAGEMENT METHODS ====================
+
+    public Page<com.branch.demo.domain.Nhom> getNhomPage(int page, String search) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        if (search == null || search.trim().isEmpty()) {
+            return nhomRepository.findAll(pageable);
+        }
+        // Tìm theo tên nhóm và mô tả
+        return nhomRepository.findByTenNhomContainingIgnoreCaseOrMoTaContainingIgnoreCase(search, search, pageable);
+    }
+
+    public Page<com.branch.demo.domain.Nhom> getNhomPageWithFilters(int page, String search,
+            String trangThai, Long diemNhomId, java.time.LocalDate fromDate, java.time.LocalDate toDate) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        // Convert LocalDate to LocalDateTime
+        java.time.LocalDateTime fromDateTime = fromDate != null ? fromDate.atStartOfDay() : null;
+        java.time.LocalDateTime toDateTime = toDate != null ? toDate.atTime(23, 59, 59) : null;
+
+        // Convert String to Enum
+        com.branch.demo.domain.Nhom.TrangThaiNhom trangThaiEnum = null;
+        if (trangThai != null && !trangThai.isEmpty()) {
+            try {
+                trangThaiEnum = com.branch.demo.domain.Nhom.TrangThaiNhom.valueOf(trangThai);
+            } catch (IllegalArgumentException e) {
+                // Invalid enum value, ignore
+            }
+        }
+
+        return nhomRepository.findWithAdvancedFilters(search, trangThaiEnum, diemNhomId, fromDateTime, toDateTime, pageable);
+    }
+
+    public com.branch.demo.domain.Nhom getNhomById(Long id) {
+        return nhomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm với ID: " + id));
+    }
+
+    public com.branch.demo.domain.Nhom saveNhom(com.branch.demo.domain.Nhom nhom) {
+        // Xử lý null cho các field không bắt buộc
+        if (nhom.getMoTa() != null && nhom.getMoTa().trim().isEmpty()) {
+            nhom.setMoTa(null);
+        }
+        if (nhom.getThoiGianSinhHoat() != null && nhom.getThoiGianSinhHoat().trim().isEmpty()) {
+            nhom.setThoiGianSinhHoat(null);
+        }
+
+        // Nếu có điểm nhóm ID, tìm và set điểm nhóm
+        if (nhom.getDiemNhom() != null && nhom.getDiemNhom().getId() != null) {
+            com.branch.demo.domain.DiemNhom diemNhom = diemNhomRepository.findById(nhom.getDiemNhom().getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm"));
+            nhom.setDiemNhom(diemNhom);
+        } else {
+            nhom.setDiemNhom(null);
+        }
+
+        // Nếu là update (có ID), giữ nguyên createdAt
+        if (nhom.getId() != null) {
+            com.branch.demo.domain.Nhom existingNhom = nhomRepository.findById(nhom.getId())
+                    .orElse(null);
+            if (existingNhom != null && existingNhom.getCreatedAt() != null) {
+                nhom.setCreatedAt(existingNhom.getCreatedAt());
+            }
+        }
+
+        return nhomRepository.save(nhom);
+    }
+
+    public void deleteNhom(Long id) {
+        com.branch.demo.domain.Nhom nhom = getNhomById(id);
+
+        // Set nhóm của các tin hữu thành null trước khi xóa
+        if (!nhom.getDanhSachTinHuu().isEmpty()) {
+            for (com.branch.demo.domain.TinHuu tinHuu : nhom.getDanhSachTinHuu()) {
+                tinHuu.setNhom(null);
+                tinHuuRepository.save(tinHuu);
+            }
+        }
+
+        nhomRepository.deleteById(id);
+    }
+
+    public java.util.List<java.util.Map<String, Object>> getTinHuuByNhomId(Long nhomId) {
+        com.branch.demo.domain.Nhom nhom = getNhomById(nhomId);
+        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        
+        for (com.branch.demo.domain.TinHuu tinHuu : nhom.getDanhSachTinHuu()) {
+            java.util.Map<String, Object> tinHuuData = new java.util.HashMap<>();
+            tinHuuData.put("id", tinHuu.getId());
+            tinHuuData.put("hoTen", tinHuu.getHoTen());
+            tinHuuData.put("namSinh", tinHuu.getNamSinh());
+            tinHuuData.put("gioiTinh", tinHuu.getGioiTinh());
+            tinHuuData.put("avatarUrl", tinHuu.getAvatarUrl());
+            result.add(tinHuuData);
+        }
+        
+        return result;
+    }
+
+    public java.util.List<java.util.Map<String, Object>> getTinHuuByDiemNhomId(Long diemNhomId) {
+        com.branch.demo.domain.DiemNhom diemNhom = getDiemNhomById(diemNhomId);
+        java.util.List<java.util.Map<String, Object>> result = new java.util.ArrayList<>();
+        
+        // Lấy tất cả tin hữu từ tất cả nhóm trong điểm nhóm
+        for (com.branch.demo.domain.Nhom nhom : diemNhom.getDanhSachNhom()) {
+            for (com.branch.demo.domain.TinHuu tinHuu : nhom.getDanhSachTinHuu()) {
+                java.util.Map<String, Object> tinHuuData = new java.util.HashMap<>();
+                tinHuuData.put("id", tinHuu.getId());
+                tinHuuData.put("hoTen", tinHuu.getHoTen());
+                tinHuuData.put("namSinh", tinHuu.getNamSinh());
+                tinHuuData.put("gioiTinh", tinHuu.getGioiTinh());
+                tinHuuData.put("avatarUrl", tinHuu.getAvatarUrl());
+                tinHuuData.put("nhomTen", nhom.getTenNhom()); // Thêm tên nhóm
+                result.add(tinHuuData);
+            }
+        }
+        
+        return result;
     }
 
     // ==================== BAN NGÀNH MANAGEMENT METHODS ====================
@@ -404,29 +520,29 @@ public class AdminService {
         banNganhRepository.deleteById(id);
     }
 
-    // Nhóm với filter nâng cao
-    public Page<com.branch.demo.domain.Nhom> getNhomPageWithFilters(int page, String search,
-            String trangThai, Long diemNhomId,
-            java.time.LocalDate fromDate, java.time.LocalDate toDate) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+    // // Nhóm với filter nâng cao
+    // public Page<com.branch.demo.domain.Nhom> getNhomPageWithFilters(int page, String search,
+    //         String trangThai, Long diemNhomId,
+    //         java.time.LocalDate fromDate, java.time.LocalDate toDate) {
+    //     Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // Convert LocalDate to LocalDateTime
-        java.time.LocalDateTime fromDateTime = fromDate != null ? fromDate.atStartOfDay() : null;
-        java.time.LocalDateTime toDateTime = toDate != null ? toDate.atTime(23, 59, 59) : null;
+    //     // Convert LocalDate to LocalDateTime
+    //     java.time.LocalDateTime fromDateTime = fromDate != null ? fromDate.atStartOfDay() : null;
+    //     java.time.LocalDateTime toDateTime = toDate != null ? toDate.atTime(23, 59, 59) : null;
 
-        // Convert String to Enum
-        com.branch.demo.domain.Nhom.TrangThaiNhom trangThaiEnum = null;
-        if (trangThai != null && !trangThai.isEmpty()) {
-            try {
-                trangThaiEnum = com.branch.demo.domain.Nhom.TrangThaiNhom.valueOf(trangThai);
-            } catch (IllegalArgumentException e) {
-                // Invalid enum value, ignore
-            }
-        }
+    //     // Convert String to Enum
+    //     com.branch.demo.domain.Nhom.TrangThaiNhom trangThaiEnum = null;
+    //     if (trangThai != null && !trangThai.isEmpty()) {
+    //         try {
+    //             trangThaiEnum = com.branch.demo.domain.Nhom.TrangThaiNhom.valueOf(trangThai);
+    //         } catch (IllegalArgumentException e) {
+    //             // Invalid enum value, ignore
+    //         }
+    //     }
 
-        return nhomRepository.findWithAdvancedFilters(search, trangThaiEnum, diemNhomId, fromDateTime, toDateTime,
-                pageable);
-    }
+    //     return nhomRepository.findWithAdvancedFilters(search, trangThaiEnum, diemNhomId, fromDateTime, toDateTime,
+    //             pageable);
+    // }
 
     // ==================== NHÂN SỰ MANAGEMENT METHODS ====================
 
@@ -545,7 +661,6 @@ public class AdminService {
         dto.setTenDiemNhom(diemNhom.getTenDiemNhom());
         dto.setDiaChi(diemNhom.getDiaChi());
         dto.setMoTa(diemNhom.getMoTa());
-        dto.setThoiGianSinhHoat(diemNhom.getThoiGianSinhHoat());
 
         // Convert BanNganh if exists
         if (diemNhom.getBanNganh() != null) {

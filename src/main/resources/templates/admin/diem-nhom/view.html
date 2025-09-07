@@ -19,15 +19,15 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="text-primary">
-                        <i class="fas fa-layer-group me-2"></i>Chi Tiết Nhóm
+                        <i class="fas fa-map-marker-alt me-2"></i>Chi Tiết Điểm Nhóm
                     </h2>
-                    <p class="text-muted mb-0">Thông tin chi tiết và đầy đủ của nhóm</p>
+                    <p class="text-muted mb-0">Thông tin chi tiết và đầy đủ của điểm nhóm</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" class="btn btn-warning">
+                    <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="btn btn-warning">
                         <i class="fas fa-edit me-2"></i>Chỉnh Sửa
                     </a>
-                    <a th:href="@{/admin/nhom}" class="btn btn-secondary">
+                    <a th:href="@{/admin/diem-nhom}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Quay Lại
                     </a>
                 </div>
@@ -38,26 +38,29 @@
                 <div class="col-lg-4">
                     <div class="card shadow-lg border-0">
                         <div class="card-body text-center p-4">
-                            <!-- Group Icon -->
+                            <!-- Location Icon -->
                             <div class="mb-4">
-                                <div class="group-icon bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-users fa-3x"></i>
+                                <div class="location-icon bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center">
+                                    <i class="fas fa-map-marker-alt fa-3x"></i>
                                 </div>
                             </div>
                             
                             <!-- Name & Basic Info -->
-                            <h3 class="text-primary mb-1" th:text="${nhom.tenNhom}">Tên Nhóm</h3>
-                            <p class="text-muted mb-3" th:text="${nhom.diemNhom?.tenDiemNhom ?: 'Chưa phân công điểm nhóm'}">Điểm nhóm</p>
+                            <h3 class="text-primary mb-1" th:text="${diemNhom.tenDiemNhom}">Tên Điểm Nhóm</h3>
+                            <p class="text-muted mb-3" th:text="${diemNhom.banNganh?.tenBan ?: 'Chưa phân công ban ngành'}">Ban ngành</p>
                             
                             <!-- Status Badge -->
                             <div class="mb-4">
-                                <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success fs-6 px-3 py-2">
+                                <span th:if="${diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success fs-6 px-3 py-2">
                                     <i class="fas fa-check-circle me-1"></i>Đang Hoạt Động
                                 </span>
-                                <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning fs-6 px-3 py-2">
+                                <span th:if="${diemNhom.trangThai.name() == 'CHUAN_BI'}" class="badge bg-warning fs-6 px-3 py-2">
+                                    <i class="fas fa-clock me-1"></i>Chuẩn Bị
+                                </span>
+                                <span th:if="${diemNhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-secondary fs-6 px-3 py-2">
                                     <i class="fas fa-pause-circle me-1"></i>Tạm Nghỉ
                                 </span>
-                                <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger fs-6 px-3 py-2">
+                                <span th:if="${diemNhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger fs-6 px-3 py-2">
                                     <i class="fas fa-times-circle me-1"></i>Đóng Cửa
                                 </span>
                             </div>
@@ -66,19 +69,19 @@
                             <div class="row text-center">
                                 <div class="col-6">
                                     <div class="stat-item">
-                                        <button type="button" class="btn btn-link p-0 text-decoration-none tin-huu-btn" 
-                                                th:data-nhom-id="${nhom.id}"
-                                                th:data-nhom-name="${nhom.tenNhom}"
-                                                th:disabled="${nhom.soLuongTinHuu == 0}">
-                                            <h4 class="text-primary mb-0" th:text="${nhom.soLuongTinHuu}">0</h4>
-                                            <small class="text-muted">Tin Hữu</small>
-                                        </button>
+                                        <h4 class="text-primary mb-0" th:text="${#lists.size(diemNhom.danhSachNhom)}">0</h4>
+                                        <small class="text-muted">Nhóm</small>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="stat-item">
-                                        <h4 class="text-success mb-0" th:text="${nhom.trangThai.name() == 'HOAT_DONG' ? 'Hoạt động' : 'Không hoạt động'}">Trạng thái</h4>
-                                        <small class="text-muted">Tình trạng</small>
+                                        <button type="button" class="btn btn-link p-0 text-decoration-none tin-huu-btn" 
+                                                th:data-diem-nhom-id="${diemNhom.id}"
+                                                th:data-diem-nhom-name="${diemNhom.tenDiemNhom}"
+                                                th:disabled="${diemNhom.tongSoTinHuu == 0}">
+                                            <h4 class="text-success mb-0" th:text="${diemNhom.tongSoTinHuu}">0</h4>
+                                            <small class="text-muted">Tin Hữu</small>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -87,25 +90,25 @@
 
                     <!-- Quick Actions -->
                     <div class="card shadow border-0 mt-4">
-                        <div class="card-header bg-gradient-primary text-white">
+                        <div class="card-header bg-gradient-success text-white">
                             <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" class="btn btn-warning">
+                                <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="btn btn-warning">
                                     <i class="fas fa-edit me-2"></i>Chỉnh Sửa
                                 </a>
                                 <button type="button" class="btn btn-danger" 
-                                        th:data-id="${nhom.id}"
-                                        th:data-name="${nhom.tenNhom}"
+                                        th:data-id="${diemNhom.id}"
+                                        th:data-name="${diemNhom.tenDiemNhom}"
                                         onclick="confirmDelete(this.dataset.id, this.dataset.name)">
-                                    <i class="fas fa-trash me-2"></i>Xóa Nhóm
+                                    <i class="fas fa-trash me-2"></i>Xóa Điểm Nhóm
                                 </button>
                                 <hr>
-                                <a th:href="@{/admin/nhom}" class="btn btn-outline-secondary">
+                                <a th:href="@{/admin/diem-nhom}" class="btn btn-outline-secondary">
                                     <i class="fas fa-list me-2"></i>Danh Sách
                                 </a>
-                                <a th:href="@{/admin/nhom/new}" class="btn btn-outline-primary">
+                                <a th:href="@{/admin/diem-nhom/new}" class="btn btn-outline-primary">
                                     <i class="fas fa-plus me-2"></i>Thêm Mới
                                 </a>
                             </div>
@@ -126,21 +129,24 @@
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label class="info-label">Tên Nhóm</label>
-                                        <div class="info-value" th:text="${nhom.tenNhom}">-</div>
+                                        <label class="info-label">Tên Điểm Nhóm</label>
+                                        <div class="info-value" th:text="${diemNhom.tenDiemNhom}">-</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
                                         <label class="info-label">Trạng Thái</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
+                                            <span th:if="${diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
                                                 <i class="fas fa-check-circle me-1"></i>Hoạt động
                                             </span>
-                                            <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
+                                            <span th:if="${diemNhom.trangThai.name() == 'CHUAN_BI'}" class="badge bg-warning">
+                                                <i class="fas fa-clock me-1"></i>Chuẩn bị
+                                            </span>
+                                            <span th:if="${diemNhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-secondary">
                                                 <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
                                             </span>
-                                            <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
+                                            <span th:if="${diemNhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
                                                 <i class="fas fa-times-circle me-1"></i>Đóng cửa
                                             </span>
                                         </div>
@@ -148,34 +154,31 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label class="info-label">Điểm Nhóm</label>
+                                        <label class="info-label">Ban Ngành</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.diemNhom}">
-                                                <i class="fas fa-map-marker-alt text-success me-2"></i>
-                                                <span th:text="${nhom.diemNhom.tenDiemNhom}"></span>
+                                            <span th:if="${diemNhom.banNganh}">
+                                                <i class="fas fa-sitemap text-info me-2"></i>
+                                                <span th:text="${diemNhom.banNganh.tenBan}"></span>
                                             </span>
-                                            <span th:unless="${nhom.diemNhom}" class="text-muted">Chưa phân công</span>
+                                            <span th:unless="${diemNhom.banNganh}" class="text-muted">Chưa phân công</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label class="info-label">Số Lượng Tin Hữu</label>
+                                        <label class="info-label">Số Lượng Nhóm</label>
                                         <div class="info-value">
-                                            <span class="badge bg-info fs-6" th:text="${nhom.soLuongTinHuu}">0</span>
-                                            <small class="text-muted ms-1">thành viên</small>
+                                            <span class="badge bg-info fs-6" th:text="${#lists.size(diemNhom.danhSachNhom)}">0</span>
+                                            <small class="text-muted ms-1">nhóm</small>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-12" th:if="${diemNhom.diaChi}">
                                     <div class="info-item">
-                                        <label class="info-label">Thời Gian Sinh Hoạt</label>
+                                        <label class="info-label">Địa Chỉ</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.thoiGianSinhHoat}">
-                                                <i class="fas fa-clock text-info me-2"></i>
-                                                <span th:text="${nhom.thoiGianSinhHoat}"></span>
-                                            </span>
-                                            <span th:unless="${nhom.thoiGianSinhHoat}" class="text-muted">Chưa có lịch sinh hoạt</span>
+                                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                            <span th:text="${diemNhom.diaChi}"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -183,10 +186,10 @@
                                     <div class="info-item">
                                         <label class="info-label">Mô Tả</label>
                                         <div class="info-value">
-                                            <div class="note-box bg-light border-start border-4 border-info p-3 rounded">
-                                                <i class="fas fa-align-left text-info me-2"></i>
-                                                <span th:if="${nhom.moTa}" th:text="${nhom.moTa}"></span>
-                                                <span th:unless="${nhom.moTa}" class="text-muted">Chưa có mô tả</span>
+                                            <div class="note-box bg-light border-start border-4 border-success p-3 rounded">
+                                                <i class="fas fa-align-left text-success me-2"></i>
+                                                <span th:if="${diemNhom.moTa}" th:text="${diemNhom.moTa}"></span>
+                                                <span th:unless="${diemNhom.moTa}" class="text-muted">Chưa có mô tả</span>
                                             </div>
                                         </div>
                                     </div>
@@ -195,46 +198,80 @@
                         </div>
                     </div>
 
-                    <!-- Điểm Nhóm Information -->
-                    <div class="card shadow border-0 mb-4" th:if="${nhom.diemNhom}">
+                    <!-- Groups List -->
+                    <div class="card shadow border-0 mb-4" th:if="${!#lists.isEmpty(diemNhom.danhSachNhom)}">
                         <div class="card-header bg-light border-0">
-                            <h5 class="text-success mb-0">
-                                <i class="fas fa-map-marker-alt me-2"></i>Thông Tin Điểm Nhóm
+                            <h5 class="text-info mb-0">
+                                <i class="fas fa-layer-group me-2"></i>Danh Sách Nhóm
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-12" th:each="nhom : ${diemNhom.danhSachNhom}">
+                                    <div class="group-item border rounded p-3 mb-3 bg-light">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <i class="fas fa-users text-primary me-2"></i>
+                                                    <span th:text="${nhom.tenNhom}">Tên nhóm</span>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user-friends me-1"></i>
+                                                    <span th:text="${nhom.soLuongTinHuu}">0</span> tin hữu
+                                                </small>
+                                            </div>
+                                            <div>
+                                                <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                                </span>
+                                                <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
+                                                    <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
+                                                </span>
+                                                <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
+                                                    <i class="fas fa-times-circle me-1"></i>Đóng cửa
+                                                </span>
+                                                <a th:href="@{/admin/nhom/view/{id}(id=${nhom.id})}" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="fas fa-eye me-1"></i>Xem
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ban Ngành Information -->
+                    <div class="card shadow border-0 mb-4" th:if="${diemNhom.banNganh}">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="text-warning mb-0">
+                                <i class="fas fa-sitemap me-2"></i>Thông Tin Ban Ngành
                             </h5>
                         </div>
                         <div class="card-body">
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label class="info-label">Tên Điểm Nhóm</label>
-                                        <div class="info-value" th:text="${nhom.diemNhom.tenDiemNhom}">-</div>
+                                        <label class="info-label">Tên Ban</label>
+                                        <div class="info-value" th:text="${diemNhom.banNganh.tenBan}">-</div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="info-item">
-                                        <label class="info-label">Trạng Thái Điểm Nhóm</label>
+                                        <label class="info-label">Mã Ban</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
-                                                <i class="fas fa-check-circle me-1"></i>Hoạt động
-                                            </span>
-                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'CHUAN_BI'}" class="badge bg-warning">
-                                                <i class="fas fa-clock me-1"></i>Chuẩn bị
-                                            </span>
-                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-secondary">
-                                                <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
-                                            </span>
-                                            <span th:if="${nhom.diemNhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
-                                                <i class="fas fa-times-circle me-1"></i>Đóng cửa
-                                            </span>
+                                            <span class="badge bg-warning text-dark" th:text="${diemNhom.banNganh.maBan}">-</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-12" th:if="${nhom.diemNhom.diaChi}">
+                                <div class="col-12" th:if="${diemNhom.banNganh.moTa}">
                                     <div class="info-item">
-                                        <label class="info-label">Địa Chỉ</label>
+                                        <label class="info-label">Mô Tả Ban Ngành</label>
                                         <div class="info-value">
-                                            <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                                            <span th:text="${nhom.diemNhom.diaChi}"></span>
+                                            <div class="note-box bg-light border-start border-4 border-warning p-3 rounded">
+                                                <i class="fas fa-info-circle text-warning me-2"></i>
+                                                <span th:text="${diemNhom.banNganh.moTa}"></span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -253,9 +290,9 @@
                             <div class="row g-4">
                                 <div class="col-md-4">
                                     <div class="info-item text-center">
-                                        <label class="info-label">ID Nhóm</label>
+                                        <label class="info-label">ID Điểm Nhóm</label>
                                         <div class="info-value">
-                                            <span class="badge bg-primary fs-6" th:text="'#' + ${nhom.id}"></span>
+                                            <span class="badge bg-primary fs-6" th:text="'#' + ${diemNhom.id}"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -263,11 +300,11 @@
                                     <div class="info-item text-center">
                                         <label class="info-label">Ngày Tạo</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.createdAt}">
+                                            <span th:if="${diemNhom.createdAt}">
                                                 <i class="fas fa-calendar-plus text-success me-1"></i>
-                                                <span th:text="${#temporals.format(nhom.createdAt, 'dd/MM/yyyy')}"></span>
+                                                <span th:text="${#temporals.format(diemNhom.createdAt, 'dd/MM/yyyy')}"></span>
                                             </span>
-                                            <span th:unless="${nhom.createdAt}" class="text-muted">-</span>
+                                            <span th:unless="${diemNhom.createdAt}" class="text-muted">-</span>
                                         </div>
                                     </div>
                                 </div>
@@ -275,11 +312,11 @@
                                     <div class="info-item text-center">
                                         <label class="info-label">Cập Nhật Cuối</label>
                                         <div class="info-value">
-                                            <span th:if="${nhom.updatedAt}">
+                                            <span th:if="${diemNhom.updatedAt}">
                                                 <i class="fas fa-edit text-warning me-1"></i>
-                                                <span th:text="${#temporals.format(nhom.updatedAt, 'dd/MM/yyyy')}"></span>
+                                                <span th:text="${#temporals.format(diemNhom.updatedAt, 'dd/MM/yyyy')}"></span>
                                             </span>
-                                            <span th:unless="${nhom.updatedAt}" class="text-muted">-</span>
+                                            <span th:unless="${diemNhom.updatedAt}" class="text-muted">-</span>
                                         </div>
                                     </div>
                                 </div>
@@ -297,7 +334,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-users me-2"></i>Danh Sách Tin Hữu - <span id="modalNhomName"></span>
+                        <i class="fas fa-users me-2"></i>Danh Sách Tin Hữu - <span id="modalDiemNhomName"></span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -315,7 +352,7 @@
                     </div>
                     <div id="tinHuuEmpty" style="display: none;" class="text-center py-4 text-muted">
                         <i class="fas fa-user-slash fa-2x mb-2 d-block"></i>
-                        <p>Nhóm này chưa có tin hữu nào</p>
+                        <p>Điểm nhóm này chưa có tin hữu nào</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -334,7 +371,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa nhóm <strong id="deleteName"></strong>?</p>
+                    <p>Bạn có chắc chắn muốn xóa điểm nhóm <strong id="deleteName"></strong>?</p>
                     <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Hành động này không thể hoàn tác!</p>
                 </div>
                 <div class="modal-footer">
@@ -354,7 +391,7 @@
     <script>
         function confirmDelete(id, name) {
             document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = '/admin/nhom/delete/' + id;
+            document.getElementById('deleteForm').action = '/admin/diem-nhom/delete/' + id;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
 
@@ -362,16 +399,16 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.tin-huu-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const nhomId = this.getAttribute('data-nhom-id');
-                    const nhomName = this.getAttribute('data-nhom-name');
-                    showTinHuuModal(nhomId, nhomName);
+                    const diemNhomId = this.getAttribute('data-diem-nhom-id');
+                    const diemNhomName = this.getAttribute('data-diem-nhom-name');
+                    showTinHuuModal(diemNhomId, diemNhomName);
                 });
             });
         });
 
         // Show tin huu modal
-        function showTinHuuModal(nhomId, nhomName) {
-            document.getElementById('modalNhomName').textContent = nhomName;
+        function showTinHuuModal(diemNhomId, diemNhomName) {
+            document.getElementById('modalDiemNhomName').textContent = diemNhomName;
             
             // Show loading
             document.getElementById('tinHuuLoading').style.display = 'block';
@@ -383,7 +420,7 @@
             modal.show();
             
             // Load tin huu data
-            fetch(`/admin/api/nhom/${nhomId}/tin-huu`)
+            fetch(`/admin/api/diem-nhom/${diemNhomId}/tin-huu`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('tinHuuLoading').style.display = 'none';
@@ -414,9 +451,10 @@
                 const col = document.createElement('div');
                 col.className = 'col-md-6 mb-3';
                 
-                const avatarUrl = tinHuu.avatarUrl || '/static/images/default-avatar.svg';
+                const avatarUrl = tinHuu.avatarUrl || 'https://via.placeholder.com/50x50/007bff/ffffff?text=' + encodeURIComponent(tinHuu.hoTen.charAt(0));
                 const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
                 const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
+                const nhomTen = tinHuu.nhomTen || 'Chưa có nhóm';
                 const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' : 
                                    gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
                 
@@ -430,6 +468,7 @@
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1">${tinHuu.hoTen}</h6>
                                     <div class="small text-muted">
+                                        <div><i class="fas fa-layer-group me-1"></i>Nhóm: ${nhomTen}</div>
                                         <div><i class="fas fa-birthday-cake me-1"></i>Năm sinh: ${namSinh}</div>
                                         <div><i class="${gioiTinhIcon} me-1"></i>Giới tính: ${gioiTinh}</div>
                                     </div>
@@ -448,7 +487,7 @@
     </script>
     
     <style>
-        .group-icon {
+        .location-icon {
             width: 120px;
             height: 120px;
         }
@@ -477,8 +516,8 @@
             padding: 1rem 0;
         }
         
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
         
         .card {
@@ -491,9 +530,17 @@
         
         .note-box {
             background-color: #f8f9fa !important;
-            border-left: 4px solid #17a2b8 !important;
             font-size: 0.95rem;
             line-height: 1.5;
+        }
+        
+        .group-item {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .group-item:hover {
+            background-color: #e9ecef !important;
+            transform: translateX(5px);
         }
         
         .tin-huu-card {

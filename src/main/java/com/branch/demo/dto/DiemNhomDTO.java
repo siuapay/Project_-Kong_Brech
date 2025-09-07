@@ -5,18 +5,16 @@ public class DiemNhomDTO {
     private String tenDiemNhom;
     private String diaChi;
     private String moTa;
-    private String thoiGianSinhHoat;
     private BanNganhDTO banNganh;
     
     // Constructors
     public DiemNhomDTO() {}
     
-    public DiemNhomDTO(Long id, String tenDiemNhom, String diaChi, String moTa, String thoiGianSinhHoat) {
+    public DiemNhomDTO(Long id, String tenDiemNhom, String diaChi, String moTa) {
         this.id = id;
         this.tenDiemNhom = tenDiemNhom;
         this.diaChi = diaChi;
         this.moTa = moTa;
-        this.thoiGianSinhHoat = thoiGianSinhHoat;
     }
     
     // Getters and Setters
@@ -31,9 +29,6 @@ public class DiemNhomDTO {
     
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
-    
-    public String getThoiGianSinhHoat() { return thoiGianSinhHoat; }
-    public void setThoiGianSinhHoat(String thoiGianSinhHoat) { this.thoiGianSinhHoat = thoiGianSinhHoat; }
     
     public BanNganhDTO getBanNganh() { return banNganh; }
     public void setBanNganh(BanNganhDTO banNganh) { this.banNganh = banNganh; }

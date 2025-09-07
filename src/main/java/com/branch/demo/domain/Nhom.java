@@ -21,6 +21,9 @@ public class Nhom {
     @Column(name = "mo_ta", length = 1000)
     private String moTa;
     
+    @Column(name = "thoi_gian_sinh_hoat", length = 255)
+    private String thoiGianSinhHoat;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diem_nhom_id")
     @JsonBackReference
@@ -67,6 +70,9 @@ public class Nhom {
     
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
+    
+    public String getThoiGianSinhHoat() { return thoiGianSinhHoat; }
+    public void setThoiGianSinhHoat(String thoiGianSinhHoat) { this.thoiGianSinhHoat = thoiGianSinhHoat; }
     
     public DiemNhom getDiemNhom() { return diemNhom; }
     public void setDiemNhom(DiemNhom diemNhom) { this.diemNhom = diemNhom; }
