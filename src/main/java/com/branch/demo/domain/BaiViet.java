@@ -104,10 +104,13 @@ public class BaiViet {
     
     public enum LoaiTacGia {
         MUC_SU("Mục sư"),
-        THU_KY("Thư ký"),
-        ADMIN("Admin"),
-        NHAN_SU("Nhân sự"),
-        KHACH("Khách");
+    THU_KY("Thư ký"),
+    ADMIN("Admin"),
+    NHAN_SU("Nhân sự"),
+    KHACH("Khách"),
+    EDITOR("Biên tập viên"),
+    CONTRIBUTOR("Cộng tác viên"),
+    GUEST("Khách mời");
         
         private final String displayName;
         

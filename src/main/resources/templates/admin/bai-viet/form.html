@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}">
-    <!-- TinyMCE Editor -->
-    <script src="https://cdn.tiny.cloud/1/hngku65588t9pgc2gsx4e094p20bzihf2v676zzlvvw99iaj/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-</head>
+<head th:replace="~{fragments/admin-layout :: head}"></head>
 <body>
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
@@ -121,7 +118,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Nội dung <span class="text-danger">*</span></label>
                                         <textarea class="form-control" th:field="*{noiDung}" rows="15" 
-                                                  required placeholder="Nhập nội dung bài viết..."></textarea>
+                                                  id="noiDung" placeholder="Nhập nội dung bài viết..."></textarea>
                                         <div class="form-text">Sử dụng định dạng văn bản thuần túy</div>
                                         <div class="invalid-feedback" th:if="${#fields.hasErrors('noiDung')}" th:errors="*{noiDung}"></div>
                                     </div>
@@ -328,9 +325,15 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.cloud/1/hngku65588t9pgc2gsx4e094p20bzihf2v676zzlvvw99iaj/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
+    
     <script>
-        // Initialize TinyMCE
-        tinymce.init({
+        // Wait for TinyMCE to load before initializing
+        function initializeTinyMCE() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.init({
             selector: '#richContent',
             height: 400,
             menubar: false,
@@ -341,6 +344,16 @@
             ],
             toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
             content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                });
+            } else {
+                // Retry after 100ms if TinyMCE is not loaded yet
+                setTimeout(initializeTinyMCE, 100);
+            }
+        }
+
+        // Initialize TinyMCE when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTinyMCE();
         });
 
         // Editor mode toggle
@@ -348,15 +361,50 @@
             radio.addEventListener('change', function() {
                 const simpleEditor = document.getElementById('simpleEditor');
                 const richEditor = document.getElementById('richEditor');
+                const noiDungField = document.getElementById('noiDung');
                 
                 if (this.id === 'simpleMode') {
                     simpleEditor.style.display = 'block';
                     richEditor.style.display = 'none';
+                    noiDungField.setAttribute('required', 'required');
                 } else {
                     simpleEditor.style.display = 'none';
                     richEditor.style.display = 'block';
+                    noiDungField.removeAttribute('required');
                 }
             });
+        });
+
+        // Form validation before submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const simpleMode = document.getElementById('simpleMode').checked;
+            const richMode = document.getElementById('richMode').checked;
+            const noiDung = document.getElementById('noiDung').value.trim();
+            const richContent = tinymce.get('richContent') ? tinymce.get('richContent').getContent() : '';
+            
+            // Validate content based on mode
+            if (simpleMode && !noiDung) {
+                e.preventDefault();
+                alert('Vui lòng nhập nội dung bài viết!');
+                document.getElementById('noiDung').focus();
+                return false;
+            }
+            
+            if (richMode && !richContent.trim()) {
+                e.preventDefault();
+                alert('Vui lòng nhập nội dung rich text!');
+                if (tinymce.get('richContent')) {
+                    tinymce.get('richContent').focus();
+                }
+                return false;
+            }
+            
+            // If using rich editor, clear simple content to avoid confusion
+            if (richMode && richContent.trim()) {
+                document.getElementById('noiDung').value = '';
+            }
+            
+            return true;
         });
 
         // Generate slug from title
