@@ -3,6 +3,9 @@ package com.branch.demo.controller;
 import com.branch.demo.service.AdminService;
 import com.branch.demo.service.FileUploadService;
 import com.branch.demo.dto.SuKienDTO;
+import com.branch.demo.repository.BaiVietRepository;
+import com.branch.demo.repository.BanNganhRepository;
+import com.branch.demo.repository.LoaiSuKienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -20,6 +23,15 @@ public class AdminController {
 
     @Autowired
     private FileUploadService fileUploadService;
+
+    @Autowired
+    private BanNganhRepository banNganhRepository;
+
+    @Autowired
+    private LoaiSuKienRepository loaiSuKienRepository;
+
+    @Autowired
+    private BaiVietRepository baiVietRepository;
 
     @GetMapping
     public String adminDashboard(Model model) {
@@ -323,6 +335,88 @@ public class AdminController {
         return adminService.getTinHuuByDiemNhomId(id);
     }
 
+    // @GetMapping("/api/diem-nhom/{id}/nhom")
+    // @ResponseBody
+    // public java.util.List<java.util.Map<String, Object>>
+    // getNhomByDiemNhom_1(@PathVariable Long id) {
+    // return adminService.getNhomByDiemNhomId(id);
+    // }
+
+    @GetMapping("/api/tin-huu/available")
+    @ResponseBody
+    public java.util.Map<String, Object> getAvailableTinHuu() {
+        return adminService.getAvailableTinHuuForNhom();
+    }
+
+    @PostMapping("/api/nhom/{id}/add-tin-huu")
+    @ResponseBody
+    public java.util.Map<String, Object> addTinHuuToNhom(@PathVariable Long id,
+            @RequestBody java.util.Map<String, Object> request) {
+        try {
+            @SuppressWarnings("unchecked")
+            java.util.List<Integer> tinHuuIds = (java.util.List<Integer>) request.get("tinHuuIds");
+            java.util.List<Long> longIds = tinHuuIds.stream()
+                    .map(Integer::longValue)
+                    .collect(java.util.stream.Collectors.toList());
+
+            adminService.addTinHuuToNhom(id, longIds);
+
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đã thêm tin hữu vào nhóm thành công");
+            return response;
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return response;
+        }
+    }
+
+    @GetMapping("/api/nhom/all")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getAllNhom() {
+        return adminService.getAllNhomForTransfer();
+    }
+
+    @PostMapping("/api/tin-huu/{id}/remove-from-nhom")
+    @ResponseBody
+    public java.util.Map<String, Object> removeTinHuuFromNhom(@PathVariable Long id) {
+        try {
+            adminService.removeTinHuuFromNhom(id);
+
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đã xóa tin hữu khỏi nhóm thành công");
+            return response;
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return response;
+        }
+    }
+
+    @PostMapping("/api/tin-huu/{id}/transfer-to-nhom")
+    @ResponseBody
+    public java.util.Map<String, Object> transferTinHuuToNhom(@PathVariable Long id,
+            @RequestBody java.util.Map<String, Object> request) {
+        try {
+            Long targetNhomId = Long.valueOf(request.get("targetNhomId").toString());
+            adminService.transferTinHuuToNhom(id, targetNhomId);
+
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", true);
+            response.put("message", "Đã chuyển tin hữu sang nhóm khác thành công");
+            return response;
+        } catch (Exception e) {
+            java.util.Map<String, Object> response = new java.util.HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return response;
+        }
+    }
+
     @GetMapping("/ban-nganh")
     public String banNganhList(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "") String search,
@@ -397,6 +491,36 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
         }
         return "redirect:/admin/ban-nganh";
+    }
+
+    @GetMapping("/api/check-ma-ban-duplicate")
+    @ResponseBody
+    public java.util.Map<String, Object> checkMaBanDuplicate(
+            @RequestParam String maBan,
+            @RequestParam(required = false) String currentId) {
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+        try {
+            java.util.Optional<com.branch.demo.domain.BanNganh> existing = banNganhRepository
+                    .findByMaBan(maBan.toUpperCase().trim());
+
+            boolean isDuplicate = false;
+            if (existing.isPresent()) {
+                // If currentId is provided (edit mode), check if it's the same record
+                if (currentId == null || currentId.trim().isEmpty() ||
+                        !existing.get().getId().toString().equals(currentId)) {
+                    isDuplicate = true;
+                }
+            }
+
+            result.put("isDuplicate", isDuplicate);
+            result.put("success", true);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+
+        return result;
     }
 
     @PostMapping("/ban-nganh/delete/{id}")
@@ -572,6 +696,14 @@ public class AdminController {
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    // // API endpoint để lấy danh sách nhân sự theo ban ngành
+    // @GetMapping("/api/ban-nganh/{id}/nhan-su")
+    // @ResponseBody
+    // public java.util.List<java.util.Map<String, Object>>
+    // getNhanSuByBanNganh(@PathVariable Long id) {
+    // return adminService.getNhanSuByBanNganhId(id);
+    // }
+
     // API endpoint để lấy tất cả điểm nhóm
     @GetMapping("/api/all-diem-nhom")
     @ResponseBody
@@ -588,6 +720,103 @@ public class AdminController {
     public java.util.List<com.branch.demo.dto.BanNganhDTO> getAllBanNganh() {
         return adminService.getAllActiveBanNganhDTO();
     }
+
+    @GetMapping("/api/ban-nganh/{banNganhId}/nhan-su")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getNhanSuByBanNganh(@PathVariable Long banNganhId) {
+        java.util.List<com.branch.demo.domain.NhanSu> nhanSuList = adminService.getNhanSuByBanNganh(banNganhId);
+        return nhanSuList.stream()
+                .map(nhanSu -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", nhanSu.getId());
+                    map.put("hoTen", nhanSu.getHoTen());
+                    map.put("chucVu", nhanSu.getChucVu());
+                    map.put("email", nhanSu.getEmail());
+                    map.put("dienThoai", nhanSu.getDienThoai());
+                    map.put("avatarUrl", nhanSu.getAvatarUrl());
+                    map.put("trangThai", nhanSu.getTrangThai().name());
+                    map.put("diemNhomTen", nhanSu.getDiemNhom() != null ? nhanSu.getDiemNhom().getTenDiemNhom() : null);
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @GetMapping("/api/diem-nhom/{diemNhomId}/nhom")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getNhomByDiemNhom(@PathVariable Long diemNhomId) {
+        java.util.List<com.branch.demo.domain.Nhom> nhomList = adminService.getNhomByDiemNhom(diemNhomId);
+        return nhomList.stream()
+                .map(nhom -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", nhom.getId());
+                    map.put("tenNhom", nhom.getTenNhom());
+                    map.put("soLuongTinHuu", nhom.getSoLuongTinHuu());
+                    map.put("trangThai", nhom.getTrangThai().name());
+                    map.put("thoiGianSinhHoat", nhom.getThoiGianSinhHoat());
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    @GetMapping("/api/nhom-by-diem-nhom/{diemNhomId}")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getNhomByDiemNhom_2(@PathVariable Long diemNhomId) {
+        java.util.List<com.branch.demo.domain.Nhom> nhomList = adminService.getNhomByDiemNhom(diemNhomId);
+        return nhomList.stream()
+                .map(nhom -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", nhom.getId());
+                    map.put("tenNhom", nhom.getTenNhom());
+                    map.put("soLuongTinHuu", nhom.getSoLuongTinHuu());
+                    map.put("trangThai", nhom.getTrangThai().name());
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    // @PostMapping("/api/nhom/transfer")
+    // @ResponseBody
+    // public java.util.Map<String, Object> transferNhom(@RequestBody
+    // java.util.Map<String, Object> request) {
+    // java.util.Map<String, Object> response = new java.util.HashMap<>();
+    // try {
+    // Long nhomId = Long.valueOf(request.get("nhomId").toString());
+    // Long targetDiemNhomId =
+    // Long.valueOf(request.get("targetDiemNhomId").toString());
+
+    // adminService.transferNhomToDiemNhom(nhomId, targetDiemNhomId);
+
+    // response.put("success", true);
+    // response.put("message", "Chuyển nhóm thành công");
+    // } catch (Exception e) {
+    // response.put("success", false);
+    // response.put("message", e.getMessage());
+    // }
+    // return response;
+    // }
+
+    // @PostMapping("/api/nhom/delete")
+    // @ResponseBody
+    // public java.util.Map<String, Object> deleteNhomWithTinHuu(@RequestBody
+    // java.util.Map<String, Object> request) {
+    // java.util.Map<String, Object> response = new java.util.HashMap<>();
+    // try {
+    // Long nhomId = Long.valueOf(request.get("nhomId").toString());
+    // String tinHuuAction = request.get("tinHuuAction").toString();
+    // Long targetNhomId = request.get("targetNhomId") != null ?
+    // Long.valueOf(request.get("targetNhomId").toString()) : null;
+
+    // adminService.deleteNhomWithTinHuuHandling(nhomId, tinHuuAction,
+    // targetNhomId);
+
+    // response.put("success", true);
+    // response.put("message", "Xóa nhóm thành công");
+    // } catch (Exception e) {
+    // response.put("success", false);
+    // response.put("message", e.getMessage());
+    // }
+    // return response;
+    // }
 
     @PostMapping("/su-kien/{id}/delete")
     public String deleteSuKien(@PathVariable Long id, RedirectAttributes redirectAttributes) {
@@ -731,16 +960,19 @@ public class AdminController {
         return "redirect:/admin/diem-nhom";
     }
 
-    @PostMapping("/diem-nhom/delete/{id}")
-    public String deleteDiemNhom(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            adminService.deleteDiemNhom(id);
-            redirectAttributes.addFlashAttribute("success", "Điểm nhóm đã được xóa thành công!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa điểm nhóm: " + e.getMessage());
-        }
-        return "redirect:/admin/diem-nhom";
-    }
+    // @PostMapping("/diem-nhom/delete/{id}")
+    // public String deleteDiemNhom(@PathVariable Long id, RedirectAttributes
+    // redirectAttributes) {
+    // try {
+    // adminService.deleteDiemNhom(id);
+    // redirectAttributes.addFlashAttribute("success", "Điểm nhóm đã được xóa thành
+    // công!");
+    // } catch (Exception e) {
+    // redirectAttributes.addFlashAttribute("error", "Không thể xóa điểm nhóm: " +
+    // e.getMessage());
+    // }
+    // return "redirect:/admin/diem-nhom";
+    // }
 
     @GetMapping("/diem-nhom/view/{id}")
     public String viewDiemNhom(@PathVariable Long id, Model model) {
@@ -758,24 +990,24 @@ public class AdminController {
         model.addAttribute("activeMenu", "tai-chinh");
         return "admin/tai-chinh";
     }
-    
+
     // ==================== SU KIEN MANAGEMENT ====================
-    
+
     @GetMapping("/su-kien")
     public String suKienList(@RequestParam(defaultValue = "0") int page,
-                            @RequestParam(defaultValue = "") String search,
-                            @RequestParam(required = false) String loaiSuKienId,
-                            @RequestParam(required = false) String trangThai,
-                            @RequestParam(required = false) String fromDate,
-                            @RequestParam(required = false) String toDate,
-                            @RequestParam(defaultValue = "createdAt") String sortBy,
-                            @RequestParam(defaultValue = "10") int size,
-                            Model model) {
-        
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String loaiSuKienId,
+            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
         // Xác định field và hướng sắp xếp
         String sortField;
         org.springframework.data.domain.Sort.Direction direction;
-        
+
         switch (sortBy) {
             case "ngayDienRa":
                 sortField = "ngayDienRa";
@@ -791,13 +1023,14 @@ public class AdminController {
                 direction = org.springframework.data.domain.Sort.Direction.DESC; // Mới nhất trước
                 break;
         }
-        
+
         org.springframework.data.domain.Sort sort = org.springframework.data.domain.Sort.by(direction, sortField);
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, sort);
-        
-        org.springframework.data.domain.Page<com.branch.demo.domain.SuKien> suKienPage = 
-            adminService.searchSuKien(search, loaiSuKienId, trangThai, fromDate, toDate, pageable);
-        
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size,
+                sort);
+
+        org.springframework.data.domain.Page<com.branch.demo.domain.SuKien> suKienPage = adminService
+                .searchSuKien(search, loaiSuKienId, trangThai, fromDate, toDate, pageable);
+
         model.addAttribute("suKienPage", suKienPage);
         model.addAttribute("loaiSuKienList", adminService.getAllActiveLoaiSuKien());
         model.addAttribute("danhSachTrangThai", com.branch.demo.domain.SuKien.TrangThaiSuKien.values());
@@ -811,10 +1044,10 @@ public class AdminController {
         model.addAttribute("activeMenu", "su-kien");
         model.addAttribute("title", "Quản Lý Sự Kiện");
         model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
-        
+
         return "admin/su-kien/list";
     }
-    
+
     @GetMapping("/su-kien/new")
     public String newSuKien(Model model) {
         SuKienDTO suKienDTO = new SuKienDTO();
@@ -822,71 +1055,527 @@ public class AdminController {
         model.addAttribute("danhSachLoaiSuKien", adminService.getAllActiveLoaiSuKien());
         model.addAttribute("danhSachTrangThai", com.branch.demo.domain.SuKien.TrangThaiSuKien.values());
         model.addAttribute("isEdit", false);
-          model.addAttribute("activeMenu", "su-kien");
-                model.addAttribute("title", "Quản Lý Sự Kiện");
+        model.addAttribute("activeMenu", "su-kien");
+        model.addAttribute("title", "Quản Lý Sự Kiện");
         model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
-        
+
         return "admin/su-kien/form";
     }
-    
+
     @GetMapping("/su-kien/{id}/edit")
     public String editSuKien(@PathVariable Long id, Model model) {
         try {
             com.branch.demo.domain.SuKien suKien = adminService.getSuKienById(id);
             SuKienDTO suKienDTO = new SuKienDTO(suKien);
-            
+
             model.addAttribute("suKien", suKienDTO);
             model.addAttribute("danhSachLoaiSuKien", adminService.getAllActiveLoaiSuKien());
             model.addAttribute("danhSachTrangThai", com.branch.demo.domain.SuKien.TrangThaiSuKien.values());
             model.addAttribute("isEdit", true);
-              model.addAttribute("activeMenu", "su-kien");
-                    model.addAttribute("title", "Quản Lý Sự Kiện");
-        model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
-            
+            model.addAttribute("activeMenu", "su-kien");
+            model.addAttribute("title", "Quản Lý Sự Kiện");
+            model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
+
             return "admin/su-kien/form";
         } catch (Exception e) {
             return "redirect:/admin/su-kien?error=notfound";
         }
     }
-    
+
     @PostMapping("/su-kien/save")
     public String saveSuKien(@ModelAttribute("suKien") SuKienDTO suKienDTO, RedirectAttributes redirectAttributes) {
         try {
             System.out.println("DEBUG - Received SuKienDTO: " + suKienDTO.getTenSuKien());
             System.out.println("DEBUG - LoaiSuKienId: " + suKienDTO.getLoaiSuKienId());
-            
+
             adminService.saveSuKien(suKienDTO);
-            redirectAttributes.addFlashAttribute("success", 
-                suKienDTO.getId() != null ? "Cập nhật sự kiện thành công!" : "Thêm sự kiện thành công!");
+            redirectAttributes.addFlashAttribute("success",
+                    suKienDTO.getId() != null ? "Cập nhật sự kiện thành công!" : "Thêm sự kiện thành công!");
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
         }
-        
+
         return "redirect:/admin/su-kien";
     }
-    
+
     @GetMapping("/su-kien/{id}")
     public String viewSuKien(@PathVariable Long id, Model model) {
         try {
             com.branch.demo.domain.SuKien suKien = adminService.getSuKienById(id);
             model.addAttribute("suKien", suKien);
-              model.addAttribute("activeMenu", "su-kien");
-                    model.addAttribute("title", "Quản Lý Sự Kiện");
-        model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
-            
+            model.addAttribute("activeMenu", "su-kien");
+            model.addAttribute("title", "Quản Lý Sự Kiện");
+            model.addAttribute("pageTitle", "Quản Lý Sự Kiện");
+
             return "admin/su-kien/view";
         } catch (Exception e) {
             return "redirect:/admin/su-kien?error=notfound";
         }
     }
-    
+
     // ==================== API ENDPOINTS ====================
-    
+
     @GetMapping("/api/all-loai-su-kien")
     @ResponseBody
     public java.util.List<com.branch.demo.domain.LoaiSuKien> getAllLoaiSuKien() {
         return adminService.getAllActiveLoaiSuKien();
     }
 
+    // ==================== LOẠI SỰ KIỆN MANAGEMENT ====================
+
+    @GetMapping("/loai-su-kien")
+    public String listLoaiSuKien(Model model,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(required = false) String search) {
+        Page<com.branch.demo.domain.LoaiSuKien> loaiSuKienPage = adminService.getLoaiSuKienPage(page, search);
+
+        model.addAttribute("loaiSuKienPage", loaiSuKienPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("search", search);
+        model.addAttribute("totalPages", loaiSuKienPage.getTotalPages());
+        model.addAttribute("totalElements", loaiSuKienPage.getTotalElements());
+        model.addAttribute("activeMenu", "loai-su-kien");
+        model.addAttribute("title", "Quản Lý Loại Sự Kiện");
+        model.addAttribute("pageTitle", "Quản Lý Loại Sự Kiện");
+
+        return "admin/loai-su-kien/list";
+    }
+
+    @GetMapping("/loai-su-kien/new")
+    public String newLoaiSuKien(Model model) {
+        model.addAttribute("loaiSuKien", new com.branch.demo.domain.LoaiSuKien());
+        model.addAttribute("activeMenu", "loai-su-kien");
+        model.addAttribute("title", "Thêm Loại Sự Kiện");
+        model.addAttribute("pageTitle", "Thêm Loại Sự Kiện Mới");
+        return "admin/loai-su-kien/form";
+    }
+
+    @GetMapping("/loai-su-kien/{id}/edit")
+    public String editLoaiSuKien(@PathVariable Long id, Model model) {
+        try {
+            com.branch.demo.domain.LoaiSuKien loaiSuKien = adminService.getLoaiSuKienById(id);
+            model.addAttribute("loaiSuKien", loaiSuKien);
+            model.addAttribute("activeMenu", "loai-su-kien");
+            model.addAttribute("title", "Chỉnh Sửa Loại Sự Kiện");
+            model.addAttribute("pageTitle", "Chỉnh Sửa Loại Sự Kiện");
+            return "admin/loai-su-kien/form";
+        } catch (Exception e) {
+            return "redirect:/admin/loai-su-kien?error=notfound";
+        }
+    }
+
+    @PostMapping("/loai-su-kien/save")
+    public String saveLoaiSuKien(@ModelAttribute com.branch.demo.domain.LoaiSuKien loaiSuKien,
+            RedirectAttributes redirectAttributes) {
+        try {
+            adminService.saveLoaiSuKien(loaiSuKien);
+            redirectAttributes.addFlashAttribute("success", "Loại sự kiện đã được lưu thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/admin/loai-su-kien";
+    }
+
+    @PostMapping("/loai-su-kien/delete/{id}")
+    public String deleteLoaiSuKien(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteLoaiSuKien(id);
+            redirectAttributes.addFlashAttribute("success", "Loại sự kiện đã được xóa thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/admin/loai-su-kien";
+    }
+
+    // ==================== DIEM NHOM MANAGEMENT ====================
+
+    @PostMapping("/diem-nhom/delete/{id}")
+    public String deleteDiemNhom(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteDiemNhom(id);
+            redirectAttributes.addFlashAttribute("success",
+                    "Điểm nhóm đã được xóa thành công! Tất cả nhóm và tin hữu liên quan đã được xử lý.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa điểm nhóm: " + e.getMessage());
+        }
+        return "redirect:/admin/diem-nhom";
+    }
+
+    @PostMapping("/diem-nhom/delete-with-handling/{id}")
+    public String deleteDiemNhomWithHandling(@PathVariable Long id,
+            @RequestParam String tinHuuAction,
+            @RequestParam(required = false) Long targetDiemNhomId,
+            RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteDiemNhomWithTinHuuHandling(id, tinHuuAction, targetDiemNhomId);
+
+            String message = "Điểm nhóm đã được xóa thành công! ";
+            if ("transfer".equals(tinHuuAction) && targetDiemNhomId != null) {
+                message += "Tất cả tin hữu đã được chuyển sang điểm nhóm khác.";
+            } else {
+                message += "Tất cả tin hữu đã được đặt về trạng thái chưa có nhóm.";
+            }
+
+            redirectAttributes.addFlashAttribute("success", message);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa điểm nhóm: " + e.getMessage());
+        }
+        return "redirect:/admin/diem-nhom";
+    }
+
+    // ==================== BÀI VIẾT MANAGEMENT ====================
+
+    @GetMapping("/bai-viet")
+    public String baiVietList(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) Long danhMucId,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            Model model) {
+
+        // Parse dates
+        java.time.LocalDate parsedFromDate = null;
+        java.time.LocalDate parsedToDate = null;
+        try {
+            if (fromDate != null && !fromDate.isEmpty()) {
+                parsedFromDate = java.time.LocalDate.parse(fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                parsedToDate = java.time.LocalDate.parse(toDate);
+            }
+        } catch (Exception e) {
+            // Ignore date parsing errors
+        }
+
+        // Check if any filters are applied
+        boolean hasFilters = (trangThai != null && !trangThai.isEmpty()) ||
+                danhMucId != null ||
+                parsedFromDate != null || parsedToDate != null;
+
+        Page<com.branch.demo.domain.BaiViet> baiVietPage;
+        if (hasFilters) {
+            baiVietPage = adminService.getBaiVietPageWithFilters(page, search, trangThai,
+                    danhMucId, parsedFromDate, parsedToDate);
+        } else {
+            baiVietPage = adminService.getBaiVietPage(page, search);
+        }
+
+        model.addAttribute("title", "Quản Lý Bài Viết");
+        model.addAttribute("pageTitle", "Quản Lý Bài Viết");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("baiVietPage", baiVietPage);
+        model.addAttribute("search", search);
+        model.addAttribute("trangThai", trangThai);
+        model.addAttribute("danhMucId", danhMucId);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
+
+        // Add filter options
+        model.addAttribute("danhMucList", adminService.getAllActiveDanhMuc());
+
+        return "admin/bai-viet/list";
+    }
+
+    @GetMapping("/bai-viet/new")
+    public String newBaiViet(Model model) {
+        model.addAttribute("title", "Thêm Bài Viết");
+        model.addAttribute("pageTitle", "Thêm Bài Viết Mới");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("baiViet", new com.branch.demo.domain.BaiViet());
+        model.addAttribute("danhMucList", adminService.getAllActiveDanhMuc());
+        return "admin/bai-viet/form";
+    }
+
+    @GetMapping("/bai-viet/edit/{id}")
+    public String editBaiViet(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chỉnh Sửa Bài Viết");
+        model.addAttribute("pageTitle", "Chỉnh Sửa Bài Viết");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("baiViet", adminService.getBaiVietById(id));
+        model.addAttribute("danhMucList", adminService.getAllActiveDanhMuc());
+        return "admin/bai-viet/form";
+    }
+
+    @PostMapping("/bai-viet/save")
+    public String saveBaiViet(@ModelAttribute com.branch.demo.domain.BaiViet baiViet,
+            @RequestParam(value = "anhDaiDienFile", required = false) MultipartFile anhDaiDienFile,
+            @RequestParam(value = "hinhAnhFiles", required = false) MultipartFile[] hinhAnhFiles,
+            RedirectAttributes redirectAttributes) {
+        try {
+            // Nếu đang update (có ID), preserve các thông tin quan trọng
+            if (baiViet.getId() != null) {
+                com.branch.demo.domain.BaiViet existingBaiViet = adminService.getBaiVietById(baiViet.getId());
+                
+                // Preserve ngày tạo và lượt xem
+                baiViet.setCreatedAt(existingBaiViet.getCreatedAt());
+                baiViet.setLuotXem(existingBaiViet.getLuotXem());
+                
+                // Preserve ảnh đại diện nếu không upload ảnh mới
+                if (anhDaiDienFile == null || anhDaiDienFile.isEmpty()) {
+                    baiViet.setAnhDaiDien(existingBaiViet.getAnhDaiDien());
+                } else {
+                    // Xóa ảnh cũ nếu có ảnh mới
+                    if (existingBaiViet.getAnhDaiDien() != null) {
+                        try {
+                            fileUploadService.deleteImage(existingBaiViet.getAnhDaiDien());
+                        } catch (Exception e) {
+                            // Log error but continue
+                            System.err.println("Could not delete old image: " + e.getMessage());
+                        }
+                    }
+                    String anhDaiDienUrl = fileUploadService.uploadImage(anhDaiDienFile);
+                    baiViet.setAnhDaiDien(anhDaiDienUrl);
+                }
+                
+                // Preserve hình ảnh bổ sung nếu không upload hình mới
+                if (hinhAnhFiles == null || hinhAnhFiles.length == 0 || 
+                    (hinhAnhFiles.length == 1 && hinhAnhFiles[0].isEmpty())) {
+                    baiViet.setDanhSachHinhAnh(existingBaiViet.getDanhSachHinhAnh());
+                } else {
+                    // Xử lý upload hình ảnh bổ sung mới
+                    java.util.List<String> hinhAnhUrls = new java.util.ArrayList<>();
+                    for (MultipartFile file : hinhAnhFiles) {
+                        if (!file.isEmpty()) {
+                            String imageUrl = fileUploadService.uploadImage(file);
+                            hinhAnhUrls.add(imageUrl);
+                        }
+                    }
+                    if (!hinhAnhUrls.isEmpty()) {
+                        baiViet.setDanhSachHinhAnh(hinhAnhUrls);
+                    } else {
+                        // Giữ lại hình ảnh cũ nếu không có hình mới
+                        baiViet.setDanhSachHinhAnh(existingBaiViet.getDanhSachHinhAnh());
+                    }
+                }
+                
+                // Preserve video list
+                if (baiViet.getDanhSachVideo() == null || baiViet.getDanhSachVideo().isEmpty()) {
+                    baiViet.setDanhSachVideo(existingBaiViet.getDanhSachVideo());
+                }
+            } else {
+                // Bài viết mới - xử lý upload bình thường
+                if (anhDaiDienFile != null && !anhDaiDienFile.isEmpty()) {
+                    String anhDaiDienUrl = fileUploadService.uploadImage(anhDaiDienFile);
+                    baiViet.setAnhDaiDien(anhDaiDienUrl);
+                }
+
+                // Xử lý upload hình ảnh bổ sung
+                if (hinhAnhFiles != null && hinhAnhFiles.length > 0) {
+                    java.util.List<String> hinhAnhUrls = new java.util.ArrayList<>();
+                    for (MultipartFile file : hinhAnhFiles) {
+                        if (!file.isEmpty()) {
+                            String imageUrl = fileUploadService.uploadImage(file);
+                            hinhAnhUrls.add(imageUrl);
+                        }
+                    }
+                    if (!hinhAnhUrls.isEmpty()) {
+                        baiViet.setDanhSachHinhAnh(hinhAnhUrls);
+                    }
+                }
+            }
+
+            adminService.saveBaiViet(baiViet);
+            redirectAttributes.addFlashAttribute("success", "Bài viết đã được lưu thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet";
+    }
+
+    @PostMapping("/bai-viet/delete/{id}")
+    public String deleteBaiViet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteBaiViet(id);
+            redirectAttributes.addFlashAttribute("success", "Bài viết đã được xóa thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa bài viết: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet";
+    }
+
+    @GetMapping("/bai-viet/view/{id}")
+    public String viewBaiViet(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chi Tiết Bài Viết");
+        model.addAttribute("pageTitle", "Chi Tiết Bài Viết");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("baiViet", adminService.getBaiVietById(id));
+        return "admin/bai-viet/view";
+    }
+
+    // ==================== THÙNG RÁC BÀI VIẾT ====================
+
+    @GetMapping("/bai-viet/trash")
+    public String baiVietTrash(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            Model model) {
+        
+        try {
+            Page<com.branch.demo.domain.BaiViet> trashedPage = adminService.getTrashedBaiViet(page, search, fromDate, toDate);
+            
+            model.addAttribute("title", "Thùng Rác Bài Viết");
+            model.addAttribute("pageTitle", "Thùng Rác Bài Viết");
+            model.addAttribute("activeMenu", "bai-viet");
+            model.addAttribute("baiVietPage", trashedPage);
+            model.addAttribute("search", search);
+            model.addAttribute("fromDate", fromDate);
+            model.addAttribute("toDate", toDate);
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi tải thùng rác: " + e.getMessage());
+        }
+        
+        return "admin/bai-viet/trash";
+    }
+
+    @PostMapping("/bai-viet/soft-delete/{id}")
+    public String softDeleteBaiViet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.softDeleteBaiViet(id);
+            redirectAttributes.addFlashAttribute("success", "Đã chuyển bài viết vào thùng rác");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa bài viết: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet";
+    }
+
+    @PostMapping("/bai-viet/restore/{id}")
+    public String restoreBaiViet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.restoreBaiViet(id);
+            redirectAttributes.addFlashAttribute("success", "Đã khôi phục bài viết thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể khôi phục bài viết: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet/trash";
+    }
+
+    @PostMapping("/bai-viet/permanent-delete/{id}")
+    public String permanentDeleteBaiViet(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.permanentDeleteBaiViet(id);
+            redirectAttributes.addFlashAttribute("success", "Đã xóa vĩnh viễn bài viết");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa vĩnh viễn bài viết: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet/trash";
+    }
+
+    @PostMapping("/bai-viet/empty-trash")
+    public String emptyTrash(RedirectAttributes redirectAttributes) {
+        try {
+            int deletedCount = adminService.emptyBaiVietTrash();
+            redirectAttributes.addFlashAttribute("success", "Đã xóa vĩnh viễn " + deletedCount + " bài viết khỏi thùng rác");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể làm trống thùng rác: " + e.getMessage());
+        }
+        return "redirect:/admin/bai-viet/trash";
+    }
+
+    // ==================== DANH MỤC MANAGEMENT ====================
+
+    @GetMapping("/danh-muc")
+    public String danhMucList(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String trangThai,
+            Model model) {
+        
+        try {
+            Page<com.branch.demo.domain.DanhMuc> danhMucPage = adminService.getDanhMucPage(page, search, trangThai);
+            
+            model.addAttribute("title", "Quản Lý Danh Mục");
+            model.addAttribute("pageTitle", "Quản Lý Danh Mục");
+            model.addAttribute("activeMenu", "bai-viet");
+            model.addAttribute("danhMucPage", danhMucPage);
+            model.addAttribute("search", search);
+            model.addAttribute("trangThai", trangThai);
+            
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách danh mục: " + e.getMessage());
+        }
+        
+        return "admin/danh-muc/list";
+    }
+
+    @GetMapping("/danh-muc/new")
+    public String newDanhMuc(Model model) {
+        model.addAttribute("title", "Thêm Danh Mục");
+        model.addAttribute("pageTitle", "Thêm Danh Mục Mới");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("danhMuc", new com.branch.demo.domain.DanhMuc());
+        return "admin/danh-muc/form";
+    }
+
+    @GetMapping("/danh-muc/edit/{id}")
+    public String editDanhMuc(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chỉnh Sửa Danh Mục");
+        model.addAttribute("pageTitle", "Chỉnh Sửa Danh Mục");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("danhMuc", adminService.getDanhMucById(id));
+        return "admin/danh-muc/form";
+    }
+
+    @PostMapping("/danh-muc/save")
+    public String saveDanhMuc(@ModelAttribute com.branch.demo.domain.DanhMuc danhMuc,
+            RedirectAttributes redirectAttributes) {
+        try {
+            adminService.saveDanhMuc(danhMuc);
+            redirectAttributes.addFlashAttribute("success", 
+                danhMuc.getId() != null ? "Cập nhật danh mục thành công!" : "Thêm danh mục thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/admin/danh-muc";
+    }
+
+    @PostMapping("/danh-muc/delete/{id}")
+    public String deleteDanhMuc(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteDanhMuc(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa danh mục thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa danh mục: " + e.getMessage());
+        }
+        return "redirect:/admin/danh-muc";
+    }
+
+    @GetMapping("/danh-muc/view/{id}")
+    public String viewDanhMuc(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chi Tiết Danh Mục");
+        model.addAttribute("pageTitle", "Chi Tiết Danh Mục");
+        model.addAttribute("activeMenu", "bai-viet");
+        model.addAttribute("danhMuc", adminService.getDanhMucById(id));
+        return "admin/danh-muc/view";
+    }
+
+    @GetMapping("/api/check-slug-duplicate")
+    @ResponseBody
+    public java.util.Map<String, Object> checkSlugDuplicate(
+            @RequestParam String slug,
+            @RequestParam(required = false) String currentId) {
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+        try {
+            boolean isDuplicate = false;
+            if (currentId == null || currentId.trim().isEmpty()) {
+                // New article
+                isDuplicate = baiVietRepository.existsBySlug(slug);
+            } else {
+                // Edit existing article
+                Long id = Long.valueOf(currentId);
+                isDuplicate = baiVietRepository.existsBySlugAndIdNot(slug, id);
+            }
+
+            result.put("isDuplicate", isDuplicate);
+            result.put("success", true);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+
+        return result;
+    }
 }

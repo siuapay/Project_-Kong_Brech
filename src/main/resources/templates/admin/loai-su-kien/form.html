@@ -1,216 +1,190 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${title}">Form Loại Sự Kiện</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
+<head th:replace="~{fragments/admin-layout :: head}"></head>
 <body>
-    <div th:replace="fragments/admin-layout :: admin-layout">
-        <div th:fragment="content">
-            <!-- Header -->
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="mb-1" th:text="${pageTitle}">Form Loại Sự Kiện</h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="/admin/loai-su-kien">Loại Sự Kiện</a></li>
-                            <li class="breadcrumb-item active" th:text="${loaiSuKien.id != null ? 'Chỉnh sửa' : 'Thêm mới'}">Form</li>
-                        </ol>
-                    </nav>
+                    <h2 class="text-primary">
+                        <i class="fas fa-tags me-2"></i>
+                        <span th:text="${loaiSuKien.id != null ? 'Chỉnh Sửa Loại Sự Kiện' : 'Thêm Loại Sự Kiện Mới'}">Thêm Loại Sự Kiện</span>
+                    </h2>
+                    <p class="text-muted mb-0">Nhập thông tin chi tiết của loại sự kiện</p>
                 </div>
-                <div>
-                    <a href="/admin/loai-su-kien" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Quay lại
-                    </a>
-                </div>
-            </div>
-
-            <!-- Flash Messages -->
-            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <a th:href="@{/admin/loai-su-kien}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
             </div>
 
             <!-- Form -->
             <div class="row">
                 <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-info-circle"></i> Thông tin loại sự kiện
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Loại Sự Kiện
                             </h5>
                         </div>
                         <div class="card-body">
                             <form th:action="@{/admin/loai-su-kien/save}" method="post" th:object="${loaiSuKien}">
                                 <input type="hidden" th:field="*{id}">
                                 
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <div class="mb-3">
-                                            <label for="tenLoai" class="form-label">
-                                                Tên loại sự kiện <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control" id="tenLoai" th:field="*{tenLoai}" 
-                                                   placeholder="Nhập tên loại sự kiện" required maxlength="100">
-                                            <div class="form-text">Tên loại sự kiện phải là duy nhất</div>
-                                        </div>
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="tenLoai" class="form-label">Tên Loại <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="tenLoai" th:field="*{tenLoai}" 
+                                               placeholder="Nhập tên loại sự kiện" required>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="mb-3">
-                                            <label for="thuTu" class="form-label">Thứ tự hiển thị</label>
-                                            <input type="number" class="form-control" id="thuTu" th:field="*{thuTu}" 
-                                                   placeholder="0" min="0" max="999">
-                                            <div class="form-text">Số thứ tự để sắp xếp hiển thị</div>
-                                        </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="moTa" class="form-label">Mô Tả</label>
+                                        <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3"
+                                                  placeholder="Mô tả về loại sự kiện này..."></textarea>
                                     </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="moTa" class="form-label">Mô tả</label>
-                                    <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3" 
-                                              placeholder="Nhập mô tả cho loại sự kiện" maxlength="500"></textarea>
-                                    <div class="form-text">Mô tả chi tiết về loại sự kiện này</div>
-                                </div>
-
-                                <div class="row">
+                                    
                                     <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="mauSac" class="form-label">Màu sắc</label>
-                                            <div class="input-group">
-                                                <input type="color" class="form-control form-control-color" id="mauSac" 
-                                                       th:field="*{mauSac}" title="Chọn màu sắc">
-                                                <input type="text" class="form-control" th:field="*{mauSac}" 
-                                                       placeholder="#FFFFFF" pattern="^#[0-9A-Fa-f]{6}$">
-                                            </div>
-                                            <div class="form-text">Màu sắc đại diện cho loại sự kiện</div>
+                                        <label for="mauSac" class="form-label">Màu Sắc</label>
+                                        <div class="input-group">
+                                            <input type="color" class="form-control form-control-color" id="mauSac" 
+                                                   th:field="*{mauSac}" title="Chọn màu sắc">
+                                            <input type="text" class="form-control" id="mauSacText" 
+                                                   th:value="*{mauSac}" placeholder="#6c757d" pattern="^#[0-9A-Fa-f]{6}$">
                                         </div>
+                                        <div class="form-text">Chọn màu sắc đại diện cho loại sự kiện</div>
                                     </div>
+                                    
                                     <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="icon" class="form-label">Icon</label>
-                                            <div class="input-group">
-                                                <span class="input-group-text">
-                                                    <i id="iconPreview" th:class="${loaiSuKien.icon != null ? 'fas fa-' + loaiSuKien.icon : 'fas fa-tag'}"></i>
-                                                </span>
-                                                <input type="text" class="form-control" id="icon" th:field="*{icon}" 
-                                                       placeholder="tag" maxlength="50">
-                                            </div>
-                                            <div class="form-text">
-                                                Tên icon FontAwesome (không cần tiền tố "fa-"). 
-                                                <a href="https://fontawesome.com/icons" target="_blank">Xem danh sách</a>
-                                            </div>
+                                        <label for="icon" class="form-label">Icon</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">
+                                                <i id="iconPreview" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'"></i>
+                                            </span>
+                                            <input type="text" class="form-control" id="icon" th:field="*{icon}" 
+                                                   placeholder="fas fa-tag" readonly>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                        <div class="form-text">
+                                            Click nút tìm kiếm để chọn icon hoặc nhập trực tiếp
                                         </div>
                                     </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="kichHoat" class="form-label">Trạng Thái</label>
+                                        <select class="form-select" id="kichHoat" th:field="*{kichHoat}">
+                                            <option th:value="true">Kích hoạt</option>
+                                            <option th:value="false">Tạm dừng</option>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <div class="mb-4">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="kichHoat" th:field="*{kichHoat}">
-                                        <label class="form-check-label" for="kichHoat">
-                                            Kích hoạt loại sự kiện
-                                        </label>
-                                        <div class="form-text">Chỉ các loại sự kiện được kích hoạt mới hiển thị trong form tạo sự kiện</div>
+                                
+                                <!-- Preview -->
+                                <div class="mt-4 p-3 bg-light rounded">
+                                    <h6 class="mb-2">Xem trước:</h6>
+                                    <div id="preview" class="d-flex align-items-center">
+                                        <span class="badge me-2" id="previewBadge" 
+                                              th:style="'background-color: ' + (${loaiSuKien.mauSac} ?: '#6c757d')">
+                                            <i id="previewIcon" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'" class="me-1"></i>
+                                            <span id="previewText" th:text="${loaiSuKien.tenLoai} ?: 'Tên loại sự kiện'">Tên loại sự kiện</span>
+                                        </span>
+                                        <small class="text-muted" id="previewDesc" th:text="${loaiSuKien.moTa} ?: 'Mô tả loại sự kiện'">Mô tả loại sự kiện</small>
                                     </div>
                                 </div>
 
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i> 
-                                        <span th:text="${loaiSuKien.id != null ? 'Cập nhật' : 'Thêm mới'}">Lưu</span>
-                                    </button>
-                                    <a href="/admin/loai-su-kien" class="btn btn-secondary">
-                                        <i class="fas fa-times"></i> Hủy
+                                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                    <a th:href="@{/admin/loai-su-kien}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>Hủy Bỏ
                                     </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${loaiSuKien.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Thêm Mới</span>
+                                    </button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Preview Card -->
+                <!-- Sidebar Info -->
                 <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-eye"></i> Xem trước
-                            </h5>
+                    <!-- Help Card -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng Dẫn</h6>
                         </div>
                         <div class="card-body">
-                            <div class="preview-item p-3 border rounded">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="color-indicator me-2" id="colorPreview" 
-                                         style="width: 20px; height: 20px; border-radius: 3px; background-color: #6c757d;"></div>
-                                    <span class="me-2">
-                                        <i id="iconPreviewCard" class="fas fa-tag"></i>
-                                    </span>
-                                    <strong id="namePreview">Tên loại sự kiện</strong>
-                                </div>
-                                <p id="descPreview" class="text-muted small mb-2">Mô tả loại sự kiện</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="badge bg-secondary" id="orderPreview">Thứ tự: 0</span>
-                                    <span class="badge" id="statusPreview">Kích hoạt</span>
-                                </div>
+                            <div class="help-item mb-3">
+                                <h6 class="text-primary"><i class="fas fa-tag me-2"></i>Tên Loại</h6>
+                                <p class="small text-muted mb-0">Đặt tên rõ ràng, dễ hiểu. Ví dụ: "Lễ hội tôn giáo", "Hoạt động từ thiện"</p>
                             </div>
-                            
-                            <div class="mt-3">
-                                <h6>Gợi ý màu sắc:</h6>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #17a2b8; width: 30px; height: 30px;" 
-                                            data-color="#17a2b8" title="Xanh dương"></button>
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #28a745; width: 30px; height: 30px;" 
-                                            data-color="#28a745" title="Xanh lá"></button>
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #ffc107; width: 30px; height: 30px;" 
-                                            data-color="#ffc107" title="Vàng"></button>
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #dc3545; width: 30px; height: 30px;" 
-                                            data-color="#dc3545" title="Đỏ"></button>
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #6f42c1; width: 30px; height: 30px;" 
-                                            data-color="#6f42c1" title="Tím"></button>
-                                    <button type="button" class="btn btn-sm color-suggestion" 
-                                            style="background-color: #fd7e14; width: 30px; height: 30px;" 
-                                            data-color="#fd7e14" title="Cam"></button>
-                                </div>
+                            <div class="help-item mb-3">
+                                <h6 class="text-success"><i class="fas fa-palette me-2"></i>Màu Sắc</h6>
+                                <p class="small text-muted mb-0">Chọn màu phù hợp để dễ phân biệt các loại sự kiện</p>
+                            </div>
+                            <div class="help-item mb-3">
+                                <h6 class="text-warning"><i class="fas fa-icons me-2"></i>Icon</h6>
+                                <p class="small text-muted mb-0">Sử dụng icon FontAwesome để tăng tính trực quan</p>
                             </div>
 
-                            <div class="mt-3">
-                                <h6>Gợi ý icon:</h6>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="calendar" title="calendar">
-                                        <i class="fas fa-calendar"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="users" title="users">
-                                        <i class="fas fa-users"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="heart" title="heart">
-                                        <i class="fas fa-heart"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="star" title="star">
-                                        <i class="fas fa-star"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="gift" title="gift">
-                                        <i class="fas fa-gift"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary icon-suggestion" 
-                                            data-icon="music" title="music">
-                                        <i class="fas fa-music"></i>
-                                    </button>
+                        </div>
+                    </div>
+
+                    <!-- Color Suggestions -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light border-0">
+                            <h6 class="mb-0"><i class="fas fa-palette me-2"></i>Gợi Ý Màu Sắc</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#dc3545" title="Đỏ - Lễ hội, sự kiện quan trọng">
+                                        <div class="color-box bg-danger"></div>
+                                        <small>Đỏ</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#28a745" title="Xanh lá - Từ thiện, môi trường">
+                                        <div class="color-box bg-success"></div>
+                                        <small>Xanh lá</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#007bff" title="Xanh dương - Sinh hoạt thường kỳ">
+                                        <div class="color-box bg-primary"></div>
+                                        <small>Xanh dương</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#ffc107" title="Vàng - Sự kiện đặc biệt">
+                                        <div class="color-box bg-warning"></div>
+                                        <small>Vàng</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#6f42c1" title="Tím - Văn hóa, nghệ thuật">
+                                        <div class="color-box" style="background-color: #6f42c1;"></div>
+                                        <small>Tím</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="color-suggestion" data-color="#6c757d" title="Xám - Khác">
+                                        <div class="color-box bg-secondary"></div>
+                                        <small>Xám</small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -218,76 +192,328 @@
                 </div>
             </div>
         </div>
+    </main>
+
+    <!-- Icon Picker Modal -->
+    <div class="modal fade" id="iconPickerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn Icon</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2" id="iconGrid">
+                        <!-- Icons will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
-        // Preview functionality
-        function updatePreview() {
-            const tenLoai = document.getElementById('tenLoai').value || 'Tên loại sự kiện';
-            const moTa = document.getElementById('moTa').value || 'Mô tả loại sự kiện';
-            const mauSac = document.querySelector('input[type="color"]').value || '#6c757d';
-            const icon = document.getElementById('icon').value || 'tag';
-            const thuTu = document.getElementById('thuTu').value || '0';
-            const kichHoat = document.getElementById('kichHoat').checked;
+        // Popular icons for events
+        const popularIcons = [
+            { class: 'fas fa-calendar', name: 'Lịch' },
+            { class: 'fas fa-calendar-alt', name: 'Lịch Alt' },
+            { class: 'fas fa-calendar-week', name: 'Lịch Tuần' },
+            { class: 'fas fa-calendar-day', name: 'Lịch Ngày' },
+            { class: 'fas fa-church', name: 'Nhà Thờ' },
+            { class: 'fas fa-cross', name: 'Thánh Giá' },
+            { class: 'fas fa-pray', name: 'Cầu Nguyện' },
+            { class: 'fas fa-heart', name: 'Trái Tim' },
+            { class: 'fas fa-hands-helping', name: 'Giúp Đỡ' },
+            { class: 'fas fa-hand-holding-heart', name: 'Trao Yêu Thương' },
+            { class: 'fas fa-users', name: 'Nhóm Người' },
+            { class: 'fas fa-user-friends', name: 'Bạn Bè' },
+            { class: 'fas fa-people-carry', name: 'Hợp Tác' },
+            { class: 'fas fa-star', name: 'Ngôi Sao' },
+            { class: 'fas fa-award', name: 'Giải Thưởng' },
+            { class: 'fas fa-trophy', name: 'Cúp' },
+            { class: 'fas fa-gift', name: 'Quà Tặng' },
+            { class: 'fas fa-birthday-cake', name: 'Bánh Sinh Nhật' },
+            { class: 'fas fa-music', name: 'Âm Nhạc' },
+            { class: 'fas fa-microphone', name: 'Micro' },
+            { class: 'fas fa-guitar', name: 'Guitar' },
+            { class: 'fas fa-book', name: 'Sách' },
+            { class: 'fas fa-graduation-cap', name: 'Tốt Nghiệp' },
+            { class: 'fas fa-chalkboard-teacher', name: 'Giảng Dạy' },
+            { class: 'fas fa-seedling', name: 'Cây Non' },
+            { class: 'fas fa-leaf', name: 'Lá Cây' },
+            { class: 'fas fa-tree', name: 'Cây' },
+            { class: 'fas fa-globe', name: 'Địa Cầu' },
+            { class: 'fas fa-home', name: 'Nhà' },
+            { class: 'fas fa-building', name: 'Tòa Nhà' },
+            { class: 'fas fa-map-marker-alt', name: 'Vị Trí' },
+            { class: 'fas fa-utensils', name: 'Đồ Ăn' },
+            { class: 'fas fa-coffee', name: 'Cà Phê' },
+            { class: 'fas fa-wine-glass', name: 'Ly Rượu' },
+            { class: 'fas fa-camera', name: 'Máy Ảnh' },
+            { class: 'fas fa-video', name: 'Video' },
+            { class: 'fas fa-film', name: 'Phim' },
+            { class: 'fas fa-gamepad', name: 'Game' },
+            { class: 'fas fa-puzzle-piece', name: 'Ghép Hình' },
+            { class: 'fas fa-running', name: 'Chạy Bộ' },
+            { class: 'fas fa-bicycle', name: 'Xe Đạp' },
+            { class: 'fas fa-swimmer', name: 'Bơi Lội' },
+            { class: 'fas fa-dumbbell', name: 'Tập Gym' },
+            { class: 'fas fa-fire', name: 'Lửa' },
+            { class: 'fas fa-sun', name: 'Mặt Trời' },
+            { class: 'fas fa-moon', name: 'Mặt Trăng' },
+            { class: 'fas fa-cloud', name: 'Mây' },
+            { class: 'fas fa-rainbow', name: 'Cầu Vồng' },
+            { class: 'fas fa-tag', name: 'Thẻ' },
+            { class: 'fas fa-tags', name: 'Nhiều Thẻ' },
+            { class: 'fas fa-flag', name: 'Cờ' },
+            { class: 'fas fa-bell', name: 'Chuông' },
+            { class: 'fas fa-bullhorn', name: 'Loa' },
+            { class: 'fas fa-envelope', name: 'Thư' },
+            { class: 'fas fa-phone', name: 'Điện Thoại' },
+            { class: 'fas fa-mobile-alt', name: 'Di Động' },
+            { class: 'fas fa-laptop', name: 'Laptop' },
+            { class: 'fas fa-desktop', name: 'Máy Tính' },
+            { class: 'fas fa-tv', name: 'TV' },
+            { class: 'fas fa-lightbulb', name: 'Bóng Đèn' },
+            { class: 'fas fa-rocket', name: 'Tên Lửa' },
+            { class: 'fas fa-plane', name: 'Máy Bay' },
+            { class: 'fas fa-car', name: 'Ô Tô' },
+            { class: 'fas fa-bus', name: 'Xe Buýt' },
+            { class: 'fas fa-train', name: 'Tàu Hỏa' },
+            { class: 'fas fa-ship', name: 'Tàu Thủy' },
+            { class: 'fas fa-anchor', name: 'Neo' },
+            { class: 'fas fa-compass', name: 'La Bàn' },
+            { class: 'fas fa-map', name: 'Bản Đồ' },
+            { class: 'fas fa-clock', name: 'Đồng Hồ' },
+            { class: 'fas fa-hourglass', name: 'Đồng Hồ Cát' },
+            { class: 'fas fa-stopwatch', name: 'Bấm Giờ' },
+            { class: 'fas fa-history', name: 'Lịch Sử' },
+            { class: 'fas fa-sync', name: 'Đồng Bộ' },
+            { class: 'fas fa-redo', name: 'Làm Lại' },
+            { class: 'fas fa-undo', name: 'Hoàn Tác' },
+            { class: 'fas fa-plus', name: 'Cộng' },
+            { class: 'fas fa-minus', name: 'Trừ' },
+            { class: 'fas fa-times', name: 'Nhân' },
+            { class: 'fas fa-divide', name: 'Chia' },
+            { class: 'fas fa-equals', name: 'Bằng' },
+            { class: 'fas fa-percent', name: 'Phần Trăm' },
+            { class: 'fas fa-dollar-sign', name: 'Đô La' },
+            { class: 'fas fa-euro-sign', name: 'Euro' },
+            { class: 'fas fa-yen-sign', name: 'Yên' },
+            { class: 'fas fa-pound-sign', name: 'Bảng Anh' },
+            { class: 'fas fa-coins', name: 'Tiền Xu' },
+            { class: 'fas fa-wallet', name: 'Ví' },
+            { class: 'fas fa-credit-card', name: 'Thẻ Tín Dụng' },
+            { class: 'fas fa-shopping-cart', name: 'Giỏ Hàng' },
+            { class: 'fas fa-store', name: 'Cửa Hàng' },
+            { class: 'fas fa-warehouse', name: 'Kho' },
+            { class: 'fas fa-truck', name: 'Xe Tải' },
+            { class: 'fas fa-box', name: 'Hộp' },
+            { class: 'fas fa-archive', name: 'Lưu Trữ' },
+            { class: 'fas fa-folder', name: 'Thư Mục' },
+            { class: 'fas fa-file', name: 'Tệp' },
+            { class: 'fas fa-clipboard', name: 'Clipboard' },
+            { class: 'fas fa-pen', name: 'Bút' },
+            { class: 'fas fa-pencil-alt', name: 'Bút Chì' },
+            { class: 'fas fa-marker', name: 'Bút Dạ' },
+            { class: 'fas fa-highlighter', name: 'Bút Dạ Quang' },
+            { class: 'fas fa-eraser', name: 'Tẩy' },
+            { class: 'fas fa-ruler', name: 'Thước' },
+            { class: 'fas fa-scissors', name: 'Kéo' },
+            { class: 'fas fa-paperclip', name: 'Kẹp Giấy' },
+            { class: 'fas fa-thumbtack', name: 'Ghim' },
+            { class: 'fas fa-magnet', name: 'Nam Châm' },
+            { class: 'fas fa-key', name: 'Chìa Khóa' },
+            { class: 'fas fa-lock', name: 'Khóa' },
+            { class: 'fas fa-unlock', name: 'Mở Khóa' },
+            { class: 'fas fa-shield-alt', name: 'Khiên' },
+            { class: 'fas fa-eye', name: 'Mắt' },
+            { class: 'fas fa-eye-slash', name: 'Che Mắt' },
+            { class: 'fas fa-search', name: 'Tìm Kiếm' },
+            { class: 'fas fa-search-plus', name: 'Phóng To' },
+            { class: 'fas fa-search-minus', name: 'Thu Nhỏ' },
+            { class: 'fas fa-filter', name: 'Lọc' },
+            { class: 'fas fa-sort', name: 'Sắp Xếp' },
+            { class: 'fas fa-list', name: 'Danh Sách' },
+            { class: 'fas fa-th', name: 'Lưới' },
+            { class: 'fas fa-th-list', name: 'Danh Sách Lưới' },
+            { class: 'fas fa-bars', name: 'Menu' },
+            { class: 'fas fa-ellipsis-h', name: 'Ba Chấm Ngang' },
+            { class: 'fas fa-ellipsis-v', name: 'Ba Chấm Dọc' }
+        ];
 
-            document.getElementById('namePreview').textContent = tenLoai;
-            document.getElementById('descPreview').textContent = moTa;
-            document.getElementById('colorPreview').style.backgroundColor = mauSac;
-            document.getElementById('iconPreviewCard').className = `fas fa-${icon}`;
-            document.getElementById('iconPreview').className = `fas fa-${icon}`;
-            document.getElementById('orderPreview').textContent = `Thứ tự: ${thuTu}`;
+        document.addEventListener('DOMContentLoaded', function() {
+            const mauSacInput = document.getElementById('mauSac');
+            const mauSacTextInput = document.getElementById('mauSacText');
+            const iconInput = document.getElementById('icon');
+            const tenLoaiInput = document.getElementById('tenLoai');
+            const moTaInput = document.getElementById('moTa');
             
-            const statusBadge = document.getElementById('statusPreview');
-            if (kichHoat) {
-                statusBadge.className = 'badge bg-success';
-                statusBadge.textContent = 'Kích hoạt';
-            } else {
-                statusBadge.className = 'badge bg-warning';
-                statusBadge.textContent = 'Tạm dừng';
-            }
-
-            // Update color input text
-            document.querySelector('input[type="text"][name="mauSac"]').value = mauSac;
+            // Populate icon grid
+            populateIconGrid();
+            
+            // Sync color inputs
+            mauSacInput.addEventListener('input', function() {
+                mauSacTextInput.value = this.value;
+                updatePreview();
+            });
+            
+            mauSacTextInput.addEventListener('input', function() {
+                if (this.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+                    mauSacInput.value = this.value;
+                    updatePreview();
+                }
+            });
+            
+            // Update icon preview
+            iconInput.addEventListener('input', function() {
+                document.getElementById('iconPreview').className = this.value || 'fas fa-tag';
+                updatePreview();
+            });
+            
+            // Make icon input editable
+            iconInput.addEventListener('click', function() {
+                this.removeAttribute('readonly');
+            });
+            
+            iconInput.addEventListener('blur', function() {
+                this.setAttribute('readonly', 'readonly');
+            });
+            
+            // Update text preview
+            tenLoaiInput.addEventListener('input', updatePreview);
+            moTaInput.addEventListener('input', updatePreview);
+            
+            // Color suggestions
+            document.querySelectorAll('.color-suggestion').forEach(suggestion => {
+                suggestion.addEventListener('click', function() {
+                    const color = this.dataset.color;
+                    mauSacInput.value = color;
+                    mauSacTextInput.value = color;
+                    updatePreview();
+                });
+            });
+            
+            // Form validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const tenLoai = tenLoaiInput.value.trim();
+                
+                if (!tenLoai) {
+                    e.preventDefault();
+                    alert('Vui lòng nhập tên loại sự kiện!');
+                    tenLoaiInput.focus();
+                    return;
+                }
+                
+                // Clean up empty fields
+                if (moTaInput.value.trim() === '') moTaInput.value = '';
+                if (mauSacTextInput.value.trim() === '') mauSacTextInput.value = '';
+                if (iconInput.value.trim() === '') iconInput.value = '';
+            });
+        });
+        
+        function populateIconGrid() {
+            const iconGrid = document.getElementById('iconGrid');
+            iconGrid.innerHTML = '';
+            
+            popularIcons.forEach(icon => {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'col-2 mb-2';
+                iconDiv.innerHTML = `
+                    <div class="icon-option text-center p-2 border rounded cursor-pointer" 
+                         data-icon="${icon.class}" title="${icon.name}">
+                        <i class="${icon.class} fa-lg mb-1"></i>
+                        <div class="small text-muted">${icon.name}</div>
+                    </div>
+                `;
+                
+                iconDiv.addEventListener('click', function() {
+                    selectIcon(icon.class);
+                });
+                
+                iconGrid.appendChild(iconDiv);
+            });
         }
-
-        // Event listeners
-        document.getElementById('tenLoai').addEventListener('input', updatePreview);
-        document.getElementById('moTa').addEventListener('input', updatePreview);
-        document.querySelector('input[type="color"]').addEventListener('input', updatePreview);
-        document.getElementById('icon').addEventListener('input', updatePreview);
-        document.getElementById('thuTu').addEventListener('input', updatePreview);
-        document.getElementById('kichHoat').addEventListener('change', updatePreview);
-
-        // Color suggestions
-        document.querySelectorAll('.color-suggestion').forEach(button => {
-            button.addEventListener('click', function() {
-                const color = this.getAttribute('data-color');
-                document.querySelector('input[type="color"]').value = color;
-                updatePreview();
-            });
-        });
-
-        // Icon suggestions
-        document.querySelectorAll('.icon-suggestion').forEach(button => {
-            button.addEventListener('click', function() {
-                const icon = this.getAttribute('data-icon');
-                document.getElementById('icon').value = icon;
-                updatePreview();
-            });
-        });
-
-        // Sync color inputs
-        document.querySelector('input[type="text"][name="mauSac"]').addEventListener('input', function() {
-            const colorValue = this.value;
-            if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
-                document.querySelector('input[type="color"]').value = colorValue;
-                updatePreview();
-            }
-        });
-
-        // Initial preview update
-        updatePreview();
+        
+        function selectIcon(iconClass) {
+            document.getElementById('icon').value = iconClass;
+            document.getElementById('iconPreview').className = iconClass;
+            updatePreview();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
+            modal.hide();
+        }
+        
+        function updatePreview() {
+            const mauSacInput = document.getElementById('mauSac');
+            const iconInput = document.getElementById('icon');
+            const tenLoaiInput = document.getElementById('tenLoai');
+            const moTaInput = document.getElementById('moTa');
+            
+            const previewBadge = document.getElementById('previewBadge');
+            const previewIcon = document.getElementById('previewIcon');
+            const previewText = document.getElementById('previewText');
+            const previewDesc = document.getElementById('previewDesc');
+            
+            previewBadge.style.backgroundColor = mauSacInput.value || '#6c757d';
+            previewIcon.className = (iconInput.value || 'fas fa-tag') + ' me-1';
+            previewText.textContent = tenLoaiInput.value || 'Tên loại sự kiện';
+            previewDesc.textContent = moTaInput.value || 'Mô tả loại sự kiện';
+        }
     </script>
+    
+    <style>
+        .color-box {
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 5px;
+        }
+        
+        .color-suggestion {
+            text-align: center;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .color-suggestion:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .help-item h6 {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-control-color {
+            width: 60px;
+            height: 38px;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        #preview {
+            min-height: 40px;
+        }
+        
+        .icon-option {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .icon-option:hover {
+            background-color: #f8f9fa;
+            border-color: #007bff !important;
+            transform: translateY(-2px);
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
 </body>
 </html>

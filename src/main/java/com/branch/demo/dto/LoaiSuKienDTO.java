@@ -30,7 +30,6 @@ public class LoaiSuKienDTO {
         dto.setMoTa(loaiSuKien.getMoTa());
         dto.setMauSac(loaiSuKien.getMauSac());
         dto.setIcon(loaiSuKien.getIcon());
-        dto.setThuTu(loaiSuKien.getThuTu());
         dto.setKichHoat(loaiSuKien.isKichHoat());
         
         return dto;
@@ -44,7 +43,6 @@ public class LoaiSuKienDTO {
         loaiSuKien.setMoTa(this.moTa);
         loaiSuKien.setMauSac(this.mauSac);
         loaiSuKien.setIcon(this.icon);
-        loaiSuKien.setThuTu(this.thuTu != null ? this.thuTu : 0);
         loaiSuKien.setKichHoat(this.kichHoat);
         
         return loaiSuKien;

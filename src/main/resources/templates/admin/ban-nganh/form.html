@@ -179,11 +179,74 @@
             }
         });
         
-        // Auto uppercase maBan
-        document.getElementById('maBan').addEventListener('input', function() {
+        // Auto uppercase maBan and check for duplicates
+        const maBanField = document.getElementById('maBan');
+        const currentId = document.querySelector('input[name="id"]').value;
+        let checkTimeout;
+        
+        maBanField.addEventListener('input', function() {
             this.value = this.value.toUpperCase();
+            
+            // Clear previous timeout
+            if (checkTimeout) {
+                clearTimeout(checkTimeout);
+            }
+            
+            // Check for duplicates after user stops typing
+            checkTimeout = setTimeout(() => {
+                checkMaBanDuplicate(this.value, currentId);
+            }, 500);
         });
         
+        // Function to check maBan duplicate
+        function checkMaBanDuplicate(maBan, currentId) {
+            if (!maBan || maBan.trim() === '') {
+                clearMaBanValidation();
+                return;
+            }
+            
+            fetch(`/admin/api/check-ma-ban-duplicate?maBan=${encodeURIComponent(maBan)}&currentId=${currentId || ''}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isDuplicate) {
+                        showMaBanError('Mã ban đã tồn tại. Vui lòng chọn mã khác.');
+                    } else {
+                        clearMaBanValidation();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking maBan duplicate:', error);
+                });
+        }
+        
+        function showMaBanError(message) {
+            const maBanField = document.getElementById('maBan');
+            maBanField.classList.add('is-invalid');
+            
+            // Remove existing error message
+            const existingError = document.getElementById('maBanError');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add new error message
+            const errorDiv = document.createElement('div');
+            errorDiv.id = 'maBanError';
+            errorDiv.className = 'invalid-feedback';
+            errorDiv.textContent = message;
+            maBanField.parentNode.appendChild(errorDiv);
+        }
+        
+        function clearMaBanValidation() {
+            const maBanField = document.getElementById('maBan');
+            maBanField.classList.remove('is-invalid');
+            
+            const existingError = document.getElementById('maBanError');
+            if (existingError) {
+                existingError.remove();
+            }
+        }
+
         // Form validation and cleanup
         document.querySelector('form').addEventListener('submit', function(e) {
             const tenBan = document.getElementById('tenBan').value.trim();
@@ -197,6 +260,13 @@
             
             if (!maBan) {
                 alert('Vui lòng nhập mã ban!');
+                e.preventDefault();
+                return;
+            }
+            
+            // Check if there's a validation error
+            if (document.getElementById('maBanError')) {
+                alert('Vui lòng sửa lỗi mã ban trước khi lưu!');
                 e.preventDefault();
                 return;
             }

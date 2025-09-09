@@ -14,43 +14,27 @@ import java.util.Optional;
 @Repository
 public interface LoaiSuKienRepository extends JpaRepository<LoaiSuKien, Long> {
     
-    // Find active (not deleted) records
-    Page<LoaiSuKien> findByDeletedFalseOrderByThuTuAscCreatedAtDesc(Pageable pageable);
+    // Find all records with pagination
+    Page<LoaiSuKien> findAll(Pageable pageable);
     
-    List<LoaiSuKien> findByDeletedFalseAndKichHoatTrueOrderByThuTuAscCreatedAtDesc();
-    
-    List<LoaiSuKien> findByDeletedFalseAndKichHoatTrueOrderByThuTuAscTenLoaiAsc();
+    // Find active records
+    List<LoaiSuKien> findByKichHoatTrueOrderByCreatedAtDesc();
     
     List<LoaiSuKien> findByKichHoatTrueOrderByTenLoaiAsc();
     
-    List<LoaiSuKien> findByDeletedFalseOrderByThuTuAscCreatedAtDesc();
-    
-    // Find deleted records
-    Page<LoaiSuKien> findByDeletedTrueOrderByDeletedAtDesc(Pageable pageable);
+
     
     // Search functionality
-    @Query("SELECT l FROM LoaiSuKien l WHERE l.deleted = false AND " +
+    @Query("SELECT l FROM LoaiSuKien l WHERE " +
            "(LOWER(l.tenLoai) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(l.moTa) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY l.thuTu ASC, l.createdAt DESC")
+           "LOWER(l.moTa) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<LoaiSuKien> searchByKeyword(@Param("search") String search, Pageable pageable);
     
-    @Query("SELECT l FROM LoaiSuKien l WHERE l.deleted = true AND " +
-           "(LOWER(l.tenLoai) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           "LOWER(l.moTa) LIKE LOWER(CONCAT('%', :search, '%'))) " +
-           "ORDER BY l.deletedAt DESC")
-    Page<LoaiSuKien> searchDeletedByKeyword(@Param("search") String search, Pageable pageable);
-    
     // Check if name exists (for validation)
-    boolean existsByTenLoaiAndDeletedFalse(String tenLoai);
+    boolean existsByTenLoai(String tenLoai);
     
-    boolean existsByTenLoaiAndDeletedFalseAndIdNot(String tenLoai, Long id);
+    boolean existsByTenLoaiAndIdNot(String tenLoai, Long id);
     
-    // Find by ID (not deleted)
-    Optional<LoaiSuKien> findByIdAndDeletedFalse(Long id);
-    
-    // Count active records
-    long countByDeletedFalse();
-    
-    long countByDeletedFalseAndKichHoatTrue();
+    // Count records
+    long countByKichHoatTrue();
 }

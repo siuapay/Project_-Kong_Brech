@@ -196,29 +196,17 @@
                                 </h6>
                             </div>
                             <div class="card-body">
-                                <div class="mb-2">
-                                    <span class="badge bg-info me-2">Sinh hoạt thường kỳ</span>
-                                    <small class="text-muted">Các buổi sinh hoạt định kỳ</small>
+                                <div th:each="loaiSuKien : ${danhSachLoaiSuKien}" class="mb-2">
+                                    <span class="badge me-2" 
+                                          th:style="'background-color: ' + (${loaiSuKien.mauSac} ?: '#6c757d')">
+                                        <i th:if="${loaiSuKien.icon}" th:class="${loaiSuKien.icon} + ' me-1'"></i>
+                                        <span th:text="${loaiSuKien.tenLoai}">Loại sự kiện</span>
+                                    </span>
+                                    <small class="text-muted" th:text="${loaiSuKien.moTa}">Mô tả loại sự kiện</small>
                                 </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-warning me-2">Sinh hoạt đặc biệt</span>
-                                    <small class="text-muted">Sự kiện đặc biệt, không thường xuyên</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-success me-2">Công tác xã hội</span>
-                                    <small class="text-muted">Hoạt động phục vụ cộng đồng</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-primary me-2">Hoạt động từ thiện</span>
-                                    <small class="text-muted">Các hoạt động giúp đỡ, từ thiện</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-danger me-2">Lễ hội tôn giáo</span>
-                                    <small class="text-muted">Các lễ hội, nghi lễ tôn giáo</small>
-                                </div>
-                                <div class="mb-2">
-                                    <span class="badge bg-secondary me-2">Khác</span>
-                                    <small class="text-muted">Các loại sự kiện khác</small>
+                                <div th:if="${#lists.isEmpty(danhSachLoaiSuKien)}" class="text-muted text-center py-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Chưa có loại sự kiện nào được định nghĩa
                                 </div>
                             </div>
                         </div>

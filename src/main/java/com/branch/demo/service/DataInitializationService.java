@@ -44,13 +44,13 @@ public class DataInitializationService implements CommandLineRunner {
     private TaiChinhRepository taiChinhRepository;
 
     @Autowired
-    private ThongBaoRepository thongBaoRepository;
-
-    @Autowired
     private LienHeRepository lienHeRepository;
 
     @Autowired
     private LoaiSuKienRepository loaiSuKienRepository;
+
+    @Autowired
+    private RichContentNewsService richContentNewsService;
 
     @Override
     @Transactional
@@ -58,21 +58,23 @@ public class DataInitializationService implements CommandLineRunner {
         if (banNganhRepository.count() == 0) {
             initializeData();
         }
+        
+        // Always try to create rich content news (will check if exists)
+        try {
+            richContentNewsService.createRichContentNews();
+        } catch (Exception e) {
+            System.out.println("Rich content news already exists or error: " + e.getMessage());
+        }
     }
 
     private void initializeData() {
         // Tạo các loại sự kiện trước
-        LoaiSuKien loaiLeHoi = createLoaiSuKien("Lễ hội tôn giáo", "Các lễ hội và ngày lễ tôn giáo", "#dc3545",
-                "fas fa-church", 1);
-        LoaiSuKien loaiSinhHoatThuongKy = createLoaiSuKien("Sinh hoạt thường kỳ", "Các hoạt động sinh hoạt định kỳ",
-                "#17a2b8", "fas fa-calendar-week", 2);
-        LoaiSuKien loaiTuThien = createLoaiSuKien("Hoạt động từ thiện", "Các chương trình từ thiện và xã hội",
-                "#28a745", "fas fa-heart", 3);
-        LoaiSuKien loaiSinhHoatDacBiet = createLoaiSuKien("Sinh hoạt đặc biệt", "Các hoạt động sinh hoạt đặc biệt",
-                "#ffc107", "fas fa-star", 4);
-        LoaiSuKien loaiCongTacXaHoi = createLoaiSuKien("Công tác xã hội", "Các hoạt động công tác xã hội", "#6f42c1",
-                "fas fa-users", 5);
-        LoaiSuKien loaiKhac = createLoaiSuKien("Khác", "Các sự kiện khác", "#6c757d", "fas fa-ellipsis-h", 6);
+        LoaiSuKien loaiLeHoi = createLoaiSuKien("Lễ hội tôn giáo", "Các lễ hội và ngày lễ tôn giáo", "#dc3545", "fas fa-church");
+        LoaiSuKien loaiSinhHoatThuongKy = createLoaiSuKien("Sinh hoạt thường kỳ", "Các hoạt động sinh hoạt định kỳ", "#17a2b8", "fas fa-calendar-week");
+        LoaiSuKien loaiTuThien = createLoaiSuKien("Hoạt động từ thiện", "Các chương trình từ thiện và xã hội", "#28a745", "fas fa-heart");
+        LoaiSuKien loaiSinhHoatDacBiet = createLoaiSuKien("Sinh hoạt đặc biệt", "Các hoạt động sinh hoạt đặc biệt", "#ffc107", "fas fa-star");
+        LoaiSuKien loaiCongTacXaHoi = createLoaiSuKien("Công tác xã hội", "Các hoạt động công tác xã hội", "#6f42c1", "fas fa-users");
+        LoaiSuKien loaiKhac = createLoaiSuKien("Khác", "Các sự kiện khác", "#6c757d", "fas fa-ellipsis-h");
 
         // Tạo các ban ngành
         BanNganh banMucVu = createBanNganh("Ban Mục vụ", "MUCVU",
@@ -142,11 +144,11 @@ public class DataInitializationService implements CommandLineRunner {
         createTaiChinh(TaiChinh.LoaiGiaoDich.THU, new BigDecimal("5000000"), "Quyên góp từ thiện", "Từ thiện",
                 LocalDate.now().minusDays(3));
 
-        // Tạo thông báo
-        createThongBao("Thông báo lễ Giáng sinh 2024", "Kính mời tất cả tín hữu tham dự lễ Giáng sinh...",
-                ThongBao.LoaiThongBao.SU_KIEN, ThongBao.MucDoUuTien.CAO);
-        createThongBao("Họp Ban Chấp sự", "Thông báo họp Ban Chấp sự tháng 1/2025", ThongBao.LoaiThongBao.HOP,
-                ThongBao.MucDoUuTien.BINH_THUONG);
+        // // Tạo thông báo
+        // createThongBao("Thông báo lễ Giáng sinh 2024", "Kính mời tất cả tín hữu tham dự lễ Giáng sinh...",
+        //         ThongBao.LoaiThongBao.SU_KIEN, ThongBao.MucDoUuTien.CAO);
+        // createThongBao("Họp Ban Chấp sự", "Thông báo họp Ban Chấp sự tháng 1/2025", ThongBao.LoaiThongBao.HOP,
+        //         ThongBao.MucDoUuTien.BINH_THUONG);
 
         // Tạo liên hệ
         createLienHe("Nguyễn Văn Test", "test@example.com", "0987654321", "Góp ý", "Tôi muốn góp ý về chương trình...",
@@ -214,10 +216,17 @@ public class DataInitializationService implements CommandLineRunner {
         return nhanSuDiemNhomRepository.save(nhanSu);
     }
 
-    private LoaiSuKien createLoaiSuKien(String tenLoai, String moTa, String mauSac, String icon, int thuTu) {
+    private LoaiSuKien createLoaiSuKien(String tenLoai, String moTa, String mauSac, String icon) {
+        // Kiểm tra xem loại sự kiện đã tồn tại chưa
+        if (loaiSuKienRepository.existsByTenLoai(tenLoai)) {
+            return loaiSuKienRepository.findByKichHoatTrueOrderByTenLoaiAsc().stream()
+                    .filter(l -> l.getTenLoai().equals(tenLoai))
+                    .findFirst()
+                    .orElse(null);
+        }
+        
         LoaiSuKien loaiSuKien = new LoaiSuKien(tenLoai, moTa, mauSac);
         loaiSuKien.setIcon(icon);
-        loaiSuKien.setThuTu(thuTu);
         loaiSuKien.setKichHoat(true);
         return loaiSuKienRepository.save(loaiSuKien);
     }
@@ -241,16 +250,16 @@ public class DataInitializationService implements CommandLineRunner {
         return taiChinhRepository.save(taiChinh);
     }
 
-    private ThongBao createThongBao(String tieuDe, String noiDung, ThongBao.LoaiThongBao loaiThongBao,
-            ThongBao.MucDoUuTien mucDoUuTien) {
-        ThongBao thongBao = new ThongBao(tieuDe, noiDung, loaiThongBao);
-        thongBao.setMucDoUuTien(mucDoUuTien);
-        thongBao.setNguoiGui("Admin");
-        thongBao.setDoiTuongNhan("Tất cả");
-        thongBao.setNgayGui(LocalDateTime.now());
-        thongBao.setTrangThai(ThongBao.TrangThaiThongBao.DA_GUI);
-        return thongBaoRepository.save(thongBao);
-    }
+//     private ThongBao createThongBao(String tieuDe, String noiDung, ThongBao.LoaiThongBao loaiThongBao,
+//             ThongBao.MucDoUuTien mucDoUuTien) {
+//         ThongBao thongBao = new ThongBao(tieuDe, noiDung, loaiThongBao);
+//         thongBao.setMucDoUuTien(mucDoUuTien);
+//         thongBao.setNguoiGui("Admin");
+//         thongBao.setDoiTuongNhan("Tất cả");
+//         thongBao.setNgayGui(LocalDateTime.now());
+//         thongBao.setTrangThai(ThongBao.TrangThaiThongBao.DA_GUI);
+//         return thongBaoRepository.save(thongBao);
+//     }
 
     private LienHe createLienHe(String hoTen, String email, String dienThoai, String chuDe, String noiDung,
             LienHe.LoaiLienHe loaiLienHe) {

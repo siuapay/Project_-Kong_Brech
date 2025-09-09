@@ -69,9 +69,17 @@
                                         <button type="button" class="btn btn-link p-0 text-decoration-none tin-huu-btn" 
                                                 th:data-nhom-id="${nhom.id}"
                                                 th:data-nhom-name="${nhom.tenNhom}"
-                                                th:disabled="${nhom.soLuongTinHuu == 0}">
-                                            <h4 class="text-primary mb-0" th:text="${nhom.soLuongTinHuu}">0</h4>
-                                            <small class="text-muted">Tin Hữu</small>
+                                                th:disabled="${nhom.soLuongTinHuu == 0}"
+                                                th:title="${nhom.soLuongTinHuu > 0 ? 'Click để xem danh sách tin hữu' : 'Chưa có tin hữu'}"
+                                                data-bs-toggle="tooltip">
+                                            <div class="position-relative">
+                                                <h4 class="text-primary mb-0" th:text="${nhom.soLuongTinHuu}">0</h4>
+                                                <small class="text-muted d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-users me-1" th:if="${nhom.soLuongTinHuu > 0}"></i>
+                                                    Tin Hữu
+                                                    <i class="fas fa-external-link-alt ms-1 opacity-50" th:if="${nhom.soLuongTinHuu > 0}" style="font-size: 0.7em;"></i>
+                                                </small>
+                                            </div>
                                         </button>
                                     </div>
                                 </div>
@@ -95,6 +103,11 @@
                                 <a th:href="@{/admin/nhom/edit/{id}(id=${nhom.id})}" class="btn btn-warning">
                                     <i class="fas fa-edit me-2"></i>Chỉnh Sửa
                                 </a>
+                                <button type="button" class="btn btn-success add-tin-huu-btn"
+                                        th:data-nhom-id="${nhom.id}"
+                                        th:data-nhom-name="${nhom.tenNhom}">
+                                    <i class="fas fa-user-plus me-2"></i>Thêm Tin Hữu
+                                </button>
                                 <button type="button" class="btn btn-danger" 
                                         th:data-id="${nhom.id}"
                                         th:data-name="${nhom.tenNhom}"
@@ -291,6 +304,93 @@
         </div>
     </main>
 
+    <!-- Add Tin Huu Modal -->
+    <div class="modal fade" id="addTinHuuModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>Thêm Tin Hữu vào Nhóm - <span id="addModalNhomName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Search and Filter -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchTinHuu" 
+                                       placeholder="Tìm kiếm tin hữu theo tên...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterGioiTinh">
+                                <option value="">Tất cả giới tính</option>
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="filterDiemNhom">
+                                <option value="">Tất cả điểm nhóm</option>
+                                <!-- Will be populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="selectAllBtn">
+                                        <i class="fas fa-check-square me-1"></i>Chọn tất cả
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="clearAllBtn">
+                                        <i class="fas fa-square me-1"></i>Bỏ chọn tất cả
+                                    </button>
+                                </div>
+                                <div>
+                                    <span class="text-muted">Đã chọn: <span id="selectedCount">0</span> tin hữu</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="addTinHuuLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang tải danh sách tin hữu...</p>
+                    </div>
+
+                    <!-- Content -->
+                    <div id="addTinHuuContent" style="display: none;">
+                        <div class="row" id="availableTinHuuList">
+                            <!-- Available tin huu will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="addTinHuuEmpty" style="display: none;" class="text-center py-4 text-muted">
+                        <i class="fas fa-user-check fa-2x mb-2 d-block"></i>
+                        <p>Tất cả tin hữu đã được phân nhóm hoặc không có tin hữu nào phù hợp</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" id="addSelectedTinHuu" disabled>
+                        <i class="fas fa-plus me-1"></i>Thêm <span id="addButtonCount">0</span> tin hữu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Tin Huu Modal -->
     <div class="modal fade" id="tinHuuModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -325,6 +425,63 @@
         </div>
     </div>
 
+    <!-- Remove Tin Huu Modal -->
+    <div class="modal fade" id="removeTinHuuModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa Tin Hữu Khỏi Nhóm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa <strong id="removeTinHuuName"></strong> khỏi nhóm này?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Lưu ý:</strong> Tin hữu sẽ trở về trạng thái "chưa có nhóm" và có thể được thêm vào nhóm khác.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-warning" id="confirmRemoveTinHuu">
+                        <i class="fas fa-user-minus me-1"></i>Xóa Khỏi Nhóm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Tin Huu Modal -->
+    <div class="modal fade" id="transferTinHuuModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chuyển Tin Hữu Sang Nhóm Khác</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Chuyển <strong id="transferTinHuuName"></strong> sang nhóm nào?</p>
+                    <div class="mb-3">
+                        <label for="targetNhomSelect" class="form-label">Chọn nhóm đích:</label>
+                        <select class="form-select" id="targetNhomSelect">
+                            <option value="">-- Chọn nhóm --</option>
+                            <!-- Will be populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        <strong>Lưu ý:</strong> Tin hữu sẽ được chuyển trực tiếp sang nhóm mới.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmTransferTinHuu" disabled>
+                        <i class="fas fa-exchange-alt me-1"></i>Chuyển Nhóm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -351,101 +508,590 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
-    <script>
-        function confirmDelete(id, name) {
-            document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = '/admin/nhom/delete/' + id;
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    <style>
+        .group-icon {
+            width: 120px;
+            height: 120px;
         }
+        
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: #212529;
+            margin-bottom: 1rem;
+        }
+        
+        .note-box {
+            background-color: #f8f9fa !important;
+        }
+        
+        .stat-item h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .tin-huu-item {
+            transition: opacity 0.3s ease;
+        }
+        
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            transition: background-color 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .modal-xl {
+            max-width: 1200px;
+        }
+        
+        .form-check-input:checked {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        
+        .btn-outline-primary:hover,
+        .btn-outline-secondary:hover {
+            transform: translateY(-1px);
+        }
+        
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .badge {
+            font-weight: 500;
+        }
+        
+        .text-primary {
+            color: #0d6efd !important;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0d6efd 0%, #0056b3 100%) !important;
+        }
+    </style>
+   <script>
+    function confirmDelete(id, name) {
+        document.getElementById('deleteName').textContent = name;
+        document.getElementById('deleteForm').action = '/admin/nhom/delete/' + id;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
 
-        // Add event listeners for tin huu buttons
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.tin-huu-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const nhomId = this.getAttribute('data-nhom-id');
-                    const nhomName = this.getAttribute('data-nhom-name');
-                    showTinHuuModal(nhomId, nhomName);
-                });
+    // Global variables
+    let currentNhomId = null;
+    let currentTinHuuId = null;
+    let availableTinHuuData = [];
+    let filteredTinHuuData = [];
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Tin huu view buttons
+        document.querySelectorAll('.tin-huu-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const nhomId = this.getAttribute('data-nhom-id');
+                const nhomName = this.getAttribute('data-nhom-name');
+                showTinHuuModal(nhomId, nhomName);
             });
         });
 
-        // Show tin huu modal
-        function showTinHuuModal(nhomId, nhomName) {
-            document.getElementById('modalNhomName').textContent = nhomName;
-            
-            // Show loading
-            document.getElementById('tinHuuLoading').style.display = 'block';
-            document.getElementById('tinHuuContent').style.display = 'none';
-            document.getElementById('tinHuuEmpty').style.display = 'none';
-            
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('tinHuuModal'));
-            modal.show();
-            
-            // Load tin huu data
-            fetch(`/admin/api/nhom/${nhomId}/tin-huu`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('tinHuuLoading').style.display = 'none';
-                    
-                    if (data.length === 0) {
-                        document.getElementById('tinHuuEmpty').style.display = 'block';
-                    } else {
-                        document.getElementById('tinHuuContent').style.display = 'block';
-                        renderTinHuuList(data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading tin huu:', error);
-                    document.getElementById('tinHuuLoading').style.display = 'none';
-                    document.getElementById('tinHuuEmpty').style.display = 'block';
-                    document.getElementById('tinHuuEmpty').innerHTML = `
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
-                        <p>Có lỗi xảy ra khi tải danh sách tin hữu</p>
-                    `;
-                });
-        }
+        // Add tin huu buttons
+        document.querySelectorAll('.add-tin-huu-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const nhomId = this.getAttribute('data-nhom-id');
+                const nhomName = this.getAttribute('data-nhom-name');
+                showAddTinHuuModal(nhomId, nhomName);
+            });
+        });
 
-        function renderTinHuuList(tinHuuList) {
-            const container = document.getElementById('tinHuuList');
-            container.innerHTML = '';
-            
-            tinHuuList.forEach(tinHuu => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 mb-3';
-                
-                const avatarUrl = tinHuu.avatarUrl || '/static/images/default-avatar.svg';
-                const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
-                const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
-                const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' : 
-                                   gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
-                
-                col.innerHTML = `
-                    <div class="card h-100 tin-huu-card" onclick="window.open('/admin/tin-huu/view/${tinHuu.id}', '_blank')" style="cursor: pointer;">
-                        <div class="card-body p-3">
-                            <div class="d-flex align-items-center">
-                                <img src="${avatarUrl}" alt="Avatar" 
-                                     class="rounded-circle me-3" 
-                                     style="width: 50px; height: 50px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">${tinHuu.hoTen}</h6>
-                                    <div class="small text-muted">
-                                        <div><i class="fas fa-birthday-cake me-1"></i>Năm sinh: ${namSinh}</div>
-                                        <div><i class="${gioiTinhIcon} me-1"></i>Giới tính: ${gioiTinh}</div>
-                                    </div>
+        // Search and filter functionality
+        document.getElementById('searchTinHuu')?.addEventListener('input', filterTinHuu);
+        document.getElementById('filterGioiTinh')?.addEventListener('change', filterTinHuu);
+        document.getElementById('filterDiemNhom')?.addEventListener('change', filterTinHuu);
+
+        // Bulk selection
+        document.getElementById('selectAllBtn')?.addEventListener('click', function() {
+            document.querySelectorAll('.tin-huu-checkbox:not(:disabled)').forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            updateSelectedCount();
+        });
+
+        document.getElementById('clearAllBtn')?.addEventListener('click', function() {
+            document.querySelectorAll('.tin-huu-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            updateSelectedCount();
+        });
+
+        // Add selected tin huu
+        document.getElementById('addSelectedTinHuu')?.addEventListener('click', addSelectedTinHuuToNhom);
+
+        // Target nhom selection
+        document.getElementById('targetNhomSelect')?.addEventListener('change', function() {
+            document.getElementById('confirmTransferTinHuu').disabled = !this.value;
+        });
+
+        // Confirm transfer
+        document.getElementById('confirmTransferTinHuu')?.addEventListener('click', transferTinHuu);
+
+        // Confirm remove
+        document.getElementById('confirmRemoveTinHuu')?.addEventListener('click', removeTinHuu);
+    });
+
+    function showTinHuuModal(nhomId, nhomName) {
+        currentNhomId = nhomId;
+        document.getElementById('modalNhomName').textContent = nhomName;
+
+        // Show loading
+        document.getElementById('tinHuuLoading').style.display = 'block';
+        document.getElementById('tinHuuContent').style.display = 'none';
+        document.getElementById('tinHuuEmpty').style.display = 'none';
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('tinHuuModal'));
+        modal.show();
+
+        // Load tin huu data
+        fetch(`/admin/api/nhom/${nhomId}/tin-huu`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('tinHuuLoading').style.display = 'none';
+                if (data.length === 0) {
+                    document.getElementById('tinHuuEmpty').style.display = 'block';
+                } else {
+                    document.getElementById('tinHuuContent').style.display = 'block';
+                    renderTinHuuList(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading tin huu:', error);
+                document.getElementById('tinHuuLoading').style.display = 'none';
+                document.getElementById('tinHuuEmpty').style.display = 'block';
+                document.getElementById('tinHuuEmpty').innerHTML = `
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
+                    <p>Có lỗi xảy ra khi tải danh sách tin hữu</p>
+                `;
+            });
+    }
+
+    function renderTinHuuList(tinHuuList) {
+        const container = document.getElementById('tinHuuList');
+        container.innerHTML = '';
+
+        tinHuuList.forEach(tinHuu => {
+            const col = document.createElement('div');
+            col.className = 'col-md-6 mb-3';
+
+            const avatarUrl = tinHuu.avatarUrl || '/static/images/default-avatar.svg';
+            const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
+            const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
+            const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' :
+                                 gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
+
+            col.innerHTML = `
+                <div class="card h-100 tin-huu-card">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center">
+                            <img src="${avatarUrl}" alt="Avatar" 
+                                 class="rounded-circle me-3" 
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${tinHuu.hoTen}</h6>
+                                <div class="small text-muted">
+                                    <div><i class="fas fa-birthday-cake me-1"></i>Năm sinh: ${namSinh}</div>
+                                    <div><i class="${gioiTinhIcon} me-1"></i>Giới tính: ${gioiTinh}</div>
                                 </div>
-                                <div class="text-end">
-                                    <i class="fas fa-external-link-alt text-primary"></i>
+                            </div>
+                            <div class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="/admin/tin-huu/view/${tinHuu.id}" target="_blank">
+                                                <i class="fas fa-eye me-2"></i>Xem Chi Tiết
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <button class="dropdown-item text-warning" 
+                                                    onclick="showTransferModal(${tinHuu.id}, '${tinHuu.hoTen}')">
+                                                <i class="fas fa-exchange-alt me-2"></i>Chuyển Nhóm
+                                            </button>
+                                        </li>
+                                        <li>
+                                            <button class="dropdown-item text-danger" 
+                                                    onclick="showRemoveModal(${tinHuu.id}, '${tinHuu.hoTen}')">
+                                                <i class="fas fa-user-minus me-2"></i>Xóa Khỏi Nhóm
+                                            </button>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            `;
+
+            container.appendChild(col);
+        });
+    }
+
+    function showAddTinHuuModal(nhomId, nhomName) {
+        currentNhomId = nhomId;
+        document.getElementById('addModalNhomName').textContent = nhomName;
+
+        // Reset modal state
+        document.getElementById('addTinHuuLoading').style.display = 'block';
+        document.getElementById('addTinHuuContent').style.display = 'none';
+        document.getElementById('addTinHuuEmpty').style.display = 'none';
+        document.getElementById('searchTinHuu').value = '';
+        document.getElementById('filterGioiTinh').value = '';
+        document.getElementById('filterDiemNhom').value = '';
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('addTinHuuModal'));
+        modal.show();
+
+        // Load available tin huu
+        loadAvailableTinHuu();
+    }
+
+    function loadAvailableTinHuu() {
+        fetch('/admin/api/tin-huu/available')
+            .then(response => response.json())
+            .then(data => {
+                availableTinHuuData = data.tinHuu || [];
+                filteredTinHuuData = [...availableTinHuuData];
+
+                // Populate diem nhom filter
+                populateDiemNhomFilter(data.diemNhomList || []);
+
+                document.getElementById('addTinHuuLoading').style.display = 'none';
+
+                if (availableTinHuuData.length === 0) {
+                    document.getElementById('addTinHuuEmpty').style.display = 'block';
+                } else {
+                    document.getElementById('addTinHuuContent').style.display = 'block';
+                    renderAvailableTinHuu();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading available tin huu:', error);
+                document.getElementById('addTinHuuLoading').style.display = 'none';
+                document.getElementById('addTinHuuEmpty').style.display = 'block';
+                document.getElementById('addTinHuuEmpty').innerHTML = `
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
+                    <p>Có lỗi xảy ra khi tải danh sách tin hữu</p>
                 `;
-                
-                container.appendChild(col);
             });
-        }
-    </script>
+    }
+
+    function populateDiemNhomFilter(diemNhomList) {
+        const select = document.getElementById('filterDiemNhom');
+        select.innerHTML = '<option value="">Tất cả điểm nhóm</option>';
+
+        diemNhomList.forEach(diemNhom => {
+            const option = document.createElement('option');
+            option.value = diemNhom.id;
+            option.textContent = diemNhom.tenDiemNhom;
+            select.appendChild(option);
+        });
+    }
+
+    function renderAvailableTinHuu() {
+        const container = document.getElementById('availableTinHuuList');
+        container.innerHTML = '';
+
+        filteredTinHuuData.forEach(tinHuu => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4 col-lg-3 mb-3';
+
+            const avatarUrl = tinHuu.avatarUrl || '/static/images/default-avatar.svg';
+            const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
+            const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
+            const diemNhomTen = tinHuu.diemNhomTen || 'Chưa phân công';
+            const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' :
+                                 gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
+
+            col.innerHTML = `
+                <div class="card h-100 available-tin-huu-card" data-tin-huu-id="${tinHuu.id}">
+                    <div class="card-body p-3">
+                        <div class="form-check position-absolute" style="top: 10px; right: 10px;">
+                            <input class="form-check-input tin-huu-checkbox" type="checkbox" 
+                                   value="${tinHuu.id}" id="tinHuu${tinHuu.id}">
+                        </div>
+                        <div class="text-center">
+                            <img src="${avatarUrl}" alt="Avatar" 
+                                 class="rounded-circle mb-2" 
+                                 style="width: 50px; height: 50px; object-fit: cover;">
+                            <h6 class="mb-1">${tinHuu.hoTen}</h6>
+                            <div class="small text-muted">
+                                <div><i class="fas fa-birthday-cake me-1"></i>${namSinh}</div>
+                                <div><i class="${gioiTinhIcon} me-1"></i>${gioiTinh}</div>
+                                <div><i class="fas fa-map-marker-alt me-1"></i>${diemNhomTen}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(col);
+        });
+
+        // Add click handlers for cards
+        document.querySelectorAll('.available-tin-huu-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = this.querySelector('.tin-huu-checkbox');
+                    checkbox.checked = !checkbox.checked;
+                    updateSelectedCount();
+                }
+            });
+        });
+
+        // Add change handlers for checkboxes
+        document.querySelectorAll('.tin-huu-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectedCount);
+        });
+
+        updateSelectedCount();
+    }
+
+    function filterTinHuu() {
+        const searchTerm = document.getElementById('searchTinHuu').value.toLowerCase();
+        const gioiTinhFilter = document.getElementById('filterGioiTinh').value;
+        const diemNhomFilter = document.getElementById('filterDiemNhom').value;
+
+        filteredTinHuuData = availableTinHuuData.filter(tinHuu => {
+            const matchesSearch = tinHuu.hoTen.toLowerCase().includes(searchTerm);
+            const matchesGioiTinh = !gioiTinhFilter || tinHuu.gioiTinh === gioiTinhFilter;
+            const matchesDiemNhom = !diemNhomFilter || tinHuu.diemNhomId == diemNhomFilter;
+
+            return matchesSearch && matchesGioiTinh && matchesDiemNhom;
+        });
+
+        renderAvailableTinHuu();
+    }
+
+    function updateSelectedCount() {
+        const selectedCheckboxes = document.querySelectorAll('.tin-huu-checkbox:checked');
+        const count = selectedCheckboxes.length;
+
+        document.getElementById('selectedCount').textContent = count;
+        document.getElementById('addButtonCount').textContent = count;
+
+        const addButton = document.getElementById('addSelectedTinHuu');
+        addButton.disabled = count === 0;
+
+        // Update card styles
+        document.querySelectorAll('.available-tin-huu-card').forEach(card => {
+            const checkbox = card.querySelector('.tin-huu-checkbox');
+            if (checkbox.checked) {
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+    }
+
+    function addSelectedTinHuuToNhom() {
+        const selectedIds = Array.from(document.querySelectorAll('.tin-huu-checkbox:checked'))
+            .map(checkbox => parseInt(checkbox.value));
+
+        if (selectedIds.length === 0) return;
+
+        const addButton = document.getElementById('addSelectedTinHuu');
+        addButton.disabled = true;
+        addButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang thêm...';
+
+        fetch(`/admin/api/nhom/${currentNhomId}/add-tin-huu`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tinHuuIds: selectedIds })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('addTinHuuModal')).hide();
+                showSuccessMessage(`Đã thêm ${selectedIds.length} tin hữu vào nhóm thành công!`);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Có lỗi xảy ra');
+            }
+        })
+        .catch(error => {
+            console.error('Error adding tin huu:', error);
+            showErrorMessage('Có lỗi xảy ra khi thêm tin hữu: ' + error.message);
+        })
+        .finally(() => {
+            addButton.disabled = false;
+            addButton.innerHTML = '<i class="fas fa-plus me-1"></i>Thêm <span id="addButtonCount">' + selectedIds.length + '</span> tin hữu';
+        });
+    }
+
+    function showRemoveModal(tinHuuId, tinHuuName) {
+        currentTinHuuId = tinHuuId;
+        document.getElementById('removeTinHuuName').textContent = tinHuuName;
+
+        const modal = new bootstrap.Modal(document.getElementById('removeTinHuuModal'));
+        modal.show();
+    }
+
+    function removeTinHuu() {
+        const button = document.getElementById('confirmRemoveTinHuu');
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang xóa...';
+
+        fetch(`/admin/api/tin-huu/${currentTinHuuId}/remove-from-nhom`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('removeTinHuuModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('tinHuuModal')).hide();
+                showSuccessMessage('Đã xóa tin hữu khỏi nhóm thành công!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Có lỗi xảy ra');
+            }
+        })
+        .catch(error => {
+            console.error('Error removing tin huu:', error);
+            showErrorMessage('Có lỗi xảy ra khi xóa tin hữu: ' + error.message);
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-user-minus me-1"></i>Xóa Khỏi Nhóm';
+        });
+    }
+
+    function showTransferModal(tinHuuId, tinHuuName) {
+        currentTinHuuId = tinHuuId;
+        document.getElementById('transferTinHuuName').textContent = tinHuuName;
+
+        // Load available nhom
+        fetch('/admin/api/nhom/all')
+            .then(response => response.json())
+            .then(data => {
+                const select = document.getElementById('targetNhomSelect');
+                select.innerHTML = '<option value="">-- Chọn nhóm --</option>';
+
+                data.forEach(nhom => {
+                    if (nhom.id != currentNhomId) {
+                        select.innerHTML += `
+                            <option value="${nhom.id}">
+                                ${nhom.tenNhom} ${nhom.diemNhomTen ? '(' + nhom.diemNhomTen + ')' : ''} - ${nhom.soLuongTinHuu} thành viên
+                            </option>
+                        `;
+                    }
+                });
+
+                const modal = new bootstrap.Modal(document.getElementById('transferTinHuuModal'));
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error loading nhom list:', error);
+                showErrorMessage('Có lỗi xảy ra khi tải danh sách nhóm');
+            });
+    }
+
+    function transferTinHuu() {
+        const targetNhomId = document.getElementById('targetNhomSelect').value;
+        if (!targetNhomId) return;
+
+        const button = document.getElementById('confirmTransferTinHuu');
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Đang chuyển...';
+
+        fetch(`/admin/api/tin-huu/${currentTinHuuId}/transfer-to-nhom`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                targetNhomId: parseInt(targetNhomId)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('transferTinHuuModal')).hide();
+                bootstrap.Modal.getInstance(document.getElementById('tinHuuModal')).hide();
+                showSuccessMessage('Đã chuyển tin hữu sang nhóm khác thành công!');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Có lỗi xảy ra');
+            }
+        })
+        .catch(error => {
+            console.error('Error transferring tin huu:', error);
+            showErrorMessage('Có lỗi xảy ra khi chuyển tin hữu: ' + error.message);
+        })
+        .finally(() => {
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-exchange-alt me-1"></i>Chuyển Nhóm';
+        });
+    }
+
+    function showSuccessMessage(message) {
+        alert(message); // Replace with toast notification if available
+    }
+
+    function showErrorMessage(message) {
+        alert(message); // Replace with toast notification if available
+    }
+</script>
     
     <style>
         .group-icon {
@@ -518,16 +1164,74 @@
         .tin-huu-btn {
             border: none !important;
             background: none !important;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 8px 12px;
         }
         
         .tin-huu-btn:hover {
-            background: none !important;
+            background: rgba(13, 110, 253, 0.1) !important;
             border: none !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+        }
+
+        .tin-huu-btn:hover h4 {
+            color: #0d6efd !important;
+            transform: scale(1.1);
+        }
+
+        .tin-huu-btn:hover small {
+            color: #0d6efd !important;
+        }
+
+        .tin-huu-btn:hover .fa-external-link-alt {
+            opacity: 1 !important;
+            transform: translateX(2px) translateY(-2px);
+        }
+
+        .tin-huu-btn .fa-external-link-alt {
+            transition: all 0.3s ease;
         }
         
         .tin-huu-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+        }
+
+        .tin-huu-btn:disabled:hover {
+            background: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+        
+        .available-tin-huu-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #dee2e6;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .available-tin-huu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        
+        .available-tin-huu-card.selected {
+            border-color: #28a745;
+            background-color: #f8fff9;
+            box-shadow: 0 4px 8px rgba(40,167,69,0.2);
+        }
+        
+        .modal-xl {
+            max-width: 1200px;
+        }
+        
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
         }
     </style>
 </body>

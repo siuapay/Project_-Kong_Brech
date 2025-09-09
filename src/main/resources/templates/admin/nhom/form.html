@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}"></head>
+<head th:replace="~{fragments/admin-layout :: head}">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+</head>
 <body>
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
@@ -58,19 +60,17 @@
 
                                     <!-- Điểm Nhóm -->
                                     <div class="col-md-6">
-                                        <label for="diemNhom" class="form-label">Điểm Nhóm <span class="text-danger">*</span></label>
+                                        <label for="diemNhom" class="form-label">Điểm Nhóm</label>
                                         <div class="input-group">
                                             <span class="input-group-text">
                                                 <i class="fas fa-map-marker-alt text-success"></i>
                                             </span>
-                                            <select class="form-select" id="diemNhom" th:field="*{diemNhom.id}" required>
-                                                <option value="">-- Chọn Điểm Nhóm --</option>
-                                                <option th:each="diemNhom : ${diemNhomList}" 
-                                                        th:value="${diemNhom.id}" 
-                                                        th:text="${diemNhom.tenDiemNhom}">Điểm Nhóm</option>
-                                            </select>
+                                            <div class="form-control p-0 border-0" style="background: transparent;">
+                                                <div id="diemNhomDropdown"></div>
+                                            </div>
                                         </div>
-                                        <div class="form-text">Chọn điểm nhóm mà nhóm này thuộc về</div>
+                                        <input type="hidden" id="diemNhom" th:field="*{diemNhom.id}">
+                                        <div class="form-text">Chọn điểm nhóm mà nhóm này thuộc về (tùy chọn)</div>
                                     </div>
 
                                     <!-- Trạng Thái -->
@@ -144,7 +144,7 @@
                             </div>
                             <div class="help-item mb-3">
                                 <h6 class="text-success"><i class="fas fa-map-marker-alt me-2"></i>Điểm Nhóm</h6>
-                                <p class="small text-muted mb-0">Chọn điểm nhóm phù hợp với địa lý và hoạt động của nhóm</p>
+                                <p class="small text-muted mb-0">Chọn điểm nhóm phù hợp với địa lý và hoạt động của nhóm. Có thể để trống nếu chưa xác định.</p>
                             </div>
                             <div class="help-item mb-3">
                                 <h6 class="text-info"><i class="fas fa-clock me-2"></i>Thời Gian Sinh Hoạt</h6>
@@ -199,11 +199,42 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script src="/static/js/searchable-dropdown.js"></script>
     <script>
-        // Form validation
+        let diemNhomDropdown;
+        
+        // Form validation and dropdown initialization
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
             const tenNhomInput = document.getElementById('tenNhom');
+            
+            // Initialize searchable dropdown for diem nhom
+            diemNhomDropdown = new SearchableDropdown('diemNhomDropdown', {
+                placeholder: 'Chọn điểm nhóm...',
+                searchPlaceholder: 'Tìm kiếm điểm nhóm...',
+                displayField: 'tenDiemNhom',
+                valueField: 'id',
+                allowClear: true,
+                onSelect: function(item) {
+                    // Update hidden input
+                    document.getElementById('diemNhom').value = item.id;
+                },
+                onClear: function() {
+                    // Clear hidden input
+                    document.getElementById('diemNhom').value = '';
+                }
+            });
+            
+            // Load all diem nhom
+            loadAllDiemNhom();
+            
+            // Set current value if exists (for edit mode)
+            const currentDiemNhomValue = document.getElementById('diemNhom').value;
+            if (currentDiemNhomValue) {
+                setTimeout(() => {
+                    diemNhomDropdown.setValue(currentDiemNhomValue);
+                }, 500);
+            }
             
             // Auto-focus on name input
             tenNhomInput.focus();
@@ -228,21 +259,26 @@
             });
         });
         
-        // Form validation and cleanup
+        // Load all diem nhom
+        function loadAllDiemNhom() {
+            fetch('/admin/api/all-diem-nhom')
+                .then(response => response.json())
+                .then(data => {
+                    diemNhomDropdown.setData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading điểm nhóm:', error);
+                });
+        }
+        
+        // Additional form validation and cleanup
         document.querySelector('form').addEventListener('submit', function(e) {
             const tenNhom = document.getElementById('tenNhom').value.trim();
-            const diemNhomId = document.getElementById('diemNhom').value;
             const trangThai = document.getElementById('trangThai').value;
             
             // Validate required fields
             if (!tenNhom) {
                 alert('Vui lòng nhập tên nhóm!');
-                e.preventDefault();
-                return;
-            }
-            
-            if (!diemNhomId) {
-                alert('Vui lòng chọn điểm nhóm!');
                 e.preventDefault();
                 return;
             }

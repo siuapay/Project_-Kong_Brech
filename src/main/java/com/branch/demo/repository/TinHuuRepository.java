@@ -149,4 +149,8 @@ public interface TinHuuRepository extends JpaRepository<TinHuu, Long> {
     // Đếm tin hữu đã xóa
     @Query("SELECT COUNT(t) FROM TinHuu t WHERE t.deletedAt IS NOT NULL")
     long countDeleted();
+    
+    // Tìm tin hữu chưa có nhóm và chưa bị xóa
+    @Query("SELECT t FROM TinHuu t WHERE t.nhom IS NULL AND t.deletedAt IS NULL")
+    List<TinHuu> findByNhomIsNullAndDeletedAtIsNull();
 }

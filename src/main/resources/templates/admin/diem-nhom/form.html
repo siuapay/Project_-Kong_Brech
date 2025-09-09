@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <head th:replace="~{fragments/admin-layout :: head}">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+  </head>
   <body>
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
@@ -66,18 +68,9 @@
 
                     <div class="col-md-6">
                       <label for="banNganh" class="form-label">Ban Ngành</label>
-                      <select
-                        class="form-select"
-                        id="banNganh"
-                        th:field="*{banNganh.id}"
-                      >
-                        <option value="">-- Chọn Ban Ngành --</option>
-                        <option
-                          th:each="banNganh : ${banNganhList}"
-                          th:value="${banNganh.id}"
-                          th:text="${banNganh.tenBan}"
-                        ></option>
-                      </select>
+                      <div id="banNganhDropdown"></div>
+                      <input type="hidden" id="banNganh" th:field="*{banNganh.id}">
+                      <div class="form-text">Chọn ban ngành quản lý điểm nhóm này (tùy chọn)</div>
                     </div>
 
                     <div class="col-12">
@@ -163,6 +156,12 @@
                   </p>
                 </div>
                 <div class="mb-3">
+                  <h6 class="text-primary">Ban Ngành</h6>
+                  <p class="small text-muted mb-0">
+                    Chọn ban ngành quản lý điểm nhóm (tùy chọn)
+                  </p>
+                </div>
+                <div class="mb-3">
                   <h6 class="text-primary">Địa Chỉ</h6>
                   <p class="small text-muted mb-0">
                     Địa chỉ chi tiết để tin hữu có thể tìm đến
@@ -239,7 +238,56 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script src="/static/js/searchable-dropdown.js"></script>
     <script>
+      let banNganhDropdown;
+      
+      document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        const tenDiemNhomInput = document.getElementById('tenDiemNhom');
+        
+        // Initialize searchable dropdown for ban nganh
+        banNganhDropdown = new SearchableDropdown('banNganhDropdown', {
+          placeholder: 'Chọn ban ngành...',
+          searchPlaceholder: 'Tìm kiếm ban ngành...',
+          displayField: 'tenBan',
+          valueField: 'id',
+          onSelect: function(item) {
+            // Update hidden input
+            document.getElementById('banNganh').value = item.id;
+          }
+        });
+        
+        // Load all ban nganh
+        loadAllBanNganh();
+        
+        // Set current value if exists (for edit mode)
+        const currentBanNganhValue = document.getElementById('banNganh').value;
+        if (currentBanNganhValue) {
+          setTimeout(() => {
+            banNganhDropdown.setValue(currentBanNganhValue);
+          }, 500);
+        }
+        
+        // Auto-focus on name input
+        tenDiemNhomInput.focus();
+      });
+      
+      // Load all ban nganh
+      function loadAllBanNganh() {
+        fetch('/admin/api/all-ban-nganh')
+          .then(response => response.json())
+          .then(data => {
+            banNganhDropdown.setData(data);
+          })
+          .catch(error => {
+            console.error('Error loading ban ngành:', error);
+            // Fallback to existing data from server
+            const banNganhList = /*[[${banNganhList}]]*/ [];
+            banNganhDropdown.setData(banNganhList);
+          });
+      }
+
       // Form validation and cleanup
       document.querySelector("form").addEventListener("submit", function (e) {
         const tenDiemNhom = document.getElementById("tenDiemNhom").value.trim();
@@ -275,5 +323,25 @@
         });
       });
     </script>
+    
+    <style>
+      /* Custom styling for form elements */
+      .form-control:focus, .form-select:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }
+      
+      /* Help section styling */
+      .help-item h6 {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+      
+      /* Required field indicator */
+      .required::after {
+        content: " *";
+        color: #dc3545;
+      }
+    </style>
   </body>
 </html>

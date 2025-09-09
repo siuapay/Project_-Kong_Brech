@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-tags me-2"></i>
+                        <span th:text="${danhMuc.id != null} ? 'Chỉnh Sửa Danh Mục' : 'Thêm Danh Mục Mới'">Thêm Danh Mục Mới</span>
+                    </h2>
+                    <p class="text-muted mb-0">Tạo và quản lý danh mục cho bài viết</p>
+                </div>
+                <a th:href="@{/admin/danh-muc}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
+            </div>
+
+            <!-- Form -->
+            <form th:action="@{/admin/danh-muc/save}" method="post" th:object="${danhMuc}">
+                <input type="hidden" th:field="*{id}">
+                
+                <div class="row">
+                    <!-- Main Content -->
+                    <div class="col-lg-8">
+                        <!-- Basic Information -->
+                        <div class="card shadow border-0 mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin cơ bản</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Name -->
+                                <div class="mb-3">
+                                    <label class="form-label">Tên danh mục <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" th:field="*{tenDanhMuc}" 
+                                           required maxlength="255" id="tenDanhMuc" onkeyup="generateSlug()">
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('tenDanhMuc')}" th:errors="*{tenDanhMuc}"></div>
+                                </div>
+
+                                <!-- Slug -->
+                                <div class="mb-3">
+                                    <label class="form-label">Slug (URL thân thiện)</label>
+                                    <input type="text" class="form-control" th:field="*{slug}" 
+                                           maxlength="255" id="slug">
+                                    <div class="form-text">
+                                        URL: <span class="text-muted" id="slugPreview">/danh-muc/</span>
+                                    </div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="mb-3">
+                                    <label class="form-label">Mô tả</label>
+                                    <textarea class="form-control" th:field="*{moTa}" rows="4" 
+                                              maxlength="1000" placeholder="Mô tả về danh mục này..."></textarea>
+                                    <div class="form-text">Tối đa 1000 ký tự</div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('moTa')}" th:errors="*{moTa}"></div>
+                                </div>
+
+                                <!-- Order -->
+                                <div class="mb-3">
+                                    <label class="form-label">Thứ tự hiển thị</label>
+                                    <input type="number" class="form-control" th:field="*{thuTu}" 
+                                           min="0" max="999" placeholder="0">
+                                    <div class="form-text">Số thứ tự để sắp xếp danh mục (0 = hiển thị đầu tiên)</div>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('thuTu')}" th:errors="*{thuTu}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Display Settings -->
+                        <div class="card shadow border-0 mb-4">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0"><i class="fas fa-palette me-2"></i>Cài đặt hiển thị</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Trạng thái</label>
+                                    <select class="form-select" th:field="*{trangThai}">
+                                        <option value="HOAT_DONG">Hoạt động</option>
+                                        <option value="TAM_NGHI">Tạm nghỉ</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Màu sắc danh mục</label>
+                                    <div class="input-group">
+                                        <input type="color" class="form-control form-control-color" 
+                                               id="colorPicker" 
+                                               th:value="${danhMuc.mauSac ?: '#007bff'}" title="Chọn màu">
+                                        <input type="text" class="form-control" th:field="*{mauSac}" 
+                                               id="colorInput" placeholder="#007bff" maxlength="10">
+                                    </div>
+                                    <div class="form-text">Màu sắc hiển thị cho danh mục này</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Icon danh mục</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i th:class="${danhMuc.icon ?: 'fas fa-tag'}" id="iconPreview"></i>
+                                        </span>
+                                        <input type="text" class="form-control" th:field="*{icon}" 
+                                               id="iconInput" placeholder="fas fa-tag" readonly>
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">
+                                        Click nút tìm kiếm để chọn icon hoặc nhập trực tiếp
+                                    </div>
+                                </div>
+
+                                <!-- Color Preview -->
+                                <div class="mb-3">
+                                    <label class="form-label">Xem trước</label>
+                                    <div class="p-3 border rounded" id="categoryPreview">
+                                        <span class="badge fs-6" id="previewBadge" 
+                                              th:style="${danhMuc.mauSac != null} ? 'background-color: ' + ${danhMuc.mauSac} : 'background-color: #007bff'">
+                                            <i th:class="${danhMuc.icon ?: 'fas fa-tag'}" class="me-1" id="previewIcon"></i>
+                                            <span id="previewText" th:text="${danhMuc.tenDanhMuc ?: 'Tên danh mục'}">Tên danh mục</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Information (only show when editing) -->
+                        <div th:if="${danhMuc.id != null}" class="card shadow border-0 mb-4">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin hệ thống</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">ID Danh mục</label>
+                                    <input type="text" class="form-control" th:value="${danhMuc.id}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Số bài viết</label>
+                                    <input type="text" class="form-control" th:value="${danhMuc.soLuongBaiViet}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ngày tạo</label>
+                                    <input type="text" class="form-control" 
+                                           th:value="${danhMuc.createdAt != null ? #temporals.format(danhMuc.createdAt, 'dd/MM/yyyy HH:mm:ss') : 'Chưa lưu'}" 
+                                           readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Cập nhật cuối</label>
+                                    <input type="text" class="form-control" 
+                                           th:value="${danhMuc.updatedAt != null ? #temporals.format(danhMuc.updatedAt, 'dd/MM/yyyy HH:mm:ss') : 'Chưa cập nhật'}" 
+                                           readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="card shadow border-0">
+                            <div class="card-header bg-gradient-primary text-white">
+                                <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${danhMuc.id != null} ? 'Cập Nhật' : 'Lưu Danh Mục'">Lưu Danh Mục</span>
+                                    </button>
+                                    <hr>
+                                    <a th:href="@{/admin/danh-muc}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-list me-2"></i>Danh Sách
+                                    </a>
+                                    <a th:if="${danhMuc.id != null}" 
+                                       th:href="@{/admin/danh-muc/view/{id}(id=${danhMuc.id})}" 
+                                       class="btn btn-outline-info">
+                                        <i class="fas fa-eye me-2"></i>Xem Chi Tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Icon Picker Modal -->
+    <div class="modal fade" id="iconPickerModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn Icon Danh Mục</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2" id="iconGrid">
+                        <!-- Icons will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        // Popular icons for categories
+        const categoryIcons = [
+            { class: 'fas fa-tag', name: 'Thẻ' },
+            { class: 'fas fa-tags', name: 'Nhiều Thẻ' },
+            { class: 'fas fa-folder', name: 'Thư Mục' },
+            { class: 'fas fa-folder-open', name: 'Thư Mục Mở' },
+            { class: 'fas fa-archive', name: 'Lưu Trữ' },
+            { class: 'fas fa-newspaper', name: 'Báo' },
+            { class: 'fas fa-file-alt', name: 'Tài Liệu' },
+            { class: 'fas fa-book', name: 'Sách' },
+            { class: 'fas fa-bookmark', name: 'Đánh Dấu' },
+            { class: 'fas fa-star', name: 'Ngôi Sao' },
+            { class: 'fas fa-heart', name: 'Trái Tim' },
+            { class: 'fas fa-thumbs-up', name: 'Thích' },
+            { class: 'fas fa-fire', name: 'Hot' },
+            { class: 'fas fa-bolt', name: 'Nhanh' },
+            { class: 'fas fa-crown', name: 'Vương Miện' },
+            { class: 'fas fa-gem', name: 'Ngọc' },
+            { class: 'fas fa-award', name: 'Giải Thưởng' },
+            { class: 'fas fa-trophy', name: 'Cúp' },
+            { class: 'fas fa-medal', name: 'Huy Chương' },
+            { class: 'fas fa-ribbon', name: 'Ruy Băng' },
+            { class: 'fas fa-flag', name: 'Cờ' },
+            { class: 'fas fa-bullhorn', name: 'Thông Báo' },
+            { class: 'fas fa-bell', name: 'Chuông' },
+            { class: 'fas fa-exclamation', name: 'Chú Ý' },
+            { class: 'fas fa-info', name: 'Thông Tin' },
+            { class: 'fas fa-question', name: 'Hỏi Đáp' },
+            { class: 'fas fa-lightbulb', name: 'Ý Tưởng' },
+            { class: 'fas fa-brain', name: 'Trí Tuệ' },
+            { class: 'fas fa-graduation-cap', name: 'Giáo Dục' },
+            { class: 'fas fa-chalkboard-teacher', name: 'Giảng Dạy' },
+            { class: 'fas fa-user-graduate', name: 'Sinh Viên' },
+            { class: 'fas fa-school', name: 'Trường Học' },
+            { class: 'fas fa-university', name: 'Đại Học' },
+            { class: 'fas fa-church', name: 'Nhà Thờ' },
+            { class: 'fas fa-cross', name: 'Thánh Giá' },
+            { class: 'fas fa-pray', name: 'Cầu Nguyện' },
+            { class: 'fas fa-hands-helping', name: 'Giúp Đỡ' },
+            { class: 'fas fa-hand-holding-heart', name: 'Trao Yêu Thương' },
+            { class: 'fas fa-users', name: 'Cộng Đồng' },
+            { class: 'fas fa-user-friends', name: 'Bạn Bè' },
+            { class: 'fas fa-people-carry', name: 'Hợp Tác' },
+            { class: 'fas fa-handshake', name: 'Bắt Tay' },
+            { class: 'fas fa-home', name: 'Nhà' },
+            { class: 'fas fa-building', name: 'Tòa Nhà' },
+            { class: 'fas fa-city', name: 'Thành Phố' },
+            { class: 'fas fa-globe', name: 'Thế Giới' },
+            { class: 'fas fa-map-marker-alt', name: 'Vị Trí' },
+            { class: 'fas fa-compass', name: 'La Bàn' },
+            { class: 'fas fa-route', name: 'Đường Đi' },
+            { class: 'fas fa-car', name: 'Xe Hơi' },
+            { class: 'fas fa-plane', name: 'Máy Bay' },
+            { class: 'fas fa-ship', name: 'Tàu Thủy' },
+            { class: 'fas fa-train', name: 'Tàu Hỏa' },
+            { class: 'fas fa-bicycle', name: 'Xe Đạp' },
+            { class: 'fas fa-motorcycle', name: 'Xe Máy' },
+            { class: 'fas fa-bus', name: 'Xe Buýt' },
+            { class: 'fas fa-truck', name: 'Xe Tải' },
+            { class: 'fas fa-utensils', name: 'Ẩm Thực' },
+            { class: 'fas fa-coffee', name: 'Cà Phê' },
+            { class: 'fas fa-wine-glass', name: 'Rượu' },
+            { class: 'fas fa-birthday-cake', name: 'Bánh' },
+            { class: 'fas fa-pizza-slice', name: 'Pizza' },
+            { class: 'fas fa-hamburger', name: 'Hamburger' },
+            { class: 'fas fa-apple-alt', name: 'Táo' },
+            { class: 'fas fa-carrot', name: 'Cà Rót' },
+            { class: 'fas fa-seedling', name: 'Cây Non' },
+            { class: 'fas fa-leaf', name: 'Lá Cây' },
+            { class: 'fas fa-tree', name: 'Cây' },
+            { class: 'fas fa-mountain', name: 'Núi' },
+            { class: 'fas fa-water', name: 'Nước' },
+            { class: 'fas fa-sun', name: 'Mặt Trời' },
+            { class: 'fas fa-moon', name: 'Mặt Trăng' },
+            { class: 'fas fa-cloud', name: 'Mây' },
+            { class: 'fas fa-rainbow', name: 'Cầu Vồng' },
+            { class: 'fas fa-snowflake', name: 'Bông Tuyết' },
+            { class: 'fas fa-music', name: 'Âm Nhạc' },
+            { class: 'fas fa-guitar', name: 'Guitar' },
+            { class: 'fas fa-microphone', name: 'Micro' },
+            { class: 'fas fa-headphones', name: 'Tai Nghe' },
+            { class: 'fas fa-volume-up', name: 'Âm Thanh' },
+            { class: 'fas fa-film', name: 'Phim' },
+            { class: 'fas fa-video', name: 'Video' },
+            { class: 'fas fa-camera', name: 'Máy Ảnh' },
+            { class: 'fas fa-image', name: 'Hình Ảnh' },
+            { class: 'fas fa-palette', name: 'Màu Sắc' },
+            { class: 'fas fa-paint-brush', name: 'Cọ Vẽ' },
+            { class: 'fas fa-gamepad', name: 'Game' },
+            { class: 'fas fa-puzzle-piece', name: 'Ghép Hình' },
+            { class: 'fas fa-dice', name: 'Xúc Xắc' },
+            { class: 'fas fa-chess', name: 'Cờ Vua' },
+            { class: 'fas fa-running', name: 'Chạy Bộ' },
+            { class: 'fas fa-swimmer', name: 'Bơi Lội' },
+            { class: 'fas fa-dumbbell', name: 'Tập Gym' },
+            { class: 'fas fa-football-ball', name: 'Bóng Đá' },
+            { class: 'fas fa-basketball-ball', name: 'Bóng Rổ' },
+            { class: 'fas fa-volleyball-ball', name: 'Bóng Chuyền' },
+            { class: 'fas fa-table-tennis', name: 'Bóng Bàn' },
+            { class: 'fas fa-shopping-cart', name: 'Mua Sắm' },
+            { class: 'fas fa-store', name: 'Cửa Hàng' },
+            { class: 'fas fa-gift', name: 'Quà Tặng' },
+            { class: 'fas fa-credit-card', name: 'Thẻ Tín Dụng' },
+            { class: 'fas fa-coins', name: 'Tiền Xu' },
+            { class: 'fas fa-dollar-sign', name: 'Tiền' },
+            { class: 'fas fa-chart-line', name: 'Biểu Đồ' },
+            { class: 'fas fa-briefcase', name: 'Công Việc' },
+            { class: 'fas fa-laptop', name: 'Laptop' },
+            { class: 'fas fa-mobile-alt', name: 'Điện Thoại' },
+            { class: 'fas fa-desktop', name: 'Máy Tính' },
+            { class: 'fas fa-tablet-alt', name: 'Máy Tính Bảng' },
+            { class: 'fas fa-wifi', name: 'Wifi' },
+            { class: 'fas fa-bluetooth', name: 'Bluetooth' },
+            { class: 'fas fa-satellite', name: 'Vệ Tinh' },
+            { class: 'fas fa-rocket', name: 'Tên Lửa' },
+            { class: 'fas fa-robot', name: 'Robot' },
+            { class: 'fas fa-cog', name: 'Cài Đặt' },
+            { class: 'fas fa-tools', name: 'Công Cụ' },
+            { class: 'fas fa-wrench', name: 'Cờ Lê' },
+            { class: 'fas fa-hammer', name: 'Búa' },
+            { class: 'fas fa-screwdriver', name: 'Tua Vít' },
+            { class: 'fas fa-key', name: 'Chìa Khóa' },
+            { class: 'fas fa-lock', name: 'Khóa' },
+            { class: 'fas fa-shield-alt', name: 'Bảo Vệ' },
+            { class: 'fas fa-eye', name: 'Xem' },
+            { class: 'fas fa-search', name: 'Tìm Kiếm' },
+            { class: 'fas fa-filter', name: 'Lọc' },
+            { class: 'fas fa-sort', name: 'Sắp Xếp' },
+            { class: 'fas fa-list', name: 'Danh Sách' },
+            { class: 'fas fa-th', name: 'Lưới' },
+            { class: 'fas fa-bars', name: 'Menu' },
+            { class: 'fas fa-plus', name: 'Thêm' },
+            { class: 'fas fa-minus', name: 'Bớt' },
+            { class: 'fas fa-times', name: 'Xóa' },
+            { class: 'fas fa-check', name: 'Đúng' },
+            { class: 'fas fa-arrow-right', name: 'Mũi Tên Phải' },
+            { class: 'fas fa-arrow-left', name: 'Mũi Tên Trái' },
+            { class: 'fas fa-arrow-up', name: 'Mũi Tên Lên' },
+            { class: 'fas fa-arrow-down', name: 'Mũi Tên Xuống' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate icon grid
+            populateIconGrid();
+            
+            // Make icon input editable when clicked
+            const iconInput = document.getElementById('iconInput');
+            iconInput.addEventListener('click', function() {
+                this.removeAttribute('readonly');
+            });
+            
+            iconInput.addEventListener('blur', function() {
+                this.setAttribute('readonly', 'readonly');
+                updateIconPreview();
+            });
+            
+            iconInput.addEventListener('keyup', function() {
+                updateIconPreview();
+            });
+        });
+        
+        function populateIconGrid() {
+            const iconGrid = document.getElementById('iconGrid');
+            iconGrid.innerHTML = '';
+            
+            categoryIcons.forEach(icon => {
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'col-2 mb-2';
+                iconDiv.innerHTML = `
+                    <div class="icon-option text-center p-2 border rounded cursor-pointer hover-bg-light" 
+                         data-icon="${icon.class}" title="${icon.name}"
+                         style="cursor: pointer; transition: all 0.2s;">
+                        <i class="${icon.class} fa-lg mb-1"></i>
+                        <div class="small text-muted">${icon.name}</div>
+                    </div>
+                `;
+                
+                // Add hover effect
+                const iconOption = iconDiv.querySelector('.icon-option');
+                iconOption.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                    this.style.borderColor = '#007bff';
+                });
+                
+                iconOption.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                    this.style.borderColor = '';
+                });
+                
+                iconOption.addEventListener('click', function() {
+                    selectIcon(icon.class);
+                });
+                
+                iconGrid.appendChild(iconDiv);
+            });
+        }
+        
+        function selectIcon(iconClass) {
+            document.getElementById('iconInput').value = iconClass;
+            updateIconPreview();
+            updatePreview();
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
+            modal.hide();
+        }
+
+        // Update icon preview
+        function updateIconPreview() {
+            const iconClass = document.getElementById('iconInput').value || 'fas fa-tag';
+            document.getElementById('iconPreview').className = iconClass;
+            document.getElementById('previewIcon').className = iconClass + ' me-1';
+        }
+        // Generate slug from name
+        function generateSlug() {
+            const name = document.getElementById('tenDanhMuc').value;
+            const slug = name
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[đĐ]/g, 'd')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            
+            document.getElementById('slug').value = slug;
+            document.getElementById('slugPreview').textContent = '/danh-muc/' + slug;
+            updatePreview();
+        }
+
+        // Update icon preview
+        function updateIconPreview() {
+            const iconClass = document.getElementById('iconInput').value || 'fas fa-tag';
+            document.getElementById('iconPreview').className = iconClass;
+            document.getElementById('previewIcon').className = iconClass + ' me-1';
+        }
+
+        // Update color preview
+        function updateColorPreview() {
+            const color = document.getElementById('colorInput').value || '#007bff';
+            document.getElementById('colorPicker').value = color;
+            document.getElementById('previewBadge').style.backgroundColor = color;
+        }
+
+        // Update preview
+        function updatePreview() {
+            const name = document.getElementById('tenDanhMuc').value || 'Tên danh mục';
+            document.getElementById('previewText').textContent = name;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sync color picker and input
+            const colorPicker = document.getElementById('colorPicker');
+            const colorInput = document.getElementById('colorInput');
+            
+            // Set initial values
+            if (colorInput.value) {
+                colorPicker.value = colorInput.value;
+            } else {
+                colorInput.value = colorPicker.value;
+            }
+            
+            colorPicker.addEventListener('change', function() {
+                colorInput.value = this.value;
+                updateColorPreview();
+            });
+            
+            colorInput.addEventListener('input', function() {
+                if (this.value.match(/^#[0-9A-F]{6}$/i)) {
+                    colorPicker.value = this.value;
+                    updateColorPreview();
+                }
+            });
+            
+            // Update preview on name change
+            document.getElementById('tenDanhMuc').addEventListener('input', updatePreview);
+            
+            // Initialize preview
+            updateIconPreview();
+            updateColorPreview();
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

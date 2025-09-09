@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${danhMuc.tenDanhMuc} + ' - Chi Hội Thánh'">Danh mục tin tức</title>
+    <meta th:if="${danhMuc.moTa}" th:content="${danhMuc.moTa}" name="description">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+        }
+        .news-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .news-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Category Header -->
+    <section class="category-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item">
+                                <a href="/tin-tuc" class="text-white-50">Tin tức</a>
+                            </li>
+                            <li class="breadcrumb-item active text-white" aria-current="page" 
+                                th:text="${danhMuc.tenDanhMuc}">Danh mục</li>
+                        </ol>
+                    </nav>
+                    
+                    <h1 class="display-4 fw-bold mb-3">
+                        <i th:class="${danhMuc.icon != null} ? 'fas fa-' + ${danhMuc.icon} + ' me-3' : 'fas fa-folder me-3'"></i>
+                        <span th:text="${danhMuc.tenDanhMuc}">Danh mục</span>
+                    </h1>
+                    
+                    <p th:if="${danhMuc.moTa}" class="lead" th:text="${danhMuc.moTa}">Mô tả danh mục</p>
+                    
+                    <div class="mt-4">
+                        <span class="badge fs-6 bg-light text-dark">
+                            <i class="fas fa-newspaper me-1"></i>
+                            <span th:text="${baiVietPage.totalElements}">0</span> bài viết
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Articles Grid -->
+                <div class="row">
+                    <div th:each="baiViet : ${baiVietPage.content}" class="col-md-6 col-lg-4 mb-4">
+                        <div class="card news-card border-0 shadow-sm">
+                            <div class="position-relative">
+                                <img th:src="${baiViet.anhDaiDien != null} ? ${baiViet.anhDaiDien} : '/images/default-news.jpg'" 
+                                     class="card-img-top news-image" th:alt="${baiViet.tieuDe}">
+                                <div th:if="${baiViet.noiBat}" class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star"></i> Nổi bật
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a th:href="@{/tin-tuc/{slug}(slug=${baiViet.slug})}" 
+                                       class="text-decoration-none text-dark"
+                                       th:text="${#strings.abbreviate(baiViet.tieuDe, 60)}">Tiêu đề</a>
+                                </h5>
+                                <p class="card-text text-muted small" 
+                                   th:text="${#strings.abbreviate(baiViet.tomTat, 100)}">Tóm tắt...</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>
+                                        <span th:text="${baiViet.tacGia}">Tác giả</span>
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM')}">01/01</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${baiVietPage.content.empty}" class="text-center py-5">
+                    <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Chưa có bài viết nào trong danh mục này</h4>
+                    <p class="text-muted">Hãy quay lại sau để xem những tin tức mới nhất</p>
+                    <a href="/tin-tuc" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại trang chủ
+                    </a>
+                </div>
+
+                <!-- Pagination -->
+                <nav th:if="${totalPages > 1}" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                            <a class="page-link" th:href="@{/tin-tuc/danh-muc/{slug}(slug=${danhMuc.slug}, page=${currentPage - 1})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                            class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
+                            <a class="page-link" th:href="@{/tin-tuc/danh-muc/{slug}(slug=${danhMuc.slug}, page=${pageNum})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+                        
+                        <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                            <a class="page-link" th:href="@{/tin-tuc/danh-muc/{slug}(slug=${danhMuc.slug}, page=${currentPage + 1})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-3">
+                <!-- Category Menu -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh mục khác</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <a href="/tin-tuc" class="list-group-item list-group-item-action border-0">
+                            <i class="fas fa-list me-2"></i>Tất cả tin tức
+                        </a>
+                        <a th:each="dm : ${danhMucList}" 
+                           th:href="@{/tin-tuc/danh-muc/{slug}(slug=${dm.slug})}"
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${dm.id == danhMuc.id} ? 'active' : ''">
+                            <i th:class="${dm.icon != null} ? 'fas fa-' + ${dm.icon} + ' me-2' : 'fas fa-folder me-2'"></i>
+                            <span th:text="${dm.tenDanhMuc}">Danh mục</span>
+                            <span class="badge bg-secondary float-end" th:text="${dm.soLuongBaiViet}">0</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Back to News -->
+                <div class="text-center">
+                    <a href="/tin-tuc" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay lại trang chủ tin tức
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

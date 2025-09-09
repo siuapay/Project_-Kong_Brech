@@ -179,8 +179,14 @@
                                         <span th:unless="${banNganh.emailLienHe != null && !banNganh.emailLienHe.isEmpty()} or ${banNganh.dienThoaiLienHe != null && !banNganh.dienThoaiLienHe.isEmpty()}" class="text-muted">Chưa có</span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-info fs-6" th:text="${banNganh.soLuongNhanSu}">0</span>
-                                        <small class="text-muted">người</small>
+                                        <button type="button" class="btn btn-sm btn-info" 
+                                                th:data-ban-nganh-id="${banNganh.id}"
+                                                th:data-ban-nganh-name="${banNganh.tenBan}"
+                                                onclick="showNhanSuModal(this.dataset.banNganhId, this.dataset.banNganhName)"
+                                                title="Xem danh sách nhân sự">
+                                            <span class="badge bg-light text-dark me-1" th:text="${banNganh.soLuongNhanSu}">0</span>
+                                            <i class="fas fa-users"></i>
+                                        </button>
                                     </td>
                                     <td>
                                         <span th:if="${banNganh.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
@@ -274,6 +280,77 @@
         </div>
     </div>
 
+    <!-- Nhan Su Modal -->
+    <div class="modal fade" id="nhanSuModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-users me-2"></i>Danh Sách Nhân Sự - <span id="modalBanNganhName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="nhanSuLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang tải danh sách nhân sự...</p>
+                    </div>
+                    <div id="nhanSuContent" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-primary" id="nhanSuCount">0</span> nhân sự
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-outline-secondary active" id="listViewBtn" onclick="toggleView('list')">
+                                    <i class="fas fa-list"></i> Danh sách
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="gridViewBtn" onclick="toggleView('grid')">
+                                    <i class="fas fa-th"></i> Lưới
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- List View -->
+                        <div id="listView">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Họ Tên</th>
+                                            <th>Chức Vụ</th>
+                                            <th>Liên Hệ</th>
+                                            <th>Điểm Nhóm</th>
+                                            <th>Trạng Thái</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="nhanSuTableBody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Grid View -->
+                        <div id="gridView" style="display: none;">
+                            <div class="row" id="nhanSuGridContainer">
+                            </div>
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div id="emptyState" class="text-center py-4" style="display: none;">
+                            <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">Chưa có nhân sự nào trong ban ngành này</h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
@@ -289,6 +366,159 @@
             document.querySelector('input[name="fromDate"]').value = '';
             document.querySelector('input[name="toDate"]').value = '';
         }
+
+        // Show nhan su modal
+        function showNhanSuModal(banNganhId, banNganhName) {
+            document.getElementById('modalBanNganhName').textContent = banNganhName;
+            document.getElementById('nhanSuLoading').style.display = 'block';
+            document.getElementById('nhanSuContent').style.display = 'none';
+            
+            const modal = new bootstrap.Modal(document.getElementById('nhanSuModal'));
+            modal.show();
+            
+            // Fetch nhan su data
+            fetch(`/admin/api/ban-nganh/${banNganhId}/nhan-su`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('nhanSuLoading').style.display = 'none';
+                    document.getElementById('nhanSuContent').style.display = 'block';
+                    
+                    if (data.length === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('listView').style.display = 'none';
+                        document.getElementById('gridView').style.display = 'none';
+                    } else {
+                        document.getElementById('emptyState').style.display = 'none';
+                        document.getElementById('nhanSuCount').textContent = data.length;
+                        renderNhanSuList(data);
+                        renderNhanSuGrid(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('nhanSuLoading').style.display = 'none';
+                    document.getElementById('nhanSuContent').innerHTML = 
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Có lỗi xảy ra khi tải dữ liệu</div>';
+                });
+        }
+
+        function renderNhanSuList(nhanSuList) {
+            const tbody = document.getElementById('nhanSuTableBody');
+            tbody.innerHTML = '';
+            
+            nhanSuList.forEach(nhanSu => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                ${nhanSu.avatarUrl ? 
+                                    `<img src="${nhanSu.avatarUrl}" class="rounded-circle" width="40" height="40" alt="Avatar">` :
+                                    `<i class="fas fa-user"></i>`
+                                }
+                            </div>
+                            <div>
+                                <h6 class="mb-0">${nhanSu.hoTen}</h6>
+                                <small class="text-muted">ID: ${nhanSu.id}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">${nhanSu.chucVu || 'Chưa có'}</span>
+                    </td>
+                    <td>
+                        <div>
+                            ${nhanSu.email ? `<small class="d-block"><i class="fas fa-envelope text-primary me-1"></i>${nhanSu.email}</small>` : ''}
+                            ${nhanSu.dienThoai ? `<small class="d-block"><i class="fas fa-phone text-success me-1"></i>${nhanSu.dienThoai}</small>` : ''}
+                            ${!nhanSu.email && !nhanSu.dienThoai ? '<span class="text-muted">Chưa có</span>' : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge bg-info">${nhanSu.diemNhom || 'Chưa có'}</span>
+                    </td>
+                    <td>
+                        <span class="badge ${getTrangThaiClass(nhanSu.trangThai)}">
+                            ${getTrangThaiText(nhanSu.trangThai)}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderNhanSuGrid(nhanSuList) {
+            const container = document.getElementById('nhanSuGridContainer');
+            container.innerHTML = '';
+            
+            nhanSuList.forEach(nhanSu => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 mb-3';
+                col.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <div class="avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                ${nhanSu.avatarUrl ? 
+                                    `<img src="${nhanSu.avatarUrl}" class="rounded-circle" width="60" height="60" alt="Avatar">` :
+                                    `<i class="fas fa-user fa-2x"></i>`
+                                }
+                            </div>
+                            <h6 class="card-title">${nhanSu.hoTen}</h6>
+                            <p class="card-text">
+                                <span class="badge bg-secondary mb-2">${nhanSu.chucVu || 'Chưa có chức vụ'}</span><br>
+                                <span class="badge bg-info">${nhanSu.diemNhom || 'Chưa có điểm nhóm'}</span>
+                            </p>
+                            <div class="text-muted small">
+                                ${nhanSu.email ? `<div><i class="fas fa-envelope me-1"></i>${nhanSu.email}</div>` : ''}
+                                ${nhanSu.dienThoai ? `<div><i class="fas fa-phone me-1"></i>${nhanSu.dienThoai}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="card-footer text-center">
+                            <span class="badge ${getTrangThaiClass(nhanSu.trangThai)}">
+                                ${getTrangThaiText(nhanSu.trangThai)}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        }
+
+        function toggleView(viewType) {
+            const listView = document.getElementById('listView');
+            const gridView = document.getElementById('gridView');
+            const listBtn = document.getElementById('listViewBtn');
+            const gridBtn = document.getElementById('gridViewBtn');
+            
+            if (viewType === 'list') {
+                listView.style.display = 'block';
+                gridView.style.display = 'none';
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            } else {
+                listView.style.display = 'none';
+                gridView.style.display = 'block';
+                listBtn.classList.remove('active');
+                gridBtn.classList.add('active');
+            }
+        }
+
+        function getTrangThaiClass(trangThai) {
+            switch(trangThai) {
+                case 'HOAT_DONG': return 'bg-success';
+                case 'TAM_NGHI': return 'bg-warning';
+                case 'NGHI_VIEC': return 'bg-danger';
+                default: return 'bg-secondary';
+            }
+        }
+
+        function getTrangThaiText(trangThai) {
+            switch(trangThai) {
+                case 'HOAT_DONG': return 'Hoạt động';
+                case 'TAM_NGHI': return 'Tạm nghỉ';
+                case 'NGHI_VIEC': return 'Nghỉ việc';
+                default: return 'Không xác định';
+            }
+        }
     </script>
     
     <style>
@@ -296,6 +526,12 @@
             width: 40px;
             height: 40px;
             font-size: 16px;
+        }
+        
+        .avatar-lg {
+            width: 80px;
+            height: 80px;
+            font-size: 24px;
         }
         
         .table th {
@@ -311,6 +547,35 @@
         
         .btn-group .btn:last-child {
             margin-right: 0;
+        }
+        
+        .modal-lg {
+            max-width: 900px;
+        }
+        
+        .card {
+            transition: transform 0.2s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        #nhanSuModal .table td {
+            vertical-align: middle;
+        }
+        
+        .btn-sm.btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+        
+        .btn-sm.btn-info:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+            transform: translateY(-1px);
         }
     </style>
 </body>

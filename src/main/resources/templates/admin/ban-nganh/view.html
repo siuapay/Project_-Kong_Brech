@@ -201,8 +201,22 @@
                                     <div class="info-item text-center">
                                         <label class="info-label">Tổng Số Nhân Sự</label>
                                         <div class="info-value">
-                                            <span class="badge bg-info fs-4" th:text="${banNganh.soLuongNhanSu}">0</span>
-                                            <small class="text-muted d-block">người</small>
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none personnel-btn" 
+                                                    th:data-ban-nganh-id="${banNganh.id}"
+                                                    th:data-ban-nganh-name="${banNganh.tenBan}"
+                                                    th:disabled="${banNganh.soLuongNhanSu == 0}"
+                                                    th:title="${banNganh.soLuongNhanSu > 0 ? 'Click để xem danh sách nhân sự' : 'Chưa có nhân sự nào'}"
+                                                    data-bs-toggle="tooltip"
+                                                    onclick="showPersonnelModal(this)">
+                                                <div class="position-relative">
+                                                    <span class="badge bg-info fs-4" th:text="${banNganh.soLuongNhanSu}">0</span>
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-users me-1" th:if="${banNganh.soLuongNhanSu > 0}"></i>
+                                                        người
+                                                        <i class="fas fa-external-link-alt ms-1 opacity-50" th:if="${banNganh.soLuongNhanSu > 0}" style="font-size: 0.7em;"></i>
+                                                    </small>
+                                                </div>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -221,6 +235,8 @@
                             </div>
                         </div>
                     </div>
+
+
 
                     <!-- System Information -->
                     <div class="card shadow border-0">
@@ -271,6 +287,75 @@
         </div>
     </main>
 
+    <!-- Personnel Modal -->
+    <div class="modal fade" id="personnelModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-users me-2"></i>Danh Sách Nhân Sự - <span id="modalBanNganhName"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- View Toggle -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="text-muted">Tổng số: <strong id="totalPersonnel">0</strong> nhân sự</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="toggleModalView()">
+                                <i class="fas fa-th-large me-1" id="modalViewToggleIcon"></i>
+                                <span id="modalViewToggleText">Xem dạng lưới</span>
+                            </button>
+                            <a th:href="@{/admin/nhan-su/new}" class="btn btn-sm btn-success">
+                                <i class="fas fa-user-plus me-1"></i>Thêm nhân sự
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="personnelLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang tải danh sách nhân sự...</p>
+                    </div>
+
+                    <!-- Content -->
+                    <div id="personnelContent" style="display: none;">
+                        <!-- List View (Default) -->
+                        <div id="modalListView" class="personnel-list">
+                            <div class="row" id="personnelListContainer">
+                                <!-- Personnel items will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Grid View -->
+                        <div id="modalGridView" class="personnel-grid" style="display: none;">
+                            <div class="row" id="personnelGridContainer">
+                                <!-- Personnel cards will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="personnelEmpty" style="display: none;" class="text-center py-5 text-muted">
+                        <i class="fas fa-user-slash fa-3x mb-3 d-block"></i>
+                        <h5>Chưa có nhân sự nào</h5>
+                        <p>Ban ngành này chưa có nhân sự. Hãy thêm nhân sự mới.</p>
+                        <a th:href="@{/admin/nhan-su/new}" class="btn btn-primary">
+                            <i class="fas fa-user-plus me-2"></i>Thêm nhân sự đầu tiên
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -306,6 +391,188 @@
             document.getElementById('deleteName').textContent = name;
             document.getElementById('deleteForm').action = '/admin/ban-nganh/delete/' + id;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+        
+        let isModalGridView = false;
+        
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+        
+        function showPersonnelModal(element) {
+            const banNganhId = element.getAttribute('data-ban-nganh-id');
+            const banNganhName = element.getAttribute('data-ban-nganh-name');
+            
+            document.getElementById('modalBanNganhName').textContent = banNganhName;
+            
+            // Show loading
+            document.getElementById('personnelLoading').style.display = 'block';
+            document.getElementById('personnelContent').style.display = 'none';
+            document.getElementById('personnelEmpty').style.display = 'none';
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('personnelModal'));
+            modal.show();
+            
+            // Load personnel data
+            fetch(`/admin/api/ban-nganh/${banNganhId}/nhan-su`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('personnelLoading').style.display = 'none';
+                    
+                    if (data.length === 0) {
+                        document.getElementById('personnelEmpty').style.display = 'block';
+                    } else {
+                        document.getElementById('personnelContent').style.display = 'block';
+                        document.getElementById('totalPersonnel').textContent = data.length;
+                        renderPersonnelList(data);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading personnel:', error);
+                    document.getElementById('personnelLoading').style.display = 'none';
+                    document.getElementById('personnelEmpty').style.display = 'block';
+                    document.getElementById('personnelEmpty').innerHTML = `
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3 d-block text-warning"></i>
+                        <h5>Có lỗi xảy ra</h5>
+                        <p>Không thể tải danh sách nhân sự</p>
+                    `;
+                });
+        }
+        
+        function renderPersonnelList(personnelList) {
+            const listContainer = document.getElementById('personnelListContainer');
+            const gridContainer = document.getElementById('personnelGridContainer');
+            
+            listContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+            
+            personnelList.forEach(nhanSu => {
+                // List view item
+                const listItem = createPersonnelListItem(nhanSu);
+                listContainer.appendChild(listItem);
+                
+                // Grid view item
+                const gridItem = createPersonnelGridItem(nhanSu);
+                gridContainer.appendChild(gridItem);
+            });
+        }
+        
+        function createPersonnelListItem(nhanSu) {
+            const col = document.createElement('div');
+            col.className = 'col-12';
+            
+            const avatarUrl = nhanSu.avatarUrl || '/static/images/default-avatar.svg';
+            const statusBadge = getStatusBadge(nhanSu.trangThai);
+            
+            col.innerHTML = `
+                <div class="personnel-item border rounded p-3 mb-3 bg-light">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-1 d-flex align-items-center">
+                                <span>${nhanSu.hoTen}</span>
+                                ${nhanSu.chucVu ? `<span class="badge bg-primary ms-2">${nhanSu.chucVu}</span>` : ''}
+                            </h6>
+                            <div class="d-flex align-items-center gap-3 text-muted small">
+                                ${nhanSu.email ? `<span><i class="fas fa-envelope me-1"></i>${nhanSu.email}</span>` : ''}
+                                ${nhanSu.dienThoai ? `<span><i class="fas fa-phone me-1"></i>${nhanSu.dienThoai}</span>` : ''}
+                                ${nhanSu.diemNhomTen ? `<span><i class="fas fa-map-marker-alt me-1"></i>${nhanSu.diemNhomTen}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="d-flex align-items-center gap-2">
+                                ${statusBadge}
+                                <div class="btn-group">
+                                    <a href="/admin/nhan-su/view/${nhanSu.id}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="/admin/nhan-su/edit/${nhanSu.id}" class="btn btn-sm btn-outline-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        function createPersonnelGridItem(nhanSu) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6 mb-4';
+            
+            const avatarUrl = nhanSu.avatarUrl || '/static/images/default-avatar.svg';
+            const statusBadge = getStatusBadge(nhanSu.trangThai);
+            
+            col.innerHTML = `
+                <div class="card personnel-card h-100">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-3">
+                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                        </div>
+                        <h6 class="card-title mb-1">${nhanSu.hoTen}</h6>
+                        ${nhanSu.chucVu ? `<p class="text-muted small mb-2"><span class="badge bg-primary">${nhanSu.chucVu}</span></p>` : ''}
+                        <div class="mb-2">${statusBadge}</div>
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="/admin/nhan-su/view/${nhanSu.id}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="/admin/nhan-su/edit/${nhanSu.id}" class="btn btn-sm btn-outline-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        function getStatusBadge(trangThai) {
+            switch(trangThai) {
+                case 'HOAT_DONG':
+                    return '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Hoạt động</span>';
+                case 'DANG_PHUC_VU':
+                    return '<span class="badge bg-info"><i class="fas fa-user-clock me-1"></i>Đang phục vụ</span>';
+                case 'TAM_NGHI':
+                    return '<span class="badge bg-warning"><i class="fas fa-pause-circle me-1"></i>Tạm nghỉ</span>';
+                case 'NGHI_VIEC':
+                    return '<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Nghỉ việc</span>';
+                default:
+                    return '<span class="badge bg-secondary">Không xác định</span>';
+            }
+        }
+        
+        function toggleModalView() {
+            const listView = document.getElementById('modalListView');
+            const gridView = document.getElementById('modalGridView');
+            const toggleIcon = document.getElementById('modalViewToggleIcon');
+            const toggleText = document.getElementById('modalViewToggleText');
+            
+            if (isModalGridView) {
+                // Switch to list view
+                listView.style.display = 'block';
+                gridView.style.display = 'none';
+                toggleIcon.className = 'fas fa-th-large me-1';
+                toggleText.textContent = 'Xem dạng lưới';
+                isModalGridView = false;
+            } else {
+                // Switch to grid view
+                listView.style.display = 'none';
+                gridView.style.display = 'block';
+                toggleIcon.className = 'fas fa-list me-1';
+                toggleText.textContent = 'Xem dạng danh sách';
+                isModalGridView = true;
+            }
         }
     </script>
     
@@ -353,6 +620,136 @@
             border-left: 4px solid #17a2b8 !important;
             font-size: 0.95rem;
             line-height: 1.5;
+        }
+        
+        /* Personnel List Styles */
+        .personnel-item {
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6 !important;
+        }
+        
+        .personnel-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.1) !important;
+            border-color: #007bff !important;
+        }
+        
+        .personnel-card {
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+        
+        .personnel-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            border-color: #007bff;
+        }
+        
+        .personnel-card .card-body {
+            padding: 1.5rem 1rem;
+        }
+        
+        .personnel-card .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        /* Avatar styling */
+        .personnel-item img,
+        .personnel-card img {
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Dropdown styling */
+        .personnel-item .dropdown-toggle,
+        .personnel-card .btn {
+            border: none;
+            background: transparent;
+        }
+        
+        .personnel-item .dropdown-toggle:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Badge styling */
+        .personnel-item .badge,
+        .personnel-card .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        /* View toggle button */
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .personnel-item {
+                margin-bottom: 1rem;
+            }
+            
+            .personnel-item .d-flex {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .personnel-item .flex-shrink-0 {
+                margin-bottom: 1rem;
+            }
+            
+            .personnel-card {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Animation for view switching */
+        .personnel-list,
+        .personnel-grid {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Clickable personnel button styles */
+        .personnel-btn {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            padding: 0.5rem !important;
+        }
+        
+        .personnel-btn:not(:disabled):hover {
+            background-color: rgba(0,123,255,0.1) !important;
+            transform: scale(1.05);
+        }
+        
+        .personnel-btn:not(:disabled) {
+            cursor: pointer;
+        }
+        
+        .personnel-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .personnel-btn .fa-external-link-alt {
+            transition: transform 0.2s ease;
+        }
+        
+        .personnel-btn:hover .fa-external-link-alt {
+            transform: translateX(2px) translateY(-2px);
         }
     </style>
 </body>

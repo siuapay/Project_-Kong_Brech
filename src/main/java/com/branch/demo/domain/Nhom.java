@@ -29,7 +29,7 @@ public class Nhom {
     @JsonBackReference
     private DiemNhom diemNhom;
     
-    @OneToMany(mappedBy = "nhom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "nhom", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<TinHuu> danhSachTinHuu = new ArrayList<>();
     

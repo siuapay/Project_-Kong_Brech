@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-tags me-2"></i>Chi Tiết Danh Mục
+                    </h2>
+                    <p class="text-muted mb-0">Xem thông tin chi tiết và thống kê danh mục</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/danh-muc/edit/{id}(id=${danhMuc.id})}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                    </a>
+                    <a th:href="@{/admin/danh-muc}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Info -->
+                <div class="col-lg-4">
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body text-center p-4">
+                            <!-- Icon -->
+                            <div class="mb-4">
+                                <div class="avatar-xl text-white rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                                     th:style="${danhMuc.mauSac != null} ? 'background-color: ' + ${danhMuc.mauSac} : 'background-color: #007bff'">
+                                    <i th:class="${danhMuc.icon ?: 'fas fa-tag'}" class="fa-2x"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Name & Status -->
+                            <h3 class="text-primary mb-1" th:text="${danhMuc.tenDanhMuc}">Tên Danh Mục</h3>
+                            <p class="text-muted mb-3">
+                                <code th:text="${danhMuc.slug}">slug-danh-muc</code>
+                            </p>
+                            
+                            <!-- Status Badge -->
+                            <div class="mb-4">
+                                <span th:if="${danhMuc.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="fas fa-check-circle me-1"></i>Đang Hoạt Động
+                                </span>
+                                <span th:if="${danhMuc.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning fs-6 px-3 py-2">
+                                    <i class="fas fa-pause-circle me-1"></i>Tạm Nghỉ
+                                </span>
+                            </div>
+
+                            <!-- Stats -->
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <div class="border-end">
+                                        <h4 class="text-info mb-0" th:text="${danhMuc.soLuongBaiViet}">0</h4>
+                                        <small class="text-muted">Bài viết</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h4 class="text-warning mb-0" th:text="${danhMuc.thuTu ?: 0}">0</h4>
+                                    <small class="text-muted">Thứ tự</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/danh-muc/edit/{id}(id=${danhMuc.id})}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                                </a>
+                                <a th:href="@{/admin/bai-viet(danhMucId=${danhMuc.id})}" class="btn btn-info">
+                                    <i class="fas fa-newspaper me-2"></i>Xem Bài Viết
+                                </a>
+                                <button type="button" class="btn btn-danger" 
+                                        th:data-id="${danhMuc.id}"
+                                        th:data-name="${danhMuc.tenDanhMuc}"
+                                        th:data-count="${danhMuc.soLuongBaiViet}"
+                                        onclick="confirmDelete(this.dataset.id, this.dataset.name, this.dataset.count)">
+                                    <i class="fas fa-trash me-2"></i>Xóa Danh Mục
+                                </button>
+                                <hr>
+                                <a th:href="@{/admin/danh-muc}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-list me-2"></i>Danh Sách
+                                </a>
+                                <a th:href="@{/admin/danh-muc/new}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus me-2"></i>Thêm Mới
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Information -->
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông Tin Cơ Bản</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Tên danh mục</label>
+                                        <div class="info-value" th:text="${danhMuc.tenDanhMuc}">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Slug</label>
+                                        <div class="info-value">
+                                            <code th:text="${danhMuc.slug}">-</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Màu sắc</label>
+                                        <div class="info-value">
+                                            <div class="d-flex align-items-center">
+                                                <div class="color-preview rounded-circle me-2" 
+                                                     th:style="${danhMuc.mauSac != null} ? 'background-color: ' + ${danhMuc.mauSac} + '; width: 24px; height: 24px;' : 'background-color: #6c757d; width: 24px; height: 24px;'">
+                                                </div>
+                                                <span th:text="${danhMuc.mauSac ?: '#6c757d'}">#007bff</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Icon</label>
+                                        <div class="info-value">
+                                            <i th:class="${danhMuc.icon ?: 'fas fa-tag'}" class="me-2"></i>
+                                            <code th:text="${danhMuc.icon ?: 'fas fa-tag'}">fas fa-tag</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Mô tả</label>
+                                        <div class="info-value">
+                                            <div class="note-box bg-light border-start border-4 border-info p-3 rounded">
+                                                <i class="fas fa-file-text text-info me-2"></i>
+                                                <span th:if="${danhMuc.moTa}" th:text="${danhMuc.moTa}"></span>
+                                                <span th:unless="${danhMuc.moTa}" class="text-muted">Chưa có mô tả</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- System Information -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Thông tin hệ thống</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">ID Danh mục</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-primary fs-6" th:text="'#' + ${danhMuc.id}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Ngày tạo</label>
+                                        <div class="info-value">
+                                            <span th:if="${danhMuc.createdAt}">
+                                                <i class="fas fa-calendar-plus text-success me-1"></i>
+                                                <span th:text="${#temporals.format(danhMuc.createdAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${danhMuc.createdAt}" class="text-muted">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Cập nhật cuối</label>
+                                        <div class="info-value">
+                                            <span th:if="${danhMuc.updatedAt}">
+                                                <i class="fas fa-edit text-warning me-1"></i>
+                                                <span th:text="${#temporals.format(danhMuc.updatedAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${danhMuc.updatedAt}" class="text-muted">-</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa danh mục <strong id="deleteName"></strong>?</p>
+                    <div id="deleteWarning" class="alert alert-warning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Danh mục này có <span id="articleCount"></span> bài viết. 
+                        Bạn cần chuyển các bài viết sang danh mục khác trước khi xóa.
+                    </div>
+                    <div id="deleteInfo" class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Hành động này sẽ xóa vĩnh viễn danh mục khỏi hệ thống và không thể hoàn tác!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger" id="deleteButton">
+                            <i class="fas fa-trash me-1"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name, count) {
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/danh-muc/delete/' + id;
+            
+            const warning = document.getElementById('deleteWarning');
+            const info = document.getElementById('deleteInfo');
+            const deleteButton = document.getElementById('deleteButton');
+            
+            if (parseInt(count) > 0) {
+                document.getElementById('articleCount').textContent = count;
+                warning.style.display = 'block';
+                info.style.display = 'none';
+                deleteButton.disabled = true;
+                deleteButton.innerHTML = '<i class="fas fa-ban me-1"></i>Không thể xóa';
+            } else {
+                warning.style.display = 'none';
+                info.style.display = 'block';
+                deleteButton.disabled = false;
+                deleteButton.innerHTML = '<i class="fas fa-trash me-1"></i>Xóa';
+            }
+            
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html>

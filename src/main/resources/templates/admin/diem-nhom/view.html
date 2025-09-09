@@ -69,19 +69,28 @@
                             <div class="row text-center">
                                 <div class="col-6">
                                     <div class="stat-item">
-                                        <h4 class="text-primary mb-0" th:text="${#lists.size(diemNhom.danhSachNhom)}">0</h4>
-                                        <small class="text-muted">Nhóm</small>
+                                        <button type="button" class="btn btn-link p-0 text-decoration-none nhom-btn" 
+                                                th:data-diem-nhom-id="${diemNhom.id}"
+                                                th:data-diem-nhom-name="${diemNhom.tenDiemNhom}"
+                                                th:disabled="${#lists.size(diemNhom.danhSachNhom) == 0}"
+                                                th:title="${#lists.size(diemNhom.danhSachNhom) > 0 ? 'Click để xem danh sách nhóm' : 'Chưa có nhóm nào'}"
+                                                data-bs-toggle="tooltip"
+                                                onclick="showNhomModal(this)">
+                                            <div class="position-relative">
+                                                <h4 class="text-primary mb-0" th:text="${#lists.size(diemNhom.danhSachNhom)}">0</h4>
+                                                <small class="text-muted d-flex align-items-center justify-content-center">
+                                                    <i class="fas fa-layer-group me-1" th:if="${#lists.size(diemNhom.danhSachNhom) > 0}"></i>
+                                                    Nhóm
+                                                    <i class="fas fa-external-link-alt ms-1 opacity-50" th:if="${#lists.size(diemNhom.danhSachNhom) > 0}" style="font-size: 0.7em;"></i>
+                                                </small>
+                                            </div>
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="col-6">
                                     <div class="stat-item">
-                                        <button type="button" class="btn btn-link p-0 text-decoration-none tin-huu-btn" 
-                                                th:data-diem-nhom-id="${diemNhom.id}"
-                                                th:data-diem-nhom-name="${diemNhom.tenDiemNhom}"
-                                                th:disabled="${diemNhom.tongSoTinHuu == 0}">
-                                            <h4 class="text-success mb-0" th:text="${diemNhom.tongSoTinHuu}">0</h4>
-                                            <small class="text-muted">Tin Hữu</small>
-                                        </button>
+                                        <h4 class="text-success mb-0" th:text="${diemNhom.tongSoTinHuu}">0</h4>
+                                        <small class="text-muted">Tin Hữu</small>
                                     </div>
                                 </div>
                             </div>
@@ -198,86 +207,7 @@
                         </div>
                     </div>
 
-                    <!-- Groups List -->
-                    <div class="card shadow border-0 mb-4" th:if="${!#lists.isEmpty(diemNhom.danhSachNhom)}">
-                        <div class="card-header bg-light border-0">
-                            <h5 class="text-info mb-0">
-                                <i class="fas fa-layer-group me-2"></i>Danh Sách Nhóm
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12" th:each="nhom : ${diemNhom.danhSachNhom}">
-                                    <div class="group-item border rounded p-3 mb-3 bg-light">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-1">
-                                                    <i class="fas fa-users text-primary me-2"></i>
-                                                    <span th:text="${nhom.tenNhom}">Tên nhóm</span>
-                                                </h6>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-user-friends me-1"></i>
-                                                    <span th:text="${nhom.soLuongTinHuu}">0</span> tin hữu
-                                                </small>
-                                            </div>
-                                            <div>
-                                                <span th:if="${nhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
-                                                    <i class="fas fa-check-circle me-1"></i>Hoạt động
-                                                </span>
-                                                <span th:if="${nhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
-                                                    <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
-                                                </span>
-                                                <span th:if="${nhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger">
-                                                    <i class="fas fa-times-circle me-1"></i>Đóng cửa
-                                                </span>
-                                                <a th:href="@{/admin/nhom/view/{id}(id=${nhom.id})}" class="btn btn-sm btn-outline-primary ms-2">
-                                                    <i class="fas fa-eye me-1"></i>Xem
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Ban Ngành Information -->
-                    <div class="card shadow border-0 mb-4" th:if="${diemNhom.banNganh}">
-                        <div class="card-header bg-light border-0">
-                            <h5 class="text-warning mb-0">
-                                <i class="fas fa-sitemap me-2"></i>Thông Tin Ban Ngành
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <label class="info-label">Tên Ban</label>
-                                        <div class="info-value" th:text="${diemNhom.banNganh.tenBan}">-</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="info-item">
-                                        <label class="info-label">Mã Ban</label>
-                                        <div class="info-value">
-                                            <span class="badge bg-warning text-dark" th:text="${diemNhom.banNganh.maBan}">-</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-12" th:if="${diemNhom.banNganh.moTa}">
-                                    <div class="info-item">
-                                        <label class="info-label">Mô Tả Ban Ngành</label>
-                                        <div class="info-value">
-                                            <div class="note-box bg-light border-start border-4 border-warning p-3 rounded">
-                                                <i class="fas fa-info-circle text-warning me-2"></i>
-                                                <span th:text="${diemNhom.banNganh.moTa}"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- System Information -->
                     <div class="card shadow border-0">
@@ -328,31 +258,66 @@
         </div>
     </main>
 
-    <!-- Tin Huu Modal -->
-    <div class="modal fade" id="tinHuuModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Nhom Modal -->
+    <div class="modal fade" id="nhomModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fas fa-users me-2"></i>Danh Sách Tin Hữu - <span id="modalDiemNhomName"></span>
+                        <i class="fas fa-layer-group me-2"></i>Danh Sách Nhóm - <span id="modalDiemNhomName"></span>
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="tinHuuLoading" class="text-center py-4">
+                    <!-- View Toggle -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="text-muted">Tổng số: <strong id="totalNhom">0</strong> nhóm</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary" onclick="toggleNhomModalView()">
+                                <i class="fas fa-th-large me-1" id="nhomModalViewToggleIcon"></i>
+                                <span id="nhomModalViewToggleText">Xem dạng lưới</span>
+                            </button>
+                            <a th:href="@{/admin/nhom/new}" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus me-1"></i>Thêm nhóm
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="nhomLoading" class="text-center py-4">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Đang tải...</span>
                         </div>
-                        <p class="mt-2 text-muted">Đang tải danh sách tin hữu...</p>
+                        <p class="mt-2 text-muted">Đang tải danh sách nhóm...</p>
                     </div>
-                    <div id="tinHuuContent" style="display: none;">
-                        <div class="row" id="tinHuuList">
-                            <!-- Tin huu items will be loaded here -->
+
+                    <!-- Content -->
+                    <div id="nhomContent" style="display: none;">
+                        <!-- List View (Default) -->
+                        <div id="nhomModalListView" class="nhom-list">
+                            <div class="row" id="nhomListContainer">
+                                <!-- Nhom items will be loaded here -->
+                            </div>
+                        </div>
+
+                        <!-- Grid View -->
+                        <div id="nhomModalGridView" class="nhom-grid" style="display: none;">
+                            <div class="row" id="nhomGridContainer">
+                                <!-- Nhom cards will be loaded here -->
+                            </div>
                         </div>
                     </div>
-                    <div id="tinHuuEmpty" style="display: none;" class="text-center py-4 text-muted">
-                        <i class="fas fa-user-slash fa-2x mb-2 d-block"></i>
-                        <p>Điểm nhóm này chưa có tin hữu nào</p>
+
+                    <!-- Empty State -->
+                    <div id="nhomEmpty" style="display: none;" class="text-center py-5 text-muted">
+                        <i class="fas fa-layer-group fa-3x mb-3 d-block"></i>
+                        <h5>Chưa có nhóm nào</h5>
+                        <p>Điểm nhóm này chưa có nhóm. Hãy tạo nhóm mới.</p>
+                        <a th:href="@{/admin/nhom/new}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Tạo nhóm đầu tiên
+                        </a>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -394,95 +359,183 @@
             document.getElementById('deleteForm').action = '/admin/diem-nhom/delete/' + id;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
-
-        // Add event listeners for tin huu buttons
+        
+        let isNhomModalGridView = false;
+        
+        // Initialize tooltips
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.tin-huu-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const diemNhomId = this.getAttribute('data-diem-nhom-id');
-                    const diemNhomName = this.getAttribute('data-diem-nhom-name');
-                    showTinHuuModal(diemNhomId, diemNhomName);
-                });
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
         });
-
-        // Show tin huu modal
-        function showTinHuuModal(diemNhomId, diemNhomName) {
+        
+        function showNhomModal(element) {
+            const diemNhomId = element.getAttribute('data-diem-nhom-id');
+            const diemNhomName = element.getAttribute('data-diem-nhom-name');
+            
             document.getElementById('modalDiemNhomName').textContent = diemNhomName;
             
             // Show loading
-            document.getElementById('tinHuuLoading').style.display = 'block';
-            document.getElementById('tinHuuContent').style.display = 'none';
-            document.getElementById('tinHuuEmpty').style.display = 'none';
+            document.getElementById('nhomLoading').style.display = 'block';
+            document.getElementById('nhomContent').style.display = 'none';
+            document.getElementById('nhomEmpty').style.display = 'none';
             
             // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('tinHuuModal'));
+            const modal = new bootstrap.Modal(document.getElementById('nhomModal'));
             modal.show();
             
-            // Load tin huu data
-            fetch(`/admin/api/diem-nhom/${diemNhomId}/tin-huu`)
+            // Load nhom data
+            fetch(`/admin/api/diem-nhom/${diemNhomId}/nhom`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('tinHuuLoading').style.display = 'none';
+                    document.getElementById('nhomLoading').style.display = 'none';
                     
                     if (data.length === 0) {
-                        document.getElementById('tinHuuEmpty').style.display = 'block';
+                        document.getElementById('nhomEmpty').style.display = 'block';
                     } else {
-                        document.getElementById('tinHuuContent').style.display = 'block';
-                        renderTinHuuList(data);
+                        document.getElementById('nhomContent').style.display = 'block';
+                        document.getElementById('totalNhom').textContent = data.length;
+                        renderNhomList(data);
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading tin huu:', error);
-                    document.getElementById('tinHuuLoading').style.display = 'none';
-                    document.getElementById('tinHuuEmpty').style.display = 'block';
-                    document.getElementById('tinHuuEmpty').innerHTML = `
-                        <i class="fas fa-exclamation-triangle fa-2x mb-2 d-block text-warning"></i>
-                        <p>Có lỗi xảy ra khi tải danh sách tin hữu</p>
+                    console.error('Error loading nhom:', error);
+                    document.getElementById('nhomLoading').style.display = 'none';
+                    document.getElementById('nhomEmpty').style.display = 'block';
+                    document.getElementById('nhomEmpty').innerHTML = `
+                        <i class="fas fa-exclamation-triangle fa-3x mb-3 d-block text-warning"></i>
+                        <h5>Có lỗi xảy ra</h5>
+                        <p>Không thể tải danh sách nhóm</p>
                     `;
                 });
         }
-
-        function renderTinHuuList(tinHuuList) {
-            const container = document.getElementById('tinHuuList');
-            container.innerHTML = '';
+        
+        function renderNhomList(nhomList) {
+            const listContainer = document.getElementById('nhomListContainer');
+            const gridContainer = document.getElementById('nhomGridContainer');
             
-            tinHuuList.forEach(tinHuu => {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 mb-3';
+            listContainer.innerHTML = '';
+            gridContainer.innerHTML = '';
+            
+            nhomList.forEach(nhom => {
+                // List view item
+                const listItem = createNhomListItem(nhom);
+                listContainer.appendChild(listItem);
                 
-                const avatarUrl = tinHuu.avatarUrl || 'https://via.placeholder.com/50x50/007bff/ffffff?text=' + encodeURIComponent(tinHuu.hoTen.charAt(0));
-                const namSinh = tinHuu.namSinh ? tinHuu.namSinh : 'Chưa có';
-                const gioiTinh = tinHuu.gioiTinh || 'Chưa có';
-                const nhomTen = tinHuu.nhomTen || 'Chưa có nhóm';
-                const gioiTinhIcon = gioiTinh === 'Nam' ? 'fas fa-mars text-info' : 
-                                   gioiTinh === 'Nữ' ? 'fas fa-venus text-pink' : 'fas fa-question text-muted';
-                
-                col.innerHTML = `
-                    <div class="card h-100 tin-huu-card" onclick="window.open('/admin/tin-huu/view/${tinHuu.id}', '_blank')" style="cursor: pointer;">
-                        <div class="card-body p-3">
-                            <div class="d-flex align-items-center">
-                                <img src="${avatarUrl}" alt="Avatar" 
-                                     class="rounded-circle me-3" 
-                                     style="width: 50px; height: 50px; object-fit: cover;">
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">${tinHuu.hoTen}</h6>
-                                    <div class="small text-muted">
-                                        <div><i class="fas fa-layer-group me-1"></i>Nhóm: ${nhomTen}</div>
-                                        <div><i class="fas fa-birthday-cake me-1"></i>Năm sinh: ${namSinh}</div>
-                                        <div><i class="${gioiTinhIcon} me-1"></i>Giới tính: ${gioiTinh}</div>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <i class="fas fa-external-link-alt text-primary"></i>
-                                </div>
+                // Grid view item
+                const gridItem = createNhomGridItem(nhom);
+                gridContainer.appendChild(gridItem);
+            });
+        }
+        
+        function createNhomListItem(nhom) {
+            const col = document.createElement('div');
+            col.className = 'col-12';
+            
+            const statusBadge = getNhomStatusBadge(nhom.trangThai);
+            
+            col.innerHTML = `
+                <div class="group-item-manageable border rounded p-3 mb-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1" onclick="window.location.href='/admin/nhom/view/${nhom.id}'" style="cursor: pointer;">
+                            <h6 class="mb-1 d-flex align-items-center">
+                                <i class="fas fa-users text-primary me-2"></i>
+                                <span>${nhom.tenNhom}</span>
+                                <i class="fas fa-external-link-alt ms-2 text-muted" style="font-size: 0.8em;" title="Click để xem chi tiết nhóm"></i>
+                            </h6>
+                            <div class="d-flex align-items-center gap-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-user-friends me-1"></i>
+                                    ${nhom.soLuongTinHuu} tin hữu
+                                </small>
+                                ${nhom.thoiGianSinhHoat ? `<small class="text-muted"><i class="fas fa-clock me-1"></i>${nhom.thoiGianSinhHoat}</small>` : ''}
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            ${statusBadge}
+                            <div class="btn-group">
+                                <a href="/admin/nhom/view/${nhom.id}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="/admin/nhom/edit/${nhom.id}" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
-                `;
-                
-                container.appendChild(col);
-            });
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        function createNhomGridItem(nhom) {
+            const col = document.createElement('div');
+            col.className = 'col-lg-4 col-md-6 mb-4';
+            
+            const statusBadge = getNhomStatusBadge(nhom.trangThai);
+            
+            col.innerHTML = `
+                <div class="card group-card h-100" onclick="window.location.href='/admin/nhom/view/${nhom.id}'" style="cursor: pointer;">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-3">
+                            <div class="group-icon bg-primary text-white rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+                        </div>
+                        <h6 class="card-title mb-1">${nhom.tenNhom}</h6>
+                        <p class="text-muted small mb-2">${nhom.soLuongTinHuu} tin hữu</p>
+                        <div class="mb-2">${statusBadge}</div>
+                        <div class="d-flex justify-content-center gap-1">
+                            <a href="/admin/nhom/view/${nhom.id}" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation()">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="/admin/nhom/edit/${nhom.id}" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation()">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+        
+        function getNhomStatusBadge(trangThai) {
+            switch(trangThai) {
+                case 'HOAT_DONG':
+                    return '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Hoạt động</span>';
+                case 'TAM_NGHI':
+                    return '<span class="badge bg-warning"><i class="fas fa-pause-circle me-1"></i>Tạm nghỉ</span>';
+                case 'DONG_CUA':
+                    return '<span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Đóng cửa</span>';
+                default:
+                    return '<span class="badge bg-secondary">Không xác định</span>';
+            }
+        }
+        
+        function toggleNhomModalView() {
+            const listView = document.getElementById('nhomModalListView');
+            const gridView = document.getElementById('nhomModalGridView');
+            const toggleIcon = document.getElementById('nhomModalViewToggleIcon');
+            const toggleText = document.getElementById('nhomModalViewToggleText');
+            
+            if (isNhomModalGridView) {
+                // Switch to list view
+                listView.style.display = 'block';
+                gridView.style.display = 'none';
+                toggleIcon.className = 'fas fa-th-large me-1';
+                toggleText.textContent = 'Xem dạng lưới';
+                isNhomModalGridView = false;
+            } else {
+                // Switch to grid view
+                listView.style.display = 'none';
+                gridView.style.display = 'block';
+                toggleIcon.className = 'fas fa-list me-1';
+                toggleText.textContent = 'Xem dạng danh sách';
+                isNhomModalGridView = true;
+            }
         }
     </script>
     
@@ -534,47 +587,83 @@
             line-height: 1.5;
         }
         
-        .group-item {
-            transition: all 0.2s ease-in-out;
+        /* Group manageable styles */
+        .group-item-manageable {
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6 !important;
         }
         
-        .group-item:hover {
-            background-color: #e9ecef !important;
-            transform: translateX(5px);
+        .group-item-manageable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,123,255,0.1) !important;
+            border-color: #007bff !important;
         }
         
-        .tin-huu-card {
-            transition: all 0.2s ease-in-out;
+        .group-item-manageable .flex-grow-1 {
+            cursor: pointer;
+        }
+        
+        .group-item-manageable .dropdown-toggle {
+            border: none;
+            background: transparent;
+        }
+        
+        .group-item-manageable .dropdown-toggle:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Clickable nhom button styles */
+        .nhom-btn {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            padding: 0.5rem !important;
+        }
+        
+        .nhom-btn:not(:disabled):hover {
+            background-color: rgba(13,110,253,0.1) !important;
+            transform: scale(1.05);
+        }
+        
+        .nhom-btn:not(:disabled) {
+            cursor: pointer;
+        }
+        
+        .nhom-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .nhom-btn .fa-external-link-alt {
+            transition: transform 0.2s ease;
+        }
+        
+        .nhom-btn:hover .fa-external-link-alt {
+            transform: translateX(2px) translateY(-2px);
+        }
+        
+        /* Modal nhom styles */
+        .nhom-list,
+        .nhom-grid {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .group-card {
+            transition: all 0.2s ease;
             border: 1px solid #dee2e6;
         }
         
-        .tin-huu-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .group-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
             border-color: #007bff;
         }
         
-        .text-pink {
-            color: #e91e63 !important;
+        .group-icon {
+            transition: all 0.2s ease;
         }
         
-        .modal-lg {
-            max-width: 800px;
-        }
-        
-        .tin-huu-btn {
-            border: none !important;
-            background: none !important;
-        }
-        
-        .tin-huu-btn:hover {
-            background: none !important;
-            border: none !important;
-        }
-        
-        .tin-huu-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        .group-card:hover .group-icon {
+            transform: scale(1.1);
         }
     </style>
 </body>

@@ -23,17 +23,10 @@ public class LoaiSuKien {
     @Column(name = "icon", length = 50)
     private String icon;
     
-    @Column(name = "thu_tu")
-    private Integer thuTu = 0;
+
     
     @Column(name = "kich_hoat", nullable = false)
     private boolean kichHoat = true;
-    
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted = false;
-    
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -82,24 +75,10 @@ public class LoaiSuKien {
     public String getIcon() { return icon; }
     public void setIcon(String icon) { this.icon = icon; }
     
-    public Integer getThuTu() { return thuTu; }
-    public void setThuTu(Integer thuTu) { this.thuTu = thuTu; }
+
     
     public boolean isKichHoat() { return kichHoat; }
     public void setKichHoat(boolean kichHoat) { this.kichHoat = kichHoat; }
-    
-    public boolean isDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { 
-        this.deleted = deleted;
-        if (deleted) {
-            this.deletedAt = LocalDateTime.now();
-        } else {
-            this.deletedAt = null;
-        }
-    }
-    
-    public LocalDateTime getDeletedAt() { return deletedAt; }
-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
     
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-newspaper me-2"></i>Chi Tiết Bài Viết
+                    </h2>
+                    <p class="text-muted mb-0">Xem thông tin chi tiết và nội dung bài viết</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="btn btn-warning">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                    </a>
+                    <a th:href="@{/tin-tuc/{slug}(slug=${baiViet.slug})}" class="btn btn-info" target="_blank">
+                        <i class="fas fa-external-link-alt me-2"></i>Xem Công Khai
+                    </a>
+                    <a th:href="@{/admin/bai-viet}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Main Content -->
+                <div class="col-lg-8">
+                    <!-- Article Header -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-body">
+                            <h1 class="display-6 fw-bold mb-3" th:text="${baiViet.tieuDe}">Tiêu đề bài viết</h1>
+                            
+                            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                                <span class="badge fs-6" 
+                                      th:if="${baiViet.danhMuc != null}"
+                                      th:style="${baiViet.danhMuc.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} : 'background-color: #007bff'"
+                                      th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                                
+                                <span class="badge"
+                                      th:classappend="${baiViet.trangThai.name() == 'DA_XUAT_BAN'} ? 'bg-success' : 
+                                                     (${baiViet.trangThai.name() == 'NHAP'} ? 'bg-secondary' : 'bg-warning')"
+                                      th:text="${baiViet.trangThai.displayName}">
+                                </span>
+                                
+                                <span th:if="${baiViet.noiBat}" class="badge bg-warning text-dark">
+                                    <i class="fas fa-star"></i> Nổi bật
+                                </span>
+                            </div>
+
+                            <!-- Featured Image -->
+                            <div th:if="${baiViet.anhDaiDien != null}" class="mb-4">
+                                <img th:src="${baiViet.anhDaiDien}" class="img-fluid rounded" th:alt="${baiViet.tieuDe}">
+                            </div>
+
+                            <!-- Article Summary -->
+                            <div th:if="${baiViet.tomTat != null}" class="alert alert-info">
+                                <h5><i class="fas fa-info-circle me-2"></i>Tóm tắt</h5>
+                                <p class="mb-0" th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article Content -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-file-text me-2"></i>Nội dung bài viết</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="article-content">
+                                <!-- Use rich content if available, otherwise fallback to regular content -->
+                                <div th:if="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)}" 
+                                     th:utext="${baiViet.noiDungRich}">
+                                </div>
+                                <div th:unless="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)}" 
+                                     th:utext="${#strings.replace(#strings.replace(baiViet.noiDung, '&#10;', '<br>'), '&#13;', '')}">
+                                    Nội dung bài viết sẽ hiển thị ở đây...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Gallery (only show if not using rich content) -->
+                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachHinhAnh.empty}" class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-images me-2"></i>Hình ảnh liên quan</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div th:each="image : ${baiViet.danhSachHinhAnh}" class="col-md-4 mb-3">
+                                    <img th:src="${image}" class="img-fluid rounded" th:alt="${baiViet.tieuDe}" style="height: 200px; object-fit: cover;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Video Gallery (only show if not using rich content) -->
+                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachVideo.empty}" class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-video me-2"></i>Video liên quan</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:each="video : ${baiViet.danhSachVideo}" class="mb-3">
+                                <video controls class="rounded w-100">
+                                    <source th:src="${video}" type="video/mp4">
+                                    Trình duyệt của bạn không hỗ trợ video.
+                                </video>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Keywords -->
+                    <div th:if="${baiViet.metaKeywords != null}" class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Từ khóa SEO</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:each="tag : ${#strings.listSplit(baiViet.metaKeywords, ',')}" class="d-inline-block">
+                                <span class="badge bg-light text-dark me-2 mb-2" th:text="${#strings.trim(tag)}">Tag</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="col-lg-4">
+                    <!-- Article Meta -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin bài viết</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-item mb-3">
+                                <label class="info-label">Tác giả</label>
+                                <div class="info-value">
+                                    <span th:text="${baiViet.tacGia}">Tác giả</span>
+                                    <br><small class="text-muted" th:text="${baiViet.loaiTacGia.displayName}">Loại tác giả</small>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Trạng thái</label>
+                                <div class="info-value">
+                                    <span class="badge"
+                                          th:classappend="${baiViet.trangThai.name() == 'DA_XUAT_BAN'} ? 'bg-success' : 
+                                                         (${baiViet.trangThai.name() == 'NHAP'} ? 'bg-secondary' : 'bg-warning')"
+                                          th:text="${baiViet.trangThai.displayName}">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Danh mục</label>
+                                <div class="info-value">
+                                    <span th:if="${baiViet.danhMuc != null}" th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                                    <span th:unless="${baiViet.danhMuc != null}" class="text-muted">Chưa phân loại</span>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Lượt xem</label>
+                                <div class="info-value">
+                                    <i class="fas fa-eye text-muted me-1"></i>
+                                    <span th:text="${baiViet.luotXem}">0</span>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Ngày tạo</label>
+                                <div class="info-value">
+                                    <i class="fas fa-calendar-plus text-success me-1"></i>
+                                    <span th:text="${#temporals.format(baiViet.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                </div>
+                            </div>
+                            <div th:if="${baiViet.ngayXuatBan != null}" class="info-item mb-3">
+                                <label class="info-label">Ngày xuất bản</label>
+                                <div class="info-value">
+                                    <i class="fas fa-calendar-check text-primary me-1"></i>
+                                    <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Cập nhật cuối</label>
+                                <div class="info-value">
+                                    <i class="fas fa-edit text-warning me-1"></i>
+                                    <span th:text="${#temporals.format(baiViet.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                </div>
+                            </div>
+                            <div class="info-item mb-3">
+                                <label class="info-label">Slug</label>
+                                <div class="info-value">
+                                    <code th:text="${baiViet.slug}">slug-bai-viet</code>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <label class="info-label">Tùy chọn</label>
+                                <div class="info-value">
+                                    <div th:if="${baiViet.noiBat}" class="mb-1">
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-star"></i> Nổi bật
+                                        </span>
+                                    </div>
+                                    <div th:if="${baiViet.choPhepBinhLuan}">
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-comments"></i> Cho phép bình luận
+                                        </span>
+                                    </div>
+                                    <div th:unless="${baiViet.noiBat or baiViet.choPhepBinhLuan}" class="text-muted">
+                                        Không có tùy chọn đặc biệt
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Info -->
+                    <div th:if="${baiViet.metaTitle != null or baiViet.metaDescription != null}" class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-search me-2"></i>Thông tin SEO</h5>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${baiViet.metaTitle != null}" class="info-item mb-3">
+                                <label class="info-label">Meta Title</label>
+                                <div class="info-value">
+                                    <p class="mb-0" th:text="${baiViet.metaTitle}"></p>
+                                </div>
+                            </div>
+                            <div th:if="${baiViet.metaDescription != null}" class="info-item">
+                                <label class="info-label">Meta Description</label>
+                                <div class="info-value">
+                                    <p class="mb-0" th:text="${baiViet.metaDescription}"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-gradient-primary text-white">
+                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="btn btn-warning">
+                                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                                </a>
+                                <a th:href="@{/tin-tuc/{slug}(slug=${baiViet.slug})}" class="btn btn-info" target="_blank">
+                                    <i class="fas fa-external-link-alt me-2"></i>Xem Công Khai
+                                </a>
+                                <button type="button" class="btn btn-warning" 
+                                        th:data-id="${baiViet.id}"
+                                        th:data-title="${baiViet.tieuDe}"
+                                        onclick="confirmSoftDelete(this.dataset.id, this.dataset.title)">
+                                    <i class="fas fa-trash me-2"></i>Chuyển Vào Thùng Rác
+                                </button>
+                                <hr>
+                                <a th:href="@{/admin/bai-viet}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-list me-2"></i>Danh Sách
+                                </a>
+                                <a th:href="@{/admin/bai-viet/new}" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus me-2"></i>Thêm Mới
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn chuyển bài viết <strong id="deleteTitle"></strong> vào thùng rác?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Bài viết sẽ được chuyển vào thùng rác và có thể khôi phục sau này.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-trash me-1"></i>Chuyển Vào Thùng Rác
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmSoftDelete(id, title) {
+            document.getElementById('deleteTitle').textContent = title;
+            document.getElementById('deleteForm').action = '/admin/bai-viet/soft-delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+</body>
+</html>

@@ -58,6 +58,9 @@ public class FileUploadService {
     public String uploadAvatar(MultipartFile file) throws IOException {
         return uploadFile(file, "avatars");
     }
+    public String uploadImage(MultipartFile file) throws IOException {
+    return uploadFile(file, "images");
+}
     
     public void deleteAvatar(String avatarUrl) {
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
@@ -68,6 +71,27 @@ public class FileUploadService {
                 Files.deleteIfExists(filePath);
             } catch (IOException e) {
                 System.err.println("Không thể xóa file avatar: " + e.getMessage());
+            }
+        }
+    }
+    
+    public void deleteImage(String imageUrl) {
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            try {
+                // Chuyển từ URL thành đường dẫn file
+                String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                // Determine subdirectory from URL path
+                String subDirectory = "images"; // default
+                if (imageUrl.contains("/uploads/")) {
+                    String pathPart = imageUrl.substring(imageUrl.indexOf("/uploads/") + 9);
+                    if (pathPart.contains("/")) {
+                        subDirectory = pathPart.substring(0, pathPart.lastIndexOf("/"));
+                    }
+                }
+                Path filePath = Paths.get(UPLOAD_DIR + subDirectory + "/" + filename);
+                Files.deleteIfExists(filePath);
+            } catch (IOException e) {
+                System.err.println("Không thể xóa file image: " + e.getMessage());
             }
         }
     }

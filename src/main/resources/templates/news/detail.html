@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${baiViet.tieuDe} + ' - Chi Hội Thánh'">Chi tiết bài viết</title>
+    <meta th:if="${baiViet.metaDescription}" th:content="${baiViet.metaDescription}" name="description">
+    <meta th:if="${baiViet.metaKeywords}" th:content="${baiViet.metaKeywords}" name="keywords">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .article-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 0;
+        }
+        .article-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .article-meta {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .related-card {
+            transition: transform 0.3s ease;
+        }
+        .related-card:hover {
+            transform: translateY(-3px);
+        }
+        .share-buttons .btn {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .gallery-image {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .gallery-image:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Rich content styling */
+        .article-content h4 {
+            color: #495057;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .article-content .text-center {
+            margin: 30px 0;
+        }
+        
+        .article-content .text-center img {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .article-content .text-muted {
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        
+        .article-content .alert {
+            margin-top: 30px;
+        }
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            margin: 20px 0;
+        }
+        .video-container iframe,
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Article Header -->
+    <section class="article-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item">
+                                <a href="/tin-tuc" class="text-white-50">Tin tức</a>
+                            </li>
+                            <li th:if="${baiViet.danhMuc != null}" class="breadcrumb-item">
+                                <a th:href="@{/tin-tuc/danh-muc/{slug}(slug=${baiViet.danhMuc.slug})}" 
+                                   class="text-white-50" th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</a>
+                            </li>
+                            <li class="breadcrumb-item active text-white" aria-current="page">Bài viết</li>
+                        </ol>
+                    </nav>
+                    
+                    <h1 class="display-5 fw-bold mb-3" th:text="${baiViet.tieuDe}">Tiêu đề bài viết</h1>
+                    
+                    <div th:if="${baiViet.danhMuc != null}" class="mb-3">
+                        <span class="badge fs-6" 
+                              th:style="${baiViet.danhMuc.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} : 'background-color: #007bff'"
+                              th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Article Meta -->
+                <div class="article-meta">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-user text-primary me-2"></i>
+                                <strong th:text="${baiViet.tacGia}">Tác giả</strong>
+                                <span class="badge bg-secondary ms-2" th:text="${baiViet.loaiTacGia.displayName}">Admin</span>
+                            </div>
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-calendar me-2"></i>
+                                <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                <span class="mx-3">•</span>
+                                <i class="fas fa-eye me-2"></i>
+                                <span th:text="${baiViet.luotXem}">0</span> lượt xem
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="share-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="shareOnFacebook()">
+                                    <i class="fab fa-facebook-f"></i> Chia sẻ
+                                </button>
+                                <button class="btn btn-info btn-sm" onclick="copyLink()">
+                                    <i class="fas fa-link"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Image -->
+                <div th:if="${baiViet.anhDaiDien != null}" class="mb-4">
+                    <img th:src="${baiViet.anhDaiDien}" class="img-fluid rounded" th:alt="${baiViet.tieuDe}">
+                </div>
+
+                <!-- Article Summary -->
+                <div th:if="${baiViet.tomTat != null}" class="alert alert-info">
+                    <h5><i class="fas fa-info-circle me-2"></i>Tóm tắt</h5>
+                    <p class="mb-0" th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
+                </div>
+
+                <!-- Article Content -->
+                <div class="article-content">
+                    <!-- Use rich content if available, otherwise fallback to regular content -->
+                    <div th:if="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)}" 
+                         th:utext="${baiViet.noiDungRich}">
+                    </div>
+                    <div th:unless="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)}" 
+                         th:utext="${baiViet.noiDung}">
+                        Nội dung bài viết sẽ hiển thị ở đây...
+                    </div>
+                </div>
+
+                <!-- Image Gallery (only show if not using rich content) -->
+                <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachHinhAnh.empty}" class="mt-4">
+                    <h5><i class="fas fa-images me-2"></i>Hình ảnh liên quan</h5>
+                    <div class="row">
+                        <div th:each="image : ${baiViet.danhSachHinhAnh}" class="col-md-4 mb-3">
+                            <img th:src="${image}" class="img-fluid rounded gallery-image" 
+                                 th:alt="${baiViet.tieuDe}" data-bs-toggle="modal" data-bs-target="#imageModal"
+                                 th:data-image="${image}" onclick="showImage(this.dataset.image)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Gallery (only show if not using rich content) -->
+                <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachVideo.empty}" class="mt-4">
+                    <h5><i class="fas fa-video me-2"></i>Video liên quan</h5>
+                    <div th:each="video : ${baiViet.danhSachVideo}" class="video-container">
+                        <video controls class="rounded">
+                            <source th:src="${video}" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ video.
+                        </video>
+                    </div>
+                </div>
+
+                <!-- Tags/Keywords -->
+                <div th:if="${baiViet.metaKeywords != null}" class="mt-4 pt-4 border-top">
+                    <h6><i class="fas fa-tags me-2"></i>Từ khóa:</h6>
+                    <div th:each="tag : ${#strings.listSplit(baiViet.metaKeywords, ',')}" class="d-inline-block">
+                        <span class="badge bg-light text-dark me-2 mb-2" th:text="${#strings.trim(tag)}">Tag</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Related Articles -->
+                <div th:if="${!baiVietLienQuan.empty}" class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Bài viết liên quan</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div th:each="bv : ${baiVietLienQuan}" class="border-bottom p-3 related-card">
+                            <div class="row">
+                                <div class="col-4">
+                                    <img th:src="${bv.anhDaiDien != null} ? ${bv.anhDaiDien} : '/images/default-news.jpg'" 
+                                         class="img-fluid rounded" th:alt="${bv.tieuDe}">
+                                </div>
+                                <div class="col-8">
+                                    <h6 class="mb-2">
+                                        <a th:href="@{/tin-tuc/{slug}(slug=${bv.slug})}" 
+                                           class="text-decoration-none text-dark"
+                                           th:text="${#strings.abbreviate(bv.tieuDe, 60)}">Tiêu đề</a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Menu -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh mục tin tức</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <a href="/tin-tuc" class="list-group-item list-group-item-action border-0">
+                            <i class="fas fa-list me-2"></i>Tất cả tin tức
+                        </a>
+                        <a th:each="dm : ${danhMucList}" 
+                           th:href="@{/tin-tuc/danh-muc/{slug}(slug=${dm.slug})}"
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${baiViet.danhMuc != null && baiViet.danhMuc.id == dm.id} ? 'active' : ''">
+                            <i th:class="${dm.icon != null} ? 'fas fa-' + ${dm.icon} + ' me-2' : 'fas fa-folder me-2'"></i>
+                            <span th:text="${dm.tenDanhMuc}">Danh mục</span>
+                            <span class="badge bg-secondary float-end" th:text="${dm.soLuongBaiViet}">0</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hình ảnh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showImage(src) {
+            document.getElementById('modalImage').src = src;
+        }
+
+        function shareOnFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&t=${title}`, '_blank', 'width=600,height=400');
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Đã copy link bài viết!');
+            });
+        }
+    </script>
+</body>
+</html>
