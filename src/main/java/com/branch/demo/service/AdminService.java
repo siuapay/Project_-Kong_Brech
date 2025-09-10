@@ -229,6 +229,10 @@ public class AdminService {
         return diemNhomRepository.findByTrangThai(com.branch.demo.domain.DiemNhom.TrangThaiDiemNhom.HOAT_DONG);
     }
 
+    public java.util.List<com.branch.demo.domain.DanhMuc> getAllActiveDanhMuc() {
+        return danhMucRepository.findByTrangThaiOrderByTenDanhMucAsc(com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
+    }
+
     public java.util.List<com.branch.demo.domain.BanNganh> getAllActiveBanNganh() {
         return banNganhRepository.findByTrangThai(com.branch.demo.domain.BanNganh.TrangThaiBanNganh.HOAT_DONG);
     }
@@ -822,6 +826,19 @@ public class AdminService {
         return dto;
     }
 
+    public com.branch.demo.dto.DanhMucDTO convertToDTO(com.branch.demo.domain.DanhMuc danhMuc) {
+        com.branch.demo.dto.DanhMucDTO dto = new com.branch.demo.dto.DanhMucDTO();
+        dto.setId(danhMuc.getId());
+        dto.setTenDanhMuc(danhMuc.getTenDanhMuc());
+        dto.setSlug(danhMuc.getSlug());
+        dto.setMoTa(danhMuc.getMoTa());
+        dto.setThuTu(danhMuc.getThuTu());
+        dto.setMauSac(danhMuc.getMauSac());
+        dto.setIcon(danhMuc.getIcon());
+        dto.setTrangThai(danhMuc.getTrangThai() != null ? danhMuc.getTrangThai().getDisplayName() : null);
+        return dto;
+    }
+
     // BanNganh DTO methods
     public java.util.List<com.branch.demo.dto.BanNganhDTO> getAllActiveBanNganhDTO() {
         java.util.List<com.branch.demo.domain.BanNganh> banNganhList = getAllActiveBanNganh();
@@ -1326,9 +1343,7 @@ public class AdminService {
         baiVietRepository.delete(baiViet);
     }
 
-    public java.util.List<com.branch.demo.domain.DanhMuc> getAllActiveDanhMuc() {
-       return danhMucRepository.findByTrangThaiOrderByTenDanhMucAsc(TrangThaiDanhMuc.HOAT_DONG);
-    }
+
 
     private String generateSlug(String title) {
         if (title == null || title.trim().isEmpty()) {

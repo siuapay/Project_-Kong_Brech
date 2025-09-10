@@ -714,6 +714,16 @@ public class AdminController {
                 .collect(java.util.stream.Collectors.toList());
     }
 
+    // API endpoint để lấy tất cả danh mục
+    @GetMapping("/api/all-danh-muc")
+    @ResponseBody
+    public java.util.List<com.branch.demo.dto.DanhMucDTO> getAllDanhMuc() {
+        java.util.List<com.branch.demo.domain.DanhMuc> danhMucList = adminService.getAllActiveDanhMuc();
+        return danhMucList.stream()
+                .map(adminService::convertToDTO)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     // API endpoint để lấy tất cả ban ngành
     @GetMapping("/api/all-ban-nganh")
     @ResponseBody
