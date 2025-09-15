@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="display-4 fw-bold mb-3">Tin Tức Chi Hội Thánh</h1>
+            <p class="lead mb-4">
+              Cập nhật những tin tức mới nhất về hoạt động của chi hội thánh
+            </p>
+          </div>
+          <div class="col-lg-4">
+            <form method="get" action="/news">
+              <input
+                type="hidden"
+                name="danhMucId"
+                th:value="${selectedDanhMuc?.id}"
+                th:if="${selectedDanhMuc}"
+              />
+              <div class="input-group">
+                <input
+                  type="text"
+                  class="form-control"
+                  name="search"
+                  th:value="${search}"
+                  placeholder="Tìm kiếm tin tức..."
+                />
+                <button class="btn btn-light" type="submit">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container my-5">
+      <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+          <!-- Category Filter -->
+          <div class="mb-4">
+            <div class="d-flex flex-wrap gap-2">
+              <a
+                href="/news"
+                class="btn btn-outline-primary"
+                th:classappend="${selectedDanhMuc == null} ? 'active' : ''"
+              >
+                <i class="fas fa-list me-1"></i>Tất cả
+              </a>
+              <a
+                th:each="category : ${danhMucList}"
+                th:href="@{/news(danhMucId=${category.id})}"
+                class="btn category-btn"
+                th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
+                th:style="${category.mauSac != null} ? '--category-color: ' + ${category.mauSac} + ';' : '--category-color: #0d6efd;'"
+              >
+                <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
+                <span th:text="${category.tenDanhMuc}">Danh mục</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Search/Filter Results Info -->
+          <div
+            th:if="${(search != null and !#strings.isEmpty(search)) or selectedDanhMuc != null}"
+            class="alert alert-info mb-4"
+          >
+            <i class="fas fa-filter me-2"></i>
+
+            <!-- Search results -->
+            <span
+              th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+            >
+              Tìm thấy <strong th:text="${baiVietPage.totalElements}">0</strong> kết
+              quả cho từ khóa "<strong th:text="${search}">search</strong>"
+              <span th:if="${selectedDanhMuc != null}">
+                trong danh mục "<strong th:text="${selectedDanhMuc.tenDanhMuc}"
+                  >category</strong
+                >"</span
+              >
+            </span>
+
+            <span
+              th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content == null or baiVietPage.content.empty)}"
+            >
+              Không tìm thấy kết quả nào cho từ khóa "<strong
+                th:text="${search}"
+                >search</strong
+              >"
+              <span th:if="${selectedDanhMuc != null}">
+                trong danh mục "<strong th:text="${selectedDanhMuc.tenDanhMuc}"
+                  >category</strong
+                >"</span
+              >
+            </span>
+
+            <!-- Category filter only -->
+            <span
+              th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+            >
+              Hiển thị <strong th:text="${baiVietPage.totalElements}">0</strong> tin
+              tức trong danh mục "<strong
+                th:text="${selectedDanhMuc.tenDanhMuc}"
+                >category</strong
+              >"
+            </span>
+
+            <span
+              th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content == null or baiVietPage.content.empty)}"
+            >
+              Không có tin tức nào trong danh mục "<strong
+                th:text="${selectedDanhMuc.tenDanhMuc}"
+                >category</strong
+              >"
+            </span>
+
+            <a href="/news" class="btn btn-sm btn-outline-secondary ms-2">
+              <i class="fas fa-times me-1"></i>Xóa bộ lọc
+            </a>
+          </div>
+
+          <!-- Featured Article (First Article) -->
+          <div th:if="${baiVietPage.content != null and !baiVietPage.content.empty}" class="mb-5">
+            <div
+              th:with="featured=${baiVietPage.content[0]}"
+              class="card news-card border-0 shadow"
+            >
+              <div class="position-relative">
+                <img
+                  th:src="${featured.anhDaiDien} ?: '/images/default-news.jpg'"
+                  class="card-img-top featured-image"
+                  th:alt="${featured.tieuDe}"
+                />
+                <div th:if="${featured.danhMuc != null}" class="category-badge">
+                  <span
+                    class="badge bg-primary"
+                    th:text="${featured.danhMuc.tenDanhMuc}"
+                    >Danh mục</span
+                  >
+                </div>
+              </div>
+              <div class="card-body">
+                <h2 class="card-title h4 mb-3">
+                  <a
+                    th:href="@{/news/{slug}(slug=${featured.slug})}"
+                    class="text-decoration-none text-dark"
+                    th:text="${featured.tieuDe}"
+                    >Tiêu đề bài viết</a
+                  >
+                </h2>
+                <p
+                  class="card-text text-muted mb-3"
+                  th:text="${featured.tomTat}"
+                >
+                  Tóm tắt bài viết...
+                </p>
+                <div
+                  class="d-flex justify-content-between align-items-center news-meta"
+                >
+                  <div>
+                    <i class="fas fa-calendar me-1"></i>
+                    <span
+                      th:text="${#temporals.format(featured.ngayXuatBan, 'dd/MM/yyyy')}"
+                      >01/01/2024</span
+                    >
+                  </div>
+                  <div>
+                    <i class="fas fa-eye me-1"></i>
+                    <span th:text="${featured.luotXem}">0</span> lượt xem
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- News Grid -->
+          <div class="row">
+            <div
+              th:each="news, iterStat : ${baiVietPage.content}"
+              th:if="${iterStat.index > 0}"
+              class="col-md-6 mb-4"
+            >
+              <div class="card news-card border-0 shadow-sm">
+                <div class="position-relative">
+                  <img
+                    th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'"
+                    class="card-img-top news-image"
+                    th:alt="${news.tieuDe}"
+                  />
+                  <div th:if="${news.danhMuc != null}" class="category-badge">
+                    <span
+                      class="badge bg-primary"
+                      th:text="${news.danhMuc.tenDanhMuc}"
+                      >Danh mục</span
+                    >
+                  </div>
+                </div>
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <a
+                      th:href="@{/news/{slug}(slug=${news.slug})}"
+                      class="text-decoration-none text-dark"
+                      th:text="${#strings.abbreviate(news.tieuDe, 60)}"
+                      >Tiêu đề</a
+                    >
+                  </h5>
+                  <p
+                    class="card-text text-muted small"
+                    th:text="${#strings.abbreviate(news.tomTat, 100)}"
+                  >
+                    Tóm tắt...
+                  </p>
+                  <div
+                    class="d-flex justify-content-between align-items-center news-meta"
+                  >
+                    <small>
+                      <i class="fas fa-calendar me-1"></i>
+                      <span
+                        th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM')}"
+                        >01/01</span
+                      >
+                    </small>
+                    <small>
+                      <i class="fas fa-eye me-1"></i>
+                      <span th:text="${news.luotXem}">0</span>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div
+            th:if="${baiVietPage.content.empty}"
+            class="text-center py-5"
+          >
+            <i
+              class="fas fa-newspaper fa-5x text-muted mb-3"
+              th:if="${search == null or #strings.isEmpty(search)}"
+            ></i>
+            <i
+              class="fas fa-search fa-5x text-muted mb-3"
+              th:if="${search != null and !#strings.isEmpty(search)}"
+            ></i>
+            <h3 class="text-muted" th:if="${search == null or #strings.isEmpty(search)}">
+              Chưa Có Tin Tức
+            </h3>
+            <h3 class="text-muted" th:if="${search != null and !#strings.isEmpty(search)}">
+              Không Tìm Thấy Kết Quả
+            </h3>
+            <p class="text-muted" th:if="${search == null or #strings.isEmpty(search)}">
+              Hiện tại chưa có tin tức nào được đăng tải.
+            </p>
+            <p class="text-muted" th:if="${search != null and !#strings.isEmpty(search)}">
+              Không có tin tức nào phù hợp với từ khóa tìm kiếm của bạn.
+            </p>
+            <a href="/" class="btn btn-primary" th:if="${search == null or #strings.isEmpty(search)}">
+              <i class="fas fa-home me-2"></i>Về Trang Chủ
+            </a>
+            <a
+              href="/news"
+              class="btn btn-primary"
+              th:if="${search != null and !#strings.isEmpty(search)}"
+            >
+              <i class="fas fa-arrow-left me-2"></i>Xem Tất Cả Tin Tức
+            </a>
+          </div>
+
+          <!-- Pagination -->
+          <nav th:if="${totalPages > 1}" class="mt-4">
+            <ul class="pagination justify-content-center">
+              <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                <a class="page-link" th:href="@{/news(page=${currentPage - 1}, search=${search}, danhMucId=${danhMucId})}">
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+              
+              <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                  class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/news(page=${pageNum}, search=${search}, danhMucId=${danhMucId})}"
+                   th:text="${pageNum + 1}">1</a>
+              </li>
+              
+              <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                <a class="page-link" th:href="@{/news(page=${currentPage + 1}, search=${search}, danhMucId=${danhMucId})}">
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+          <!-- Featured Articles -->
+          <div th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="fas fa-star me-2"></i>Bài Viết Nổi Bật</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietNoiBat}" class="border-bottom p-3">
+                <div class="d-flex">
+                  <img th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'" 
+                       class="rounded me-3" 
+                       style="width: 60px; height: 60px; object-fit: cover"
+                       th:alt="${bv.tieuDe}">
+                  <div>
+                    <h6 class="mb-2">
+                      <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                         class="text-decoration-none text-dark"
+                         th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                    </h6>
+                    <div class="news-meta">
+                      <i class="fas fa-calendar me-1"></i>
+                      <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                      <span class="mx-2">•</span>
+                      <i class="fas fa-eye me-1"></i>
+                      <span th:text="${bv.luotXem}">0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent News -->
+          <div th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Tin Mới Nhất</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietMoiNhat}" class="border-bottom p-3">
+                <h6 class="mb-2">
+                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                     class="text-decoration-none text-dark"
+                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                </h6>
+                <div class="news-meta">
+                  <i class="fas fa-calendar me-1"></i>
+                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Popular Articles -->
+          <div th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Bài Viết Phổ Biến</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietPhoBien}" class="border-bottom p-3">
+                <h6 class="mb-2">
+                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                     class="text-decoration-none text-dark"
+                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                </h6>
+                <div class="news-meta">
+                  <i class="fas fa-eye me-1"></i>
+                  <span th:text="${bv.luotXem}">0</span> lượt xem
+                  <span class="mx-2">•</span>
+                  <i class="fas fa-calendar me-1"></i>
+                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}">01/01</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Newsletter -->
+          <div class="card sidebar-card">
+            <div class="card-header bg-info text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-envelope me-2"></i>Đăng Ký Nhận Tin
+              </h5>
+            </div>
+            <div class="card-body">
+              <p class="text-muted">
+                Nhận thông tin mới nhất từ chi hội qua email
+              </p>
+              <form>
+                <div class="mb-3">
+                  <input
+                    type="email"
+                    class="form-control"
+                    placeholder="Email của bạn"
+                    required
+                  />
+                </div>
+                <button type="submit" class="btn btn-info w-100">
+                  <i class="fas fa-paper-plane me-2"></i>Đăng Ký
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <style>
+      .news-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+      }
+      .news-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+      .news-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+      }
+      .featured-image {
+        height: 300px;
+        object-fit: cover;
+        width: 100%;
+      }
+      .category-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 2;
+      }
+      .sidebar-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .news-meta {
+        font-size: 0.85rem;
+        color: #6c757d;
+      }
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+      }
+      
+      /* Category buttons styling */
+      .category-btn {
+        --category-color: #0d6efd;
+        border: 2px solid var(--category-color);
+        color: var(--category-color);
+        background-color: transparent;
+        transition: all 0.3s ease;
+        margin: 2px;
+        border-radius: 25px;
+        padding: 8px 16px;
+        font-weight: 500;
+      }
+      
+      .category-btn:hover {
+        background-color: var(--category-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      .category-btn.active {
+        background-color: var(--category-color);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      
+      .btn-outline-primary {
+        border-radius: 25px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    </style>
+  </body>
+</html>

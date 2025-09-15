@@ -57,11 +57,9 @@
                 <h3 class="text-primary mb-1" th:text="${nhanSu.hoTen}">
                   Tên Nhân Sự
                 </h3>
-                <p
-                  class="text-muted mb-3"
-                  th:text="${nhanSu.chucVu ?: 'Chưa cập nhật chức vụ'}"
-                >
-                  Chức vụ
+                <p class="text-muted mb-3">
+                  <span th:if="${nhanSu.chucVu}" th:text="${nhanSu.chucVu.displayName}"></span>
+                  <span th:unless="${nhanSu.chucVu}">Chưa cập nhật chức vụ</span>
                 </p>
 
                 <!-- Status Badge -->
@@ -190,7 +188,7 @@
                       <div class="info-value">
                         <span th:if="${nhanSu.chucVu}">
                           <i class="fas fa-user-tie text-primary me-2"></i>
-                          <span th:text="${nhanSu.chucVu}"></span>
+                          <span th:text="${nhanSu.chucVu.displayName}"></span>
                         </span>
                         <span th:unless="${nhanSu.chucVu}" class="text-muted"
                           >Chưa cập nhật</span
@@ -234,6 +232,42 @@
                         </span>
                         <span
                           th:unless="${nhanSu.ngayBatDauPhucVu}"
+                          class="text-muted"
+                          >Chưa cập nhật</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Nhiệm Kỳ Bắt Đầu</label>
+                      <div class="info-value">
+                        <span th:if="${nhanSu.nhiemKyBatDau}">
+                          <i class="fas fa-calendar-alt text-info me-2"></i>
+                          <span
+                            th:text="${#temporals.format(nhanSu.nhiemKyBatDau, 'dd/MM/yyyy')}"
+                          ></span>
+                        </span>
+                        <span
+                          th:unless="${nhanSu.nhiemKyBatDau}"
+                          class="text-muted"
+                          >Chưa cập nhật</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Nhiệm Kỳ Kết Thúc</label>
+                      <div class="info-value">
+                        <span th:if="${nhanSu.nhiemKyKetThuc}">
+                          <i class="fas fa-calendar-times text-warning me-2"></i>
+                          <span
+                            th:text="${#temporals.format(nhanSu.nhiemKyKetThuc, 'dd/MM/yyyy')}"
+                          ></span>
+                        </span>
+                        <span
+                          th:unless="${nhanSu.nhiemKyKetThuc}"
                           class="text-muted"
                           >Chưa cập nhật</span
                         >
@@ -391,6 +425,26 @@
                       <div class="info-value">
                         <i class="fas fa-location-arrow text-info me-2"></i>
                         <span th:text="${nhanSu.diemNhom.diaChi}"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <label class="info-label">Tiểu Sử</label>
+                      <div class="info-value">
+                        <div
+                          class="note-box bg-light border-start border-4 border-primary p-3 rounded"
+                        >
+                          <i class="fas fa-user-graduate text-primary me-2"></i>
+                          <span
+                            th:if="${nhanSu.tieuSu}"
+                            th:text="${nhanSu.tieuSu}"
+                            style="white-space: pre-line;"
+                          ></span>
+                          <span th:unless="${nhanSu.tieuSu}" class="text-muted"
+                            >Chưa có tiểu sử</span
+                          >
+                        </div>
                       </div>
                     </div>
                   </div>

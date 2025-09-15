@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}"></head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <!-- Page Header -->
+    <section class="py-5 bg-primary-custom text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-3">Liên Hệ Với Chúng Tôi</h1>
+                    <p class="lead">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Content -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <!-- Contact Form -->
+                <div class="col-lg-8 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-primary-custom text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-envelope me-2"></i>Gửi Tin Nhắn
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="name" class="form-label">Họ và Tên *</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="email" required>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Số Điện Thoại</label>
+                                        <input type="tel" class="form-control" id="phone">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="subject" class="form-label">Chủ Đề *</label>
+                                        <select class="form-select" id="subject" required>
+                                            <option value="">Chọn chủ đề</option>
+                                            <option value="general">Thông tin chung</option>
+                                            <option value="join">Tham gia chi hội</option>
+                                            <option value="event">Sự kiện</option>
+                                            <option value="support">Hỗ trợ</option>
+                                            <option value="other">Khác</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="message" class="form-label">Tin Nhắn *</label>
+                                    <textarea class="form-control" id="message" rows="5" required 
+                                              placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Gửi Tin Nhắn
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-4">
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Liên Hệ
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="text-primary-custom">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Địa Chỉ
+                                </h6>
+                                <p class="text-muted mb-0">
+                                    Kông Brech, Đắk Lắk<br>
+                                    Việt Nam
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="text-primary-custom">
+                                    <i class="fas fa-phone me-2"></i>Điện Thoại
+                                </h6>
+                                <p class="text-muted mb-0">
+                                    <a href="tel:+84123456789" class="text-decoration-none">
+                                        +84 123 456 789
+                                    </a>
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="text-primary-custom">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </h6>
+                                <p class="text-muted mb-0">
+                                    <a href="mailto:info@kongbrech.com" class="text-decoration-none">
+                                        info@kongbrech.com
+                                    </a>
+                                </p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="text-primary-custom">
+                                    <i class="fas fa-clock me-2"></i>Giờ Làm Việc
+                                </h6>
+                                <p class="text-muted mb-0">
+                                    Thứ 2 - Thứ 6: 8:00 - 17:00<br>
+                                    Thứ 7: 8:00 - 12:00<br>
+                                    Chủ Nhật: Nghỉ
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-share-alt me-2"></i>Kết Nối Với Chúng Tôi
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="#" class="btn btn-outline-primary btn-lg">
+                                    <i class="fab fa-facebook"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-danger btn-lg">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-info btn-lg">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-success btn-lg">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            </div>
+                            <p class="text-muted mt-3 mb-0">
+                                Theo dõi chúng tôi để cập nhật thông tin mới nhất
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary-custom">Vị Trí Của Chúng Tôi</h2>
+                <p class="lead text-muted">Tìm đường đến chi hội</p>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <!-- Placeholder for Google Maps -->
+                            <div class="bg-secondary text-white text-center py-5" style="min-height: 400px;">
+                                <i class="fas fa-map-marked-alt fa-5x mb-3"></i>
+                                <h4>Bản Đồ Vị Trí</h4>
+                                <p>Tích hợp Google Maps sẽ được thêm vào đây</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+    
+    <script>
+        // Contact form handling
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show success message
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show';
+            alert.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            this.parentNode.insertBefore(alert, this);
+            this.reset();
+        });
+    </script>
+</body>
+</html>

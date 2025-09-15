@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-exchange-alt me-2"></i>Quản Lý Giao Dịch Tài Chính
+                    </h2>
+                    <p class="text-muted mb-0">Quản lý các giao dịch thu chi của tổ chức</p>
+                </div>
+                <div class="btn-group">
+                    <a th:href="@{/admin/tai-chinh/giao-dich/add}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Thêm Giao Dịch Mới
+                    </a>
+                    <button type="button" class="btn btn-success" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-2"></i>Xuất Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Advanced Search & Filter -->
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Tìm Kiếm Nâng Cao & Bộ Lọc
+                        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/admin/tai-chinh/giao-dich}" id="filterForm">
+                        <!-- Basic Search -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="search" 
+                                           th:value="${search}" placeholder="Tìm kiếm theo nội dung...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" name="loai">
+                                    <option value="">Tất cả loại</option>
+                                    <option value="THU" th:selected="${loai == 'THU'}">Thu</option>
+                                    <option value="CHI" th:selected="${loai == 'CHI'}">Chi</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="nam">
+                                    <option value="">Tất cả năm</option>
+                                    <option th:each="year : ${availableYears}" 
+                                            th:value="${year}" 
+                                            th:text="${year}"
+                                            th:selected="${nam == year}">2024</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                                    </button>
+                                    <a th:href="@{/admin/tai-chinh/giao-dich}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters -->
+                        <div class="collapse" id="advancedFilters">
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Danh Mục</label>
+                                    <select class="form-select" name="danhMucId">
+                                        <option value="">Tất cả danh mục</option>
+                                        <option th:each="dm : ${danhMucList}" 
+                                                th:value="${dm.id}" 
+                                                th:text="${dm.tenDanhMuc + ' (' + dm.loai.displayName + ')'}"
+                                                th:selected="${danhMucId == dm.id}">Danh mục</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Người Phụ Trách</label>
+                                    <select class="form-select" name="nguoiPhuTrachId">
+                                        <option value="">Tất cả người</option>
+                                        <option th:each="ns : ${nhanSuList}" 
+                                                th:value="${ns.id}" 
+                                                th:text="${ns.hoTen}"
+                                                th:selected="${nguoiPhuTrachId == ns.id}">Người phụ trách</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Từ Ngày</label>
+                                    <input type="date" class="form-control" name="tuNgay" th:value="${tuNgay}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Đến Ngày</label>
+                                    <input type="date" class="form-control" name="denNgay" th:value="${denNgay}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Số Tiền Tối Thiểu</label>
+                                    <input type="number" class="form-control" name="soTienMin" 
+                                           th:value="${soTienMin}" placeholder="0" min="0" step="1000">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Số Tiền Tối Đa</label>
+                                    <input type="number" class="form-control" name="soTienMax" 
+                                           th:value="${soTienMax}" placeholder="Không giới hạn" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Transactions List -->
+            <div class="card shadow border-0">
+                <div class="card-header bg-light border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Danh Sách Giao Dịch
+                            <span class="badge bg-primary ms-2" th:text="${giaoDichPage.totalElements}">0</span>
+                        </h5>
+                        <small class="text-muted">
+                            Trang <span th:text="${giaoDichPage.number + 1}">1</span> 
+                            / <span th:text="${giaoDichPage.totalPages}">1</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="12%">Thời Gian</th>
+                                    <th width="8%">Loại</th>
+                                    <th width="12%">Số Tiền</th>
+                                    <th width="25%">Nội Dung</th>
+                                    <th width="15%">Danh Mục</th>
+                                    <th width="15%">Người Phụ Trách</th>
+                                    <th width="8%">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${giaoDichPage.content.empty}">
+                                    <td colspan="8" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        Không có giao dịch nào được tìm thấy
+                                    </td>
+                                </tr>
+                                <tr th:each="giaoDich, iterStat : ${giaoDichPage.content}" class="align-middle">
+                                    <td>
+                                        <span class="fw-bold text-primary" 
+                                              th:text="${giaoDichPage.number * giaoDichPage.size + iterStat.index + 1}">1</span>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <div class="fw-bold" th:text="${#temporals.format(giaoDich.thoiGian, 'dd/MM/yyyy')}">01/01/2024</div>
+                                            <small class="text-muted" th:text="${#temporals.format(giaoDich.thoiGian, 'HH:mm')}">10:00</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:if="${giaoDich.loai == 'THU'}" class="badge bg-success">
+                                            <i class="fas fa-arrow-up me-1"></i>Thu
+                                        </span>
+                                        <span th:if="${giaoDich.loai == 'CHI'}" class="badge bg-danger">
+                                            <i class="fas fa-arrow-down me-1"></i>Chi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold" 
+                                             th:class="${giaoDich.loai == 'THU'} ? 'text-success' : 'text-danger'"
+                                             th:text="${giaoDich.soTienFormatted + ' VNĐ'}">1,000,000 VNĐ</div>
+                                    </td>
+                                    <td>
+                                        <div th:text="${#strings.abbreviate(giaoDich.noiDung, 50)}">Nội dung giao dịch</div>
+                                    </td>
+                                    <td>
+                                        <div th:if="${giaoDich.tenDanhMuc}">
+                                            <div class="fw-bold" th:text="${giaoDich.tenDanhMuc}">Tên danh mục</div>
+                                            <small class="text-muted" th:text="${giaoDich.loaiDanhMuc}">Loại</small>
+                                        </div>
+                                        <span th:unless="${giaoDich.tenDanhMuc}" class="text-muted fst-italic">Chưa phân loại</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${giaoDich.tenNguoiPhuTrach}" th:text="${giaoDich.tenNguoiPhuTrach}">Người phụ trách</span>
+                                        <span th:unless="${giaoDich.tenNguoiPhuTrach}" class="text-muted fst-italic">Chưa xác định</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/tai-chinh/giao-dich/view/{id}(id=${giaoDich.id})}" 
+                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/tai-chinh/giao-dich/edit/{id}(id=${giaoDich.id})}" 
+                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="Xóa giao dịch"
+                                                    th:data-id="${giaoDich.id}"
+                                                    th:data-content="${giaoDich.noiDung}"
+                                                    th:data-amount="${giaoDich.soTienFormatted}"
+                                                    onclick="confirmDelete(this.dataset.id, this.dataset.content, this.dataset.amount)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer bg-light border-0" th:if="${giaoDichPage.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" th:classappend="${giaoDichPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${giaoDichPage.number - 1}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <li th:each="pageNum : ${#numbers.sequence(0, giaoDichPage.totalPages - 1)}"
+                                class="page-item" th:classappend="${pageNum == giaoDichPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${pageNum}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${giaoDichPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${giaoDichPage.number + 1}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa Giao Dịch</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
+                    </div>
+                    <p>Bạn có chắc chắn muốn xóa giao dịch này?</p>
+                    <div class="alert alert-info">
+                        <strong>Nội dung:</strong> <span id="deleteContent"></span><br>
+                        <strong>Số tiền:</strong> <span id="deleteAmount"></span> VNĐ
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn giao dịch và cập nhật lại tổng kết năm.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa Giao Dịch
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, content, amount) {
+            document.getElementById('deleteContent').textContent = content;
+            document.getElementById('deleteAmount').textContent = amount;
+            document.getElementById('deleteForm').action = '/admin/tai-chinh/giao-dich/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+        
+        // Export to Excel function
+        function exportToExcel() {
+            // Get current filter values
+            const form = document.getElementById('filterForm');
+            const formData = new FormData(form);
+            
+            // Build export URL with current filters
+            const params = new URLSearchParams();
+            for (let [key, value] of formData.entries()) {
+                if (value && value.trim() !== '') {
+                    params.append(key, value);
+                }
+            }
+            
+            // Create export URL
+            const exportUrl = '/admin/tai-chinh/giao-dich/export?' + params.toString();
+            
+            // Show loading indicator
+            const exportBtn = event.target.closest('button');
+            const originalText = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xuất...';
+            exportBtn.disabled = true;
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = exportUrl;
+            link.download = '';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Reset button after a short delay
+            setTimeout(() => {
+                exportBtn.innerHTML = originalText;
+                exportBtn.disabled = false;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

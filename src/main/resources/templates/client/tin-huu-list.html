@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <!-- Page Header -->
+    <section class="py-5 bg-primary-custom text-white">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-3">Danh Sách Tín Hữu</h1>
+            <p class="lead">
+              Thông tin và thống kê tín hữu trong chi hội
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-4 bg-light">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card bg-primary text-white h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h3 class="mb-2" th:text="${totalTinHuu}">0</h3>
+                <p class="mb-0">Tổng Tín Hữu</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card bg-info text-white h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-male fa-3x mb-3"></i>
+                <h3 class="mb-2" th:text="${totalNam}">0</h3>
+                <p class="mb-0">Nam Giới</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 mb-3">
+            <div class="card bg-success text-white h-100">
+              <div class="card-body text-center">
+                <i class="fas fa-female fa-3x mb-3"></i>
+                <h3 class="mb-2" th:text="${totalNu}">0</h3>
+                <p class="mb-0">Nữ Giới</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search and List Section -->
+    <section class="py-5">
+      <div class="container">
+        <!-- Search Form -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-body">
+                <form method="get" th:action="@{/list/tin-huu}">
+                  <div class="row align-items-end">
+                    <div class="col-md-8">
+                      <label for="search" class="form-label">Tìm kiếm tín hữu</label>
+                      <input type="text" class="form-control" id="search" name="search" 
+                             th:value="${search}" placeholder="Nhập tên, email hoặc số điện thoại...">
+                    </div>
+                    <div class="col-md-4">
+                      <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i>Tìm kiếm
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                  <i class="fas fa-list me-2"></i>Danh Sách Tín Hữu
+                  <span class="badge bg-light text-primary ms-2" th:text="${tinHuuPage.totalElements}">0</span>
+                </h5>
+              </div>
+              <div class="card-body p-0">
+                <div th:if="${tinHuuPage != null and tinHuuPage.hasContent()}" class="table-responsive">
+                  <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>STT</th>
+                        <th>Họ và Tên</th>
+                        <th>Năm Sinh</th>
+                        <th>Giới Tính</th>
+                        <th>Nhóm</th>
+                        <th>Địa Chỉ</th>
+                        <th>Liên Hệ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr th:each="tinHuu, iterStat : ${tinHuuPage.content}">
+                        <td th:text="${(currentPage * 20) + iterStat.index + 1}">1</td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="avatar-circle me-3">
+                              <span th:text="${#strings.substring(tinHuu.hoTen, 0, 1)}">T</span>
+                            </div>
+                            <div>
+                              <div class="fw-bold" th:text="${tinHuu.hoTen}">Tên tín hữu</div>
+                              <small class="text-muted" th:if="${tinHuu.email}" th:text="${tinHuu.email}">email@example.com</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span th:if="${tinHuu.namSinh}" th:text="${tinHuu.namSinh}">1990</span>
+                          <span th:unless="${tinHuu.namSinh}" class="text-muted">Chưa có</span>
+                        </td>
+                        <td>
+                          <span class="badge" 
+                                th:classappend="${tinHuu.gioiTinh == 'Nam'} ? 'bg-primary' : 'bg-success'"
+                                th:text="${tinHuu.gioiTinh}">Nam</span>
+                        </td>
+                        <td>
+                          <span th:if="${tinHuu.nhom}" th:text="${tinHuu.nhom.tenNhom}">Tên nhóm</span>
+                          <span th:unless="${tinHuu.nhom}" class="text-muted">Chưa có nhóm</span>
+                        </td>
+                        <td>
+                          <span th:if="${tinHuu.diaChi}" th:text="${#strings.abbreviate(tinHuu.diaChi, 30)}">Địa chỉ</span>
+                          <span th:unless="${tinHuu.diaChi}" class="text-muted">Chưa có</span>
+                        </td>
+                        <td>
+                          <div th:if="${tinHuu.dienThoai}">
+                            <small class="text-muted">
+                              <i class="fas fa-phone me-1"></i>
+                              <span th:text="${tinHuu.dienThoai}">0123456789</span>
+                            </small>
+                          </div>
+                          <div th:unless="${tinHuu.dienThoai}">
+                            <small class="text-muted">Chưa có SĐT</small>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Empty State -->
+                <div th:if="${tinHuuPage == null or !tinHuuPage.hasContent()}" class="text-center py-5">
+                  <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">Không tìm thấy tín hữu nào</h5>
+                  <p class="text-muted">Thử thay đổi từ khóa tìm kiếm hoặc kiểm tra lại thông tin.</p>
+                </div>
+              </div>
+              
+              <!-- Pagination -->
+              <div th:if="${tinHuuPage != null and tinHuuPage.totalPages > 1}" class="card-footer">
+                <nav aria-label="Pagination">
+                  <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item" th:classappend="${!tinHuuPage.hasPrevious()} ? 'disabled'">
+                      <a class="page-link" th:href="@{/list/tin-huu(page=${currentPage - 1}, search=${search})}">
+                        <i class="fas fa-chevron-left"></i>
+                      </a>
+                    </li>
+                    
+                    <li th:each="pageNum : ${#numbers.sequence(0, tinHuuPage.totalPages - 1)}" 
+                        class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
+                      <a class="page-link" th:href="@{/list/tin-huu(page=${pageNum}, search=${search})}" 
+                         th:text="${pageNum + 1}">1</a>
+                    </li>
+                    
+                    <li class="page-item" th:classappend="${!tinHuuPage.hasNext()} ? 'disabled'">
+                      <a class="page-link" th:href="@{/list/tin-huu(page=${currentPage + 1}, search=${search})}">
+                        <i class="fas fa-chevron-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <style>
+      .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+      
+      .table th {
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+      }
+      
+      .table td {
+        vertical-align: middle;
+      }
+      
+      .card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      
+      .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 2px;
+        border: 1px solid #dee2e6;
+      }
+      
+      .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-color: #667eea;
+      }
+    </style>
+  </body>
+</html>

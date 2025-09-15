@@ -91,8 +91,13 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="chucVu" class="form-label">Chức vụ</label>
-                                            <input type="text" class="form-control" id="chucVu" th:field="*{chucVu}" 
-                                                   placeholder="VD: Trưởng ban, Phó ban, Thành viên...">
+                                            <select class="form-select" id="chucVu" th:field="*{chucVu}">
+                                                <option value="">Chọn chức vụ</option>
+                                                <option th:each="cv : ${chucVuList}" 
+                                                        th:value="${cv}" 
+                                                        th:text="${cv.displayName}"
+                                                        th:selected="${nhanSu.chucVu == cv}">Chức vụ</option>
+                                            </select>
                                         </div>
                                     </div>
 
@@ -132,6 +137,24 @@
                                             <div class="form-text">Ngày sinh không được vượt quá thời gian hiện tại</div>
                                         </div>
                                         <div class="col-md-6 mb-3">
+                                            <label for="ngayBatDauPhucVu" class="form-label">Ngày bắt đầu phục vụ</label>
+                                            <input type="date" class="form-control" id="ngayBatDauPhucVu" th:field="*{ngayBatDauPhucVu}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="nhiemKyBatDau" class="form-label">Nhiệm kỳ bắt đầu</label>
+                                            <input type="date" class="form-control" id="nhiemKyBatDau" th:field="*{nhiemKyBatDau}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="nhiemKyKetThuc" class="form-label">Nhiệm kỳ kết thúc</label>
+                                            <input type="date" class="form-control" id="nhiemKyKetThuc" th:field="*{nhiemKyKetThuc}">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-12 mb-3">
                                             <label for="trangThai" class="form-label">Trạng thái</label>
                                             <select class="form-select" id="trangThai" th:field="*{trangThai}">
                                                 <option th:value="HOAT_DONG" th:selected="*{trangThai?.name() == 'HOAT_DONG'}">Hoạt động</option>
@@ -146,6 +169,13 @@
                                     <div class="mb-3">
                                         <label for="diaChi" class="form-label">Địa chỉ</label>
                                         <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="tieuSu" class="form-label">Tiểu sử</label>
+                                        <textarea class="form-control" id="tieuSu" th:field="*{tieuSu}" rows="4" 
+                                                  placeholder="Mô tả về quá trình học tập, công tác, phục vụ..."></textarea>
+                                        <div class="form-text">Tối đa 2000 ký tự</div>
                                     </div>
 
                                     <div class="mb-3">
@@ -403,6 +433,37 @@
                 if (selectedDate > currentDate) {
                     alert('Ngày sinh không được vượt quá thời gian hiện tại!');
                     this.value = '';
+                }
+            });
+
+            // Nhiệm kỳ validation
+            const nhiemKyBatDauInput = document.getElementById('nhiemKyBatDau');
+            const nhiemKyKetThucInput = document.getElementById('nhiemKyKetThuc');
+            
+            function validateNhiemKy() {
+                const batDau = nhiemKyBatDauInput.value;
+                const ketThuc = nhiemKyKetThucInput.value;
+                
+                if (batDau && ketThuc) {
+                    const batDauDate = new Date(batDau);
+                    const ketThucDate = new Date(ketThuc);
+                    
+                    if (batDauDate >= ketThucDate) {
+                        alert('Ngày kết thúc nhiệm kỳ phải sau ngày bắt đầu!');
+                        nhiemKyKetThucInput.value = '';
+                    }
+                }
+            }
+            
+            nhiemKyBatDauInput.addEventListener('change', validateNhiemKy);
+            nhiemKyKetThucInput.addEventListener('change', validateNhiemKy);
+
+            // Tiểu sử character limit
+            const tieuSuInput = document.getElementById('tieuSu');
+            tieuSuInput.addEventListener('input', function(e) {
+                if (this.value.length > 2000) {
+                    this.value = this.value.substring(0, 2000);
+                    alert('Tiểu sử không được vượt quá 2000 ký tự!');
                 }
             });
 

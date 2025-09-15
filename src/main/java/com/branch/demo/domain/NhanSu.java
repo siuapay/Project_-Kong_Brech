@@ -8,7 +8,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "nhan_su")
-public class NhanSu {
+public class NhanSu extends BaseAuditableEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,8 +17,9 @@ public class NhanSu {
     @Column(name = "ho_ten", nullable = false, length = 255)
     private String hoTen;
     
-    @Column(name = "chuc_vu", length = 255)
-    private String chucVu;
+    @Column(name = "chuc_vu")
+    @Enumerated(EnumType.STRING)
+    private ChucVu chucVu;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ban_nganh_id")
@@ -45,6 +46,15 @@ public class NhanSu {
     
     @Column(name = "ngay_bat_dau_phuc_vu")
     private LocalDate ngayBatDauPhucVu;
+    
+    @Column(name = "nhiem_ky_bat_dau")
+    private LocalDate nhiemKyBatDau;
+    
+    @Column(name = "nhiem_ky_ket_thuc")
+    private LocalDate nhiemKyKetThuc;
+    
+    @Column(name = "tieu_su", length = 2000)
+    private String tieuSu;
     
     @Column(name = "mo_ta_cong_viec", length = 1000)
     private String moTaCongViec;
@@ -81,7 +91,7 @@ public class NhanSu {
     // Constructors
     public NhanSu() {}
     
-    public NhanSu(String hoTen, String chucVu) {
+    public NhanSu(String hoTen, ChucVu chucVu) {
         this.hoTen = hoTen;
         this.chucVu = chucVu;
     }
@@ -93,8 +103,8 @@ public class NhanSu {
     public String getHoTen() { return hoTen; }
     public void setHoTen(String hoTen) { this.hoTen = hoTen; }
     
-    public String getChucVu() { return chucVu; }
-    public void setChucVu(String chucVu) { this.chucVu = chucVu; }
+    public ChucVu getChucVu() { return chucVu; }
+    public void setChucVu(ChucVu chucVu) { this.chucVu = chucVu; }
     
     public BanNganh getBanNganh() { return banNganh; }
     public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }
@@ -119,6 +129,15 @@ public class NhanSu {
     
     public LocalDate getNgayBatDauPhucVu() { return ngayBatDauPhucVu; }
     public void setNgayBatDauPhucVu(LocalDate ngayBatDauPhucVu) { this.ngayBatDauPhucVu = ngayBatDauPhucVu; }
+    
+    public LocalDate getNhiemKyBatDau() { return nhiemKyBatDau; }
+    public void setNhiemKyBatDau(LocalDate nhiemKyBatDau) { this.nhiemKyBatDau = nhiemKyBatDau; }
+    
+    public LocalDate getNhiemKyKetThuc() { return nhiemKyKetThuc; }
+    public void setNhiemKyKetThuc(LocalDate nhiemKyKetThuc) { this.nhiemKyKetThuc = nhiemKyKetThuc; }
+    
+    public String getTieuSu() { return tieuSu; }
+    public void setTieuSu(String tieuSu) { this.tieuSu = tieuSu; }
     
     public String getMoTaCongViec() { return moTaCongViec; }
     public void setMoTaCongViec(String moTaCongViec) { this.moTaCongViec = moTaCongViec; }
@@ -149,7 +168,36 @@ public class NhanSu {
         danhSachTrachNhiem.remove(trachNhiem);
     }
     
+    // Helper method to get nhiệm kỳ as string
+    public String getNhiemKy() {
+        if (nhiemKyBatDau != null && nhiemKyKetThuc != null) {
+            return nhiemKyBatDau.getYear() + " - " + nhiemKyKetThuc.getYear();
+        } else if (nhiemKyBatDau != null) {
+            return "Từ " + nhiemKyBatDau.getYear();
+        }
+        return null;
+    }
+    
     // Enums
+    public enum ChucVu {
+        MUC_SU("Mục sư"),
+        TRUYEN_DAO("Truyền đạo"),
+        CHAP_SU("Chấp sự"),
+        THU_KY("Thư ký"),
+        THU_QUY("Thủ quỹ"),
+        THANH_VIEN("Thành viên");
+        
+        private final String displayName;
+        
+        ChucVu(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+    
     public enum TrangThaiNhanSu {
         HOAT_DONG, DANG_PHUC_VU, TAM_NGHI, NGHI_VIEC, CHUYEN_BAN
     }

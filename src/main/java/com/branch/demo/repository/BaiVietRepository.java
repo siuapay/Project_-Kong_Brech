@@ -117,8 +117,8 @@ public interface BaiVietRepository extends JpaRepository<BaiViet, Long> {
     // Kiểm tra slug có tồn tại không (trừ ID hiện tại)
     boolean existsBySlugAndIdNot(String slug, Long id);
     
-    // Đếm số bài viết theo trạng thái
-    long countByTrangThai(TrangThaiBaiViet trangThai);
+//     // Đếm số bài viết theo trạng thái
+//     long countByTrangThai(TrangThaiBaiViet trangThai);
     
     // Đếm số bài viết chưa bị xóa
     @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.deletedAt IS NULL")
@@ -177,4 +177,31 @@ public interface BaiVietRepository extends JpaRepository<BaiViet, Long> {
     // Đếm số bài viết theo danh mục
     @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.danhMuc = :danhMuc AND bv.deletedAt IS NULL")
     long countByDanhMuc(@Param("danhMuc") DanhMuc danhMuc);
+    
+    // Đếm bài viết theo trạng thái và khoảng thời gian
+    @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.trangThai = :trangThai AND bv.createdAt BETWEEN :fromDate AND :toDate")
+    long countByTrangThaiAndCreatedAtBetween(@Param("trangThai") TrangThaiBaiViet trangThai, 
+                                           @Param("fromDate") LocalDateTime fromDate, 
+                                           @Param("toDate") LocalDateTime toDate);
+    
+    // Đếm bài viết theo trạng thái
+    @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.trangThai = :trangThai AND bv.deletedAt IS NULL")
+    long countByTrangThai(@Param("trangThai") TrangThaiBaiViet trangThai);
+    
+    // Tìm bài viết theo tác giả
+    @Query("SELECT bv FROM BaiViet bv WHERE bv.tacGia = :tacGia AND bv.deletedAt IS NULL")
+    Page<BaiViet> findByTacGia(@Param("tacGia") String tacGia, Pageable pageable);
+    
+    // Tìm bài viết theo tác giả với search
+    @Query("SELECT bv FROM BaiViet bv WHERE bv.deletedAt IS NULL AND " +
+           "LOWER(bv.tacGia) LIKE LOWER(CONCAT('%', :tacGia, '%'))")
+    Page<BaiViet> findByTacGiaContainingIgnoreCase(@Param("tacGia") String tacGia, Pageable pageable);
+    
+    // Tìm bài viết của user hiện tại với search
+    @Query("SELECT bv FROM BaiViet bv WHERE bv.tacGia = :tacGia AND bv.deletedAt IS NULL AND " +
+           "(:search IS NULL OR :search = '' OR " +
+           "LOWER(bv.tieuDe) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(bv.tomTat) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(bv.noiDung) LIKE LOWER(CONCAT('%', :search, '%')))")
+    Page<BaiViet> findByTacGiaWithSearch(@Param("tacGia") String tacGia, @Param("search") String search, Pageable pageable);
 }

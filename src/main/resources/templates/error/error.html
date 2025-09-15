@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Lỗi ' + ${errorCode} + ' - ' + ${title}">Lỗi</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .error-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: #6c757d;
+            line-height: 1;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .error-description {
+            color: #868e96;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            padding: 10px 28px;
+            border-radius: 50px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .error-details {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+            text-align: left;
+        }
+        
+        .error-details h6 {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .error-details p {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+        
+        .error-details code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .error-container {
+                padding: 40px 20px;
+            }
+            
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-title {
+                font-size: 2rem;
+            }
+            
+            .error-icon {
+                font-size: 4rem;
+            }
+            
+            .error-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+        }
+        
+        /* Color variations based on error type */
+        .error-404 .error-icon { color: #17a2b8; }
+        .error-403 .error-icon { color: #dc3545; }
+        .error-500 .error-icon { color: #fd7e14; }
+        .error-413 .error-icon { color: #6f42c1; }
+        .error-default .error-icon { color: #6c757d; }
+    </style>
+</head>
+<body>
+    <div class="error-container" th:classappend="'error-' + ${errorCode}">
+        <!-- Error Icon -->
+        <div class="error-icon" th:class="${icon}"></div>
+        
+        <!-- Error Code -->
+        <div class="error-code" th:text="${errorCode}">500</div>
+        
+        <!-- Error Title -->
+        <h1 class="error-title" th:text="${title}">Lỗi hệ thống</h1>
+        
+        <!-- Error Message -->
+        <p class="error-message" th:text="${message}">Đã xảy ra lỗi không mong muốn</p>
+        
+        <!-- Error Description -->
+        <p class="error-description" th:text="${description}">Vui lòng thử lại sau hoặc liên hệ với quản trị viên</p>
+        
+        <!-- Action Buttons -->
+        <div class="error-actions">
+            <a th:href="${buttonLink}" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                <span th:text="${buttonText}">Về trang chủ</span>
+            </a>
+            
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Quay lại
+            </a>
+            
+            <a href="javascript:location.reload()" class="btn btn-secondary" th:if="${errorCode == '500' || errorCode == '502' || errorCode == '503'}">
+                <i class="fas fa-redo"></i>
+                Thử lại
+            </a>
+        </div>
+        
+        <!-- Error Details (only show in development) -->
+        <div class="error-details" th:if="${requestUri != null || errorMessage != null}">
+            <h6><i class="fas fa-info-circle me-2"></i>Chi tiết lỗi</h6>
+            <p th:if="${requestUri != null}">
+                <strong>URL:</strong> <code th:text="${requestUri}"></code>
+            </p>
+            <p th:if="${errorMessage != null}">
+                <strong>Thông báo:</strong> <code th:text="${errorMessage}"></code>
+            </p>
+            <p>
+                <strong>Thời gian:</strong> <code th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm:ss')}"></code>
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Auto redirect for certain errors after delay
+        const errorCode = /*[[${errorCode}]]*/ '500';
+        const buttonLink = /*[[${buttonLink}]]*/ '/';
+        
+        if (errorCode === '503') {
+            // Auto redirect after 30 seconds for maintenance
+            setTimeout(() => {
+                window.location.href = buttonLink;
+            }, 30000);
+        }
+        
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.error-container');
+            
+            // Add hover effect to container
+            container.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+            
+            // Add click effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Create ripple effect
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        pointer-events: none;
+                    `;
+                    
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+        });
+        
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

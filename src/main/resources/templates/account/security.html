@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}"></head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <img th:src="${account.nhanSu?.avatarUrl} ?: '/images/default-avatar.svg'" 
+                             alt="Avatar" 
+                             class="rounded-circle mb-3"
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        <h5 class="mb-1" th:text="${account.nhanSu?.hoTen} ?: ${account.username}">Tên người dùng</h5>
+                        <p class="text-muted small" th:text="${account.nhanSu?.email} ?: ${account.email}">email@example.com</p>
+                        <span class="badge bg-success" th:if="${account.status.name() == 'ACTIVE'}">Hoạt động</span>
+                        <span class="badge bg-warning" th:if="${account.status.name() == 'INACTIVE'}">Không hoạt động</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="list-group list-group-flush">
+                        <a href="/account/profile" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'profile'} ? 'active' : ''">
+                            <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                        </a>
+                        
+                        <a href="/account/my-posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'posts'} ? 'active' : ''">
+                            <i class="fas fa-edit me-2"></i>Danh sách bài viết
+                        </a>
+                        <a href="/news" 
+                           class="list-group-item list-group-item-action border-0">
+                            <i class="fas fa-compass me-2"></i>Khám phá tin tức
+                        </a>
+                        <a href="/account/posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'create'} ? 'active' : ''">
+                            <i class="fas fa-plus me-2"></i>Đăng bài viết
+                        </a>
+                        <a href="/account/security" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'security'} ? 'active' : ''">
+                            <i class="fas fa-shield-alt me-2"></i>Bảo mật
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h4 class="mb-0">
+                            <i class="fas fa-shield-alt me-2 text-primary"></i>Bảo mật tài khoản
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alert Messages -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Security Status -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-envelope me-2 text-primary"></i>Email
+                                        </h6>
+                                        <p class="card-text" th:text="${account.email} ?: 'Chưa cập nhật'">email@example.com</p>
+                                        <span class="badge bg-success" th:if="${account.email != null}">
+                                            <i class="fas fa-check-circle me-1"></i>Đã xác thực
+                                        </span>
+                                        <span class="badge bg-warning" th:if="${account.email == null}">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Chưa cập nhật
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">
+                                            <i class="fas fa-phone me-2 text-primary"></i>Số điện thoại
+                                        </h6>
+                                        <p class="card-text">Chưa cập nhật</p>
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Chưa cập nhật
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Account Status -->
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-user-check me-2 text-primary"></i>Trạng thái tài khoản
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-success me-3" th:if="${account.status.name() == 'ACTIVE'}">
+                                        <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                    </span>
+                                    <span class="badge bg-warning me-3" th:if="${account.status.name() == 'INACTIVE'}">
+                                        <i class="fas fa-pause-circle me-1"></i>Không hoạt động
+                                    </span>
+                                    <span class="badge bg-danger me-3" th:if="${account.status.name() == 'BANNED'}">
+                                        <i class="fas fa-ban me-1"></i>Bị cấm
+                                    </span>
+                                    <small class="text-muted">
+                                        Tài khoản được tạo ngày <span th:text="${#temporals.format(account.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Change Password -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-key me-2"></i>Đổi mật khẩu
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form th:action="@{/account/change-password}" method="post">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="currentPassword" class="form-label fw-medium">Mật khẩu hiện tại <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('currentPassword')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="newPassword" class="form-label fw-medium">Mật khẩu mới <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="newPassword" name="newPassword" 
+                                                           minlength="6" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('newPassword')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="form-text">Mật khẩu phải có ít nhất 6 ký tự</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="confirmPassword" class="form-label fw-medium">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                                                <div class="input-group">
+                                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" 
+                                                           minlength="6" required>
+                                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPassword')">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Lưu ý:</strong> Sau khi đổi mật khẩu, bạn sẽ cần đăng nhập lại với mật khẩu mới.
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-key me-1"></i>Đổi mật khẩu
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Security Tips -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-lightbulb me-2"></i>Mẹo bảo mật
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled mb-0">
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Sử dụng mật khẩu mạnh với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Không chia sẻ mật khẩu với bất kỳ ai
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Đổi mật khẩu định kỳ (3-6 tháng một lần)
+                                    </li>
+                                    <li class="mb-0">
+                                        <i class="fas fa-check text-success me-2"></i>
+                                        Đăng xuất khỏi tài khoản khi sử dụng máy tính công cộng
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const button = field.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Password strength indicator
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const password = this.value;
+            const strength = calculatePasswordStrength(password);
+            
+            let indicator = document.getElementById('password-strength');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'password-strength';
+                indicator.className = 'form-text';
+                this.parentNode.parentNode.appendChild(indicator);
+            }
+            
+            if (password.length === 0) {
+                indicator.textContent = '';
+                return;
+            }
+            
+            const strengthText = ['Rất yếu', 'Yếu', 'Trung bình', 'Mạnh', 'Rất mạnh'];
+            const strengthColor = ['text-danger', 'text-warning', 'text-info', 'text-success', 'text-success'];
+            
+            indicator.textContent = `Độ mạnh mật khẩu: ${strengthText[strength]}`;
+            indicator.className = `form-text ${strengthColor[strength]}`;
+        });
+
+        function calculatePasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            return Math.min(strength, 4);
+        }
+
+        // Confirm password validation
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && newPassword !== confirmPassword) {
+                this.setCustomValidity('Mật khẩu xác nhận không khớp');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    </script>
+</body>
+</html>

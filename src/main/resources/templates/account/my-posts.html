@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}"></head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <img th:src="${nhanSu?.avatarUrl} ?: '/images/default-avatar.svg'" 
+                             alt="Avatar" 
+                             class="rounded-circle mb-3"
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        <h5 class="mb-1" th:text="${nhanSu?.hoTen} ?: ${account.username}">Tên người dùng</h5>
+                        <p class="text-muted small" th:text="${nhanSu?.email} ?: ${account.email}">email@example.com</p>
+                        <span class="badge bg-success" th:if="${account.status.name() == 'ACTIVE'}">Hoạt động</span>
+                        <span class="badge bg-warning" th:if="${account.status.name() == 'INACTIVE'}">Không hoạt động</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="list-group list-group-flush">
+                        <a href="/account/profile" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'profile'} ? 'active' : ''">
+                            <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                        </a>
+              
+                        <a href="/account/my-posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'posts'} ? 'active' : ''">
+                            <i class="fas fa-edit me-2"></i>Danh sách bài viết
+                        </a>
+                        <a href="/news" 
+                           class="list-group-item list-group-item-action border-0">
+                            <i class="fas fa-compass me-2"></i>Khám phá tin tức
+                        </a>
+                        <a href="/account/posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'create'} ? 'active' : ''">
+                            <i class="fas fa-plus me-2"></i>Đăng bài viết
+                        </a>
+                        <a href="/account/security" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'security'} ? 'active' : ''">
+                            <i class="fas fa-shield-alt me-2"></i>Bảo mật
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="fas fa-edit me-2 text-primary"></i>Danh sách bài viết của tôi
+                        </h4>
+                        <a href="/account/posts" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Đăng bài mới
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Alert Messages -->
+                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span th:text="${success}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <form method="get" action="/account/my-posts">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="search" 
+                                               th:value="${search}" placeholder="Tìm kiếm bài viết...">
+                                        <button class="btn btn-outline-primary" type="submit">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Posts List -->
+                        <div th:if="${baiVietPage.content.empty}" class="text-center py-5">
+                            <i class="fas fa-edit fa-5x text-muted mb-3"></i>
+                            <h5 class="text-muted">Bạn chưa có bài viết nào</h5>
+                            <p class="text-muted">Hãy bắt đầu chia sẻ những câu chuyện của bạn!</p>
+                            <a href="/account/posts" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i>Đăng bài viết đầu tiên
+                            </a>
+                        </div>
+
+                        <div th:if="${!baiVietPage.content.empty}">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tiêu đề</th>
+                                            <th>Danh mục</th>
+                                            <th>Trạng thái</th>
+                                            <th>Lượt xem</th>
+                                            <th>Ngày tạo</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="baiViet : ${baiVietPage.content}">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img th:src="${baiViet.anhDaiDien} ?: '/images/default-news.jpg'" 
+                                                         alt="Thumbnail" 
+                                                         class="rounded me-3"
+                                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 class="mb-1" th:text="${#strings.abbreviate(baiViet.tieuDe, 50)}">Tiêu đề bài viết</h6>
+                                                        <small class="text-muted" th:text="${#strings.abbreviate(baiViet.tomTat, 80)}">Tóm tắt...</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:style="${baiViet.danhMuc?.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} : 'background-color: #6c757d'"
+                                                      th:text="${baiViet.danhMuc?.tenDanhMuc} ?: 'Chưa phân loại'">Danh mục</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success" th:if="${baiViet.trangThai.name() == 'DA_XUAT_BAN'}">
+                                                    <i class="fas fa-check-circle me-1"></i>Đã xuất bản
+                                                </span>
+                                                <span class="badge bg-warning" th:if="${baiViet.trangThai.name() == 'CHO_DUYET'}">
+                                                    <i class="fas fa-clock me-1"></i>Chờ duyệt
+                                                </span>
+                                                <span class="badge bg-secondary" th:if="${baiViet.trangThai.name() == 'NHAP'}">
+                                                    <i class="fas fa-edit me-1"></i>Bản nháp
+                                                </span>
+                                                <span class="badge bg-danger" th:if="${baiViet.trangThai.name() == 'TU_CHOI'}">
+                                                    <i class="fas fa-times-circle me-1"></i>Từ chối
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-eye me-1"></i>
+                                                <span th:text="${baiViet.luotXem}">0</span>
+                                            </td>
+                                            <td th:text="${#temporals.format(baiViet.createdAt, 'dd/MM/yyyy')}">01/01/2024</td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a th:href="@{/news/{slug}(slug=${baiViet.slug})}" 
+                                                       class="btn btn-outline-primary" 
+                                                       th:if="${baiViet.trangThai.name() == 'DA_XUAT_BAN'}"
+                                                       title="Xem bài viết">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a th:href="@{/account/posts/edit/{id}(id=${baiViet.id})}" 
+                                                       class="btn btn-outline-secondary" 
+                                                       th:if="${baiViet.trangThai.name() == 'NHAP' || baiViet.trangThai.name() == 'TU_CHOI'}"
+                                                       title="Chỉnh sửa">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" 
+                                                            class="btn btn-outline-danger" 
+                                                            th:if="${baiViet.trangThai.name() == 'NHAP' || baiViet.trangThai.name() == 'TU_CHOI'}"
+                                                            title="Xóa bài viết"
+                                                            onclick="confirmDelete(this)"
+                                                            th:data-id="${baiViet.id}"
+                                                            th:data-title="${baiViet.tieuDe}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination -->
+                            <nav th:if="${totalPages > 1}" class="mt-4">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/account/my-posts(page=${currentPage - 1}, search=${search})}">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                                        class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
+                                        <a class="page-link" th:href="@{/account/my-posts(page=${pageNum}, search=${search})}"
+                                           th:text="${pageNum + 1}">1</a>
+                                    </li>
+                                    
+                                    <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
+                                        <a class="page-link" th:href="@{/account/my-posts(page=${currentPage + 1}, search=${search})}">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa bài viết</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa bài viết này không?</p>
+                    <p><strong id="deleteTitle"></strong></p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Bài viết sẽ bị xóa vĩnh viễn và không thể khôi phục!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa bài viết
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(button) {
+            const id = button.getAttribute('data-id');
+            const title = button.getAttribute('data-title');
+            
+            document.getElementById('deleteTitle').textContent = title;
+            document.getElementById('deleteForm').action = '/account/posts/delete/' + id;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - Hệ thống quản lý</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            margin: 20px;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .login-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .login-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .login-body {
+            padding: 2rem;
+        }
+        
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+            color: white;
+        }
+        
+        .login-footer {
+            text-align: center;
+            padding: 1rem 2rem 2rem;
+            color: #6c757d;
+        }
+        
+        .login-footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .input-group-text {
+            background: transparent;
+            border: 2px solid #e9ecef;
+            border-right: none;
+            border-radius: 10px 0 0 10px;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .input-group:focus-within .input-group-text {
+            border-color: #667eea;
+        }
+        
+        .password-toggle {
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+        
+        .password-toggle:hover {
+            color: #667eea;
+        }
+        
+        /* Modal Styles */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-header {
+            border-radius: 15px 15px 0 0;
+            border-bottom: none;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .list-unstyled li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        
+        .list-unstyled li:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-shield-alt fa-2x mb-3"></i>
+            <h2>Đăng nhập</h2>
+            <p>Hệ thống quản lý Chi hội Kong Brech</p>
+        </div>
+        
+        <div class="login-body">
+            <!-- Error Alert -->
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span th:text="${errorMessage}">Đăng nhập thất bại</span>
+            </div>
+            
+            <!-- Success Alert -->
+            <div th:if="${success}" class="alert alert-success" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                <span th:text="${successMessage}">Thành công</span>
+            </div>
+            
+            <form th:action="@{/perform-login}" method="post">
+                <!-- Username Field -->
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           name="username" 
+                           placeholder="Tên đăng nhập hoặc Email"
+                           required
+                           autocomplete="username">
+                </div>
+                
+                <!-- Password Field -->
+                <div class="input-group mb-4">
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                    <input type="password" 
+                           class="form-control" 
+                           name="password" 
+                           id="password"
+                           placeholder="Mật khẩu"
+                           required
+                           autocomplete="current-password">
+                    <span class="input-group-text password-toggle" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="toggleIcon"></i>
+                    </span>
+                </div>
+                
+                <!-- Remember Me -->
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe">
+                    <label class="form-check-label" for="rememberMe">
+                        Ghi nhớ đăng nhập
+                    </label>
+                </div>
+                
+                <!-- Login Button -->
+                <button type="submit" class="btn btn-primary btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Đăng nhập
+                </button>
+            </form>
+        </div>
+        
+        <div class="login-footer">
+            <p class="mb-2">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#accessInfoModal">
+                    <i class="fas fa-info-circle me-1"></i>Thông tin truy cập
+                </a>
+            </p>
+            <p class="mb-0"><a th:href="@{/}">← Quay về trang chủ</a></p>
+        </div>
+    </div>
+
+    <!-- Access Info Modal -->
+    <div class="modal fade" id="accessInfoModal" tabindex="-1" aria-labelledby="accessInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="accessInfoModalLabel">
+                        <i class="fas fa-shield-alt me-2"></i>Thông Tin Truy Cập
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-shield fa-3x text-primary mb-3"></i>
+                        <h6 class="text-primary">Hệ Thống Quản Lý Chi Hội Kong Brech</h6>
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Lưu ý quan trọng:</strong>
+                    </div>
+                    
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Chỉ tài khoản <strong>Quản trị viên</strong> mới được phép truy cập
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Tài khoản phải được <strong>cấp quyền chính thức</strong>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Hệ thống ghi lại <strong>toàn bộ hoạt động</strong> của người dùng
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-times-circle text-danger me-2"></i>
+                            <strong>Không chia sẻ</strong> thông tin đăng nhập
+                        </li>
+                    </ul>
+                    
+                    <div class="alert alert-info mt-3" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Nếu bạn cần tài khoản truy cập, vui lòng liên hệ với Ban Quản Lý Chi Hội.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Đóng
+                    </button>
+                    <a th:href="@{/lien-he}" class="btn btn-primary">
+                        <i class="fas fa-envelope me-1"></i>Liên Hệ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+        
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(function() {
+                    alert.remove();
+                }, 500);
+            });
+        }, 5000);
+    </script>
+</body>
+</html>

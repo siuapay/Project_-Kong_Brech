@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}"></head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <!-- Page Header -->
+    <section class="py-5 bg-primary-custom text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-4 fw-bold mb-3">Giới Thiệu Chi Hội</h1>
+                    <p class="lead">Tìm hiểu về lịch sử, sứ mệnh và tầm nhìn của Chi Hội Kong Brech</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Content -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <h2 class="text-primary-custom mb-4">Về Chúng Tôi</h2>
+                    <p class="lead">
+                        Chi Hội Kong Brech là một cộng đồng tôn giáo được thành lập với mục tiêu 
+                        kết nối các tín hữu và phục vụ cộng đồng địa phương.
+                    </p>
+                    <p>
+                        Chúng tôi cam kết xây dựng một cộng đồng mạnh mẽ, nơi mọi người có thể 
+                        tìm thấy sự an ủi, hướng dẫn và cơ hội phát triển tâm linh.
+                    </p>
+                    <p>
+                        Thông qua các hoạt động đa dạng, chúng tôi mong muốn góp phần tích cực 
+                        vào sự phát triển của cộng đồng và xã hội.
+                    </p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="/images/about-us.jpg" class="img-fluid rounded shadow" alt="Về chúng tôi">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission & Vision -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
+                            <h4 class="text-primary-custom">Sứ Mệnh</h4>
+                            <p>
+                                Phục vụ cộng đồng tín hữu và xã hội thông qua các hoạt động 
+                                tôn giáo, giáo dục và từ thiện. Chúng tôi cam kết mang đến 
+                                những giá trị tích cực cho mọi người.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-eye fa-3x text-success mb-3"></i>
+                            <h4 class="text-success">Tầm Nhìn</h4>
+                            <p>
+                                Trở thành một cộng đồng tôn giáo mẫu mực, góp phần xây dựng 
+                                một xã hội văn minh, nhân ái và phát triển bền vững.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Values -->
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-primary-custom">Giá Trị Cốt Lõi</h2>
+                <p class="lead text-muted">Những nguyên tắc định hướng mọi hoạt động của chúng tôi</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="text-center">
+                        <i class="fas fa-heart fa-3x text-danger mb-3"></i>
+                        <h5>Tình Yêu Thương</h5>
+                        <p class="text-muted">
+                            Yêu thương và quan tâm đến mọi người, 
+                            không phân biệt xuất thân hay hoàn cảnh.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="text-center">
+                        <i class="fas fa-hands-helping fa-3x text-info mb-3"></i>
+                        <h5>Phục Vụ</h5>
+                        <p class="text-muted">
+                            Sẵn sàng phục vụ cộng đồng và giúp đỡ 
+                            những người có hoàn cảnh khó khăn.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="text-center">
+                        <i class="fas fa-balance-scale fa-3x text-warning mb-3"></i>
+                        <h5>Công Bằng</h5>
+                        <p class="text-muted">
+                            Đối xử công bằng và tôn trọng quyền lợi 
+                            của mọi thành viên trong cộng đồng.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+</body>
+</html>

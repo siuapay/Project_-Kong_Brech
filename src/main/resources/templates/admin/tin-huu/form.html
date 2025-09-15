@@ -213,6 +213,23 @@
                   </h6>
 
                   <div class="row">
+                 <!--  <div class="col-md-4 mb-3">
+                      <label for="nhom" class="form-label">Nhóm</label>
+                      <select
+                        class="form-select"
+                        id="nhom"
+                        th:field="*{nhom}"
+                      >
+                        <option value="">-- Chọn nhóm --</option>
+                        <option 
+                          th:each="nhom : ${nhomList}" 
+                          th:value="${nhom.id}" 
+                          th:text="${nhom.tenNhom}"
+                          th:selected="${tinHuu.nhom != null && tinHuu.nhom.id == nhom.id}">
+                        </option>
+                      </select>
+                      <div class="form-text">Chọn nhóm mà tin hữu tham gia</div>
+                    </div>-->
                     <div class="col-md-6 mb-3">
                       <label for="ngayBaoTin" class="form-label"
                         >Ngày Báo Tin</label
@@ -224,7 +241,6 @@
                         name="ngayBaoTin"
                         th:value="${tinHuu.ngayBaoTin != null ? tinHuu.ngayBaoTin : ''}"
                       />
-
                     </div>
                     <div class="col-md-6 mb-3">
                       <label for="trangThai" class="form-label"

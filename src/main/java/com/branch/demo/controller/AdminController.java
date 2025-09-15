@@ -2,14 +2,19 @@ package com.branch.demo.controller;
 
 import com.branch.demo.service.AdminService;
 import com.branch.demo.service.FileUploadService;
+import com.branch.demo.domain.*;
+import jakarta.validation.Valid;
+
 import com.branch.demo.dto.SuKienDTO;
 import com.branch.demo.repository.BaiVietRepository;
 import com.branch.demo.repository.BanNganhRepository;
 import com.branch.demo.repository.LoaiSuKienRepository;
+import com.branch.demo.repository.NhanSuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,6 +37,9 @@ public class AdminController {
 
     @Autowired
     private BaiVietRepository baiVietRepository;
+
+    @Autowired
+    private NhanSuRepository nhanSuRepository;
 
     @GetMapping
     public String adminDashboard(Model model) {
@@ -103,6 +111,7 @@ public class AdminController {
         model.addAttribute("pageTitle", "Thêm Tin Hữu Mới");
         model.addAttribute("activeMenu", "tin-huu");
         model.addAttribute("tinHuu", new com.branch.demo.domain.TinHuu());
+        model.addAttribute("nhomList", adminService.getAllNhom());
         return "admin/tin-huu/form";
     }
 
@@ -112,6 +121,7 @@ public class AdminController {
         model.addAttribute("pageTitle", "Chỉnh Sửa Tin Hữu");
         model.addAttribute("activeMenu", "tin-huu");
         model.addAttribute("tinHuu", adminService.getTinHuuById(id));
+        model.addAttribute("nhomList", adminService.getAllNhom());
         return "admin/tin-huu/form";
     }
 
@@ -608,6 +618,7 @@ public class AdminController {
         model.addAttribute("nhanSu", new com.branch.demo.domain.NhanSu());
         model.addAttribute("banNganhList", adminService.getAllActiveBanNganh());
         model.addAttribute("diemNhomList", adminService.getAllActiveDiemNhom());
+        model.addAttribute("chucVuList", com.branch.demo.domain.NhanSu.ChucVu.values());
         return "admin/nhan-su/form";
     }
 
@@ -619,6 +630,7 @@ public class AdminController {
         model.addAttribute("nhanSu", adminService.getNhanSuById(id));
         model.addAttribute("banNganhList", adminService.getAllActiveBanNganh());
         model.addAttribute("diemNhomList", adminService.getAllActiveDiemNhom());
+        model.addAttribute("chucVuList", com.branch.demo.domain.NhanSu.ChucVu.values());
         return "admin/nhan-su/form";
     }
 
@@ -729,6 +741,30 @@ public class AdminController {
     @ResponseBody
     public java.util.List<com.branch.demo.dto.BanNganhDTO> getAllBanNganh() {
         return adminService.getAllActiveBanNganhDTO();
+    }
+
+    // API endpoint để lấy tất cả nhân sự
+    @GetMapping("/api/all-nhan-su")
+    @ResponseBody
+    public java.util.List<com.branch.demo.dto.NhanSuDTO> getAllNhanSu() {
+        try {
+            java.util.List<com.branch.demo.domain.NhanSu> nhanSuList = nhanSuRepository.findAll();
+            System.out.println("DEBUG - Found " + nhanSuList.size() + " nhan su records");
+
+            return nhanSuList.stream()
+                    .map(ns -> new com.branch.demo.dto.NhanSuDTO(
+                            ns.getId(),
+                            ns.getHoTen() != null ? ns.getHoTen() : "",
+                            ns.getChucVu() != null ? ns.getChucVu().getDisplayName() : "",
+                            ns.getBanNganh() != null ? ns.getBanNganh().getTenBan() : "",
+                            ns.getEmail() != null ? ns.getEmail() : "",
+                            ns.getDienThoai() != null ? ns.getDienThoai() : ""))
+                    .collect(java.util.stream.Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("ERROR in getAllNhanSu: " + e.getMessage());
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
     }
 
     @GetMapping("/api/ban-nganh/{banNganhId}/nhan-su")
@@ -993,13 +1029,13 @@ public class AdminController {
         return "admin/diem-nhom/view";
     }
 
-    @GetMapping("/tai-chinh")
-    public String taiChinhManagement(Model model) {
-        model.addAttribute("title", "Quản Lý Tài Chính");
-        model.addAttribute("pageTitle", "Quản Lý Tài Chính");
-        model.addAttribute("activeMenu", "tai-chinh");
-        return "admin/tai-chinh";
-    }
+    // @GetMapping("/tai-chinh")
+    // public String taiChinhManagement(Model model) {
+    // model.addAttribute("title", "Quản Lý Tài Chính");
+    // model.addAttribute("pageTitle", "Quản Lý Tài Chính");
+    // model.addAttribute("activeMenu", "tai-chinh");
+    // return "admin/tai-chinh";
+    // }
 
     // ==================== SU KIEN MANAGEMENT ====================
 
@@ -1317,11 +1353,11 @@ public class AdminController {
             // Nếu đang update (có ID), preserve các thông tin quan trọng
             if (baiViet.getId() != null) {
                 com.branch.demo.domain.BaiViet existingBaiViet = adminService.getBaiVietById(baiViet.getId());
-                
+
                 // Preserve ngày tạo và lượt xem
                 baiViet.setCreatedAt(existingBaiViet.getCreatedAt());
                 baiViet.setLuotXem(existingBaiViet.getLuotXem());
-                
+
                 // Preserve ảnh đại diện nếu không upload ảnh mới
                 if (anhDaiDienFile == null || anhDaiDienFile.isEmpty()) {
                     baiViet.setAnhDaiDien(existingBaiViet.getAnhDaiDien());
@@ -1338,10 +1374,10 @@ public class AdminController {
                     String anhDaiDienUrl = fileUploadService.uploadImage(anhDaiDienFile);
                     baiViet.setAnhDaiDien(anhDaiDienUrl);
                 }
-                
+
                 // Preserve hình ảnh bổ sung nếu không upload hình mới
-                if (hinhAnhFiles == null || hinhAnhFiles.length == 0 || 
-                    (hinhAnhFiles.length == 1 && hinhAnhFiles[0].isEmpty())) {
+                if (hinhAnhFiles == null || hinhAnhFiles.length == 0 ||
+                        (hinhAnhFiles.length == 1 && hinhAnhFiles[0].isEmpty())) {
                     baiViet.setDanhSachHinhAnh(existingBaiViet.getDanhSachHinhAnh());
                 } else {
                     // Xử lý upload hình ảnh bổ sung mới
@@ -1359,7 +1395,7 @@ public class AdminController {
                         baiViet.setDanhSachHinhAnh(existingBaiViet.getDanhSachHinhAnh());
                     }
                 }
-                
+
                 // Preserve video list
                 if (baiViet.getDanhSachVideo() == null || baiViet.getDanhSachVideo().isEmpty()) {
                     baiViet.setDanhSachVideo(existingBaiViet.getDanhSachVideo());
@@ -1422,10 +1458,11 @@ public class AdminController {
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             Model model) {
-        
+
         try {
-            Page<com.branch.demo.domain.BaiViet> trashedPage = adminService.getTrashedBaiViet(page, search, fromDate, toDate);
-            
+            Page<com.branch.demo.domain.BaiViet> trashedPage = adminService.getTrashedBaiViet(page, search, fromDate,
+                    toDate);
+
             model.addAttribute("title", "Thùng Rác Bài Viết");
             model.addAttribute("pageTitle", "Thùng Rác Bài Viết");
             model.addAttribute("activeMenu", "bai-viet");
@@ -1433,11 +1470,11 @@ public class AdminController {
             model.addAttribute("search", search);
             model.addAttribute("fromDate", fromDate);
             model.addAttribute("toDate", toDate);
-            
+
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi xảy ra khi tải thùng rác: " + e.getMessage());
         }
-        
+
         return "admin/bai-viet/trash";
     }
 
@@ -1478,7 +1515,8 @@ public class AdminController {
     public String emptyTrash(RedirectAttributes redirectAttributes) {
         try {
             int deletedCount = adminService.emptyBaiVietTrash();
-            redirectAttributes.addFlashAttribute("success", "Đã xóa vĩnh viễn " + deletedCount + " bài viết khỏi thùng rác");
+            redirectAttributes.addFlashAttribute("success",
+                    "Đã xóa vĩnh viễn " + deletedCount + " bài viết khỏi thùng rác");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Không thể làm trống thùng rác: " + e.getMessage());
         }
@@ -1492,21 +1530,21 @@ public class AdminController {
             @RequestParam(defaultValue = "") String search,
             @RequestParam(required = false) String trangThai,
             Model model) {
-        
+
         try {
             Page<com.branch.demo.domain.DanhMuc> danhMucPage = adminService.getDanhMucPage(page, search, trangThai);
-            
+
             model.addAttribute("title", "Quản Lý Danh Mục");
             model.addAttribute("pageTitle", "Quản Lý Danh Mục");
             model.addAttribute("activeMenu", "bai-viet");
             model.addAttribute("danhMucPage", danhMucPage);
             model.addAttribute("search", search);
             model.addAttribute("trangThai", trangThai);
-            
+
         } catch (Exception e) {
             model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách danh mục: " + e.getMessage());
         }
-        
+
         return "admin/danh-muc/list";
     }
 
@@ -1533,8 +1571,8 @@ public class AdminController {
             RedirectAttributes redirectAttributes) {
         try {
             adminService.saveDanhMuc(danhMuc);
-            redirectAttributes.addFlashAttribute("success", 
-                danhMuc.getId() != null ? "Cập nhật danh mục thành công!" : "Thêm danh mục thành công!");
+            redirectAttributes.addFlashAttribute("success",
+                    danhMuc.getId() != null ? "Cập nhật danh mục thành công!" : "Thêm danh mục thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
         }
@@ -1587,5 +1625,200 @@ public class AdminController {
         }
 
         return result;
+    }
+
+    // ==================== ACCOUNT MANAGEMENT ====================
+
+    @GetMapping("/account")
+    public String accountList(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "") String search,
+            Model model) {
+        model.addAttribute("title", "Quản Lý Tài Khoản");
+        model.addAttribute("pageTitle", "Danh Sách Tài Khoản");
+        model.addAttribute("activeMenu", "account");
+        model.addAttribute("accountPage", adminService.getAccountPage(page, search));
+        model.addAttribute("search", search);
+        return "admin/account/list";
+    }
+
+    @GetMapping("/account/new")
+    public String newAccount(Model model) {
+        model.addAttribute("title", "Thêm Tài Khoản");
+        model.addAttribute("pageTitle", "Thêm Tài Khoản Mới");
+        model.addAttribute("activeMenu", "account");
+        model.addAttribute("account", new Account());
+        return "admin/account/form";
+    }
+
+    @GetMapping("/account/edit/{id}")
+    public String editAccount(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chỉnh Sửa Tài Khoản");
+        model.addAttribute("pageTitle", "Chỉnh Sửa Tài Khoản");
+        model.addAttribute("activeMenu", "account");
+        model.addAttribute("account", adminService.getAccountById(id));
+        return "admin/account/form";
+    }
+
+    @PostMapping("/account/save")
+    public String saveAccount(@ModelAttribute Account account,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // Set up model attributes for potential error return
+        String title = account.getId() != null ? "Chỉnh Sửa Tài Khoản" : "Thêm Tài Khoản";
+        String pageTitle = account.getId() != null ? "Chỉnh Sửa Tài Khoản" : "Thêm Tài Khoản Mới";
+
+        try {
+            // Debug: Print received data
+            System.out.println("Received account data:");
+            System.out.println("ID: " + account.getId());
+            System.out.println("Username: " + account.getUsername());
+            System.out.println("Email: " + account.getEmail());
+            System.out.println("FullName: " + account.getFullName());
+            System.out.println("Role: " + account.getRole());
+            System.out.println("Status: " + account.getStatus());
+
+            // Check if role and status are null
+            if (account.getRole() == null) {
+                System.out.println("WARNING: Role is null!");
+                account.setRole(Account.Role.ADMIN); // Set default
+            }
+            if (account.getStatus() == null) {
+                System.out.println("WARNING: Status is null!");
+                account.setStatus(Account.AccountStatus.ACTIVE); // Set default
+            }
+
+            // Manual validation for required fields
+            boolean hasErrors = false;
+            StringBuilder errorMsg = new StringBuilder();
+
+            if (account.getUsername() == null || account.getUsername().trim().isEmpty()) {
+                errorMsg.append("Tên đăng nhập không được để trống. ");
+                hasErrors = true;
+            } else if (account.getUsername().trim().length() < 3 || account.getUsername().trim().length() > 50) {
+                errorMsg.append("Tên đăng nhập phải từ 3-50 ký tự. ");
+                hasErrors = true;
+            }
+
+            if (account.getEmail() == null || account.getEmail().trim().isEmpty()) {
+                errorMsg.append("Email không được để trống. ");
+                hasErrors = true;
+            } else if (!account.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                errorMsg.append("Email không hợp lệ. ");
+                hasErrors = true;
+            }
+
+            if (account.getFullName() == null || account.getFullName().trim().isEmpty()) {
+                errorMsg.append("Họ tên không được để trống. ");
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                model.addAttribute("account", account);
+                model.addAttribute("title", title);
+                model.addAttribute("pageTitle", pageTitle);
+                model.addAttribute("activeMenu", "account");
+                model.addAttribute("error", errorMsg.toString());
+                return "admin/account/form";
+            }
+
+            // Validate duplicate username/email for new accounts
+            if (account.getId() == null) {
+                if (adminService.isUsernameExists(account.getUsername())) {
+                    model.addAttribute("account", account);
+                    model.addAttribute("title", title);
+                    model.addAttribute("pageTitle", pageTitle);
+                    model.addAttribute("activeMenu", "account");
+                    model.addAttribute("error", "Tên đăng nhập đã tồn tại!");
+                    return "admin/account/form";
+                }
+
+                if (adminService.isEmailExists(account.getEmail())) {
+                    model.addAttribute("account", account);
+                    model.addAttribute("title", title);
+                    model.addAttribute("pageTitle", pageTitle);
+                    model.addAttribute("activeMenu", "account");
+                    model.addAttribute("error", "Email đã tồn tại!");
+                    return "admin/account/form";
+                }
+            } else {
+                // For updates, check email uniqueness excluding current account
+                if (adminService.isEmailExistsExcludingId(account.getEmail(), account.getId())) {
+                    model.addAttribute("account", account);
+                    model.addAttribute("title", title);
+                    model.addAttribute("pageTitle", pageTitle);
+                    model.addAttribute("activeMenu", "account");
+                    model.addAttribute("error", "Email đã tồn tại!");
+                    return "admin/account/form";
+                }
+            }
+
+            String generatedPassword = adminService.saveAccount(account, null);
+
+            if (generatedPassword != null) {
+                redirectAttributes.addFlashAttribute("success",
+                        "Tài khoản đã được tạo thành công! Mật khẩu được tạo tự động: " + generatedPassword);
+            } else {
+                redirectAttributes.addFlashAttribute("success", "Tài khoản đã được cập nhật thành công!");
+            }
+        } catch (Exception e) {
+            model.addAttribute("account", account);
+            model.addAttribute("title", title);
+            model.addAttribute("pageTitle", pageTitle);
+            model.addAttribute("activeMenu", "account");
+            model.addAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "admin/account/form";
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/delete/{id}")
+    public String deleteAccount(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.deleteAccount(id);
+            redirectAttributes.addFlashAttribute("success", "Tài khoản đã được xóa thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa tài khoản: " + e.getMessage());
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/toggle-status/{id}")
+    public String toggleAccountStatus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            adminService.toggleAccountStatus(id);
+            redirectAttributes.addFlashAttribute("success", "Trạng thái tài khoản đã được cập nhật!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể thay đổi trạng thái: " + e.getMessage());
+        }
+        return "redirect:/admin/account";
+    }
+
+    @PostMapping("/account/reset-password/{id}")
+    public String resetPassword(@PathVariable Long id,
+            @RequestParam String newPassword,
+            RedirectAttributes redirectAttributes) {
+        try {
+            if (newPassword == null || newPassword.trim().length() < 6) {
+                redirectAttributes.addFlashAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự");
+                return "redirect:/admin/account";
+            }
+
+            adminService.resetPassword(id, newPassword);
+            redirectAttributes.addFlashAttribute("success", "Mật khẩu đã được reset thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Không thể reset mật khẩu: " + e.getMessage());
+        }
+        return "redirect:/admin/account";
+    }
+
+    @GetMapping("/account/view/{id}")
+    public String viewAccount(@PathVariable Long id, Model model) {
+        model.addAttribute("title", "Chi Tiết Tài Khoản");
+        model.addAttribute("pageTitle", "Chi Tiết Tài Khoản");
+        model.addAttribute("activeMenu", "account");
+        model.addAttribute("account", adminService.getAccountById(id));
+        return "admin/account/view";
     }
 }

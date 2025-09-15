@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-folder-open me-2"></i>Quản Lý Danh Mục Tài Chính
+                    </h2>
+                    <p class="text-muted mb-0">Quản lý các danh mục thu chi cho giao dịch tài chính</p>
+                </div>
+                <a th:href="@{/admin/tai-chinh/danh-muc/add}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Thêm Danh Mục Mới
+                </a>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc</h6>
+                </div>
+                <div class="card-body">
+                    <form method="get" th:action="@{/admin/tai-chinh/danh-muc}" id="filterForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="search" 
+                                           th:value="${search}" placeholder="Tìm kiếm theo tên danh mục...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="loai">
+                                    <option value="">Tất cả loại</option>
+                                    <option value="THU" th:selected="${loai == 'THU'}">
+                                        <i class="fas fa-arrow-up text-success"></i> Thu
+                                    </option>
+                                    <option value="CHI" th:selected="${loai == 'CHI'}">
+                                        <i class="fas fa-arrow-down text-danger"></i> Chi
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                                    </button>
+                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Categories List -->
+            <div class="card shadow border-0">
+                <div class="card-header bg-light border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list me-2"></i>Danh Sách Danh Mục
+                            <span class="badge bg-primary ms-2" th:text="${danhMucPage.totalElements}">0</span>
+                        </h5>
+                        <small class="text-muted">
+                            Trang <span th:text="${danhMucPage.number + 1}">1</span> 
+                            / <span th:text="${danhMucPage.totalPages}">1</span>
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Tên Danh Mục</th>
+                                    <th width="12%">Loại</th>
+                                    <th width="30%">Mô Tả</th>
+                                    <th width="10%">Số GD</th>
+                                    <th width="10%">Ngày Tạo</th>
+                                    <th width="8%">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${danhMucPage.content.empty}">
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                        Không có danh mục nào được tìm thấy
+                                    </td>
+                                </tr>
+                                <tr th:each="danhMuc, iterStat : ${danhMucPage.content}" class="align-middle">
+                                    <td>
+                                        <span class="fw-bold text-primary" 
+                                              th:text="${danhMucPage.number * danhMucPage.size + iterStat.index + 1}">1</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                 th:class="${danhMuc.loai.name() == 'THU'} ? 'bg-success' : 'bg-danger'">
+                                                <i th:class="${danhMuc.loai.name() == 'THU'} ? 'fas fa-arrow-up text-white' : 'fas fa-arrow-down text-white'"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0" th:text="${danhMuc.tenDanhMuc}">Tên danh mục</h6>
+                                                <small class="text-muted">ID: <span th:text="${danhMuc.id}">1</span></small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span th:if="${danhMuc.loai.name() == 'THU'}" class="badge bg-success">
+                                            <i class="fas fa-arrow-up me-1"></i>Thu
+                                        </span>
+                                        <span th:if="${danhMuc.loai.name() == 'CHI'}" class="badge bg-danger">
+                                            <i class="fas fa-arrow-down me-1"></i>Chi
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${danhMuc.moTa}" th:text="${#strings.abbreviate(danhMuc.moTa, 60)}">Mô tả</span>
+                                        <span th:unless="${danhMuc.moTa}" class="text-muted fst-italic">Chưa có mô tả</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info" id="gd-count-${danhMuc.id}">
+                                            <i class="fas fa-exchange-alt me-1"></i>
+                                            <span class="count-text">0</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted" th:text="${#temporals.format(danhMuc.createdAt, 'dd/MM/yyyy')}">01/01/2024</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/tai-chinh/danh-muc/view/{id}(id=${danhMuc.id})}" 
+                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMuc.id})}" 
+                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    title="Xóa danh mục"
+                                                    th:data-id="${danhMuc.id}"
+                                                    th:data-name="${danhMuc.tenDanhMuc}"
+                                                    onclick="confirmDelete(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer bg-light border-0" th:if="${danhMucPage.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" th:classappend="${danhMucPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number - 1}, search=${search}, loai=${loai})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <li th:each="pageNum : ${#numbers.sequence(0, danhMucPage.totalPages - 1)}"
+                                class="page-item" th:classappend="${pageNum == danhMucPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${pageNum}, search=${search}, loai=${loai})}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${danhMucPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number + 1}, search=${search}, loai=${loai})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa danh mục <strong id="deleteName"></strong>?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn danh mục khỏi hệ thống.
+                        Nếu danh mục đang được sử dụng trong giao dịch, bạn sẽ không thể xóa.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        function confirmDelete(id, name) {
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/tai-chinh/danh-muc/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        // Load transaction counts for each category
+        document.addEventListener('DOMContentLoaded', function() {
+            const countElements = document.querySelectorAll('[id^="gd-count-"]');
+            
+            countElements.forEach(element => {
+                const danhMucId = element.id.replace('gd-count-', '');
+                
+                fetch(`/admin/tai-chinh/api/danh-muc/${danhMucId}/count`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const countText = element.querySelector('.count-text');
+                        countText.textContent = data.count || 0;
+                        
+                        // Update badge color based on count
+                        if (data.count > 0) {
+                            element.className = 'badge bg-success';
+                        } else {
+                            element.className = 'badge bg-secondary';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading count for category:', danhMucId, error);
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

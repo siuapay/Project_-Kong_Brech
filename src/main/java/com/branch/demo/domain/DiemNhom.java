@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "diem_nhom")
-public class DiemNhom {
+public class DiemNhom extends BaseAuditableEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <!-- Page Header -->
+    <section class="py-5 bg-primary-custom text-white">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-3">Quản Nhiệm Hội Thánh</h1>
+            <p class="lead">
+              Tổng quan hoạt động và thống kê của chi hội
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Management Content -->
+    <section class="py-5">
+      <div class="container">
+        <!-- Tổng Quan Hoạt Động -->
+        <div class="row mb-5">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                  <i class="fas fa-chart-line me-2"></i>Tổng Quan Hoạt Động
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <!-- Tổng Tín Hữu -->
+                  <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card bg-primary text-white h-100">
+                      <div class="card-body text-center">
+                        <div class="icon-large mb-3">
+                          <i class="fas fa-users fa-3x"></i>
+                        </div>
+                        <h2 class="mb-2" th:text="${totalTinHuu}">0</h2>
+                        <p class="mb-0">Tổng Tín Hữu</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Sự Kiện Tháng Này -->
+                  <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card bg-info text-white h-100">
+                      <div class="card-body text-center">
+                        <div class="icon-large mb-3">
+                          <i class="fas fa-calendar-alt fa-3x"></i>
+                        </div>
+                        <h2 class="mb-2" th:text="${totalSuKienThangNay}">0</h2>
+                        <p class="mb-0">Sự Kiện Tháng Này</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Dâng Hiến Tháng Này -->
+                  <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card bg-warning text-white h-100">
+                      <div class="card-body text-center">
+                        <div class="icon-large mb-3">
+                          <i class="fas fa-hand-holding-heart fa-3x"></i>
+                        </div>
+                        <h2 class="mb-2" th:text="${#numbers.formatDecimal(dangHienThangNay, 0, 'COMMA', 0, 'POINT')}">0</h2>
+                        <p class="mb-0">Dâng Hiến (VNĐ)</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tổng Điểm Nhóm -->
+                  <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card bg-danger text-white h-100">
+                      <div class="card-body text-center">
+                        <div class="icon-large mb-3">
+                          <i class="fas fa-map-marker-alt fa-3x"></i>
+                        </div>
+                        <h2 class="mb-2" th:text="${totalDiemNhom}">0</h2>
+                        <p class="mb-0">Tổng Điểm Nhóm</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sự Kiện Gần Nhất -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header bg-info text-white">
+                <h4 class="mb-0">
+                  <i class="fas fa-calendar-alt me-2"></i>10 Sự Kiện Gần Nhất
+                </h4>
+              </div>
+              <div class="card-body">
+                <div th:if="${recentEvents != null and !recentEvents.empty}">
+                  <div class="row">
+                    <div class="col-lg-6 mb-3" th:each="event : ${recentEvents}">
+                      <div class="card border-left-primary h-100">
+                        <!-- Event Image -->
+                        <div th:if="${event.hinhAnhUrl != null and !#strings.isEmpty(event.hinhAnhUrl)}" class="event-image-container">
+                          <img th:src="${event.hinhAnhUrl}" 
+                               th:alt="${event.tenSuKien}"
+                               class="card-img-top event-image"
+                               onerror="this.style.display='none'">
+                        </div>
+                        
+                        <div class="card-body">
+                          <div class="d-flex align-items-start">
+                            <div class="event-date bg-primary text-white me-3 flex-shrink-0">
+                              <div class="day" th:text="${#temporals.day(event.ngayDienRa)}">15</div>
+                              <div class="month" th:text="${#temporals.monthName(event.ngayDienRa)}">Tháng 12</div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-2">
+                                <span class="text-dark" th:text="${event.tenSuKien}">
+                                  Tên sự kiện
+                                </span>
+                              </h6>
+                              <p class="text-muted mb-2" th:text="${#strings.abbreviate(event.moTa, 80)}">
+                                Mô tả sự kiện...
+                              </p>
+                              <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                  <i class="fas fa-map-marker-alt me-1"></i>
+                                  <span th:text="${event.diaDiem} ?: 'Chưa xác định'">Địa điểm</span>
+                                </small>
+                                <div>
+                                  <span class="badge bg-success me-1" th:if="${event.trangThai?.name() == 'DANG_CHUAN_BI'}">Chuẩn Bị</span>
+                                  <span class="badge bg-primary me-1" th:if="${event.trangThai?.name() == 'DANG_DIEN_RA'}">Đang Diễn Ra</span>
+                                  <span class="badge bg-secondary me-1" th:if="${event.trangThai?.name() == 'DA_KET_THUC'}">Đã Kết Thúc</span>
+                                  <span class="badge bg-danger me-1" th:if="${event.trangThai?.name() == 'DA_HUY'}">Đã Hủy</span>
+                                  <span class="badge bg-info" th:if="${event.loaiSuKien}">
+                                    <span th:text="${event.loaiSuKien.tenLoai}">Loại sự kiện</span>
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+
+                </div>
+                
+                <!-- Empty Events State -->
+                <div th:if="${recentEvents == null or recentEvents.empty}" class="text-center py-4">
+                  <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">Chưa Có Sự Kiện</h5>
+                  <p class="text-muted">Hiện tại chưa có sự kiện nào trong hệ thống.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mt-5">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header bg-secondary text-white">
+                <h4 class="mb-0">
+                  <i class="fas fa-tools me-2"></i>Liên Kết Nhanh
+                </h4>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="/organization/departments" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                      <i class="fas fa-users fa-2x mb-2"></i>
+                      <span>Ban Ngành</span>
+                    </a>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="/organization/personnel" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                      <i class="fas fa-user-tie fa-2x mb-2"></i>
+                      <span>Nhân Sự</span>
+                    </a>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="/news" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                      <i class="fas fa-newspaper fa-2x mb-2"></i>
+                      <span>Tin Tức</span>
+                    </a>
+                  </div>
+                  <div class="col-lg-3 col-md-6 mb-3">
+                    <a href="/contact" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-3">
+                      <i class="fas fa-envelope fa-2x mb-2"></i>
+                      <span>Liên Hệ</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <style>
+      .border-left-primary {
+        border-left: 4px solid var(--primary-color) !important;
+      }
+      
+      .icon-large {
+        opacity: 0.8;
+      }
+      
+      .event-date {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+      }
+      
+      .event-date .day {
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+      
+      .event-date .month {
+        font-size: 0.7rem;
+        line-height: 1;
+      }
+      
+      .event-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 200px;
+      }
+      
+      .event-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      .event-image:hover {
+        transform: scale(1.05);
+      }
+      
+      .card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      
+      .card.bg-primary:hover,
+      .card.bg-info:hover,
+      .card.bg-warning:hover,
+      .card.bg-danger:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .event-image-container {
+          height: 150px;
+        }
+        
+        .event-date {
+          width: 50px;
+          height: 50px;
+          font-size: 0.7rem;
+        }
+        
+        .event-date .day {
+          font-size: 1rem;
+        }
+        
+        .event-date .month {
+          font-size: 0.6rem;
+        }
+      }
+    </style>
+  </body>
+</html>

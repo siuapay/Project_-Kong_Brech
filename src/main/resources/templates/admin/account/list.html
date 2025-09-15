@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-user-shield me-2"></i>Quản Lý Tài Khoản
+                    </h2>
+                    <p class="text-muted mb-0">Quản lý tài khoản người dùng hệ thống</p>
+                </div>
+                <a th:href="@{/admin/account/new}" class="btn btn-primary">
+                    <i class="fas fa-user-plus me-2"></i>Thêm Tài Khoản
+                </a>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form th:action="@{/admin/account}" method="get" class="row g-3">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" name="search" 
+                                       th:value="${search}" placeholder="Tìm theo tên đăng nhập, email, họ tên...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-outline-primary me-2">
+                                <i class="fas fa-search me-1"></i>Tìm Kiếm
+                            </button>
+                            <a th:href="@{/admin/account}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Xóa Bộ Lọc
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Table -->
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Danh Sách Tài Khoản
+                        <span class="badge bg-primary ms-2" th:text="${accountPage.totalElements}">0</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tài Khoản</th>
+                                    <th>Thông Tin</th>
+                                    <th>Quyền</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Hoạt Động</th>
+                                    <th width="200">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="account : ${accountPage.content}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                <div class="avatar-title bg-gradient bg-primary text-white rounded-circle shadow-sm" 
+                                                     style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-user fa-lg"></i>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark" th:text="${account.username}">admin</h6>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-envelope me-1"></i>
+                                                    <span th:text="${account.email}">admin@example.com</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold text-dark" th:text="${account.fullName}">Quản trị viên</h6>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-hashtag me-1"></i>ID: <span th:text="${account.id}">1</span>
+                                            </small>
+                                            <small class="text-info" th:if="${account.nhanSu != null}">
+                                                <i class="fas fa-user-tie me-1"></i>
+                                                <span th:text="${account.nhanSu.hoTen}">Nhân sự</span>
+                                                <span th:if="${account.nhanSu.chucVu != null}" 
+                                                      th:text="' - ' + ${account.nhanSu.chucVu.displayName}"></span>
+                                            </small>
+                                            <small class="text-muted" th:if="${account.nhanSu == null}">
+                                                <i class="fas fa-unlink me-1"></i>Chưa liên kết nhân sự
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold fs-6" 
+                                              th:class="${account.role.name() == 'ADMIN'} ? 'text-danger' : 'text-info'">
+                                            <i class="fas fa-crown me-1" th:if="${account.role.name() == 'ADMIN'}"></i>
+                                            <i class="fas fa-user me-1" th:unless="${account.role.name() == 'ADMIN'}"></i>
+                                            <span th:if="${account.role.name() == 'ADMIN'}">Quản Trị Viên</span>
+                                            <span th:unless="${account.role.name() == 'ADMIN'}">Hội Viên</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold fs-6" 
+                                              th:class="${account.status.name() == 'ACTIVE'} ? 'text-success' : 'text-warning'">
+                                            <i class="fas fa-check-circle me-1" th:if="${account.status.name() == 'ACTIVE'}"></i>
+                                            <i class="fas fa-pause-circle me-1" th:unless="${account.status.name() == 'ACTIVE'}"></i>
+                                            <span th:if="${account.status.name() == 'ACTIVE'}">Hoạt Động</span>
+                                            <span th:unless="${account.status.name() == 'ACTIVE'}">Tạm Khóa</span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <small class="text-muted d-block mb-1">
+                                                <i class="fas fa-calendar-plus me-1 text-success"></i>
+                                                Tạo: <span th:text="${#temporals.format(account.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                                            </small>
+                                            <small class="text-muted d-block" th:if="${account.lastLogin}">
+                                                <i class="fas fa-sign-in-alt me-1 text-info"></i>
+                                                Đăng nhập: <span th:text="${#temporals.format(account.lastLogin, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                            </small>
+                                            <small class="text-muted d-block" th:unless="${account.lastLogin}">
+                                                <i class="fas fa-times me-1 text-warning"></i>
+                                                Chưa đăng nhập
+                                            </small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group shadow-sm" role="group">
+                                            <a th:href="@{/admin/account/view/{id}(id=${account.id})}" 
+                                               class="btn btn-sm btn-info text-white" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/account/edit/{id}(id=${account.id})}" 
+                                               class="btn btn-sm btn-primary" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-warning" 
+                                                    title="Đổi trạng thái"
+                                                    th:data-id="${account.id}"
+                                                    th:data-name="${account.fullName}"
+                                                    onclick="toggleStatus(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-toggle-on"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary" 
+                                                    title="Reset mật khẩu"
+                                                    th:data-id="${account.id}"
+                                                    th:data-name="${account.fullName}"
+                                                    onclick="resetPassword(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-key"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" 
+                                                    title="Xóa tài khoản"
+                                                    th:data-id="${account.id}"
+                                                    th:data-name="${account.fullName}"
+                                                    onclick="deleteAccount(this.dataset.id, this.dataset.name)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${accountPage.content.empty}">
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted mb-0">Không có tài khoản nào</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" th:if="${accountPage.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination justify-content-center mb-0">
+                            <li class="page-item" th:class="${accountPage.first} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/account(page=${accountPage.number - 1}, search=${search})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, accountPage.totalPages - 1)}"
+                                th:class="${i == accountPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/account(page=${i}, search=${search})}" th:text="${i + 1}">1</a>
+                            </li>
+                            <li class="page-item" th:class="${accountPage.last} ? 'disabled'">
+                                <a class="page-link" th:href="@{/admin/account(page=${accountPage.number + 1}, search=${search})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reset Mật Khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="resetPasswordForm" method="post">
+                    <div class="modal-body">
+                        <p>Bạn có chắc muốn reset mật khẩu cho tài khoản <strong id="resetAccountName"></strong>?</p>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newPassword" name="newPassword" 
+                                   minlength="6" required placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-warning">Reset Mật Khẩu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác Nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn xóa tài khoản <strong id="deleteAccountName"></strong>?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Hành động này không thể hoàn tác!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Xóa Tài Khoản</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toggle Status Modal -->
+    <div class="modal fade" id="toggleStatusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thay Đổi Trạng Thái</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc muốn thay đổi trạng thái tài khoản <strong id="toggleAccountName"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="toggleStatusForm" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-warning">Thay Đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+   
+    <script>
+        function resetPassword(id, name) {
+            document.getElementById('resetAccountName').textContent = name;
+            document.getElementById('resetPasswordForm').action = '/admin/account/reset-password/' + id;
+            new bootstrap.Modal(document.getElementById('resetPasswordModal')).show();
+        }
+
+        function deleteAccount(id, name) {
+            document.getElementById('deleteAccountName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/account/delete/' + id;
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+
+        function toggleStatus(id, name) {
+            document.getElementById('toggleAccountName').textContent = name;
+            document.getElementById('toggleStatusForm').action = '/admin/account/toggle-status/' + id;
+            new bootstrap.Modal(document.getElementById('toggleStatusModal')).show();
+        }
+    </script>
+</body>
+</html>

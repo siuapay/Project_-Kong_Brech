@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}"></head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <div class="container my-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <img th:src="${nhanSu?.avatarUrl} ?: '/images/default-avatar.svg'" 
+                             alt="Avatar" 
+                             class="rounded-circle mb-3"
+                             style="width: 80px; height: 80px; object-fit: cover;">
+                        <h5 class="mb-1" th:text="${nhanSu?.hoTen} ?: ${account.username}">Tên người dùng</h5>
+                        <p class="text-muted small" th:text="${nhanSu?.email} ?: ${account.email}">email@example.com</p>
+                        <span class="badge bg-success" th:if="${account.status.name() == 'ACTIVE'}">Hoạt động</span>
+                        <span class="badge bg-warning" th:if="${account.status.name() == 'INACTIVE'}">Không hoạt động</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Menu -->
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="list-group list-group-flush">
+                        <a href="/account/profile" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'profile'} ? 'active' : ''">
+                            <i class="fas fa-user me-2"></i>Thông tin cá nhân
+                        </a>
+                    
+                        <a href="/account/my-posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'posts'} ? 'active' : ''">
+                            <i class="fas fa-edit me-2"></i>Danh sách bài viết
+                        </a>
+                        <a href="/news" 
+                           class="list-group-item list-group-item-action border-0">
+                            <i class="fas fa-compass me-2"></i>Khám phá tin tức
+                        </a>
+                        <a href="/account/posts" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'create'} ? 'active' : ''">
+                            <i class="fas fa-plus me-2"></i>Đăng bài viết
+                        </a>
+                        <a href="/account/security" 
+                           class="list-group-item list-group-item-action border-0"
+                           th:classappend="${activeTab == 'security'} ? 'active' : ''">
+                            <i class="fas fa-shield-alt me-2"></i>Bảo mật
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="text-primary">
+                            <i th:class="${isEdit} ? 'fas fa-edit me-2' : 'fas fa-plus me-2'"></i>
+                            <span th:text="${isEdit} ? 'Chỉnh sửa bài viết' : 'Đăng bài viết mới'">Đăng bài viết mới</span>
+                        </h2>
+                        <p class="text-muted mb-0" th:text="${isEdit} ? 'Cập nhật nội dung bài viết của bạn' : 'Chia sẻ những suy nghĩ và trải nghiệm của bạn'">Chia sẻ những suy nghĩ và trải nghiệm của bạn</p>
+                    </div>
+                    <a href="/account/my-posts" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                    </a>
+                </div>
+
+                <!-- Alert Messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Form -->
+                <form th:action="${isEdit} ? @{/account/posts/update/{id}(id=${baiViet.id})} : @{/account/posts}" 
+                      th:object="${baiViet}" method="post" enctype="multipart/form-data">
+                    <div class="row">
+                        <!-- Main Content -->
+                        <div class="col-lg-8">
+                            <!-- Basic Information -->
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Title -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" th:field="*{tieuDe}" required maxlength="500" 
+                                               id="tieuDe" onkeyup="generateSlug()" placeholder="Nhập tiêu đề bài viết...">
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tieuDe')}" th:errors="*{tieuDe}"></div>
+                                    </div>
+
+                                    <!-- Slug -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Slug (URL thân thiện)</label>
+                                        <input type="text" class="form-control" th:field="*{slug}" maxlength="500" id="slug">
+                                        <div class="form-text">
+                                            URL: <span class="text-muted" id="slugPreview">/tin-tuc/</span>
+                                        </div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('slug')}" th:errors="*{slug}"></div>
+                                    </div>
+
+                                    <!-- Summary -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Tóm tắt</label>
+                                        <textarea class="form-control" th:field="*{tomTat}" rows="3" maxlength="500" 
+                                                  placeholder="Tóm tắt ngắn gọn về nội dung bài viết..."></textarea>
+                                        <div class="form-text">Tối đa 500 ký tự</div>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tomTat')}" th:errors="*{tomTat}"></div>
+                                    </div>
+
+                                    <!-- Author -->
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Tác giả <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" th:field="*{tacGia}" required maxlength="255" 
+                                                       placeholder="Tên tác giả">
+                                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tacGia')}" th:errors="*{tacGia}"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Loại tác giả</label>
+                                                <select class="form-select" th:field="*{loaiTacGia}">
+                                                    <option value="CONTRIBUTOR">Cộng tác viên</option>
+                                                    <option value="GUEST">Khách mời</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-text me-2"></i>Nội dung bài viết
+                                        </h5>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <input type="radio" class="btn-check" name="editorMode" id="simpleMode" checked>
+                                            <label class="btn btn-outline-primary" for="simpleMode">
+                                                <i class="fas fa-align-left me-1"></i>Đơn giản
+                                            </label>
+                                            <input type="radio" class="btn-check" name="editorMode" id="richMode">
+                                            <label class="btn btn-outline-primary" for="richMode">
+                                                <i class="fas fa-magic me-1"></i>Rich Editor
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Simple Editor -->
+                                    <div id="simpleEditor">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nội dung <span class="text-danger">*</span></label>
+                                            <textarea class="form-control" th:field="*{noiDung}" rows="15" id="noiDung" 
+                                                      placeholder="Nhập nội dung bài viết..." required></textarea>
+                                            <div class="form-text">Sử dụng định dạng văn bản thuần túy</div>
+                                            <div class="invalid-feedback" th:if="${#fields.hasErrors('noiDung')}" th:errors="*{noiDung}"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rich Editor -->
+                                    <div id="richEditor" style="display: none;">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nội dung Rich Text</label>
+                                            <textarea class="form-control" th:field="*{noiDungRich}" id="richContent"></textarea>
+                                            <div class="form-text">Sử dụng trình soạn thảo nâng cao với định dạng HTML</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Media -->
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-images me-2"></i>Hình ảnh & Media
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Featured Image -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Ảnh đại diện</label>
+                                        <input type="file" class="form-control" id="anhDaiDienFile" name="anhDaiDienFile" 
+                                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" 
+                                               onchange="previewImage(this, 'featuredImagePreview')">
+                                        <div class="form-text">Chọn ảnh đại diện cho bài viết (JPG, PNG, GIF, WebP - tối đa 10MB)</div>
+                                        <div class="mt-2" id="featuredImagePreview">
+                                            <img th:if="${baiViet.anhDaiDien != null}" th:src="${baiViet.anhDaiDien}" 
+                                                 class="img-thumbnail" style="max-width: 200px; max-height: 150px; object-fit: cover;">
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional Images -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Hình ảnh bổ sung</label>
+                                        <input type="file" class="form-control" id="hinhAnhFiles" name="hinhAnhFiles" 
+                                               accept="image/jpeg,image/jpg,image/png,image/gif,image/webp" multiple 
+                                               onchange="previewMultipleImages(this, 'additionalImagesPreview')">
+                                        <div class="form-text">Chọn nhiều hình ảnh để bổ sung cho bài viết (mỗi file tối đa 5MB)</div>
+                                        <div class="mt-2" id="additionalImagesPreview"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SEO -->
+                            <div class="card shadow border-0">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-search me-2"></i>Tối ưu SEO
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Meta Title</label>
+                                        <input type="text" class="form-control" name="metaTitle" maxlength="60" 
+                                               placeholder="Tiêu đề tối ưu cho SEO" id="metaTitle">
+                                        <div class="form-text">
+                                            <span id="metaTitleCount">0</span>/60 ký tự
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Meta Description</label>
+                                        <textarea class="form-control" name="metaDescription" rows="3" maxlength="160" 
+                                                  placeholder="Mô tả ngắn gọn cho công cụ tìm kiếm" id="metaDescription"></textarea>
+                                        <div class="form-text">
+                                            <span id="metaDescCount">0</span>/160 ký tự
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Từ khóa (Keywords)</label>
+                                        <input type="text" class="form-control" name="metaKeywords" 
+                                               placeholder="từ khóa 1, từ khóa 2, từ khóa 3">
+                                        <div class="form-text">Các từ khóa cách nhau bằng dấu phẩy</div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar -->
+                        <div class="col-lg-4">
+                            <!-- Publish Settings -->
+                            <div class="card shadow border-0 mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-cog me-2"></i>Cài đặt xuất bản
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <select class="form-select" name="danhMucId" required>
+                                            <option value="">Chọn danh mục</option>
+                                            <option th:each="danhMuc : ${danhMucList}" 
+                                                    th:value="${danhMuc.id}" 
+                                                    th:selected="${baiViet.danhMuc != null && baiViet.danhMuc.id == danhMuc.id}"
+                                                    th:text="${danhMuc.tenDanhMuc}">Danh mục</option>
+                                        </select>
+                                        <div class="form-text">Chọn danh mục phù hợp cho bài viết</div>
+                                    </div>
+
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Lưu ý:</strong> Bài viết sẽ được gửi đến admin để duyệt trước khi xuất bản.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="card shadow border-0">
+                                <div class="card-header bg-gradient-primary text-white">
+                                    <h6 class="mb-0 text-dark"><i class="fas fa-bolt me-2"></i>Thao Tác</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-success">
+                                            <i th:class="${isEdit} ? 'fas fa-save me-2' : 'fas fa-paper-plane me-2'"></i>
+                                            <span th:text="${isEdit} ? 'Cập Nhật Bài Viết' : 'Đăng Bài Viết'">Đăng Bài Viết</span>
+                                        </button>
+                                        <button type="button" class="btn btn-info" onclick="previewArticle()">
+                                            <i class="fas fa-eye me-2"></i>Xem Trước
+                                        </button>
+                                        <hr>
+                                        <a href="/account/my-posts" class="btn btn-outline-secondary">
+                                            <i class="fas fa-list me-2"></i>Danh Sách Bài Viết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.cloud/1/hngku65588t9pgc2gsx4e094p20bzihf2v676zzlvvw99iaj/tinymce/8/tinymce.min.js" 
+            referrerpolicy="origin" crossorigin="anonymous"></script>
+
+    <script>
+        // Wait for TinyMCE to load before initializing
+        function initializeTinyMCE() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.init({
+                    selector: '#richContent',
+                    height: 400,
+                    menubar: false,
+                    plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                    ],
+                    toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                    max_chars: 1000000, // 1M characters limit
+                    paste_data_images: false, // Disable paste images to avoid large content
+                    automatic_uploads: false,
+                    file_picker_types: 'image',
+                    setup: function(editor) {
+                        editor.on('change', function() {
+                            const content = editor.getContent();
+                            const contentSize = new Blob([content]).size;
+                            const contentSizeMB = contentSize / (1024 * 1024);
+                            
+                            if (contentSizeMB > 20) {
+                                editor.notificationManager.open({
+                                    text: `Nội dung khá lớn (${contentSizeMB.toFixed(2)}MB). Có thể gây chậm khi lưu.`,
+                                    type: 'warning',
+                                    timeout: 5000
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                setTimeout(initializeTinyMCE, 100);
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTinyMCE();
+            updateMetaTitleCount();
+            updateMetaDescCount();
+        });
+
+        // Editor mode toggle
+        document.querySelectorAll('input[name="editorMode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const simpleEditor = document.getElementById('simpleEditor');
+                const richEditor = document.getElementById('richEditor');
+                const noiDungField = document.getElementById('noiDung');
+
+                if (this.id === 'simpleMode') {
+                    simpleEditor.style.display = 'block';
+                    richEditor.style.display = 'none';
+                    noiDungField.setAttribute('required', 'required');
+                } else {
+                    simpleEditor.style.display = 'none';
+                    richEditor.style.display = 'block';
+                    noiDungField.removeAttribute('required');
+                }
+            });
+        });
+
+        // File size validation
+        function validateFileSize(input, maxSizeMB = 10) {
+            const files = input.files;
+            if (files) {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileSizeMB = file.size / (1024 * 1024);
+                    if (fileSizeMB > maxSizeMB) {
+                        alert(`File "${file.name}" quá lớn (${fileSizeMB.toFixed(2)}MB). Vui lòng chọn file nhỏ hơn ${maxSizeMB}MB.`);
+                        input.value = '';
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        // Add file size validation to file inputs
+        document.getElementById('anhDaiDienFile').addEventListener('change', function() {
+            validateFileSize(this, 10);
+        });
+
+        document.getElementById('hinhAnhFiles').addEventListener('change', function() {
+            validateFileSize(this, 5); // Smaller limit for multiple files
+        });
+
+        // Form validation before submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const simpleMode = document.getElementById('simpleMode').checked;
+            const richMode = document.getElementById('richMode').checked;
+            const noiDung = document.getElementById('noiDung').value.trim();
+            const richContent = tinymce.get('richContent') ? tinymce.get('richContent').getContent() : '';
+            const danhMucValue = document.querySelector('select[name="danhMucId"]').value;
+
+            // Validate danh muc
+            if (!danhMucValue) {
+                e.preventDefault();
+                alert('Vui lòng chọn danh mục cho bài viết!');
+                return false;
+            }
+
+            // Validate content based on mode
+            if (simpleMode && !noiDung) {
+                e.preventDefault();
+                alert('Vui lòng nhập nội dung bài viết!');
+                document.getElementById('noiDung').focus();
+                return false;
+            }
+
+            if (richMode && !richContent.trim()) {
+                e.preventDefault();
+                alert('Vui lòng nhập nội dung rich text!');
+                if (tinymce.get('richContent')) {
+                    tinymce.get('richContent').focus();
+                }
+                return false;
+            }
+
+            // Validate file sizes before submit
+            const anhDaiDienFile = document.getElementById('anhDaiDienFile');
+            const hinhAnhFiles = document.getElementById('hinhAnhFiles');
+            
+            if (!validateFileSize(anhDaiDienFile, 10) || !validateFileSize(hinhAnhFiles, 5)) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Calculate total request size including content
+            let totalSize = 0;
+            
+            // Add file sizes
+            if (anhDaiDienFile.files[0]) {
+                totalSize += anhDaiDienFile.files[0].size;
+            }
+            if (hinhAnhFiles.files) {
+                for (let i = 0; i < hinhAnhFiles.files.length; i++) {
+                    totalSize += hinhAnhFiles.files[i].size;
+                }
+            }
+            
+            // Add content size (estimate)
+            let contentSize = 0;
+            if (richMode && richContent.trim()) {
+                contentSize = new Blob([richContent]).size;
+            } else if (simpleMode && noiDung) {
+                contentSize = new Blob([noiDung]).size;
+            }
+            
+            // Add form data overhead (estimate)
+            const formDataOverhead = 50000; // ~50KB for form fields
+            totalSize += contentSize + formDataOverhead;
+            
+            const totalSizeMB = totalSize / (1024 * 1024);
+            if (totalSizeMB > 150) {
+                e.preventDefault();
+                alert(`Tổng kích thước dữ liệu quá lớn (${totalSizeMB.toFixed(2)}MB). Vui lòng giảm kích thước nội dung hoặc file.`);
+                return false;
+            }
+            
+            // Warn if content is very large
+            const contentSizeMB = contentSize / (1024 * 1024);
+            if (contentSizeMB > 10) {
+                if (!confirm(`Nội dung bài viết khá lớn (${contentSizeMB.toFixed(2)}MB). Bạn có chắc chắn muốn tiếp tục?`)) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
+            // Show loading indicator with progress
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang xử lý...';
+            submitBtn.disabled = true;
+            
+            // Show progress bar for large content
+            if (totalSizeMB > 5) {
+                const progressDiv = document.createElement('div');
+                progressDiv.id = 'uploadProgress';
+                progressDiv.className = 'mt-3';
+                progressDiv.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Đang tải lên dữ liệu lớn (${totalSizeMB.toFixed(2)}MB), vui lòng đợi...
+                        <div class="progress mt-2">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 style="width: 100%"></div>
+                        </div>
+                    </div>
+                `;
+                submitBtn.parentNode.appendChild(progressDiv);
+            }
+
+            // If using rich editor, clear simple content to avoid confusion
+            if (richMode && richContent.trim()) {
+                document.getElementById('noiDung').value = '';
+            }
+
+            return true;
+        });
+
+        // Generate slug from title
+        function generateSlug() {
+            const title = document.getElementById('tieuDe').value;
+            const slug = title
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[đĐ]/g, 'd')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+
+            document.getElementById('slug').value = slug;
+            document.getElementById('slugPreview').textContent = '/tin-tuc/' + slug;
+            
+            // Auto-fill meta title if empty
+            const metaTitle = document.getElementById('metaTitle');
+            if (!metaTitle.value) {
+                metaTitle.value = title.substring(0, 60);
+                updateMetaTitleCount();
+            }
+        }
+
+        // Preview image
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px; max-height: 150px; object-fit: cover;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Preview multiple images
+        function previewMultipleImages(input, previewId) {
+            const preview = document.getElementById(previewId);
+            preview.innerHTML = '';
+
+            if (input.files) {
+                const row = document.createElement('div');
+                row.className = 'row';
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-3 mb-2';
+                        col.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="width: 100%; height: 100px; object-fit: cover;">`;
+                        row.appendChild(col);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                preview.appendChild(row);
+            }
+        }
+
+        // Preview article
+        function previewArticle() {
+            alert('Chức năng xem trước sẽ được phát triển trong phiên bản tiếp theo');
+        }
+
+        // SEO character counters
+        function updateMetaTitleCount() {
+            const metaTitle = document.getElementById('metaTitle');
+            const counter = document.getElementById('metaTitleCount');
+            counter.textContent = metaTitle.value.length;
+            counter.parentElement.className = metaTitle.value.length > 60 ? 'form-text text-danger' : 'form-text';
+        }
+
+        function updateMetaDescCount() {
+            const metaDesc = document.getElementById('metaDescription');
+            const counter = document.getElementById('metaDescCount');
+            counter.textContent = metaDesc.value.length;
+            counter.parentElement.className = metaDesc.value.length > 160 ? 'form-text text-danger' : 'form-text';
+        }
+
+        // Auto-fill SEO fields from title
+        document.getElementById('tieuDe').addEventListener('input', function() {
+            const title = this.value;
+            const metaTitle = document.getElementById('metaTitle');
+            
+            // Auto-fill meta title if empty
+            if (!metaTitle.value && title) {
+                metaTitle.value = title.substring(0, 60);
+                updateMetaTitleCount();
+            }
+        });
+
+        // Auto-fill meta description from summary
+        document.getElementById('tomTat').addEventListener('input', function() {
+            const summary = this.value;
+            const metaDesc = document.getElementById('metaDescription');
+            
+            // Auto-fill meta description if empty
+            if (!metaDesc.value && summary) {
+                metaDesc.value = summary.substring(0, 160);
+                updateMetaDescCount();
+            }
+        });
+
+        // Event listeners for SEO counters
+        document.getElementById('metaTitle').addEventListener('input', updateMetaTitleCount);
+        document.getElementById('metaDescription').addEventListener('input', updateMetaDescCount);
+
+        // Auto-resize textarea
+        document.getElementById('noiDung').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    </script>
+
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-check:checked + .btn-outline-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+        
+        .form-text.text-danger {
+            font-weight: 500;
+        }
+        
+        #richContent_ifr {
+            border-radius: 0.375rem;
+        }
+        
+        .img-thumbnail {
+            transition: transform 0.2s ease;
+        }
+        
+        .img-thumbnail:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</body>
+</html>

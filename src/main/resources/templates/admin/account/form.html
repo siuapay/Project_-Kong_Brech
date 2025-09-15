@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-user-plus me-2"></i>
+                        <span th:text="${account.id != null ? 'Chỉnh Sửa Tài Khoản' : 'Thêm Tài Khoản Mới'}">Thêm Tài Khoản Mới</span>
+                    </h2>
+                    <p class="text-muted mb-0">Nhập thông tin chi tiết của tài khoản</p>
+                </div>
+                <a th:href="@{/admin/account}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user-edit me-2"></i>Thông Tin Tài Khoản
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/account/save}" th:object="${account}" method="post">
+                                <input type="hidden" th:field="*{id}" />
+
+                                <!-- Basic Information -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="username" class="form-label">
+                                            Tên Đăng Nhập <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="username" th:field="*{username}" 
+                                               required placeholder="Nhập tên đăng nhập" 
+                                               th:readonly="${account.id != null}">
+                                        <div class="form-text">
+                                            <i class="fas fa-info-circle me-1"></i>
+                                            Tên đăng nhập không thể thay đổi sau khi tạo
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">
+                                            Email <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}" 
+                                               required placeholder="example@email.com">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label">
+                                        Họ và Tên <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="fullName" th:field="*{fullName}" 
+                                           required placeholder="Nhập họ và tên đầy đủ">
+                                </div>
+
+                                <!-- Nhân Sự Selection -->
+                                <div class="mb-3">
+                                    <label for="nhanSu" class="form-label">
+                                        Nhân Sự
+                                    </label>
+                                    <div id="nhanSuDropdown"></div>
+                                    <input type="hidden" id="nhanSu" th:field="*{nhanSu.id}">
+                                    <div class="form-text">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Chọn nhân sự để liên kết với tài khoản này (tùy chọn)
+                                    </div>
+                                </div>
+
+                                <!-- Password Section - Only for new accounts -->
+                                <div th:if="${account.id == null}">
+                                    <hr class="my-4" />
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-key me-2"></i>Thông Tin Bảo Mật
+                                    </h6>
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Mật khẩu tự động:</strong> Hệ thống sẽ tự động tạo mật khẩu ngẫu nhiên cho tài khoản mới. 
+                                        Mật khẩu sẽ được hiển thị sau khi tạo thành công.
+                                    </div>
+                                </div>
+
+                                <!-- Update Info - Only for existing accounts -->
+                                <div th:if="${account.id != null}">
+                                    <hr class="my-4" />
+                                    <h6 class="text-primary mb-3">
+                                        <i class="fas fa-edit me-2"></i>Cập Nhật Thông Tin
+                                    </h6>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>Lưu ý:</strong> Chỉ có thể cập nhật thông tin cơ bản. 
+                                        Để thay đổi mật khẩu, vui lòng sử dụng chức năng "Reset Mật Khẩu" trong danh sách tài khoản.
+                                    </div>
+                                </div>
+
+                                <!-- Role and Status -->
+                                <hr class="my-4" />
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-shield-alt me-2"></i>Quyền và Trạng Thái
+                                </h6>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="role" class="form-label">
+                                            Quyền Hạn <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="role" th:field="*{role}" required>
+                                            <option th:each="role : ${T(com.branch.demo.domain.Account.Role).values()}" 
+                                                    th:value="${role}" th:text="${role.displayName}">
+                                            </option>
+                                        </select>
+                                        <div class="form-text">
+                                            <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                            Chỉ Admin mới có quyền truy cập hệ thống quản lý
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="status" class="form-label">
+                                            Trạng Thái <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="status" th:field="*{status}" required>
+                                            <option th:each="status : ${T(com.branch.demo.domain.Account.AccountStatus).values()}" 
+                                                    th:value="${status}" th:text="${status.displayName}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <hr class="my-4" />
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a th:href="@{/admin/account}" class="btn btn-secondary">
+                                        <i class="fas fa-times me-2"></i>Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="fas fa-save me-2"></i>
+                                        <span th:text="${account.id != null ? 'Cập Nhật' : 'Tạo Tài Khoản'}">Tạo Tài Khoản</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Panel -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <h6 class="text-primary">Quyền Hạn:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <span class="badge bg-danger me-2">ADMIN</span>
+                                    Toàn quyền quản lý hệ thống
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-info me-2">MODERATOR</span>
+                                    Quyền điều hành nội dung
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-secondary me-2">USER</span>
+                                    Quyền người dùng cơ bản
+                                </li>
+                            </ul>
+
+                            <hr>
+
+                            <h6 class="text-primary">Trạng Thái:</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <span class="badge bg-success me-2">ACTIVE</span>
+                                    Tài khoản hoạt động bình thường
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-warning me-2">INACTIVE</span>
+                                    Tài khoản tạm khóa
+                                </li>
+                                <li class="mb-2">
+                                    <span class="badge bg-danger me-2">LOCKED</span>
+                                    Tài khoản bị khóa
+                                </li>
+                            </ul>
+
+                            <hr>
+
+                            <hr>
+
+                            <h6 class="text-primary">Liên Kết Nhân Sự:</h6>
+                            <p class="small text-muted mb-2">
+                                Bạn có thể liên kết tài khoản này với một nhân sự trong hệ thống. 
+                                Khi liên kết, thông tin cá nhân sẽ được hiển thị từ hồ sơ nhân sự.
+                            </p>
+                            <ul class="list-unstyled small">
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Hiển thị thông tin cá nhân từ hồ sơ nhân sự
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    Đồng bộ ảnh đại diện và thông tin liên hệ
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-info text-info me-2"></i>
+                                    Có thể để trống nếu chưa có nhân sự tương ứng
+                                </li>
+                            </ul>
+
+                            <hr>
+
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Lưu ý:</strong> Chỉ tài khoản có quyền ADMIN mới có thể truy cập vào hệ thống quản lý.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script src="/static/js/searchable-dropdown.js"></script>
+
+    <!-- NhanSu Data -->
+    <script th:inline="javascript">
+        window.nhanSuData = /*[[${nhanSuList}]]*/ [];
+    </script>
+
+    <script>
+        let nhanSuDropdown;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo searchable dropdown cho nhân sự
+            nhanSuDropdown = new SearchableDropdown('nhanSuDropdown', {
+                placeholder: 'Chọn nhân sự...',
+                searchPlaceholder: 'Tìm kiếm nhân sự...',
+                displayField: 'hoTen',
+                valueField: 'id',
+                onSelect: function(item) {
+                    // Cập nhật hidden input
+                    document.getElementById('nhanSu').value = item.id;
+                }
+            });
+            
+            // Load danh sách nhân sự
+            loadAllNhanSu();
+            
+            // Set giá trị hiện tại nếu có (cho edit mode)
+            const currentNhanSuValue = document.getElementById('nhanSu').value;
+            if (currentNhanSuValue) {
+                setTimeout(() => {
+                    nhanSuDropdown.setValue(currentNhanSuValue);
+                }, 500);
+            }
+        });
+        
+        // Load tất cả nhân sự
+        function loadAllNhanSu() {
+            fetch('/admin/api/all-nhan-su')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('NhanSu data loaded:', data);
+                    nhanSuDropdown.setData(data);
+                })
+                .catch(error => {
+                    console.error('Error loading nhân sự:', error);
+                    // Set empty data on error
+                    nhanSuDropdown.setData([]);
+                });
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId + 'ToggleIcon');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Password confirmation validation - Only for new accounts
+        const confirmPasswordField = document.getElementById('confirmPassword');
+        const passwordField = document.getElementById('password');
+        
+        if (confirmPasswordField && passwordField) {
+            confirmPasswordField.addEventListener('input', function() {
+                const password = passwordField.value;
+                const confirmPassword = this.value;
+                const message = document.getElementById('passwordMatchMessage');
+                const submitBtn = document.getElementById('submitBtn');
+
+                if (confirmPassword && password !== confirmPassword) {
+                    message.innerHTML = '<i class="fas fa-times text-danger me-1"></i>Mật khẩu không khớp';
+                    message.className = 'form-text text-danger';
+                    submitBtn.disabled = true;
+                } else {
+                    message.innerHTML = confirmPassword ? '<i class="fas fa-check text-success me-1"></i>Mật khẩu khớp' : '';
+                    message.className = 'form-text text-success';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Password strength indicator
+            passwordField.addEventListener('input', function() {
+                const password = this.value;
+                const confirmField = document.getElementById('confirmPassword');
+                
+                // Reset confirm password when main password changes
+                if (confirmField && confirmField.value) {
+                    confirmField.dispatchEvent(new Event('input'));
+                }
+            });
+        }
+    </script>
+</body>
+</html>

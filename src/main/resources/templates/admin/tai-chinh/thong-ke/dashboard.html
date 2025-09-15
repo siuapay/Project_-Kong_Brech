@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}">
+
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-chart-line me-2"></i>Dashboard Tài Chính
+                    </h2>
+                    <p class="text-muted mb-0">Tổng quan tình hình tài chính của tổ chức</p>
+                </div>
+                <div class="btn-group">
+                    <a th:href="@{/admin/tai-chinh/thong-ke/so-sanh}" class="btn btn-outline-primary">
+                        <i class="fas fa-balance-scale me-1"></i>So Sánh Năm
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-calendar me-1"></i>Xem Theo Năm
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li th:each="year : ${availableYears}">
+                                <a class="dropdown-item" th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year})}" 
+                                   th:text="'Năm ' + ${year}">Năm 2024</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="row g-4 mb-4">
+                <!-- Current Year Summary -->
+                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
+                    <div class="card shadow border-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-lg rounded-circle bg-primary d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-calendar-alt fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Năm Hiện Tại</h6>
+                                    <h4 class="mb-0" th:text="${currentYearData.nam}">2024</h4>
+                                    <small class="text-muted">Đang hoạt động</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Income -->
+                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
+                    <div class="card shadow border-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-lg rounded-circle bg-success d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-arrow-up fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Tổng Thu</h6>
+                                    <h4 class="mb-0 text-success" th:text="${#numbers.formatDecimal(currentYearData.tongThu, 0, 'COMMA', 0, 'POINT')}">0</h4>
+                                    <small class="text-muted">VNĐ</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Expense -->
+                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
+                    <div class="card shadow border-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-lg rounded-circle bg-danger d-flex align-items-center justify-content-center me-3">
+                                    <i class="fas fa-arrow-down fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Tổng Chi</h6>
+                                    <h4 class="mb-0 text-danger" th:text="${#numbers.formatDecimal(currentYearData.tongChi, 0, 'COMMA', 0, 'POINT')}">0</h4>
+                                    <small class="text-muted">VNĐ</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance -->
+                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
+                    <div class="card shadow border-0 h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-lg rounded-circle d-flex align-items-center justify-content-center me-3"
+                                     th:class="${currentYearData.soDu >= 0} ? 'bg-info' : 'bg-warning'">
+                                    <i class="fas fa-balance-scale fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h6 class="text-muted mb-1">Số Dư</h6>
+                                    <h4 class="mb-0" 
+                                        th:class="${currentYearData.soDu >= 0} ? 'text-info' : 'text-warning'"
+                                        th:text="${#numbers.formatDecimal(currentYearData.soDu, 0, 'COMMA', 0, 'POINT')}">0</h4>
+                                    <small class="text-muted" th:text="${currentYearData.trangThaiTaiChinh}">Trạng thái</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Recent Years Chart -->
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Tình Hình Tài Chính Các Năm Gần Đây
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="yearlyChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="col-lg-4">
+                    <div class="card shadow border-0 h-100">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-1"></i>Thống Kê Nhanh
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3" th:if="${thongKeTongQuan}">
+                                <div class="col-12" th:each="stat : ${thongKeTongQuan}">
+                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                                        <div>
+                                            <h6 class="mb-0">Tổng Số Năm</h6>
+                                            <small class="text-muted">Có dữ liệu</small>
+                                        </div>
+                                        <h4 class="mb-0 text-primary" th:text="${stat[0]}">0</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Available Years -->
+                            <div class="mt-4">
+                                <h6 class="text-muted mb-3">Các Năm Có Dữ Liệu</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a th:each="year : ${availableYears}" 
+                                       th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year})}"
+                                       class="btn btn-sm btn-outline-primary" th:text="${year}">2024</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Years Summary -->
+            <div class="row mt-4" th:if="${recentYears}">
+                <div class="col-12">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-history me-2"></i>Tổng Kết Các Năm Gần Đây
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Năm</th>
+                                            <th>Tổng Thu</th>
+                                            <th>Tổng Chi</th>
+                                            <th>Số Dư</th>
+                                            <th>Trạng Thái</th>
+                                            <th>Thao Tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="year : ${recentYears}" class="align-middle">
+                                            <td>
+                                                <h6 class="mb-0" th:text="${year.nam}">2024</h6>
+                                            </td>
+                                            <td>
+                                                <span class="text-success fw-bold" 
+                                                      th:text="${#numbers.formatDecimal(year.tongThu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                                            </td>
+                                            <td>
+                                                <span class="text-danger fw-bold" 
+                                                      th:text="${#numbers.formatDecimal(year.tongChi, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold" 
+                                                      th:class="${year.soDu >= 0} ? 'text-info' : 'text-warning'"
+                                                      th:text="${#numbers.formatDecimal(year.soDu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge" 
+                                                      th:class="${year.soDu > 0} ? 'bg-success' : (${year.soDu < 0} ? 'bg-danger' : 'bg-warning')"
+                                                      th:text="${year.trangThaiTaiChinh}">Trạng thái</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year.nam})}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i>Chi Tiết
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+     
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Yearly Chart
+            const ctx = document.getElementById('yearlyChart').getContext('2d');
+            
+            // Prepare data from Thymeleaf
+            const recentYears = /*[[${recentYears}]]*/ [];
+            const years = recentYears.map(year => year.nam);
+            const thuData = recentYears.map(year => year.tongThu);
+            const chiData = recentYears.map(year => year.tongChi);
+            const soDuData = recentYears.map(year => year.soDu);
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Tổng Thu',
+                        data: thuData,
+                        backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                        borderColor: 'rgba(40, 167, 69, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Tổng Chi',
+                        data: chiData,
+                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Số Dư',
+                        data: soDuData,
+                        type: 'line',
+                        backgroundColor: 'rgba(23, 162, 184, 0.2)',
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        borderWidth: 2,
+                        fill: false,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ';
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + 
+                                           new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' VNĐ';
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -15,6 +15,12 @@ public interface TinHuuRepository extends JpaRepository<TinHuu, Long> {
 
     // Tìm kiếm theo tên
     List<TinHuu> findByHoTenContainingIgnoreCase(String hoTen);
+    
+    // Tìm kiếm theo tên với phân trang
+    Page<TinHuu> findByHoTenContainingIgnoreCase(String hoTen, Pageable pageable);
+    
+    // Đếm theo giới tính
+    long countByGioiTinh(String gioiTinh);
 
     // Tìm kiếm đa điều kiện với phân trang
     Page<TinHuu> findByHoTenContainingIgnoreCaseOrEmailContainingIgnoreCaseOrDienThoaiContaining(

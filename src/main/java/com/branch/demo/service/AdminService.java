@@ -1,8 +1,10 @@
 package com.branch.demo.service;
 
 import com.branch.demo.repository.*;
+import com.branch.demo.domain.Account;
 import com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc;
 import com.branch.demo.domain.DiemNhom;
+import com.branch.demo.domain.NhanSu.ChucVu;
 import com.branch.demo.dto.SuKienDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,9 @@ import java.util.Map;
 
 @Service
 public class AdminService {
+
+      @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TinHuuRepository tinHuuRepository;
@@ -54,17 +60,72 @@ public class AdminService {
     @Autowired
     private FileUploadService fileUploadService;
 
+     @Autowired
+    private AccountRepository accountRepository;
+
     public Map<String, Object> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
-        stats.put("totalTinHuu", tinHuuRepository.countActive());
-        stats.put("deletedTinHuu", tinHuuRepository.countDeleted());
-        stats.put("totalNhom", nhomRepository.count());
-        stats.put("totalBanNganh", banNganhRepository.count());
-        stats.put("totalNhanSu", nhanSuRepository.count());
-        stats.put("totalSuKien", suKienRepository.count());
-        stats.put("totalTaiChinh", taiChinhRepository.count());
-        stats.put("totalChapSu", chapSuRepository.count());
-        stats.put("totalLienHe", lienHeRepository.count());
+        
+        try {
+            stats.put("totalTinHuu", tinHuuRepository.countActive());
+        } catch (Exception e) {
+            stats.put("totalTinHuu", 0L);
+        }
+        
+        try {
+            stats.put("deletedTinHuu", tinHuuRepository.countDeleted());
+        } catch (Exception e) {
+            stats.put("deletedTinHuu", 0L);
+        }
+        
+        try {
+            stats.put("totalNhom", nhomRepository.count());
+        } catch (Exception e) {
+            stats.put("totalNhom", 0L);
+        }
+        
+        try {
+            stats.put("totalBanNganh", banNganhRepository.count());
+        } catch (Exception e) {
+            stats.put("totalBanNganh", 0L);
+        }
+        
+        try {
+            stats.put("totalNhanSu", nhanSuRepository.count());
+        } catch (Exception e) {
+            stats.put("totalNhanSu", 0L);
+        }
+        
+        try {
+            stats.put("totalSuKien", suKienRepository.count());
+        } catch (Exception e) {
+            stats.put("totalSuKien", 0L);
+        }
+        
+        try {
+            stats.put("totalTaiChinh", taiChinhRepository.count());
+        } catch (Exception e) {
+            stats.put("totalTaiChinh", 0L);
+        }
+        
+        try {
+            stats.put("totalChapSu", chapSuRepository.count());
+        } catch (Exception e) {
+            stats.put("totalChapSu", 0L);
+        }
+        
+        try {
+            stats.put("totalLienHe", lienHeRepository.count());
+        } catch (Exception e) {
+            stats.put("totalLienHe", 0L);
+        }
+        
+        try {
+            stats.put("totalBaiViet", baiVietRepository.count());
+        } catch (Exception e) {
+            stats.put("totalBaiViet", 0L);
+        }
+        
         return stats;
     }
 
@@ -94,6 +155,22 @@ public class AdminService {
     }
 
     public com.branch.demo.domain.TinHuu saveTinHuu(com.branch.demo.domain.TinHuu tinHuu) {
+        // Nếu là update (có ID), preserve các field quan trọng từ existing record
+        if (tinHuu.getId() != null) {
+            com.branch.demo.domain.TinHuu existingTinHuu = tinHuuRepository.findById(tinHuu.getId()).orElse(null);
+            if (existingTinHuu != null) {
+                // Preserve nhom relationship nếu không được set trong form
+                if (tinHuu.getNhom() == null && existingTinHuu.getNhom() != null) {
+                    tinHuu.setNhom(existingTinHuu.getNhom());
+                }
+
+                // Preserve avatar nếu không được update
+                if (tinHuu.getAvatarUrl() == null && existingTinHuu.getAvatarUrl() != null) {
+                    tinHuu.setAvatarUrl(existingTinHuu.getAvatarUrl());
+                }
+            }
+        }
+
         // Xử lý null cho các field không bắt buộc (chỉ hoTen là bắt buộc)
         if (tinHuu.getGioiTinh() != null && tinHuu.getGioiTinh().trim().isEmpty()) {
             tinHuu.setGioiTinh(null);
@@ -117,13 +194,8 @@ public class AdminService {
             tinHuu.setTinhTrangHonNhan(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (tinHuu.getId() != null) {
-            com.branch.demo.domain.TinHuu existingTinHuu = tinHuuRepository.findById(tinHuu.getId()).orElse(null);
-            if (existingTinHuu != null && existingTinHuu.getCreatedAt() != null) {
-                tinHuu.setCreatedAt(existingTinHuu.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle createdAt, updatedAt, createdBy,
+        // updatedBy
         return tinHuuRepository.save(tinHuu);
     }
 
@@ -230,7 +302,8 @@ public class AdminService {
     }
 
     public java.util.List<com.branch.demo.domain.DanhMuc> getAllActiveDanhMuc() {
-        return danhMucRepository.findByTrangThaiOrderByTenDanhMucAsc(com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
+        return danhMucRepository
+                .findByTrangThaiOrderByTenDanhMucAsc(com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
     }
 
     public java.util.List<com.branch.demo.domain.BanNganh> getAllActiveBanNganh() {
@@ -290,43 +363,20 @@ public class AdminService {
             diemNhom.setBanNganh(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (diemNhom.getId() != null) {
-            com.branch.demo.domain.DiemNhom existingDiemNhom = diemNhomRepository.findById(diemNhom.getId())
-                    .orElse(null);
-            if (existingDiemNhom != null && existingDiemNhom.getCreatedAt() != null) {
-                diemNhom.setCreatedAt(existingDiemNhom.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return diemNhomRepository.save(diemNhom);
     }
-
-    // Legacy deleteDiemNhom method - commented out because we have better cascade delete methods
-    // public void deleteDiemNhom(Long id) {
-    //     com.branch.demo.domain.DiemNhom diemNhom = getDiemNhomById(id);
-    //     // Set điểm nhóm của các nhóm thành null trước khi xóa
-    //     if (!diemNhom.getDanhSachNhom().isEmpty()) {
-    //         for (com.branch.demo.domain.Nhom nhom : diemNhom.getDanhSachNhom()) {
-    //             nhom.setDiemNhom(null);
-    //             nhomRepository.save(nhom);
-    //         }
-    //     }
-    //     // Set điểm nhóm của các nhân sự thành null trước khi xóa
-    //     if (!diemNhom.getDanhSachNhanSu().isEmpty()) {
-    //         for (com.branch.demo.domain.NhanSuDiemNhom nhanSu : diemNhom.getDanhSachNhanSu()) {
-    //             nhanSu.setDiemNhom(null);
-    //             // Note: Cần có NhanSuDiemNhomRepository để save
-    //         }
-    //     }
-    //     diemNhomRepository.deleteById(id);
-    // }
 
     public java.util.List<com.branch.demo.domain.Nhom> getAllActiveNhom() {
         return nhomRepository.findAll();
     }
 
     // ==================== NHÓM MANAGEMENT METHODS ====================
+
+    public java.util.List<com.branch.demo.domain.Nhom> getAllNhom() {
+        return nhomRepository.findAll(Sort.by(Sort.Direction.ASC, "tenNhom"));
+    }
 
     public Page<com.branch.demo.domain.Nhom> getNhomPage(int page, String search) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -382,14 +432,7 @@ public class AdminService {
             nhom.setDiemNhom(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (nhom.getId() != null) {
-            com.branch.demo.domain.Nhom existingNhom = nhomRepository.findById(nhom.getId())
-                    .orElse(null);
-            if (existingNhom != null && existingNhom.getCreatedAt() != null) {
-                nhom.setCreatedAt(existingNhom.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return nhomRepository.save(nhom);
     }
@@ -641,14 +684,7 @@ public class AdminService {
             banNganh.setDienThoaiLienHe(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (banNganh.getId() != null) {
-            com.branch.demo.domain.BanNganh existingBanNganh = banNganhRepository.findById(banNganh.getId())
-                    .orElse(null);
-            if (existingBanNganh != null && existingBanNganh.getCreatedAt() != null) {
-                banNganh.setCreatedAt(existingBanNganh.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return banNganhRepository.save(banNganh);
     }
@@ -746,7 +782,7 @@ public class AdminService {
         if (nhanSu.getDiaChi() != null && nhanSu.getDiaChi().trim().isEmpty()) {
             nhanSu.setDiaChi(null);
         }
-        if (nhanSu.getChucVu() != null && nhanSu.getChucVu().trim().isEmpty()) {
+        if (nhanSu.getChucVu() == null) {
             nhanSu.setChucVu(null);
         }
         if (nhanSu.getGhiChu() != null && nhanSu.getGhiChu().trim().isEmpty()) {
@@ -772,13 +808,7 @@ public class AdminService {
             nhanSu.setDiemNhom(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (nhanSu.getId() != null) {
-            com.branch.demo.domain.NhanSu existingNhanSu = nhanSuRepository.findById(nhanSu.getId()).orElse(null);
-            if (existingNhanSu != null && existingNhanSu.getCreatedAt() != null) {
-                nhanSu.setCreatedAt(existingNhanSu.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return nhanSuRepository.save(nhanSu);
     }
@@ -963,16 +993,7 @@ public class AdminService {
             }
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (suKien.getId() != null) {
-            com.branch.demo.domain.SuKien existingSuKien = suKienRepository.findById(suKien.getId()).orElse(null);
-            if (existingSuKien != null && existingSuKien.getCreatedAt() != null) {
-                suKien.setCreatedAt(existingSuKien.getCreatedAt());
-            }
-        } else {
-            suKien.setCreatedAt(LocalDateTime.now());
-        }
-        suKien.setUpdatedAt(LocalDateTime.now());
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return suKienRepository.save(suKien);
     }
@@ -1076,13 +1097,7 @@ public class AdminService {
             loaiSuKien.setIcon(null);
         }
 
-        // Nếu là update (có ID), giữ nguyên createdAt
-        if (loaiSuKien.getId() != null) {
-            com.branch.demo.domain.LoaiSuKien existing = loaiSuKienRepository.findById(loaiSuKien.getId()).orElse(null);
-            if (existing != null && existing.getCreatedAt() != null) {
-                loaiSuKien.setCreatedAt(existing.getCreatedAt());
-            }
-        }
+        // Spring Data JPA Auditing sẽ tự động handle audit fields
 
         return loaiSuKienRepository.save(loaiSuKien);
     }
@@ -1110,58 +1125,54 @@ public class AdminService {
 
     @Transactional
     public void transferNhomToDiemNhom(Long nhomId, Long targetDiemNhomId) {
-    com.branch.demo.domain.Nhom nhom = nhomRepository.findById(nhomId)
-    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm"));
+        com.branch.demo.domain.Nhom nhom = nhomRepository.findById(nhomId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm"));
 
-    com.branch.demo.domain.DiemNhom targetDiemNhom =
-    diemNhomRepository.findById(targetDiemNhomId)
-    .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm đích"));
+        com.branch.demo.domain.DiemNhom targetDiemNhom = diemNhomRepository.findById(targetDiemNhomId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm đích"));
 
-    // Update nhom's diem nhom
-    nhom.setDiemNhom(targetDiemNhom);
-    nhomRepository.save(nhom);
+        // Update nhom's diem nhom
+        nhom.setDiemNhom(targetDiemNhom);
+        nhomRepository.save(nhom);
 
-    // Update tin huu's diem nhom
-    java.util.List<com.branch.demo.domain.TinHuu> tinHuuList =
-    tinHuuRepository.findByNhomId(nhom.getId());
-    for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
-    // tinHuu.setNhom(targetDiemNhom);
-    }
-    tinHuuRepository.saveAll(tinHuuList);
+        // Update tin huu's diem nhom
+        java.util.List<com.branch.demo.domain.TinHuu> tinHuuList = tinHuuRepository.findByNhomId(nhom.getId());
+        for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
+            // tinHuu.setNhom(targetDiemNhom);
+        }
+        tinHuuRepository.saveAll(tinHuuList);
     }
 
     @Transactional
     public void deleteNhomWithTinHuuHandling(Long nhomId, String tinHuuAction,
-    Long targetNhomId) {
-    com.branch.demo.domain.Nhom nhom = nhomRepository.findById(nhomId)
-    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm"));
+            Long targetNhomId) {
+        com.branch.demo.domain.Nhom nhom = nhomRepository.findById(nhomId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm"));
 
-    java.util.List<com.branch.demo.domain.TinHuu> tinHuuList =
-    tinHuuRepository.findByNhomId(nhom.getId());
+        java.util.List<com.branch.demo.domain.TinHuu> tinHuuList = tinHuuRepository.findByNhomId(nhom.getId());
 
-    if ("transfer".equals(tinHuuAction) && targetNhomId != null) {
-    // Transfer tin huu to another nhom
-    com.branch.demo.domain.Nhom targetNhom =
-    nhomRepository.findById(targetNhomId)
-    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm đích"));
+        if ("transfer".equals(tinHuuAction) && targetNhomId != null) {
+            // Transfer tin huu to another nhom
+            com.branch.demo.domain.Nhom targetNhom = nhomRepository.findById(targetNhomId)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy nhóm đích"));
 
-    for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
-    tinHuu.setNhom(targetNhom);
-    // tinHuu.setDiemNhom(targetNhom.getDiemNhom());
-    }
-    tinHuuRepository.saveAll(tinHuuList);
-    } else {
-    // Remove tin huu from nhom (set nhom to null)
-    for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
-    tinHuu.setNhom(null);
-    // Keep diem nhom or set to null based on business logic
-    // tinHuu.setDiemNhom(null);
-    }
-    tinHuuRepository.saveAll(tinHuuList);
-    }
+            for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
+                tinHuu.setNhom(targetNhom);
+                // tinHuu.setDiemNhom(targetNhom.getDiemNhom());
+            }
+            tinHuuRepository.saveAll(tinHuuList);
+        } else {
+            // Remove tin huu from nhom (set nhom to null)
+            for (com.branch.demo.domain.TinHuu tinHuu : tinHuuList) {
+                tinHuu.setNhom(null);
+                // Keep diem nhom or set to null based on business logic
+                // tinHuu.setDiemNhom(null);
+            }
+            tinHuuRepository.saveAll(tinHuuList);
+        }
 
-    // Delete the nhom
-    nhomRepository.delete(nhom);
+        // Delete the nhom
+        nhomRepository.delete(nhom);
     }
 
     public java.util.List<com.branch.demo.domain.NhanSu> getNhanSuByBanNganh(Long banNganhId) {
@@ -1275,7 +1286,7 @@ public class AdminService {
         // Finally delete the diem nhom
         diemNhomRepository.delete(diemNhom);
     }
- // ==================== BÀI VIẾT MANAGEMENT ====================
+    // ==================== BÀI VIẾT MANAGEMENT ====================
 
     @Autowired
     private BaiVietRepository baiVietRepository;
@@ -1291,10 +1302,10 @@ public class AdminService {
         return baiVietRepository.findAll(pageable);
     }
 
-    public Page<com.branch.demo.domain.BaiViet> getBaiVietPageWithFilters(int page, String search, 
+    public Page<com.branch.demo.domain.BaiViet> getBaiVietPageWithFilters(int page, String search,
             String trangThai, Long danhMucId, LocalDate fromDate, LocalDate toDate) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        
+
         com.branch.demo.domain.BaiViet.TrangThaiBaiViet trangThaiEnum = null;
         if (trangThai != null && !trangThai.isEmpty()) {
             try {
@@ -1307,13 +1318,13 @@ public class AdminService {
         LocalDateTime fromDateTime = fromDate != null ? fromDate.atStartOfDay() : null;
         LocalDateTime toDateTime = toDate != null ? toDate.atTime(23, 59, 59) : null;
 
-        return baiVietRepository.findWithAdvancedFilters(search, trangThaiEnum, danhMucId, 
-            null, null, fromDateTime, toDateTime, pageable);
+        return baiVietRepository.findWithAdvancedFilters(search, trangThaiEnum, danhMucId,
+                null, null, fromDateTime, toDateTime, pageable);
     }
 
     public com.branch.demo.domain.BaiViet getBaiVietById(Long id) {
         return baiVietRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
     }
 
     @Transactional
@@ -1322,18 +1333,18 @@ public class AdminService {
         if (baiViet.getSlug() == null || baiViet.getSlug().trim().isEmpty()) {
             baiViet.setSlug(generateSlug(baiViet.getTieuDe()));
         }
-        
+
         // Ensure slug is unique
         String originalSlug = baiViet.getSlug();
         String uniqueSlug = originalSlug;
         int counter = 1;
-        
+
         while (baiVietRepository.existsBySlugAndIdNot(uniqueSlug, baiViet.getId() != null ? baiViet.getId() : 0L)) {
             uniqueSlug = originalSlug + "-" + counter;
             counter++;
         }
         baiViet.setSlug(uniqueSlug);
-        
+
         return baiVietRepository.save(baiViet);
     }
 
@@ -1343,25 +1354,23 @@ public class AdminService {
         baiVietRepository.delete(baiViet);
     }
 
-
-
     private String generateSlug(String title) {
         if (title == null || title.trim().isEmpty()) {
             return "bai-viet-" + System.currentTimeMillis();
         }
-        
+
         return title.toLowerCase()
-            .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
-            .replaceAll("[èéẹẻẽêềếệểễ]", "e")
-            .replaceAll("[ìíịỉĩ]", "i")
-            .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
-            .replaceAll("[ùúụủũưừứựửữ]", "u")
-            .replaceAll("[ỳýỵỷỹ]", "y")
-            .replaceAll("[đ]", "d")
-            .replaceAll("[^a-z0-9\\s-]", "")
-            .replaceAll("\\s+", "-")
-            .replaceAll("-+", "-")
-            .replaceAll("^-|-$", "");
+                .replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                .replaceAll("[ìíịỉĩ]", "i")
+                .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                .replaceAll("[ùúụủũưừứựửữ]", "u")
+                .replaceAll("[ỳýỵỷỹ]", "y")
+                .replaceAll("[đ]", "d")
+                .replaceAll("[^a-z0-9\\s-]", "")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-|-$", "");
     }
 
     public com.branch.demo.dto.BaiVietDTO convertToBaiVietDTO(com.branch.demo.domain.BaiViet baiViet) {
@@ -1387,23 +1396,24 @@ public class AdminService {
         dto.setNgayXuatBan(baiViet.getNgayXuatBan());
         dto.setCreatedAt(baiViet.getCreatedAt());
         dto.setUpdatedAt(baiViet.getUpdatedAt());
-        
+
         if (baiViet.getDanhMuc() != null) {
             dto.setDanhMucId(baiViet.getDanhMuc().getId());
             dto.setTenDanhMuc(baiViet.getDanhMuc().getTenDanhMuc());
         }
-        
+
         return dto;
     }
 
     // ==================== THÙNG RÁC BÀI VIẾT ====================
 
-    public Page<com.branch.demo.domain.BaiViet> getTrashedBaiViet(int page, String search, String fromDate, String toDate) {
+    public Page<com.branch.demo.domain.BaiViet> getTrashedBaiViet(int page, String search, String fromDate,
+            String toDate) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("deletedAt").descending());
-        
+
         LocalDateTime fromDateTime = null;
         LocalDateTime toDateTime = null;
-        
+
         if (fromDate != null && !fromDate.isEmpty()) {
             try {
                 fromDateTime = LocalDate.parse(fromDate).atStartOfDay();
@@ -1411,7 +1421,7 @@ public class AdminService {
                 // Ignore invalid date
             }
         }
-        
+
         if (toDate != null && !toDate.isEmpty()) {
             try {
                 toDateTime = LocalDate.parse(toDate).atTime(23, 59, 59);
@@ -1419,13 +1429,13 @@ public class AdminService {
                 // Ignore invalid date
             }
         }
-        
+
         if (search != null && !search.trim().isEmpty()) {
             return baiVietRepository.findDeletedWithSearch(search.trim(), pageable);
         } else if (fromDateTime != null || toDateTime != null) {
             return baiVietRepository.findDeletedByDateRange(fromDateTime, toDateTime, pageable);
         }
-        
+
         return baiVietRepository.findAllDeleted(pageable);
     }
 
@@ -1439,12 +1449,12 @@ public class AdminService {
     @Transactional
     public void restoreBaiViet(Long id) {
         com.branch.demo.domain.BaiViet baiViet = baiVietRepository.findByIdIncludingDeleted(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
-        
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
+
         if (baiViet.getDeletedAt() == null) {
             throw new RuntimeException("Bài viết này chưa bị xóa");
         }
-        
+
         baiViet.setDeletedAt(null);
         baiVietRepository.save(baiViet);
     }
@@ -1452,37 +1462,38 @@ public class AdminService {
     @Transactional
     public void permanentDeleteBaiViet(Long id) {
         com.branch.demo.domain.BaiViet baiViet = baiVietRepository.findByIdIncludingDeleted(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
-        
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
+
         if (baiViet.getDeletedAt() == null) {
             throw new RuntimeException("Bài viết này chưa bị xóa mềm");
         }
-        
+
         baiVietRepository.delete(baiViet);
     }
 
     @Transactional
     public int emptyBaiVietTrash() {
-        Page<com.branch.demo.domain.BaiViet> trashedArticles = baiVietRepository.findAllDeleted(PageRequest.of(0, Integer.MAX_VALUE));
+        Page<com.branch.demo.domain.BaiViet> trashedArticles = baiVietRepository
+                .findAllDeleted(PageRequest.of(0, Integer.MAX_VALUE));
         int count = (int) trashedArticles.getTotalElements();
-        
+
         for (com.branch.demo.domain.BaiViet baiViet : trashedArticles.getContent()) {
             baiVietRepository.delete(baiViet);
         }
-        
+
         return count;
     }
 
     public com.branch.demo.domain.BaiViet getTrashedBaiVietById(Long id) {
         return baiVietRepository.findByIdIncludingDeleted(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
     }
 
     // ==================== DANH MỤC MANAGEMENT ====================
 
     public Page<com.branch.demo.domain.DanhMuc> getDanhMucPage(int page, String search, String trangThai) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("createdAt").descending());
-        
+
         com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc trangThaiEnum = null;
         if (trangThai != null && !trangThai.isEmpty()) {
             try {
@@ -1491,19 +1502,19 @@ public class AdminService {
                 // Ignore invalid status
             }
         }
-        
+
         if (search != null && !search.trim().isEmpty()) {
             return danhMucRepository.findWithSearch(search.trim(), trangThaiEnum, pageable);
         } else if (trangThaiEnum != null) {
             return danhMucRepository.findByTrangThai(trangThaiEnum, pageable);
         }
-        
+
         return danhMucRepository.findAll(pageable);
     }
 
     public com.branch.demo.domain.DanhMuc getDanhMucById(Long id) {
         return danhMucRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục với ID: " + id));
     }
 
     @Transactional
@@ -1512,31 +1523,131 @@ public class AdminService {
         if (danhMuc.getSlug() == null || danhMuc.getSlug().trim().isEmpty()) {
             danhMuc.setSlug(generateSlug(danhMuc.getTenDanhMuc()));
         }
-        
+
         // Ensure slug is unique
         String originalSlug = danhMuc.getSlug();
         String uniqueSlug = originalSlug;
         int counter = 1;
-        
+
         while (danhMucRepository.existsBySlugAndIdNot(uniqueSlug, danhMuc.getId() != null ? danhMuc.getId() : 0L)) {
             uniqueSlug = originalSlug + "-" + counter;
             counter++;
         }
         danhMuc.setSlug(uniqueSlug);
-        
+
         return danhMucRepository.save(danhMuc);
     }
 
     @Transactional
     public void deleteDanhMuc(Long id) {
         com.branch.demo.domain.DanhMuc danhMuc = getDanhMucById(id);
-        
+
         // Check if category has articles
         long articleCount = baiVietRepository.countByDanhMuc(danhMuc);
         if (articleCount > 0) {
             throw new RuntimeException("Không thể xóa danh mục này vì còn " + articleCount + " bài viết đang sử dụng");
         }
-        
+
         danhMucRepository.delete(danhMuc);
+    }
+
+    // ==================== ACCOUNT MANAGEMENT METHODS ====================
+
+    public Page<Account> getAccountPage(int page, String search) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        if (search == null || search.trim().isEmpty()) {
+            return accountRepository.findAll(pageable);
+        }
+        // Tìm theo username, email, fullName
+        return accountRepository
+                .findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrFullNameContainingIgnoreCase(
+                        search, search, search, pageable);
+    }
+
+    public Account getAccountById(Long id) {
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản với ID: " + id));
+    }
+
+    public String saveAccount(Account account, String password) {
+        String generatedPassword = null;
+        
+        if (account.getId() == null) {
+            // New account - generate random password
+            generatedPassword = com.branch.demo.util.PasswordGenerator.generateRandomPassword();
+            account.setPassword(passwordEncoder.encode(generatedPassword));
+            account.setFirstPassword(generatedPassword); // Store original password for display
+        } else {
+            // Update existing account - keep existing password and firstPassword
+            Account existingAccount = getAccountById(account.getId());
+            account.setPassword(existingAccount.getPassword());
+            account.setFirstPassword(existingAccount.getFirstPassword());
+        }
+
+        accountRepository.save(account);
+        return generatedPassword;
+    }
+    
+    // Keep old method for backward compatibility
+    public Account saveAccount(Account account) {
+        saveAccount(account, null);
+        return account;
+    }
+    
+    public boolean isUsernameExists(String username) {
+        return accountRepository.existsByUsername(username);
+    }
+    
+    public boolean isEmailExists(String email) {
+        return accountRepository.existsByEmail(email);
+    }
+    
+    public boolean isEmailExistsExcludingId(String email, Long excludeId) {
+        return accountRepository.existsByEmailAndIdNot(email, excludeId);
+    }
+
+    public void deleteAccount(Long id) {
+        Account account = getAccountById(id);
+
+        // Prevent deleting the last admin account
+        if (account.getRole() == Account.Role.ADMIN) {
+            long adminCount = accountRepository.countActiveAdmins();
+            if (adminCount <= 1) {
+                throw new RuntimeException("Không thể xóa tài khoản admin cuối cùng");
+            }
+        }
+
+        accountRepository.deleteById(id);
+    }
+
+    public void toggleAccountStatus(Long id) {
+        Account account = getAccountById(id);
+
+        // Prevent disabling the last admin account
+        if (account.getRole() == Account.Role.ADMIN && account.getStatus() == Account.AccountStatus.ACTIVE) {
+            long activeAdminCount = accountRepository.countActiveAdmins();
+            if (activeAdminCount <= 1) {
+                throw new RuntimeException("Không thể vô hiệu hóa tài khoản admin cuối cùng");
+            }
+        }
+
+        // Toggle status
+        if (account.getStatus() == Account.AccountStatus.ACTIVE) {
+            account.setStatus(Account.AccountStatus.INACTIVE);
+        } else {
+            account.setStatus(Account.AccountStatus.ACTIVE);
+        }
+
+        accountRepository.save(account);
+    }
+
+    public void resetPassword(Long id, String newPassword) {
+        Account account = getAccountById(id);
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public java.util.List<Account> getAllActiveAccounts() {
+        return accountRepository.findAll(Sort.by(Sort.Direction.ASC, "fullName"));
     }
 }

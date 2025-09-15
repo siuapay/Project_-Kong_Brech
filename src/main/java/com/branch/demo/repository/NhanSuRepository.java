@@ -2,6 +2,7 @@ package com.branch.demo.repository;
 
 import com.branch.demo.domain.NhanSu;
 import com.branch.demo.domain.NhanSu.TrangThaiNhanSu;
+import com.branch.demo.domain.NhanSu.ChucVu;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,7 @@ public interface NhanSuRepository extends JpaRepository<NhanSu, Long> {
     List<NhanSu> findByBanNganhId(Long banNganhId);
     
     // Tìm theo chức vụ
-    List<NhanSu> findByChucVuContainingIgnoreCase(String chucVu);
+    List<NhanSu> findByChucVu(NhanSu.ChucVu chucVu);
     
     // Tìm theo trạng thái
     List<NhanSu> findByTrangThai(TrangThaiNhanSu trangThai);
@@ -35,22 +36,24 @@ public interface NhanSuRepository extends JpaRepository<NhanSu, Long> {
     // Đếm số nhân sự theo trạng thái
     long countByTrangThai(TrangThaiNhanSu trangThai);
     
-    // Tìm trưởng ban
+    // Tìm trưởng ban (Mục sư hoặc Truyền đạo)
     @Query("SELECT ns FROM NhanSu ns WHERE " +
-           "LOWER(ns.chucVu) LIKE LOWER('%trưởng%') AND " +
+           "(ns.chucVu = :mucSu OR ns.chucVu = :truyenDao) AND " +
            "ns.trangThai = :trangThai")
-    List<NhanSu> findTruongBan(@Param("trangThai") TrangThaiNhanSu trangThai);
+    List<NhanSu> findTruongBan(@Param("mucSu") ChucVu mucSu, 
+                               @Param("truyenDao") ChucVu truyenDao,
+                               @Param("trangThai") TrangThaiNhanSu trangThai);
     
     // Tìm nhân sự theo nhiều điều kiện
     @Query("SELECT ns FROM NhanSu ns WHERE " +
            "(:hoTen IS NULL OR LOWER(ns.hoTen) LIKE LOWER(CONCAT('%', :hoTen, '%'))) AND " +
            "(:banNganhId IS NULL OR ns.banNganh.id = :banNganhId) AND " +
-           "(:chucVu IS NULL OR LOWER(ns.chucVu) LIKE LOWER(CONCAT('%', :chucVu, '%'))) AND " +
+           "(:chucVu IS NULL OR ns.chucVu = :chucVu) AND " +
            "(:trangThai IS NULL OR ns.trangThai = :trangThai)")
     List<NhanSu> findByMultipleConditions(
         @Param("hoTen") String hoTen,
         @Param("banNganhId") Long banNganhId,
-        @Param("chucVu") String chucVu,
+        @Param("chucVu") NhanSu.ChucVu chucVu,
         @Param("trangThai") TrangThaiNhanSu trangThai);
     
     // Thống kê nhân sự theo ban ngành
@@ -90,4 +93,7 @@ public interface NhanSuRepository extends JpaRepository<NhanSu, Long> {
         @Param("fromDate") java.time.LocalDateTime fromDate,
         @Param("toDate") java.time.LocalDateTime toDate,
         Pageable pageable);
+    
+    // Tìm theo ban ngành entity
+    List<NhanSu> findByBanNganh(com.branch.demo.domain.BanNganh banNganh);
 }

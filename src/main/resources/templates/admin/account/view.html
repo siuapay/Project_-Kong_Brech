@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  
+  <body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="text-primary">
+              <i class="fas fa-user me-2"></i>Chi Tiết Tài Khoản
+            </h2>
+            <p class="text-muted mb-0">Thông tin chi tiết của tài khoản</p>
+          </div>
+          <div>
+            <a
+              th:href="@{/admin/account/edit/{id}(id=${account.id})}"
+              class="btn btn-primary me-2"
+            >
+              <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+            </a>
+            <a th:href="@{/admin/account}" class="btn btn-secondary">
+              <i class="fas fa-arrow-left me-2"></i>Quay Lại
+            </a>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- Account Info -->
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header bg-light">
+                <h5 class="mb-0">
+                  <i class="fas fa-user-circle me-2"></i>Thông Tin Tài Khoản
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">Tên đăng nhập</label>
+                    <p class="fw-bold" th:text="${account.username}">admin</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">Email</label>
+                    <p class="fw-bold" th:text="${account.email}">
+                      admin@example.com
+                    </p>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted">Họ và tên</label>
+                  <p class="fw-bold" th:text="${account.fullName}">
+                    Quản trị viên hệ thống
+                  </p>
+                </div>
+
+                <!-- Linked NhanSu Information -->
+                <div class="mb-3">
+                  <label class="form-label text-muted">Nhân sự liên kết</label>
+                  <div th:if="${account.nhanSu != null}">
+                    <div class="d-flex align-items-center">
+                      <img th:src="${account.nhanSu.avatarUrl} ?: '/static/images/default-avatar.svg'" 
+                           alt="Avatar" 
+                           class="rounded-circle me-3"
+                           style="width: 50px; height: 50px; object-fit: cover;">
+                      <div>
+                        <p class="fw-bold mb-1" th:text="${account.nhanSu.hoTen}">Tên nhân sự</p>
+                        <small class="text-muted">
+                          <span th:if="${account.nhanSu.chucVu != null}" 
+                                th:text="${account.nhanSu.chucVu.displayName}">Chức vụ</span>
+                          <span th:if="${account.nhanSu.banNganh != null}" 
+                                th:text="' - ' + ${account.nhanSu.banNganh.tenBan}">Ban ngành</span>
+                        </small>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <a th:href="@{/admin/nhan-su/view/{id}(id=${account.nhanSu.id})}" 
+                         class="btn btn-sm btn-outline-info">
+                        <i class="fas fa-eye me-1"></i>Xem hồ sơ nhân sự
+                      </a>
+                    </div>
+                  </div>
+                  <div th:if="${account.nhanSu == null}">
+                    <p class="text-muted fst-italic">
+                      <i class="fas fa-unlink me-2"></i>Chưa liên kết với nhân sự nào
+                    </p>
+                  </div>
+                </div>
+
+                <!-- First Password - Only show if exists -->
+                <div class="mb-3" th:if="${account.firstPassword != null}">
+                  <label class="form-label text-muted">Mật khẩu ban đầu</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control bg-light" 
+                           th:value="${account.firstPassword}" 
+                           id="firstPasswordField" readonly>
+                    <button type="button" class="btn btn-outline-secondary" 
+                            onclick="togglePasswordVisibility('firstPasswordField', 'firstPasswordIcon')">
+                      <i class="fas fa-eye" id="firstPasswordIcon"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" 
+                            th:data-password="${account.firstPassword}"
+                            onclick="copyToClipboard(this.dataset.password)" 
+                            title="Sao chép mật khẩu">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                  <div class="form-text text-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Đây là mật khẩu được tạo tự động khi tạo tài khoản. Vui lòng lưu trữ an toàn.
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">Quyền hạn</label>
+                    <p>
+                      <span
+                        class="fw-bold fs-5"
+                        th:class="${account.role.name() == 'ADMIN'} ? 'text-danger' : 'text-info'"
+                      >
+                        <i
+                          class="fas fa-crown me-2"
+                          th:if="${account.role.name() == 'ADMIN'}"
+                        ></i>
+                        <i
+                          class="fas fa-user me-2"
+                          th:unless="${account.role.name() == 'ADMIN'}"
+                        ></i>
+                        <span th:if="${account.role.name() == 'ADMIN'}"
+                          >Quản Trị Viên</span
+                        >
+                        <span th:unless="${account.role.name() == 'ADMIN'}"
+                          >Hội Viên</span
+                        >
+                      </span>
+                    </p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label text-muted">Trạng thái</label>
+                    <p>
+                      <span
+                        class="fw-bold fs-5"
+                        th:class="${account.status.name() == 'ACTIVE'} ? 'text-success' : 'text-warning'"
+                      >
+                        <i
+                          class="fas fa-check-circle me-2"
+                          th:if="${account.status.name() == 'ACTIVE'}"
+                        ></i>
+                        <i
+                          class="fas fa-pause-circle me-2"
+                          th:unless="${account.status.name() == 'ACTIVE'}"
+                        ></i>
+                        <span th:if="${account.status.name() == 'ACTIVE'}"
+                          >Hoạt Động</span
+                        >
+                        <span th:unless="${account.status.name() == 'ACTIVE'}"
+                          >Tạm Khóa</span
+                        >
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Info -->
+          <div class="col-lg-4">
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Hoạt Động</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label class="form-label text-muted">Ngày tạo</label>
+                  <p class="fw-bold">
+                    <i class="fas fa-calendar-plus me-2 text-success"></i>
+                    <span
+                      th:text="${#temporals.format(account.createdAt, 'dd/MM/yyyy HH:mm')}"
+                      >01/01/2024 10:00</span
+                    >
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted">Cập nhật cuối</label>
+                  <p class="fw-bold">
+                    <i class="fas fa-calendar-edit me-2 text-primary"></i>
+                    <span
+                      th:text="${#temporals.format(account.updatedAt, 'dd/MM/yyyy HH:mm')}"
+                      >01/01/2024 10:00</span
+                    >
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted">Đăng nhập cuối</label>
+                  <p class="fw-bold" th:if="${account.lastLogin}">
+                    <i class="fas fa-sign-in-alt me-2 text-info"></i>
+                    <span
+                      th:text="${#temporals.format(account.lastLogin, 'dd/MM/yyyy HH:mm')}"
+                      >01/01/2024 10:00</span
+                    >
+                  </p>
+                  <p
+                    class="fw-bold text-muted"
+                    th:unless="${account.lastLogin}"
+                  >
+                    <i class="fas fa-times me-2"></i>
+                    Chưa đăng nhập
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label text-muted"
+                    >Số lần đăng nhập sai</label
+                  >
+                  <p class="fw-bold">
+                    <i
+                      class="fas fa-exclamation-triangle me-2"
+                      th:class="${account.loginAttempts > 0} ? 'text-warning' : 'text-success'"
+                    ></i>
+                    <span th:text="${account.loginAttempts}">0</span> lần
+                  </p>
+                </div>
+
+                <div th:if="${account.lockedUntil}">
+                  <label class="form-label text-muted">Khóa đến</label>
+                  <p class="fw-bold text-danger">
+                    <i class="fas fa-lock me-2"></i>
+                    <span
+                      th:text="${#temporals.format(account.lockedUntil, 'dd/MM/yyyy HH:mm')}"
+                      >01/01/2024 10:00</span
+                    >
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-3">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">
+                  <i class="fas fa-tools me-2"></i>Thao Tác Nhanh
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="d-grid gap-3">
+                  <button
+                    type="button"
+                    class="btn btn-warning btn-sm shadow-sm py-2"
+                    th:data-id="${account.id}"
+                    th:data-name="${account.fullName}"
+                    onclick="toggleStatus(this.dataset.id, this.dataset.name)"
+                  >
+                    <i class="fas fa-toggle-on me-2"></i>Đổi Trạng Thái
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm shadow-sm py-2"
+                    th:data-id="${account.id}"
+                    th:data-name="${account.fullName}"
+                    onclick="resetPassword(this.dataset.id, this.dataset.name)"
+                  >
+                    <i class="fas fa-key me-2"></i>Reset Mật Khẩu
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-danger btn-sm shadow-sm py-2"
+                    th:data-id="${account.id}"
+                    th:data-name="${account.fullName}"
+                    onclick="deleteAccount(this.dataset.id, this.dataset.name)"
+                  >
+                    <i class="fas fa-trash me-2"></i>Xóa Tài Khoản
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Include modals from list page -->
+    <div th:replace="~{admin/account/list :: #resetPasswordModal}"></div>
+    <div th:replace="~{admin/account/list :: #deleteModal}"></div>
+    <div th:replace="~{admin/account/list :: #toggleStatusModal}"></div>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <script>
+      function resetPassword(id, name) {
+        document.getElementById("resetAccountName").textContent = name;
+        document.getElementById("resetPasswordForm").action =
+          "/admin/account/reset-password/" + id;
+        new bootstrap.Modal(
+          document.getElementById("resetPasswordModal")
+        ).show();
+      }
+
+      function deleteAccount(id, name) {
+        document.getElementById("deleteAccountName").textContent = name;
+        document.getElementById("deleteForm").action =
+          "/admin/account/delete/" + id;
+        new bootstrap.Modal(document.getElementById("deleteModal")).show();
+      }
+
+      function toggleStatus(id, name) {
+        document.getElementById("toggleAccountName").textContent = name;
+        document.getElementById("toggleStatusForm").action =
+          "/admin/account/toggle-status/" + id;
+        new bootstrap.Modal(
+          document.getElementById("toggleStatusModal")
+        ).show();
+      }
+
+      function togglePasswordVisibility(fieldId, iconId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(iconId);
+        
+        if (!field || !icon) {
+          console.error('Element not found:', fieldId, iconId);
+          return;
+        }
+        
+        if (field.type === 'password') {
+          field.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          field.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
+
+      function copyToClipboard(text) {
+        if (!text) {
+          console.error('No text to copy');
+          return;
+        }
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(function() {
+            // Show success message
+            showToast('Đã sao chép mật khẩu!', 'success');
+          }).catch(function(err) {
+            console.error('Could not copy text: ', err);
+            fallbackCopyTextToClipboard(text);
+          });
+        } else {
+          fallbackCopyTextToClipboard(text);
+        }
+      }
+
+      function fallbackCopyTextToClipboard(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            showToast('Đã sao chép mật khẩu!', 'success');
+          } else {
+            showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
+          }
+        } catch (err) {
+          console.error('Fallback: Could not copy text: ', err);
+          showToast('Không thể sao chép. Vui lòng sao chép thủ công.', 'error');
+        }
+        
+        document.body.removeChild(textArea);
+      }
+
+      function showToast(message, type) {
+        const toast = document.createElement('div');
+        const bgClass = type === 'success' ? 'bg-success' : 'bg-danger';
+        const icon = type === 'success' ? 'fa-check' : 'fa-exclamation-triangle';
+        
+        toast.className = `toast align-items-center text-white ${bgClass} border-0 position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
+        toast.innerHTML = `
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="fas ${icon} me-2"></i>${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+          </div>
+        `;
+        document.body.appendChild(toast);
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        // Remove toast after it's hidden
+        toast.addEventListener('hidden.bs.toast', function() {
+          if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

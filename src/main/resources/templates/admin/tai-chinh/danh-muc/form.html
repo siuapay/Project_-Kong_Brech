@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-primary">
+                        <i class="fas fa-folder-plus me-2" th:if="${!isEdit}"></i>
+                        <i class="fas fa-edit me-2" th:if="${isEdit}"></i>
+                        <span th:text="${isEdit} ? 'Sửa Danh Mục Tài Chính' : 'Thêm Danh Mục Tài Chính'">Thêm Danh Mục</span>
+                    </h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a th:href="@{/admin/tai-chinh/danh-muc}">Danh Mục Tài Chính</a></li>
+                            <li class="breadcrumb-item active" th:text="${isEdit} ? 'Sửa' : 'Thêm'">Thêm</li>
+                        </ol>
+                    </nav>
+                </div>
+                <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                </a>
+            </div>
+
+            <!-- Form -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow border-0">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông Tin Danh Mục
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form th:action="@{/admin/tai-chinh/danh-muc/save}" method="post" th:object="${danhMucDTO}">
+                                <input type="hidden" th:field="*{id}" />
+                                
+                                <div class="row g-3">
+                                    <!-- Tên Danh Mục -->
+                                    <div class="col-md-8">
+                                        <label for="tenDanhMuc" class="form-label">
+                                            <i class="fas fa-tag me-1"></i>Tên Danh Mục 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="tenDanhMuc" 
+                                               th:field="*{tenDanhMuc}" 
+                                               th:classappend="${#fields.hasErrors('tenDanhMuc')} ? 'is-invalid'"
+                                               placeholder="Nhập tên danh mục..." maxlength="255" required>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tenDanhMuc')}" 
+                                             th:errors="*{tenDanhMuc}">Lỗi tên danh mục</div>
+                                        <div class="form-text">Tên danh mục phải duy nhất trong hệ thống</div>
+                                    </div>
+
+                                    <!-- Loại Danh Mục -->
+                                    <div class="col-md-4">
+                                        <label for="loai" class="form-label">
+                                            <i class="fas fa-exchange-alt me-1"></i>Loại Danh Mục 
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="loai" th:field="*{loai}" 
+                                                th:classappend="${#fields.hasErrors('loai')} ? 'is-invalid'" required>
+                                            <option value="">Chọn loại...</option>
+                                            <option th:each="loaiValue : ${loaiDanhMucValues}" 
+                                                    th:value="${loaiValue.name()}" 
+                                                    th:text="${loaiValue.displayName}"
+                                                    th:selected="${danhMucDTO.loai == loaiValue.name()}">
+                                                Loại
+                                            </option>
+                                        </select>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('loai')}" 
+                                             th:errors="*{loai}">Lỗi loại danh mục</div>
+                                    </div>
+
+                                    <!-- Mô Tả -->
+                                    <div class="col-12">
+                                        <label for="moTa" class="form-label">
+                                            <i class="fas fa-align-left me-1"></i>Mô Tả
+                                        </label>
+                                        <textarea class="form-control" id="moTa" rows="4" 
+                                                  th:field="*{moTa}" 
+                                                  th:classappend="${#fields.hasErrors('moTa')} ? 'is-invalid'"
+                                                  placeholder="Nhập mô tả cho danh mục..." maxlength="1000"></textarea>
+                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('moTa')}" 
+                                             th:errors="*{moTa}">Lỗi mô tả</div>
+                                        <div class="form-text">Tối đa 1000 ký tự</div>
+                                    </div>
+                                </div>
+
+                                <!-- Preview Section -->
+                                <div class="mt-4">
+                                    <h6 class="text-muted mb-3">
+                                        <i class="fas fa-eye me-1"></i>Xem Trước
+                                    </h6>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                     id="previewIcon">
+                                                    <i class="fas fa-folder text-white"></i>
+                                                </div>
+                                                <div>
+                                                    <h6 class="mb-0" id="previewName">Tên danh mục sẽ hiển thị ở đây</h6>
+                                                    <small class="text-muted" id="previewType">Loại danh mục</small>
+                                                </div>
+                                                <div class="ms-auto">
+                                                    <span class="badge" id="previewBadge">Loại</span>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2" id="previewDescription" style="display: none;">
+                                                <small class="text-muted" id="previewDescText"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-1"></i>Hủy
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i>
+                                        <span th:text="${isEdit} ? 'Cập Nhật' : 'Lưu'">Lưu</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tenDanhMucInput = document.getElementById('tenDanhMuc');
+            const loaiSelect = document.getElementById('loai');
+            const moTaTextarea = document.getElementById('moTa');
+            
+            const previewName = document.getElementById('previewName');
+            const previewType = document.getElementById('previewType');
+            const previewBadge = document.getElementById('previewBadge');
+            const previewIcon = document.getElementById('previewIcon');
+            const previewDescription = document.getElementById('previewDescription');
+            const previewDescText = document.getElementById('previewDescText');
+
+            function updatePreview() {
+                const name = tenDanhMucInput.value || 'Tên danh mục sẽ hiển thị ở đây';
+                const loai = loaiSelect.value;
+                const moTa = moTaTextarea.value;
+
+                previewName.textContent = name;
+
+                if (loai === 'THU') {
+                    previewType.textContent = 'Danh mục Thu';
+                    previewBadge.textContent = 'Thu';
+                    previewBadge.className = 'badge bg-success';
+                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-success';
+                    previewIcon.innerHTML = '<i class="fas fa-arrow-up text-white"></i>';
+                } else if (loai === 'CHI') {
+                    previewType.textContent = 'Danh mục Chi';
+                    previewBadge.textContent = 'Chi';
+                    previewBadge.className = 'badge bg-danger';
+                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-danger';
+                    previewIcon.innerHTML = '<i class="fas fa-arrow-down text-white"></i>';
+                } else {
+                    previewType.textContent = 'Loại danh mục';
+                    previewBadge.textContent = 'Loại';
+                    previewBadge.className = 'badge bg-secondary';
+                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-secondary';
+                    previewIcon.innerHTML = '<i class="fas fa-folder text-white"></i>';
+                }
+
+                if (moTa.trim()) {
+                    previewDescText.textContent = moTa;
+                    previewDescription.style.display = 'block';
+                } else {
+                    previewDescription.style.display = 'none';
+                }
+            }
+
+            // Event listeners
+            tenDanhMucInput.addEventListener('input', updatePreview);
+            loaiSelect.addEventListener('change', updatePreview);
+            moTaTextarea.addEventListener('input', updatePreview);
+
+            // Initial preview update
+            updatePreview();
+        });
+    </script>
+</body>
+</html>

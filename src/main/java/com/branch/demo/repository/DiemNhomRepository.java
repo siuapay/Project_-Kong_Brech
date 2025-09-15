@@ -18,6 +18,9 @@ public interface DiemNhomRepository extends JpaRepository<DiemNhom, Long> {
     // Tìm theo trạng thái
     List<DiemNhom> findByTrangThai(TrangThaiDiemNhom trangThai);
     
+    // Đếm theo trạng thái
+    long countByTrangThai(TrangThaiDiemNhom trangThai);
+    
     // Tìm theo trạng thái và sắp xếp theo tên
     List<DiemNhom> findByTrangThaiOrderByTenDiemNhomAsc(TrangThaiDiemNhom trangThai);
     
