@@ -103,16 +103,24 @@ class SearchableDropdown {
     
     setData(data) {
         this.data = data;
+        this.hiddenIds = []; // Reset hidden items
         this.filteredData = [...data];
         this.renderResults();
     }
     
     search(query) {
+        let baseData = this.data;
+        
+        // Filter out hidden items first
+        if (this.hiddenIds && this.hiddenIds.length > 0) {
+            baseData = this.data.filter(item => !this.hiddenIds.includes(item[this.options.valueField]));
+        }
+        
         if (!query.trim()) {
-            this.filteredData = [...this.data];
+            this.filteredData = [...baseData];
         } else {
             const searchTerm = query.toLowerCase();
-            this.filteredData = this.data.filter(item => {
+            this.filteredData = baseData.filter(item => {
                 const displayValue = item[this.options.displayField];
                 return displayValue && displayValue.toLowerCase().includes(searchTerm);
             });
@@ -184,9 +192,16 @@ class SearchableDropdown {
         this.arrowElement.classList.add('rotated');
         this.searchElement.focus();
         
-        // Reset search
+        // Reset search but respect hidden items
         this.searchElement.value = '';
-        this.filteredData = [...this.data];
+        
+        // Apply filter to respect hidden items
+        let baseData = this.data;
+        if (this.hiddenIds && this.hiddenIds.length > 0) {
+            baseData = this.data.filter(item => !this.hiddenIds.includes(item[this.options.valueField]));
+        }
+        this.filteredData = [...baseData];
+        
         this.renderResults();
     }
     
@@ -219,5 +234,36 @@ class SearchableDropdown {
     clear() {
         this.selectedItem = null;
         this.inputElement.value = '';
+    }
+    
+    getData() {
+        return this.data;
+    }
+    
+    // Filter items by hiding selected ones
+    filterItems(hiddenIds = []) {
+        this.hiddenIds = hiddenIds;
+        this.filteredData = this.data.filter(item => !hiddenIds.includes(item[this.options.valueField]));
+        this.renderResults();
+    }
+    
+    // Show/hide specific item
+    hideItem(id) {
+        if (!this.hiddenIds) this.hiddenIds = [];
+        if (!this.hiddenIds.includes(id)) {
+            this.hiddenIds.push(id);
+            this.filterItems(this.hiddenIds);
+        }
+    }
+    
+    showItem(id) {
+        if (!this.hiddenIds) this.hiddenIds = [];
+        this.hiddenIds = this.hiddenIds.filter(hiddenId => hiddenId !== id);
+        this.filterItems(this.hiddenIds);
+    }
+    
+    // Get item by ID
+    getItemById(id) {
+        return this.data.find(item => item[this.options.valueField] == id);
     }
 }

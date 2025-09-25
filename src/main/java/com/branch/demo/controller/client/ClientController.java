@@ -52,6 +52,9 @@ public class ClientController {
     private NhanSuRepository nhanSuRepository;
 
     @Autowired
+    private com.branch.demo.repository.ChapSuRepository chapSuRepository;
+
+    @Autowired
     private BanNganhRepository banNganhRepository;
 
     @Autowired
@@ -109,8 +112,6 @@ public class ClientController {
         model.addAttribute("pageTitle", "Liên Hệ Với Chúng Tôi");
         return "client/contact";
     }
-
-
 
     @GetMapping("/news")
     public String news(@RequestParam(defaultValue = "0") int page,
@@ -202,6 +203,23 @@ public class ClientController {
             java.util.List<DanhMuc> danhMucList = danhMucRepository.findByTrangThaiAndNotDeleted(
                     DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
 
+            // Lấy bài viết nổi bật
+            java.util.List<BaiViet> baiVietNoiBat = baiVietRepository.findFeaturedArticles(
+                    PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "ngayXuatBan"))).getContent();
+
+            // Lấy bài viết mới nhất
+            java.util.List<BaiViet> baiVietMoiNhat = baiVietRepository.findLatestArticles(
+                    PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "ngayXuatBan")));
+
+            // Lấy bài viết phổ biến
+            java.util.List<BaiViet> baiVietPhoBien = baiVietRepository.findPopularArticles(
+                    PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "luotXem")));
+
+            model.addAttribute("danhMucList", danhMucList);
+            model.addAttribute("baiVietNoiBat", baiVietNoiBat);
+            model.addAttribute("baiVietMoiNhat", baiVietMoiNhat);
+            model.addAttribute("baiVietPhoBien", baiVietPhoBien);
+
             model.addAttribute("title", baiViet.getTieuDe() + " - Chi Hội Kong Brech");
             model.addAttribute("pageTitle", baiViet.getTieuDe());
             model.addAttribute("baiViet", baiViet);
@@ -239,43 +257,147 @@ public class ClientController {
         return "client/departments";
     }
 
-    // Nhân sự
+    // Chấp sự
     @GetMapping("/organization/personnel")
     public String personnel(Model model) {
-        model.addAttribute("title", "Nhân Sự - Chi Hội Kong Brech");
-        model.addAttribute("pageTitle", "Nhân Sự");
+        model.addAttribute("title", "Chấp Sự - Chi Hội Kong Brech");
+        model.addAttribute("pageTitle", "Ban Chấp Sự");
 
         try {
-            // Get Chấp sự chính (find by leadership roles)
-            java.util.List<NhanSu> allNhanSu = nhanSuRepository.findAll();
-            NhanSu chapSuChinh = null;
-            java.util.List<NhanSu> banChapSu = new java.util.ArrayList<>();
+            // Get all Chấp sự with active status
+            java.util.List<com.branch.demo.domain.ChapSu> allChapSu = chapSuRepository.findByTrangThaiOrderByHoTenAsc(
+                    com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
 
-            for (NhanSu ns : allNhanSu) {
-                if (ns.getChucVu() != null) {
+            com.branch.demo.domain.ChapSu chapSuChinh = null;
+            java.util.List<com.branch.demo.domain.ChapSu> banChapSu = new java.util.ArrayList<>();
+
+            for (com.branch.demo.domain.ChapSu cs : allChapSu) {
+                if (cs.getChucVu() != null) {
                     // Find main leader (Mục sư or Truyền đạo)
-                    if (ns.getChucVu() == NhanSu.ChucVu.MUC_SU || ns.getChucVu() == NhanSu.ChucVu.TRUYEN_DAO) {
+                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.MUC_SU ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.TRUYEN_DAO) {
                         if (chapSuChinh == null) {
-                            chapSuChinh = ns;
+                            chapSuChinh = cs;
                         }
                     }
-                    // Find all Chấp sự members
-                    if (ns.getChucVu() == NhanSu.ChucVu.CHAP_SU ||
-                            ns.getChucVu() == NhanSu.ChucVu.THU_KY ||
-                            ns.getChucVu() == NhanSu.ChucVu.THU_QUY) {
-                        banChapSu.add(ns);
+                    // Find all other Chấp sự members
+                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CHAP_SU_TRUONG ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CHAP_SU ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THANH_VIEN) {
+                        banChapSu.add(cs);
                     }
                 }
             }
 
+            // Sort ban chấp sự by chức vụ priority
+            banChapSu.sort((a, b) -> {
+                int priorityA = getChucVuPriority(a.getChucVu());
+                int priorityB = getChucVuPriority(b.getChucVu());
+                return Integer.compare(priorityA, priorityB);
+            });
+
             model.addAttribute("chapSuChinh", chapSuChinh);
             model.addAttribute("banChapSu", banChapSu);
+            model.addAttribute("totalChapSu", allChapSu.size());
 
             return "client/personnel";
         } catch (Exception e) {
+            System.out.println("Error loading chấp sự: " + e.getMessage());
+            e.printStackTrace();
             model.addAttribute("chapSuChinh", null);
             model.addAttribute("banChapSu", java.util.Collections.emptyList());
+            model.addAttribute("totalChapSu", 0);
             return "client/personnel";
+        }
+    }
+
+    // Helper method to determine chức vụ priority for sorting
+    private int getChucVuPriority(com.branch.demo.domain.ChapSu.ChucVu chucVu) {
+        if (chucVu == null)
+            return 999;
+        switch (chucVu) {
+            case CHAP_SU_TRUONG:
+                return 1;
+            case THU_KY:
+                return 2;
+            case THU_QUY:
+                return 3;
+            case CHAP_SU:
+                return 4;
+            case THANH_VIEN:
+                return 5;
+            default:
+                return 999;
+        }
+    }
+
+    // Nhân sự (từ bảng NhanSu)
+    @GetMapping("/organization/staff")
+    public String staff(Model model) {
+        model.addAttribute("title", "Nhân Sự - Chi Hội Kong Brech");
+        model.addAttribute("pageTitle", "Nhân Sự Chi Hội");
+
+        try {
+            // Get all active điểm nhóm
+            java.util.List<DiemNhom> diemNhomList = diemNhomRepository.findByTrangThai(
+                    DiemNhom.TrangThaiDiemNhom.HOAT_DONG);
+
+            // Load staff for each điểm nhóm
+            for (DiemNhom diemNhom : diemNhomList) {
+                java.util.List<NhanSu> staffList = nhanSuRepository.findByDiemNhomId(diemNhom.getId());
+
+                // Filter only active staff
+                staffList = staffList.stream()
+                        .filter(ns -> ns.getTrangThai() == NhanSu.TrangThaiNhanSu.HOAT_DONG)
+                        .collect(java.util.stream.Collectors.toList());
+
+                // Sort by chức vụ priority
+                staffList.sort((a, b) -> {
+                    int priorityA = getNhanSuChucVuPriority(a.getChucVu());
+                    int priorityB = getNhanSuChucVuPriority(b.getChucVu());
+                    return Integer.compare(priorityA, priorityB);
+                });
+
+                diemNhom.setDanhSachNhanSuTrucTiep(staffList);
+            }
+
+            // Get total staff count
+            long totalStaff = nhanSuRepository.countByTrangThai(NhanSu.TrangThaiNhanSu.HOAT_DONG);
+
+            model.addAttribute("diemNhomList", diemNhomList);
+            model.addAttribute("totalStaff", totalStaff);
+
+            return "client/staff";
+        } catch (Exception e) {
+            System.out.println("Error loading staff: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("diemNhomList", java.util.Collections.emptyList());
+            model.addAttribute("totalStaff", 0);
+            return "client/staff";
+        }
+    }
+
+    // Helper method for NhanSu chức vụ priority
+    private int getNhanSuChucVuPriority(NhanSu.ChucVu chucVu) {
+        if (chucVu == null)
+            return 999;
+        switch (chucVu) {
+            case MUC_SU:
+                return 1;
+            case TRUYEN_DAO:
+                return 2;
+            case CHAP_SU:
+                return 3;
+            case THU_KY:
+                return 4;
+            case THU_QUY:
+                return 5;
+            case THANH_VIEN:
+                return 6;
+            default:
+                return 999;
         }
     }
 

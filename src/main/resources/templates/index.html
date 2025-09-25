@@ -33,7 +33,7 @@
                         <h1 class="display-3 fw-bold mb-4 text-shadow">
                             Chào Mừng Đến Với<br>
                             <span class="text-warning">Hội Thánh Tin Lành</span><br>
-                            <span class="h2">Kong Brech</span>
+                            <span class="h2">KÔNG BRECH</span>
                         </h1>
                         
                         <!-- Subtitle -->
@@ -188,7 +188,7 @@
                                     <i class="fas fa-calendar me-1"></i>
                                     <span th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
                                 </small>
-                                <a th:href="@{/news/{id}(id=${news.id})}" class="btn btn-sm btn-outline-primary">
+                                <a th:href="@{/news/{slug}(slug=${news.slug})}" class="btn btn-sm btn-outline-primary">
                                     Đọc thêm
                                 </a>
                             </div>
@@ -212,7 +212,7 @@
                 <div class="col-lg-8">
                     <h2 class="fw-bold mb-4">Tham Gia Cùng Chúng Tôi</h2>
                     <p class="lead mb-4">
-                        Hãy trở thành một phần của cộng đồng Chi Hội Kong Brech. 
+                        Hãy trở thành một phần của cộng đồng Chi Hội KÔNG BRECH. 
                         Cùng nhau xây dựng một tương lai tốt đẹp hơn.
                     </p>
                     <div class="d-flex gap-3 justify-content-center">

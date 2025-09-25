@@ -18,6 +18,9 @@ public interface NhanSuRepository extends JpaRepository<NhanSu, Long> {
     // Tìm theo tên
     List<NhanSu> findByHoTenContainingIgnoreCase(String hoTen);
     
+    // Tìm theo tên hoặc chức vụ với pagination
+    Page<NhanSu> findByHoTenContainingIgnoreCaseOrChucVuContainingIgnoreCase(String hoTen, String chucVu, Pageable pageable);
+    
     // Tìm theo ban ngành
     List<NhanSu> findByBanNganhId(Long banNganhId);
     
@@ -70,8 +73,8 @@ public interface NhanSuRepository extends JpaRepository<NhanSu, Long> {
     // Tìm theo điểm nhóm với pagination
     Page<NhanSu> findByDiemNhomId(Long diemNhomId, Pageable pageable);
     
-    // Tìm theo ban ngành thông qua điểm nhóm với pagination
-    @Query("SELECT ns FROM NhanSu ns WHERE ns.diemNhom.banNganh.id = :banNganhId")
+    // Tìm theo ban ngành thông qua điểm nhóm với pagination (ManyToMany relationship)
+    @Query("SELECT ns FROM NhanSu ns JOIN ns.diemNhom dn JOIN dn.danhSachBanNganh bn WHERE bn.id = :banNganhId")
     Page<NhanSu> findByDiemNhomBanNganhId(@Param("banNganhId") Long banNganhId, Pageable pageable);
 
     // Advanced search với pagination

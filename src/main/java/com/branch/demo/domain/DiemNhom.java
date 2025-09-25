@@ -24,9 +24,14 @@ public class DiemNhom extends BaseAuditableEntity {
     @Column(name = "mo_ta", length = 1000)
     private String moTa;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ban_nganh_id")
-    private BanNganh banNganh;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "diem_nhom_ban_nganh",
+        joinColumns = @JoinColumn(name = "diem_nhom_id"),
+        inverseJoinColumns = @JoinColumn(name = "ban_nganh_id")
+    )
+    @JsonIgnore
+    private List<BanNganh> danhSachBanNganh = new ArrayList<>();
     
     @OneToMany(mappedBy = "diemNhom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -82,8 +87,8 @@ public class DiemNhom extends BaseAuditableEntity {
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
     
-    public BanNganh getBanNganh() { return banNganh; }
-    public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }
+    public List<BanNganh> getDanhSachBanNganh() { return danhSachBanNganh; }
+    public void setDanhSachBanNganh(List<BanNganh> danhSachBanNganh) { this.danhSachBanNganh = danhSachBanNganh; }
     
     public List<Nhom> getDanhSachNhom() { return danhSachNhom; }
     public void setDanhSachNhom(List<Nhom> danhSachNhom) { this.danhSachNhom = danhSachNhom; }
@@ -112,6 +117,18 @@ public class DiemNhom extends BaseAuditableEntity {
     public void removeNhom(Nhom nhom) {
         danhSachNhom.remove(nhom);
         nhom.setDiemNhom(null);
+    }
+    
+    public void addBanNganh(BanNganh banNganh) {
+        if (!danhSachBanNganh.contains(banNganh)) {
+            danhSachBanNganh.add(banNganh);
+            banNganh.getDanhSachDiemNhom().add(this);
+        }
+    }
+    
+    public void removeBanNganh(BanNganh banNganh) {
+        danhSachBanNganh.remove(banNganh);
+        banNganh.getDanhSachDiemNhom().remove(this);
     }
     
     public int getTongSoTinHuu() {

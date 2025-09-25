@@ -126,9 +126,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="25%">Tên Điểm Nhóm</th>
-                                    <th width="25%">Địa Chỉ</th>
-                                   <!-- <th width="15%">Sinh Hoạt</th>-->
+                                    <th width="20%">Tên Điểm Nhóm</th>
+                                    <th width="20%">Địa Chỉ</th>
+                                    <th width="15%">Ban Ngành</th>
                                     <th width="10%">Số Nhóm</th>
                                     <th width="10%">Trạng Thái</th>
                                     <th width="10%">Thao Tác</th>
@@ -162,9 +162,15 @@
                                         <span th:if="${diemNhom.diaChi}" th:text="${#strings.abbreviate(diemNhom.diaChi, 40)}">Địa chỉ</span>
                                         <span th:unless="${diemNhom.diaChi}" class="text-muted">Chưa có địa chỉ</span>
                                     </td>
-                                    <!--<td>
-                                        <span class="text-muted">-</span>
-                                    </td>-->
+                                    <td>
+                                        <div th:if="${diemNhom.danhSachBanNganh != null and !diemNhom.danhSachBanNganh.empty}">
+                                            <span th:each="banNganh, iterStat : ${diemNhom.danhSachBanNganh}" 
+                                                  class="badge bg-secondary me-1 mb-1" 
+                                                  th:text="${banNganh.tenBan}">Ban Ngành</span>
+                                        </div>
+                                        <span th:if="${diemNhom.danhSachBanNganh == null or diemNhom.danhSachBanNganh.empty}" 
+                                              class="text-muted">Chưa phân ban</span>
+                                    </td>
                                     <td>
                                         <button type="button" class="btn btn-link p-0 text-decoration-none nhom-btn" 
                                                 th:data-diem-nhom-id="${diemNhom.id}"

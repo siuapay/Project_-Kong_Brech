@@ -5,7 +5,7 @@ public class DiemNhomDTO {
     private String tenDiemNhom;
     private String diaChi;
     private String moTa;
-    private BanNganhDTO banNganh;
+    private java.util.List<BanNganhDTO> danhSachBanNganh;
     
     // Constructors
     public DiemNhomDTO() {}
@@ -30,8 +30,8 @@ public class DiemNhomDTO {
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
     
-    public BanNganhDTO getBanNganh() { return banNganh; }
-    public void setBanNganh(BanNganhDTO banNganh) { this.banNganh = banNganh; }
+    public java.util.List<BanNganhDTO> getDanhSachBanNganh() { return danhSachBanNganh; }
+    public void setDanhSachBanNganh(java.util.List<BanNganhDTO> danhSachBanNganh) { this.danhSachBanNganh = danhSachBanNganh; }
     
     // Nested DTO for BanNganh
     public static class BanNganhDTO {

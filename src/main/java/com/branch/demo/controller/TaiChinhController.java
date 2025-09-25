@@ -858,4 +858,141 @@ public class TaiChinhController {
 
         return normalized;
     }
+
+    // ==================== THỐNG KÊ API ====================
+    
+    @GetMapping("/api/thong-ke/nam/{nam}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getThongKeNamAPI(@PathVariable Integer nam) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            // Get year data
+            TaiChinhNam namData = taiChinhService.getNamById(nam);
+            
+            // Get monthly statistics
+            List<Object[]> thongKeThang = taiChinhService.getThongKeTheoThang(nam);
+            
+            // Convert monthly data to API format
+            List<Map<String, Object>> xuHuongTheoThang = new ArrayList<>();
+            for (int thang = 1; thang <= 12; thang++) {
+                Map<String, Object> thangData = new HashMap<>();
+                thangData.put("thang", thang);
+                thangData.put("tenThang", "T" + thang);
+                
+                // Find data for this month
+                BigDecimal tongThu = BigDecimal.ZERO;
+                BigDecimal tongChi = BigDecimal.ZERO;
+                
+                for (Object[] row : thongKeThang) {
+                    if (row.length >= 3 && row[0] != null && ((Number)row[0]).intValue() == thang) {
+                        tongThu = row[1] != null ? (BigDecimal)row[1] : BigDecimal.ZERO;
+                        tongChi = row[2] != null ? (BigDecimal)row[2] : BigDecimal.ZERO;
+                        break;
+                    }
+                }
+                
+                thangData.put("tongThu", tongThu.longValue());
+                thangData.put("tongChi", tongChi.longValue());
+                thangData.put("soDu", tongThu.subtract(tongChi).longValue());
+                
+                xuHuongTheoThang.add(thangData);
+            }
+            
+            // Get category statistics
+            List<Object[]> thongKeDanhMuc = taiChinhService.getThongKeTheoDanhMuc(nam);
+            List<Map<String, Object>> phanBoTheoDanhMuc = new ArrayList<>();
+            
+            String[] colors = {
+                "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", 
+                "#9966FF", "#FF9F40", "#FF6B6B", "#4ECDC4",
+                "#45B7D1", "#96CEB4", "#FFEAA7", "#DDA0DD"
+            };
+            
+            int colorIndex = 0;
+            for (Object[] row : thongKeDanhMuc) {
+                if (row.length >= 3) {
+                    Map<String, Object> danhMucData = new HashMap<>();
+                    danhMucData.put("tenDanhMuc", row[0] != null ? row[0].toString() : "Không xác định");
+                    danhMucData.put("loai", row[1] != null ? row[1].toString() : "KHAC");
+                    danhMucData.put("soTien", row[2] != null ? ((BigDecimal)row[2]).longValue() : 0L);
+                    danhMucData.put("soGiaoDich", row.length > 3 && row[3] != null ? ((Number)row[3]).intValue() : 0);
+                    danhMucData.put("mauSac", colors[colorIndex % colors.length]);
+                    
+                    phanBoTheoDanhMuc.add(danhMucData);
+                    colorIndex++;
+                }
+            }
+            
+            result.put("nam", nam);
+            result.put("xuHuongTheoThang", xuHuongTheoThang);
+            result.put("phanBoTheoDanhMuc", phanBoTheoDanhMuc);
+            result.put("tongThu", namData != null ? namData.getTongThu().longValue() : 0L);
+            result.put("tongChi", namData != null ? namData.getTongChi().longValue() : 0L);
+            result.put("soDu", namData != null ? namData.getSoDu().longValue() : 0L);
+            result.put("success", true);
+            
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/api/thong-ke/dashboard")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getDashboardData() {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            // Get current year data
+            Integer currentYear = LocalDateTime.now().getYear();
+            TaiChinhNam currentYearData = taiChinhService.getNamById(currentYear);
+            
+            // Get recent years data (last 5 years)
+            List<TaiChinhNam> recentYears = taiChinhService.getNamWithData();
+            if (recentYears.size() > 5) {
+                recentYears = recentYears.subList(0, 5);
+            }
+            
+            // Convert to API format
+            List<Map<String, Object>> recentYearsData = new ArrayList<>();
+            for (TaiChinhNam nam : recentYears) {
+                Map<String, Object> yearData = new HashMap<>();
+                yearData.put("nam", nam.getNam());
+                yearData.put("tongThu", nam.getTongThu().longValue());
+                yearData.put("tongChi", nam.getTongChi().longValue());
+                yearData.put("soDu", nam.getSoDu().longValue());
+                yearData.put("trangThaiTaiChinh", nam.getTrangThaiTaiChinh());
+                recentYearsData.add(yearData);
+            }
+            
+            // Get overall statistics
+            BigDecimal totalThu = taiChinhService.getTotalThuAllTime();
+            BigDecimal totalChi = taiChinhService.getTotalChiAllTime();
+            BigDecimal totalSoDu = taiChinhService.getTotalSoDuAllTime();
+            long totalTransactions = taiChinhService.getTotalTransactionCount();
+            
+            result.put("currentYear", currentYear);
+            result.put("currentYearData", currentYearData != null ? Map.of(
+                "nam", currentYearData.getNam(),
+                "tongThu", currentYearData.getTongThu().longValue(),
+                "tongChi", currentYearData.getTongChi().longValue(),
+                "soDu", currentYearData.getSoDu().longValue(),
+                "trangThaiTaiChinh", currentYearData.getTrangThaiTaiChinh()
+            ) : null);
+            result.put("recentYears", recentYearsData);
+            result.put("totalThu", totalThu.longValue());
+            result.put("totalChi", totalChi.longValue());
+            result.put("totalSoDu", totalSoDu.longValue());
+            result.put("totalTransactions", totalTransactions);
+            result.put("availableYears", taiChinhService.getAvailableYears());
+            result.put("success", true);
+            
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("error", e.getMessage());
+        }
+        
+        return ResponseEntity.ok(result);
+    }
 }
