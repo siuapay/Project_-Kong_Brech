@@ -229,6 +229,48 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-4">
+                                <!-- Ban Ngành -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Ban Ngành</label>
+                                        <div class="info-value">
+                                            <span th:if="${tinHuu.banNganh}">
+                                                <i class="fas fa-sitemap text-success me-2"></i>
+                                                <span th:text="${tinHuu.banNganh.tenBan}"></span>
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-code me-1"></i>
+                                                    Mã: <span th:text="${tinHuu.banNganh.maBan}"></span>
+                                                </small>
+                                            </span>
+                                            <span th:unless="${tinHuu.banNganh}" class="text-muted">Chưa phân ban</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Nhóm và Điểm Nhóm -->
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Nhóm</label>
+                                        <div class="info-value">
+                                            <span th:if="${tinHuu.nhom}">
+                                                <i class="fas fa-users text-primary me-2"></i>
+                                                <span th:text="${tinHuu.nhom.tenNhom}"></span>
+                                                <div th:if="${tinHuu.nhom.diemNhom}" class="mt-2">
+                                                    <div class="text-dark">
+                                                        <i class="fas fa-map-marker-alt text-info me-1"></i>
+                                                        <p th:text="${tinHuu.nhom.diemNhom.tenDiemNhom}"></p>
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1" th:if="${tinHuu.nhom.diemNhom.diaChi}">
+                                                        <i class="fas fa-location-arrow me-1"></i>
+                                                        <span th:text="${tinHuu.nhom.diemNhom.diaChi}"></span>
+                                                    </small>
+                                                </div>
+                                            </span>
+                                            <span th:unless="${tinHuu.nhom}" class="text-muted">Chưa phân nhóm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                                 <div class="col-md-6">
                                     <div class="info-item">
                                         <label class="info-label">Ngày Báo Tin</label>
@@ -346,6 +388,63 @@
         </div>
     </div>
 
+    <!-- Custom CSS -->
+    <style>
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: #212529;
+            line-height: 1.5;
+        }
+        
+        .text-pink {
+            color: #e91e63 !important;
+        }
+        
+        .note-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .note-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .badge.bg-light {
+            border: 1px solid #dee2e6;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        }
+    </style>
+
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
@@ -409,6 +508,14 @@
             font-size: 0.95rem;
             line-height: 1.5;
         }
+        .text-dark {
+    margin-bottom: 0;
+}
+
+.text-dark p {
+    margin-top: 5px;
+    display: inline-block;
+}
     </style>
 </body>
 </html>

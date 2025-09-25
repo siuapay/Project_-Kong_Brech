@@ -202,14 +202,34 @@
               <i class="fas fa-sitemap me-2"></i>Ban Ngành
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item dropdown-hover">
             <a
               class="nav-link"
-              th:href="@{/admin/nhan-su}"
-              th:classappend="${#strings.equals(activeMenu, 'nhan-su')} ? 'active'"
+              th:href="@{/admin/chap-su}"
+              th:classappend="${#strings.equals(activeMenu, 'nhan-su') or #strings.equals(activeMenu, 'chap-su')} ? 'active'"
             >
-              <i class="fas fa-user-tie me-2"></i>Nhân Sự
+              <i class="fas fa-users-cog me-2"></i>Nhân Sự & Chấp Sự
+              <i class="fas fa-chevron-right ms-auto submenu-arrow"></i>
             </a>
+            <!-- Sub-menu for Nhan Su & Chap Su -->
+            <ul class="nav flex-column ms-3 submenu">
+              <li class="nav-item">
+                <a
+                  class="nav-link text-light opacity-75 py-1"
+                  th:href="@{/admin/chap-su}"
+                >
+                  <i class="fas fa-users-cog me-2"></i>Danh Sách Chấp Sự
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link text-light opacity-75 py-1"
+                  th:href="@{/admin/nhan-su}"
+                >
+                  <i class="fas fa-user-tie me-2"></i>Danh Sách Nhân Sự
+                </a>
+              </li>
+            </ul>
           </li>
           <li class="nav-item dropdown-hover">
             <a

@@ -32,8 +32,12 @@ public class BanNganh extends BaseAuditableEntity {
     @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<NhanSu> danhSachNhanSu = new ArrayList<>();
-
+    
     @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<TinHuu> danhSachTinHuu = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "danhSachBanNganh", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<DiemNhom> danhSachDiemNhom = new ArrayList<>();
 
@@ -107,6 +111,14 @@ public class BanNganh extends BaseAuditableEntity {
     public void setDanhSachNhanSu(List<NhanSu> danhSachNhanSu) {
         this.danhSachNhanSu = danhSachNhanSu;
     }
+    
+    public List<TinHuu> getDanhSachTinHuu() {
+        return danhSachTinHuu;
+    }
+
+    public void setDanhSachTinHuu(List<TinHuu> danhSachTinHuu) {
+        this.danhSachTinHuu = danhSachTinHuu;
+    }
 
     public List<DiemNhom> getDanhSachDiemNhom() {
         return danhSachDiemNhom;
@@ -169,6 +181,24 @@ public class BanNganh extends BaseAuditableEntity {
 
     public int getSoLuongNhanSu() {
         return danhSachNhanSu.size();
+    }
+    
+    public void addTinHuu(TinHuu tinHuu) {
+        danhSachTinHuu.add(tinHuu);
+        tinHuu.setBanNganh(this);
+    }
+
+    public void removeTinHuu(TinHuu tinHuu) {
+        danhSachTinHuu.remove(tinHuu);
+        tinHuu.setBanNganh(null);
+    }
+
+    public int getSoLuongTinHuu() {
+        return danhSachTinHuu.size();
+    }
+    
+    public int getTongSoThanhVien() {
+        return getSoLuongNhanSu() + getSoLuongTinHuu();
     }
 
     public NhanSu getTruongBan() {

@@ -27,6 +27,10 @@ public class TinHuu extends BaseAuditableEntity {
     @JsonBackReference
     private Nhom nhom;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ban_nganh_id")
+    private BanNganh banNganh;
+    
     @Column(name = "dien_thoai", length = 20)
     private String dienThoai;
     
@@ -102,6 +106,9 @@ public class TinHuu extends BaseAuditableEntity {
     
     public Nhom getNhom() { return nhom; }
     public void setNhom(Nhom nhom) { this.nhom = nhom; }
+    
+    public BanNganh getBanNganh() { return banNganh; }
+    public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }
     
     public String getDienThoai() { return dienThoai; }
     public void setDienThoai(String dienThoai) { this.dienThoai = dienThoai; }

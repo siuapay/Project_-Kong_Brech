@@ -27,8 +27,9 @@ public interface DiemNhomRepository extends JpaRepository<DiemNhom, Long> {
     // Tìm theo địa chỉ
     List<DiemNhom> findByDiaChiContainingIgnoreCase(String diaChi);
     
-    // Tìm theo ban ngành
-    List<DiemNhom> findByBanNganhId(Long banNganhId);
+    // Tìm theo ban ngành (ManyToMany relationship)
+    @Query("SELECT d FROM DiemNhom d JOIN d.danhSachBanNganh bn WHERE bn.id = :banNganhId")
+    List<DiemNhom> findByBanNganhId(@Param("banNganhId") Long banNganhId);
     
     // Thống kê tổng số tín hữu theo điểm nhóm
     @Query("SELECT d.tenDiemNhom, " +
