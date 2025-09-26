@@ -1,155 +1,239 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/client-layout :: head}"></head>
-  <body>
-    <!-- Navigation -->
-    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
-    <!-- Page Header -->
-    <section class="py-5 bg-primary-custom text-white">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold mb-3">Đặc Trách Ban Ngành</h1>
-            <p class="lead">
-              Tổ chức và hoạt động của các ban ngành trong chi hội
-            </p>
-          </div>
+<head th:replace="~{fragments/client-layout :: head}"></head>
+
+<body>
+  <!-- Navigation -->
+  <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+  <!-- Page Header -->
+  <section class="py-5 bg-primary-custom text-white">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 mx-auto text-center">
+          <h1 class="display-4 fw-bold mb-3">Đặc Trách Ban Ngành</h1>
+          <p class="lead">
+            Tổ chức và hoạt động của các ban ngành trong chi hội
+          </p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Departments Content -->
-    <section class="py-5">
-      <div class="container">
-        <div class="row">
-          <div class="col-12">
-            <!-- Departments List -->
-            <div th:if="${banNganhList != null and !banNganhList.empty}">
-              <div class="card shadow-sm mb-4" th:each="banNganh : ${banNganhList}">
-                <div class="card-body">
-                  <div class="row align-items-start">
-                    <!-- Department Icon & Title -->
-                    <div class="col-md-12 mb-3">
-                      <div class="d-flex align-items-center mb-3">
-                        <div class="department-icon me-3">
-                          <i class="fas fa-users fa-2x text-primary"></i>
-                        </div>
-                        <div>
-                          <h4 class="mb-1 text-primary" th:text="${banNganh.tenBan}">Ban Mục vụ</h4>
-                          <p class="text-muted mb-0" th:text="${banNganh.moTa} ?: 'Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh'">
-                            Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh
-                          </p>
-                        </div>
+  <!-- Departments Content -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <!-- Departments List -->
+          <div th:if="${banNganhList != null and !banNganhList.empty}">
+            <div class="card shadow-sm mb-4" th:each="banNganh : ${banNganhList}">
+              <div class="card-body">
+                <div class="row align-items-start">
+                  <!-- Department Icon & Title -->
+                  <div class="col-md-12 mb-3">
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="department-icon me-3">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-1 text-primary" th:text="${banNganh.tenBan}">Ban Mục vụ</h4>
+                        <p class="text-muted mb-0"
+                          th:text="${banNganh.moTa} ?: 'Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh'">
+                          Phụ trách công tác chăm sóc tâm linh và mục vụ hội thánh
+                        </p>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <!-- Members List -->
-                  <div class="row">
-                    <div class="col-12">
-                      <div class="members-list">
-                        <!-- Trưởng ban -->
-                        <div th:if="${banNganh.truongBan}" class="member-item border-start border-primary border-3 ps-3 mb-3">
+                <!-- Members List -->
+                <div class="row">
+                  <div class="col-12">
+                    <div class="members-list">
+                      <!-- Trưởng ban -->
+                      <div th:if="${banNganh.coTruongBan()}"
+                        class="member-item border-start border-primary border-3 ps-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div>
+                            <h6 class="mb-1">
+                              <span>Trưởng ban: </span>
+                              <span th:text="${banNganh.loaiTruongBan}">Nhân sự</span>
+                              <strong th:text="'[' + ${banNganh.tenTruongBan} + ']'">[Tên]</strong>
+                            </h6>
+                            <p class="text-muted mb-0">
+                              <i class="fas fa-phone me-2"></i>
+                              <span th:if="${banNganh.truongBanNhanSu}"
+                                th:text="${banNganh.truongBanNhanSu.dienThoai} ?: '0123.456.801'">0123.456.801</span>
+                              <span th:if="${banNganh.truongBanChapSu}"
+                                th:text="${banNganh.truongBanChapSu.dienThoai} ?: '0123.456.801'">0123.456.801</span>
+                              <span
+                                th:if="${banNganh.truongBanNhanSu != null and banNganh.truongBanNhanSu.email != null}">
+                                | Email: <span
+                                  th:text="${banNganh.truongBanNhanSu.email}">mucvu@httlkongbrech.org</span>
+                              </span>
+                              <span
+                                th:if="${banNganh.truongBanChapSu != null and banNganh.truongBanChapSu.email != null}">
+                                | Email: <span
+                                  th:text="${banNganh.truongBanChapSu.email}">mucvu@httlkongbrech.org</span>
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Phó ban Nhân sự -->
+                      <div th:if="${banNganh.danhSachPhoBanNhanSu != null and !banNganh.danhSachPhoBanNhanSu.empty}">
+                        <div class="member-item border-start border-success border-3 ps-3 mb-3"
+                          th:each="phoBan : ${banNganh.danhSachPhoBanNhanSu}">
                           <div class="d-flex justify-content-between align-items-start">
                             <div>
                               <h6 class="mb-1">
-                                <span>Trưởng ban: </span>
-                                <span th:text="${banNganh.truongBan.chucVu?.displayName} ?: ${banNganh.truongBan.chucVu}">Truyền đạo</span>
-                                <strong th:text="'[' + ${banNganh.truongBan.hoTen} + ']'">[Tên]</strong>
+                                <span>Phó ban: </span>
+                                <span>Nhân sự</span>
+                                <strong th:text="'[' + ${phoBan.hoTen} + ']'">[Tên]</strong>
                               </h6>
                               <p class="text-muted mb-0">
                                 <i class="fas fa-phone me-2"></i>
-                                <span th:text="${banNganh.truongBan.dienThoai} ?: '0123.456.801'">0123.456.801</span>
-                                <span th:if="${banNganh.truongBan.email}">
-                                  | Email: <span th:text="${banNganh.truongBan.email}">mucvu@httlkongbrech.org</span>
+                                <span th:text="${phoBan.dienThoai} ?: '0123.456.801'">0123.456.801</span>
+                                <span th:if="${phoBan.email}">
+                                  | Email: <span th:text="${phoBan.email}">phoBan@httlkongbrech.org</span>
                                 </span>
                               </p>
                             </div>
                           </div>
                         </div>
+                      </div>
 
-                        <!-- Thành viên khác -->
-                        <div th:if="${banNganh.danhSachNhanSu != null and !banNganh.danhSachNhanSu.empty}">
-                          <div class="member-item border-start border-secondary border-2 ps-3 mb-2" 
-                               th:each="member : ${banNganh.danhSachNhanSu}" 
-                               th:if="${banNganh.truongBan == null or member.id != banNganh.truongBan.id}">
-                            <div class="d-flex justify-content-between align-items-center">
-                              <div>
-                                <h6 class="mb-1">
-                                  <span>Thành viên: </span>
-                                  <span th:text="${member.chucVu?.displayName} ?: ${member.chucVu}">Anh/Chị</span>
-                                  <strong th:text="'[' + ${member.hoTen} + ']'">[Tên]</strong>
-                                </h6>
-                                <p class="text-muted mb-0 small">
-                                  <span th:text="'Phụ trách: ' + (${member.moTaCongViec} ?: 'Thăm viếng tín hữu')">Phụ trách: Thăm viếng tín hữu</span>
-                                </p>
-                              </div>
+                      <!-- Phó ban Chấp sự -->
+                      <div th:if="${banNganh.danhSachPhoBanChapSu != null and !banNganh.danhSachPhoBanChapSu.empty}">
+                        <div class="member-item border-start border-success border-3 ps-3 mb-3"
+                          th:each="phoBan : ${banNganh.danhSachPhoBanChapSu}">
+                          <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                              <h6 class="mb-1">
+                                <span>Phó ban: </span>
+                                <span>Chấp sự</span>
+                                <strong th:text="'[' + ${phoBan.hoTen} + ']'">[Tên]</strong>
+                              </h6>
+                              <p class="text-muted mb-0">
+                                <i class="fas fa-phone me-2"></i>
+                                <span th:text="${phoBan.dienThoai} ?: '0123.456.801'">0123.456.801</span>
+                                <span th:if="${phoBan.email}">
+                                  | Email: <span th:text="${phoBan.email}">phoBan@httlkongbrech.org</span>
+                                </span>
+                              </p>
                             </div>
                           </div>
                         </div>
+                      </div>
 
-                        <!-- Empty members state -->
-                        <div th:if="${banNganh.danhSachNhanSu == null or banNganh.danhSachNhanSu.empty}" 
-                             class="text-center py-3 text-muted">
-                          <i class="fas fa-user-slash me-2"></i>
-                          <span>Chưa có thành viên nào trong ban ngành này</span>
+                      <!-- Thành viên khác -->
+                      <div th:if="${banNganh.danhSachNhanSu != null and !banNganh.danhSachNhanSu.isEmpty()}">
+                        <div class="member-item border-start border-secondary border-2 ps-3 mb-2"
+                          th:each="member : ${banNganh.danhSachNhanSu}"
+                          th:if="${(banNganh.truongBanNhanSu == null or member.id != banNganh.truongBanNhanSu.id) and (banNganh.danhSachPhoBanNhanSu == null or !banNganh.danhSachPhoBanNhanSu.contains(member))}">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="mb-1">
+                                <span>Thành viên: </span>
+                                <span th:text="${member.chucVu?.displayName} ?: ${member.chucVu}">Anh/Chị</span>
+                                <strong th:text="'[' + ${member.hoTen} + ']'">[Tên]</strong>
+                              </h6>
+                              <p class="text-muted mb-0 small">
+                                <span th:text="'Phụ trách: ' + (${member.moTaCongViec} ?: 'Thăm viếng tín hữu')">Phụ
+                                  trách: Thăm viếng tín hữu</span>
+                              </p>
+                            </div>
+                          </div>
                         </div>
+                      </div>
+
+                      <!-- Chấp sự members -->
+                      <div th:if="${banNganh.danhSachChapSu != null and !banNganh.danhSachChapSu.empty}">
+                        <div class="member-item border-start border-info border-2 ps-3 mb-2"
+                          th:each="chapSu : ${banNganh.danhSachChapSu}"
+                          th:if="${(banNganh.truongBanChapSu == null or chapSu.id != banNganh.truongBanChapSu.id) and (banNganh.danhSachPhoBanChapSu == null or !banNganh.danhSachPhoBanChapSu.contains(chapSu))}">
+                          <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 class="mb-1">
+                                <span>Chấp sự: </span>
+                                <span th:text="${chapSu.chucVu?.displayName} ?: ${chapSu.chucVu}">Chấp sự</span>
+                                <strong th:text="'[' + ${chapSu.hoTen} + ']'">[Tên]</strong>
+                              </h6>
+                              <p class="text-muted mb-0 small">
+                                <span th:text="'Phụ trách: ' + (${chapSu.moTaCongViec} ?: 'Phục vụ ban ngành')">Phụ
+                                  trách: Phục vụ ban ngành</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Empty members state -->
+                      <div
+                        th:if="${(banNganh.danhSachNhanSu == null or banNganh.danhSachNhanSu.empty) and (banNganh.danhSachChapSu == null or banNganh.danhSachChapSu.empty)}"
+                        class="text-center py-3 text-muted">
+                        <i class="fas fa-user-slash me-2"></i>
+                        <span>Chưa có thành viên nào trong ban ngành này</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Empty State -->
-            <div th:if="${banNganhList == null or banNganhList.empty}" class="text-center py-5">
-              <i class="fas fa-users fa-5x text-muted mb-3"></i>
-              <h3 class="text-muted">Chưa Có Ban Ngành</h3>
-              <p class="text-muted">
-                Hiện tại chưa có thông tin về các ban ngành.
-              </p>
-              <a href="/" class="btn btn-primary">
-                <i class="fas fa-home me-2"></i>Về Trang Chủ
-              </a>
-            </div>
+          <!-- Empty State -->
+          <div th:if="${banNganhList == null or banNganhList.empty}" class="text-center py-5">
+            <i class="fas fa-users fa-5x text-muted mb-3"></i>
+            <h3 class="text-muted">Chưa Có Ban Ngành</h3>
+            <p class="text-muted">
+              Hiện tại chưa có thông tin về các ban ngành.
+            </p>
+            <a href="/" class="btn btn-primary">
+              <i class="fas fa-home me-2"></i>Về Trang Chủ
+            </a>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <style>
-      .department-icon {
-        width: 60px;
-        height: 60px;
-        background: rgba(37, 99, 235, 0.1);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .member-item {
-        background: rgba(248, 250, 252, 0.5);
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 8px;
-      }
-      
-      .member-item:hover {
-        background: rgba(37, 99, 235, 0.05);
-        transition: background-color 0.2s;
-      }
-      
-      .border-start {
-        border-left-width: 3px !important;
-      }
-    </style>
+  <style>
+    .department-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(37, 99, 235, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-    <!-- Footer -->
-    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+    .member-item {
+      background: rgba(248, 250, 252, 0.5);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
 
-    <!-- Scripts -->
-    <div th:replace="~{fragments/client-layout :: scripts}"></div>
-  </body>
+    .member-item:hover {
+      background: rgba(37, 99, 235, 0.05);
+      transition: background-color 0.2s;
+    }
+
+    .border-start {
+      border-left-width: 3px !important;
+    }
+  </style>
+
+  <!-- Footer -->
+  <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+  <!-- Scripts -->
+  <div th:replace="~{fragments/client-layout :: scripts}"></div>
+</body>
+
 </html>

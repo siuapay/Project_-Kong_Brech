@@ -32,10 +32,40 @@ public class BanNganh extends BaseAuditableEntity {
     @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<NhanSu> danhSachNhanSu = new ArrayList<>();
-    
+
+    @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<ChapSu> danhSachChapSu = new ArrayList<>();
+
     @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<TinHuu> danhSachTinHuu = new ArrayList<>();
+
+    // Trưởng ban - chỉ có 1 (Nhân sự HOẶC Chấp sự)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "truong_ban_nhan_su_id")
+    private NhanSu truongBanNhanSu;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "truong_ban_chap_su_id")
+    private ChapSu truongBanChapSu;
+
+    // Phó ban - có thể có nhiều (Many-to-Many)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "ban_nganh_pho_ban_nhan_su",
+        joinColumns = @JoinColumn(name = "ban_nganh_id"),
+        inverseJoinColumns = @JoinColumn(name = "nhan_su_id")
+    )
+    private List<NhanSu> danhSachPhoBanNhanSu = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "ban_nganh_pho_ban_chap_su",
+        joinColumns = @JoinColumn(name = "ban_nganh_id"),
+        inverseJoinColumns = @JoinColumn(name = "chap_su_id")
+    )
+    private List<ChapSu> danhSachPhoBanChapSu = new ArrayList<>();
 
     @ManyToMany(mappedBy = "danhSachBanNganh", fetch = FetchType.LAZY)
     @JsonIgnore
@@ -111,13 +141,53 @@ public class BanNganh extends BaseAuditableEntity {
     public void setDanhSachNhanSu(List<NhanSu> danhSachNhanSu) {
         this.danhSachNhanSu = danhSachNhanSu;
     }
-    
+
+    public List<ChapSu> getDanhSachChapSu() {
+        return danhSachChapSu;
+    }
+
+    public void setDanhSachChapSu(List<ChapSu> danhSachChapSu) {
+        this.danhSachChapSu = danhSachChapSu;
+    }
+
     public List<TinHuu> getDanhSachTinHuu() {
         return danhSachTinHuu;
     }
 
     public void setDanhSachTinHuu(List<TinHuu> danhSachTinHuu) {
         this.danhSachTinHuu = danhSachTinHuu;
+    }
+
+    public NhanSu getTruongBanNhanSu() {
+        return truongBanNhanSu;
+    }
+
+    public void setTruongBanNhanSu(NhanSu truongBanNhanSu) {
+        this.truongBanNhanSu = truongBanNhanSu;
+    }
+
+    public ChapSu getTruongBanChapSu() {
+        return truongBanChapSu;
+    }
+
+    public void setTruongBanChapSu(ChapSu truongBanChapSu) {
+        this.truongBanChapSu = truongBanChapSu;
+    }
+
+    public List<NhanSu> getDanhSachPhoBanNhanSu() {
+        return danhSachPhoBanNhanSu;
+    }
+
+    public void setDanhSachPhoBanNhanSu(List<NhanSu> danhSachPhoBanNhanSu) {
+        this.danhSachPhoBanNhanSu = danhSachPhoBanNhanSu;
+    }
+
+    public List<ChapSu> getDanhSachPhoBanChapSu() {
+        return danhSachPhoBanChapSu;
+    }
+
+    public void setDanhSachPhoBanChapSu(List<ChapSu> danhSachPhoBanChapSu) {
+        this.danhSachPhoBanChapSu = danhSachPhoBanChapSu;
     }
 
     public List<DiemNhom> getDanhSachDiemNhom() {
@@ -182,7 +252,7 @@ public class BanNganh extends BaseAuditableEntity {
     public int getSoLuongNhanSu() {
         return danhSachNhanSu.size();
     }
-    
+
     public void addTinHuu(TinHuu tinHuu) {
         danhSachTinHuu.add(tinHuu);
         tinHuu.setBanNganh(this);
@@ -193,43 +263,113 @@ public class BanNganh extends BaseAuditableEntity {
         tinHuu.setBanNganh(null);
     }
 
+    public void addChapSu(ChapSu chapSu) {
+        danhSachChapSu.add(chapSu);
+        chapSu.setBanNganh(this);
+    }
+
+    public void removeChapSu(ChapSu chapSu) {
+        danhSachChapSu.remove(chapSu);
+        chapSu.setBanNganh(null);
+    }
+
+    public int getSoLuongChapSu() {
+        return danhSachChapSu.size();
+    }
+
     public int getSoLuongTinHuu() {
         return danhSachTinHuu.size();
     }
-    
+
     public int getTongSoThanhVien() {
-        return getSoLuongNhanSu() + getSoLuongTinHuu();
+        return getSoLuongNhanSu() + getSoLuongChapSu() + getSoLuongTinHuu();
     }
 
-    public NhanSu getTruongBan() {
-        // Tìm theo thứ tự ưu tiên: Mục sư -> Truyền đạo -> Chấp sự -> Thư ký -> Thủ quỹ
-        // -> Thành viên
-        return danhSachNhanSu.stream()
-                .filter(ns -> ns.getChucVu() != null)
-                .min((ns1, ns2) -> {
-                    NhanSu.ChucVu cv1 = ns1.getChucVu();
-                    NhanSu.ChucVu cv2 = ns2.getChucVu();
-                    return Integer.compare(getChucVuPriority(cv1), getChucVuPriority(cv2));
-                })
-                .orElse(null);
+    // Helper methods để lấy thông tin trưởng ban và phó ban
+    public String getTenTruongBan() {
+        if (truongBanNhanSu != null) {
+            return truongBanNhanSu.getHoTen();
+        }
+        if (truongBanChapSu != null) {
+            return truongBanChapSu.getHoTen();
+        }
+        return null;
     }
 
-    private int getChucVuPriority(NhanSu.ChucVu chucVu) {
-        switch (chucVu) {
-            case MUC_SU:
-                return 1;
-            case TRUYEN_DAO:
-                return 2;
-            case CHAP_SU:
-                return 3;
-            case THU_KY:
-                return 4;
-            case THU_QUY:
-                return 5;
-            case THANH_VIEN:
-                return 6;
-            default:
-                return 999;
+    public String getLoaiTruongBan() {
+        if (truongBanNhanSu != null) {
+            return "Nhân sự";
+        }
+        if (truongBanChapSu != null) {
+            return "Chấp sự";
+        }
+        return null;
+    }
+
+    public List<String> getDanhSachTenPhoBan() {
+        List<String> danhSach = new ArrayList<>();
+        
+        // Thêm phó ban nhân sự
+        if (danhSachPhoBanNhanSu != null) {
+            for (NhanSu nhanSu : danhSachPhoBanNhanSu) {
+                danhSach.add(nhanSu.getHoTen() + " (Nhân sự)");
+            }
+        }
+        
+        // Thêm phó ban chấp sự
+        if (danhSachPhoBanChapSu != null) {
+            for (ChapSu chapSu : danhSachPhoBanChapSu) {
+                danhSach.add(chapSu.getHoTen() + " (Chấp sự)");
+            }
+        }
+        
+        return danhSach;
+    }
+
+    public boolean coTruongBan() {
+        return truongBanNhanSu != null || truongBanChapSu != null;
+    }
+
+    public boolean coPhoBan() {
+        return (danhSachPhoBanNhanSu != null && !danhSachPhoBanNhanSu.isEmpty()) || 
+               (danhSachPhoBanChapSu != null && !danhSachPhoBanChapSu.isEmpty());
+    }
+
+    public int getSoLuongPhoBan() {
+        int count = 0;
+        if (danhSachPhoBanNhanSu != null) count += danhSachPhoBanNhanSu.size();
+        if (danhSachPhoBanChapSu != null) count += danhSachPhoBanChapSu.size();
+        return count;
+    }
+
+    // Helper methods để quản lý phó ban
+    public void addPhoBanNhanSu(NhanSu nhanSu) {
+        if (danhSachPhoBanNhanSu == null) {
+            danhSachPhoBanNhanSu = new ArrayList<>();
+        }
+        if (!danhSachPhoBanNhanSu.contains(nhanSu)) {
+            danhSachPhoBanNhanSu.add(nhanSu);
+        }
+    }
+
+    public void removePhoBanNhanSu(NhanSu nhanSu) {
+        if (danhSachPhoBanNhanSu != null) {
+            danhSachPhoBanNhanSu.remove(nhanSu);
+        }
+    }
+
+    public void addPhoBanChapSu(ChapSu chapSu) {
+        if (danhSachPhoBanChapSu == null) {
+            danhSachPhoBanChapSu = new ArrayList<>();
+        }
+        if (!danhSachPhoBanChapSu.contains(chapSu)) {
+            danhSachPhoBanChapSu.add(chapSu);
+        }
+    }
+
+    public void removePhoBanChapSu(ChapSu chapSu) {
+        if (danhSachPhoBanChapSu != null) {
+            danhSachPhoBanChapSu.remove(chapSu);
         }
     }
 

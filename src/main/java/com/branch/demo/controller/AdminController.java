@@ -426,15 +426,15 @@ public class AdminController {
     // @GetMapping("/api/all-ban-nganh")
     // @ResponseBody
     // public java.util.List<java.util.Map<String, Object>> getAllBanNganh() {
-    //     return adminService.getAllActiveBanNganh().stream()
-    //             .map(banNganh -> {
-    //                 java.util.Map<String, Object> map = new java.util.HashMap<>();
-    //                 map.put("id", banNganh.getId());
-    //                 map.put("tenBan", banNganh.getTenBan());
-    //                 map.put("maBan", banNganh.getMaBan());
-    //                 return map;
-    //             })
-    //             .collect(java.util.stream.Collectors.toList());
+    // Service.getAllActiveBanNganh().stream()
+    //
+    // l.HashMap<>();
+    //
+    //
+    //
+    //
+    //
+    // .toList());
     // }
 
     @GetMapping("/api/all-nhom-with-diem-nhom")
@@ -512,6 +512,11 @@ public class AdminController {
         model.addAttribute("pageTitle", "Thêm Ban Ngành Mới");
         model.addAttribute("activeMenu", "ban-nganh");
         model.addAttribute("banNganh", new com.branch.demo.domain.BanNganh());
+
+        // Thêm danh sách nhân sự và chấp sự để chọn trưởng ban/phó ban
+        model.addAttribute("nhanSuList", adminService.getAllActiveNhanSu());
+        model.addAttribute("chapSuList", adminService.getAllActiveChapSu());
+
         return "admin/ban-nganh/form";
     }
 
@@ -521,14 +526,21 @@ public class AdminController {
         model.addAttribute("pageTitle", "Chỉnh Sửa Ban Ngành");
         model.addAttribute("activeMenu", "ban-nganh");
         model.addAttribute("banNganh", adminService.getBanNganhById(id));
+
+        // Thêm danh sách nhân sự và chấp sự để chọn trưởng ban/phó ban
+        model.addAttribute("nhanSuList", adminService.getAllActiveNhanSu());
+        model.addAttribute("chapSuList", adminService.getAllActiveChapSu());
+
         return "admin/ban-nganh/form";
     }
 
     @PostMapping("/ban-nganh/save")
     public String saveBanNganh(@ModelAttribute com.branch.demo.domain.BanNganh banNganh,
+            @RequestParam(required = false) String phoBanNhanSuIds,
+            @RequestParam(required = false) String phoBanChapSuIds,
             RedirectAttributes redirectAttributes) {
         try {
-            adminService.saveBanNganh(banNganh);
+            adminService.saveBanNganhWithManagement(banNganh, phoBanNhanSuIds, phoBanChapSuIds);
             redirectAttributes.addFlashAttribute("success", "Ban ngành đã được lưu thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
@@ -579,12 +591,39 @@ public class AdminController {
 
     @GetMapping("/ban-nganh/view/{id}")
     public String viewBanNganh(@PathVariable Long id, Model model) {
+        com.branch.demo.domain.BanNganh banNganh = adminService.getBanNganhById(id);
+
         model.addAttribute("title", "Chi Tiết Ban Ngành");
         model.addAttribute("pageTitle", "Chi Tiết Ban Ngành");
         model.addAttribute("activeMenu", "ban-nganh");
-        model.addAttribute("banNganh", adminService.getBanNganhById(id));
+        model.addAttribute("banNganh", banNganh);
+
+        // Build danh sách nhân sự và chấp sự trong ban ngành
+        model.addAttribute("danhSachNhanSu", adminService.getNhanSuByBanNganhId(id));
+        model.addAttribute("danhSachChapSu", adminService.getChapSuByBanNganhId(id));
+
         return "admin/ban-nganh/view";
     }
+
+    // API endpoints for searchable dropdowns
+    // @GetMapping("/api/all-nhan-su")
+    // @ResponseBody
+    // public java.util.List<com.branch.demo.domain.NhanSu> getAllNhanSu() {
+    // return adminService.getAllActiveNhanSu();
+    // }
+
+    @GetMapping("/api/all-chap-su")
+    @ResponseBody
+    public java.util.List<com.branch.demo.domain.ChapSu> getAllChapSu() {
+        return adminService.getAllActiveChapSu();
+    }
+
+    // @GetMapping("/api/ban-nganh/{id}/nhan-su")
+    // @ResponseBody
+    // public java.util.List<com.branch.demo.domain.NhanSu>
+    // getBanNganhNhanSu(@PathVariable Long id) {
+    // return adminService.getNhanSuByBanNganhId(id);
+    // }
 
     // ==================== CHẤP SỰ MANAGEMENT ====================
 
@@ -2022,4 +2061,59 @@ public class AdminController {
         model.addAttribute("account", adminService.getAccountById(id));
         return "admin/account/view";
     }
+
+    // ==================== API ENDPOINTS FOR BAN NGANH ====================
+
+    // @GetMapping("/api/all-nhan-su")
+    // @ResponseBody
+    // public java.util.List<com.branch.demo.domain.NhanSu> getAllNhanSu() {
+    //     return adminService.getAllActiveNhanSu();
+    // }
+
+    // @GetMapping("/api/all-chap-su")
+    // @ResponseBody
+    // public java.util.List<com.branch.demo.domain.ChapSu> getAllChapSu() {
+    //     return adminService.getAllActiveChapSu();
+    // }
+
+    // @GetMapping("/api/ban-nganh/{id}/nhan-su")
+    // @ResponseBody
+    // public java.util.List<java.util.Map<String, Object>> getBanNganhNhanSu(@PathVariable Long id) {
+    //     java.util.List<com.branch.demo.domain.NhanSu> nhanSuList = adminService.getNhanSuByBanNganhId(id);
+    //     return nhanSuList.stream()
+    //             .map(nhanSu -> {
+    //                 java.util.Map<String, Object> map = new java.util.HashMap<>();
+    //                 map.put("id", nhanSu.getId());
+    //                 map.put("hoTen", nhanSu.getHoTen());
+    //                 map.put("chucVu", nhanSu.getChucVu() != null ? nhanSu.getChucVu().getDisplayName() : "");
+    //                 map.put("email", nhanSu.getEmail());
+    //                 map.put("dienThoai", nhanSu.getDienThoai());
+    //                 map.put("avatarUrl", nhanSu.getAvatarUrl());
+    //                 map.put("trangThai", nhanSu.getTrangThai().name());
+    //                 map.put("diemNhomTen", nhanSu.getDiemNhom() != null ? nhanSu.getDiemNhom().getTenDiemNhom() : null);
+    //                 return map;
+    //             })
+    //             .collect(java.util.stream.Collectors.toList());
+    // }
+
+    @GetMapping("/api/ban-nganh/{id}/chap-su")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getBanNganhChapSu(@PathVariable Long id) {
+        java.util.List<com.branch.demo.domain.ChapSu> chapSuList = adminService.getChapSuByBanNganhId(id);
+        return chapSuList.stream()
+                .map(chapSu -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", chapSu.getId());
+                    map.put("hoTen", chapSu.getHoTen());
+                    map.put("chucVu", chapSu.getChucVu() != null ? chapSu.getChucVu().getDisplayName() : "");
+                    map.put("email", chapSu.getEmail());
+                    map.put("dienThoai", chapSu.getDienThoai());
+                    map.put("avatarUrl", chapSu.getAvatarUrl());
+                    map.put("trangThai", chapSu.getTrangThai().name());
+                    map.put("diemNhomTen", chapSu.getDiemNhom() != null ? chapSu.getDiemNhom().getTenDiemNhom() : null);
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
 }

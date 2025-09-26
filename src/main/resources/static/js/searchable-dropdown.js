@@ -3,8 +3,20 @@
  * Tạo dropdown có thể tìm kiếm cho việc chọn điểm nhóm
  */
 class SearchableDropdown {
-    constructor(containerId, options = {}) {
-        this.container = document.getElementById(containerId);
+    constructor(container, options = {}) {
+        // Accept either element or string ID
+        if (typeof container === 'string') {
+            this.container = document.getElementById(container);
+        } else {
+            this.container = container;
+        }
+        
+        // Check if container exists
+        if (!this.container) {
+            console.error('SearchableDropdown: Container not found');
+            return;
+        }
+        
         this.options = {
             placeholder: options.placeholder || 'Tìm kiếm và chọn...',
             searchPlaceholder: options.searchPlaceholder || 'Nhập để tìm kiếm...',
@@ -13,10 +25,11 @@ class SearchableDropdown {
             onSelect: options.onSelect || function() {},
             displayField: options.displayField || 'name',
             valueField: options.valueField || 'id',
+            data: options.data || [],
             ...options
         };
         
-        this.data = [];
+        this.data = this.options.data || [];
         this.filteredData = [];
         this.selectedItem = null;
         this.isOpen = false;
@@ -33,6 +46,11 @@ class SearchableDropdown {
     }
     
     createHTML() {
+        if (!this.container) {
+            console.error('SearchableDropdown: Cannot create HTML - container is null');
+            return;
+        }
+        
         this.container.innerHTML = `
             <div class="searchable-dropdown">
                 <div class="dropdown-input-container">
@@ -228,6 +246,14 @@ class SearchableDropdown {
         const item = this.data.find(d => d[this.options.valueField] == value);
         if (item) {
             this.select(item);
+        }
+    }
+    
+    setData(data) {
+        this.data = data || [];
+        this.filteredData = [...this.data];
+        if (this.isOpen) {
+            this.renderResults();
         }
     }
     

@@ -243,8 +243,16 @@ public class AdminService {
                 com.branch.demo.domain.BanNganh.TrangThaiBanNganh.HOAT_DONG);
     }
 
+    public java.util.List<com.branch.demo.domain.NhanSu> getAllActiveNhanSu() {
+        return nhanSuRepository.findAll(Sort.by("hoTen"));
+    }
+
+    public java.util.List<com.branch.demo.domain.ChapSu> getAllActiveChapSu() {
+        return chapSuRepository.findAll(Sort.by("hoTen"));
+    }
+
     // public java.util.List<com.branch.demo.domain.Nhom> getAllNhom() {
-    //     return nhomRepository.findAll(Sort.by("tenNhom"));
+    // return nhomRepository.findAll(Sort.by("tenNhom"));
     // }
 
     // // ==================== NHÓM MANAGEMENT METHODS ====================
@@ -318,17 +326,20 @@ public class AdminService {
     }
 
     // public java.util.List<com.branch.demo.domain.DanhMuc> getAllActiveDanhMuc() {
-    //     return danhMucRepository
-    //             .findByTrangThaiOrderByTenDanhMucAsc(com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
+    // return danhMucRepository
+    // .findByTrangThaiOrderByTenDanhMucAsc(com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG);
     // }
 
-    // public java.util.List<com.branch.demo.domain.BanNganh> getAllActiveBanNganh() {
-    //     return banNganhRepository.findByTrangThai(com.branch.demo.domain.BanNganh.TrangThaiBanNganh.HOAT_DONG);
+    // public java.util.List<com.branch.demo.domain.BanNganh> getAllActiveBanNganh()
+    // {
+    // return
+    // banNganhRepository.findByTrangThai(com.branch.demo.domain.BanNganh.TrangThaiBanNganh.HOAT_DONG);
     // }
 
     // public com.branch.demo.domain.BanNganh getBanNganhById(Long id) {
-    //     return banNganhRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Không tìm thấy ban ngành với ID: " + id));
+    // return banNganhRepository.findById(id)
+    // .orElseThrow(() -> new RuntimeException("Không tìm thấy ban ngành với ID: " +
+    // id));
     // }
 
     // ==================== ĐIỂM NHÓM MANAGEMENT METHODS ====================
@@ -825,6 +836,27 @@ public class AdminService {
             }
         }
 
+        // Xử lý trưởng ban - load từ database để tránh TransientObjectException
+        if (banNganh.getTruongBanNhanSu() != null && banNganh.getTruongBanNhanSu().getId() != null) {
+            com.branch.demo.domain.NhanSu truongBanNhanSu = nhanSuRepository
+                    .findById(banNganh.getTruongBanNhanSu().getId())
+                    .orElse(null);
+            banNganh.setTruongBanNhanSu(truongBanNhanSu);
+            // Clear ChapSu nếu chọn NhanSu
+            banNganh.setTruongBanChapSu(null);
+        } else if (banNganh.getTruongBanChapSu() != null && banNganh.getTruongBanChapSu().getId() != null) {
+            com.branch.demo.domain.ChapSu truongBanChapSu = chapSuRepository
+                    .findById(banNganh.getTruongBanChapSu().getId())
+                    .orElse(null);
+            banNganh.setTruongBanChapSu(truongBanChapSu);
+            // Clear NhanSu nếu chọn ChapSu
+            banNganh.setTruongBanNhanSu(null);
+        } else {
+            // Clear both nếu không chọn gì
+            banNganh.setTruongBanNhanSu(null);
+            banNganh.setTruongBanChapSu(null);
+        }
+
         // Xử lý null cho các field không bắt buộc
         if (banNganh.getMoTa() != null && banNganh.getMoTa().trim().isEmpty()) {
             banNganh.setMoTa(null);
@@ -840,6 +872,82 @@ public class AdminService {
 
         return banNganhRepository.save(banNganh);
     }
+
+    @Transactional
+    public com.branch.demo.domain.BanNganh saveBanNganhWithManagement(
+            com.branch.demo.domain.BanNganh banNganh,
+            String phoBanNhanSuIds,
+            String phoBanChapSuIds) {
+
+        // Save basic ban nganh info first
+        com.branch.demo.domain.BanNganh savedBanNganh = saveBanNganh(banNganh);
+
+        // Reload the saved entity to ensure it's managed
+        savedBanNganh = banNganhRepository.findById(savedBanNganh.getId())
+                .orElseThrow(() -> new RuntimeException("Không thể tải lại ban ngành đã lưu"));
+
+        // Handle Phó Ban Nhân Sự
+        java.util.List<com.branch.demo.domain.NhanSu> newPhoBanNhanSu = new java.util.ArrayList<>();
+        if (phoBanNhanSuIds != null && !phoBanNhanSuIds.trim().isEmpty()) {
+            String[] ids = phoBanNhanSuIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long id = Long.parseLong(idStr.trim());
+                    com.branch.demo.domain.NhanSu nhanSu = nhanSuRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân sự với ID: " + id));
+                    newPhoBanNhanSu.add(nhanSu);
+                } catch (NumberFormatException e) {
+                    // Skip invalid ID
+                }
+            }
+        }
+
+        // Handle Phó Ban Chấp Sự
+        java.util.List<com.branch.demo.domain.ChapSu> newPhoBanChapSu = new java.util.ArrayList<>();
+        if (phoBanChapSuIds != null && !phoBanChapSuIds.trim().isEmpty()) {
+            String[] ids = phoBanChapSuIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long id = Long.parseLong(idStr.trim());
+                    com.branch.demo.domain.ChapSu chapSu = chapSuRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy chấp sự với ID: " + id));
+                    newPhoBanChapSu.add(chapSu);
+                } catch (NumberFormatException e) {
+                    // Skip invalid ID
+                }
+            }
+        }
+
+        // Clear and set new collections
+        savedBanNganh.getDanhSachPhoBanNhanSu().clear();
+        savedBanNganh.getDanhSachPhoBanNhanSu().addAll(newPhoBanNhanSu);
+
+        savedBanNganh.getDanhSachPhoBanChapSu().clear();
+        savedBanNganh.getDanhSachPhoBanChapSu().addAll(newPhoBanChapSu);
+
+        return banNganhRepository.save(savedBanNganh);
+    }
+
+    // public java.util.List<com.branch.demo.domain.NhanSu> getAllActiveNhanSu() {
+    // return nhanSuRepository.findAll().stream()
+    // .filter(ns -> ns.getDeletedAt() == null)
+    // .collect(java.util.stream.Collectors.toList());
+    // }
+
+    // public java.util.List<com.branch.demo.domain.ChapSu> getAllActiveChapSu() {
+    // return chapSuRepository.findAll().stream()
+    // .filter(cs -> cs.getDeletedAt() == null)
+    // .collect(java.util.stream.Collectors.toList());
+    // }
+
+    // public java.util.List<com.branch.demo.domain.NhanSu>
+    // getNhanSuByBanNganhId(Long banNganhId) {
+    // return nhanSuRepository.findAll().stream()
+    // .filter(ns -> ns.getDeletedAt() == null &&
+    // ns.getBanNganh() != null &&
+    // ns.getBanNganh().getId().equals(banNganhId))
+    // .collect(java.util.stream.Collectors.toList());
+    // }
 
     public void deleteBanNganh(Long id) {
         com.branch.demo.domain.BanNganh banNganh = getBanNganhById(id);
@@ -1337,22 +1445,22 @@ public class AdminService {
         return banNganh.getDanhSachNhanSu();
     }
 
-    public java.util.List<java.util.Map<String, Object>> getNhanSuByBanNganhId(Long banNganhId) {
-        java.util.List<com.branch.demo.domain.NhanSu> nhanSuList = getNhanSuByBanNganh(banNganhId);
-        return nhanSuList.stream().map(nhanSu -> {
-            java.util.Map<String, Object> map = new java.util.HashMap<>();
-            map.put("id", nhanSu.getId());
-            map.put("hoTen", nhanSu.getHoTen());
-            map.put("chucVu", nhanSu.getChucVu());
-            map.put("email", nhanSu.getEmail());
-            map.put("dienThoai", nhanSu.getDienThoai());
-            map.put("avatarUrl", nhanSu.getAvatarUrl());
-            map.put("trangThai", nhanSu.getTrangThai());
-            map.put("ngayBatDau", nhanSu.getNgayBatDauPhucVu());
-            map.put("diemNhom", nhanSu.getDiemNhom() != null ? nhanSu.getDiemNhom().getTenDiemNhom() : null);
-            return map;
-        }).collect(java.util.stream.Collectors.toList());
-    }
+    // public java.util.List<java.util.Map<String, Object>> getNhanSuByBanNganhId(Long banNganhId) {
+    //     java.util.List<com.branch.demo.domain.NhanSu> nhanSuList = getNhanSuByBanNganh(banNganhId);
+    //     return nhanSuList.stream().map(nhanSu -> {
+    //         java.util.Map<String, Object> map = new java.util.HashMap<>();
+    //         map.put("id", nhanSu.getId());
+    //         map.put("hoTen", nhanSu.getHoTen());
+    //         map.put("chucVu", nhanSu.getChucVu());
+    //         map.put("email", nhanSu.getEmail());
+    //         map.put("dienThoai", nhanSu.getDienThoai());
+    //         map.put("avatarUrl", nhanSu.getAvatarUrl());
+    //         map.put("trangThai", nhanSu.getTrangThai());
+    //         map.put("ngayBatDau", nhanSu.getNgayBatDauPhucVu());
+    //         map.put("diemNhom", nhanSu.getDiemNhom() != null ? nhanSu.getDiemNhom().getTenDiemNhom() : null);
+    //         return map;
+    //     }).collect(java.util.stream.Collectors.toList());
+    // }
 
     // ==================== DIEM NHOM DELETE WITH CASCADE ====================
 
@@ -1506,10 +1614,10 @@ public class AdminService {
     }
 
     // public java.util.List<com.branch.demo.domain.DanhMuc> getAllActiveDanhMuc() {
-    //     return danhMucRepository.findByTrangThai(
-    //         com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG, 
-    //         Sort.by("tenDanhMuc")
-    //     );
+    // return danhMucRepository.findByTrangThai(
+    // com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc.HOAT_DONG,
+    // Sort.by("tenDanhMuc")
+    // );
     // }
 
     private String generateSlug(String title) {
@@ -1811,5 +1919,23 @@ public class AdminService {
 
     public java.util.List<Account> getAllActiveAccounts() {
         return accountRepository.findAll(Sort.by(Sort.Direction.ASC, "fullName"));
+    }
+
+    // ==================== BAN NGANH RELATED METHODS ====================
+
+    public java.util.List<com.branch.demo.domain.NhanSu> getNhanSuByBanNganhId(Long banNganhId) {
+        return nhanSuRepository.findAll().stream()
+                .filter(ns ->
+                        ns.getBanNganh() != null &&
+                        ns.getBanNganh().getId().equals(banNganhId))
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.List<com.branch.demo.domain.ChapSu> getChapSuByBanNganhId(Long banNganhId) {
+        return chapSuRepository.findAll().stream()
+                .filter(cs -> 
+                        cs.getBanNganh() != null &&
+                        cs.getBanNganh().getId().equals(banNganhId))
+                .collect(java.util.stream.Collectors.toList());
     }
 }

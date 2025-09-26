@@ -81,6 +81,90 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Quản lý Ban -->
+                                <hr class="my-4">
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-users-cog me-2"></i>Quản Lý Ban
+                                </h6>
+                                
+                                <!-- Trưởng Ban (chỉ 1) -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-12">
+                                        <label class="form-label">Trưởng Ban <span class="text-danger">*</span></label>
+                                        <div class="row g-2">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="truongBanType" id="truongBanNhanSu" value="nhansu">
+                                                    <label class="form-check-label" for="truongBanNhanSu">
+                                                        <i class="fas fa-user text-primary me-1"></i>Nhân Sự
+                                                    </label>
+                                                </div>
+                                                <div id="truongBanNhanSuDropdown" class="mt-2" style="display: none;"></div>
+                                                <input type="hidden" id="truongBanNhanSuId" th:field="*{truongBanNhanSu.id}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="truongBanType" id="truongBanChapSu" value="chapsu">
+                                                    <label class="form-check-label" for="truongBanChapSu">
+                                                        <i class="fas fa-user-tie text-success me-1"></i>Chấp Sự
+                                                    </label>
+                                                </div>
+                                                <div id="truongBanChapSuDropdown" class="mt-2" style="display: none;"></div>
+                                                <input type="hidden" id="truongBanChapSuId" th:field="*{truongBanChapSu.id}">
+                                            </div>
+                                        </div>
+                                        <div class="form-text">Chọn một trong hai loại để làm trưởng ban</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Phó Ban (nhiều) -->
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label class="form-label">Phó Ban (có thể chọn nhiều)</label>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small">
+                                                    <i class="fas fa-user text-primary me-1"></i>Phó Ban Nhân Sự
+                                                </label>
+                                                <div id="phoBanNhanSuDropdown"></div>
+                                                <input type="hidden" id="phoBanNhanSuIds" name="phoBanNhanSuIds">
+                                                <div id="selectedPhoBanNhanSu" class="mt-2"></div>
+                                                
+                                                <!-- Hidden inputs for existing data -->
+                                                <div style="display: none;">
+                                                    <div th:each="nhanSu : ${banNganh.danhSachPhoBanNhanSu}">
+                                                        <input type="hidden" class="existing-pho-ban-nhan-su" 
+                                                               th:data-id="${nhanSu.id}" 
+                                                               th:data-name="${nhanSu.hoTen}"
+                                                               th:data-email="${nhanSu.email}"
+                                                               th:data-phone="${nhanSu.dienThoai}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label text-muted small">
+                                                    <i class="fas fa-user-tie text-success me-1"></i>Phó Ban Chấp Sự
+                                                </label>
+                                                <div id="phoBanChapSuDropdown"></div>
+                                                <input type="hidden" id="phoBanChapSuIds" name="phoBanChapSuIds">
+                                                <div id="selectedPhoBanChapSu" class="mt-2"></div>
+                                                
+                                                <!-- Hidden inputs for existing data -->
+                                                <div style="display: none;">
+                                                    <div th:each="chapSu : ${banNganh.danhSachPhoBanChapSu}">
+                                                        <input type="hidden" class="existing-pho-ban-chap-su" 
+                                                               th:data-id="${chapSu.id}" 
+                                                               th:data-name="${chapSu.hoTen}"
+                                                               th:data-email="${chapSu.email}"
+                                                               th:data-phone="${chapSu.dienThoai}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-text">Có thể chọn nhiều nhân sự và chấp sự làm phó ban</div>
+                                    </div>
+                                </div>
+                                
                                 <hr class="my-4">
                                 
                                 <div class="d-flex gap-2">
@@ -158,7 +242,333 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <script src="/js/searchable-dropdown.js"></script>
     <script>
+        // Global variables
+        let allNhanSu = [];
+        let allChapSu = [];
+        let selectedPhoBanNhanSu = [];
+        let selectedPhoBanChapSu = [];
+        
+        // Initialize form when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllData();
+            initializeTruongBanRadios();
+            // Initialize existing data after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                initializeExistingData();
+            }, 200);
+        });
+        
+        // Load all data from APIs
+        async function loadAllData() {
+            try {
+                const [nhanSuResponse, chapSuResponse] = await Promise.all([
+                    fetch('/admin/api/all-nhan-su'),
+                    fetch('/admin/api/all-chap-su')
+                ]);
+                
+                if (nhanSuResponse.ok && chapSuResponse.ok) {
+                    allNhanSu = await nhanSuResponse.json();
+                    allChapSu = await chapSuResponse.json();
+                    
+                    // Only initialize dropdowns if we have data
+                    if (allNhanSu.length > 0 || allChapSu.length > 0) {
+                        initializeDropdowns();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Initialize all dropdowns
+        function initializeDropdowns() {
+            // Initialize Phó Ban dropdowns (always visible)
+            initializePhoBanDropdowns();
+        }
+        
+        // Initialize Trưởng Ban radio buttons
+        function initializeTruongBanRadios() {
+            const truongBanNhanSuRadio = document.getElementById('truongBanNhanSu');
+            const truongBanChapSuRadio = document.getElementById('truongBanChapSu');
+            
+            truongBanNhanSuRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    showTruongBanDropdown('nhansu');
+                    hideTruongBanDropdown('chapsu');
+                    // Clear ChapSu selection
+                    document.getElementById('truongBanChapSuId').value = '';
+                }
+            });
+            
+            truongBanChapSuRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    showTruongBanDropdown('chapsu');
+                    hideTruongBanDropdown('nhansu');
+                    // Clear NhanSu selection
+                    document.getElementById('truongBanNhanSuId').value = '';
+                }
+            });
+        }
+        
+        // Show Trưởng Ban dropdown
+        function showTruongBanDropdown(type) {
+            const dropdownContainer = document.getElementById(`truongBan${type === 'nhansu' ? 'NhanSu' : 'ChapSu'}Dropdown`);
+            dropdownContainer.style.display = 'block';
+            
+            if (type === 'nhansu') {
+                createTruongBanNhanSuDropdown();
+            } else {
+                createTruongBanChapSuDropdown();
+            }
+        }
+        
+        // Hide Trưởng Ban dropdown
+        function hideTruongBanDropdown(type) {
+            const dropdownContainer = document.getElementById(`truongBan${type === 'nhansu' ? 'NhanSu' : 'ChapSu'}Dropdown`);
+            dropdownContainer.style.display = 'none';
+            dropdownContainer.innerHTML = '';
+        }
+        
+        // Create Trưởng Ban Nhân Sự dropdown
+        function createTruongBanNhanSuDropdown() {
+            const container = document.getElementById('truongBanNhanSuDropdown');
+            const currentValue = document.getElementById('truongBanNhanSuId').value;
+            
+            if (container && allNhanSu && allNhanSu.length > 0) {
+                const dropdown = new SearchableDropdown(container, {
+                    data: allNhanSu,
+                    placeholder: 'Tìm kiếm nhân sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    onSelect: function(item) {
+                        document.getElementById('truongBanNhanSuId').value = item.id;
+                    }
+                });
+                
+                // Set selected value after creating dropdown
+                if (currentValue && currentValue.trim() !== '') {
+                    setTimeout(() => {
+                        dropdown.setValue(currentValue);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Create Trưởng Ban Chấp Sự dropdown
+        function createTruongBanChapSuDropdown() {
+            const container = document.getElementById('truongBanChapSuDropdown');
+            const currentValue = document.getElementById('truongBanChapSuId').value;
+            
+            if (container && allChapSu && allChapSu.length > 0) {
+                const dropdown = new SearchableDropdown(container, {
+                    data: allChapSu,
+                    placeholder: 'Tìm kiếm chấp sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    onSelect: function(item) {
+                        document.getElementById('truongBanChapSuId').value = item.id;
+                    }
+                });
+                
+                // Set selected value after creating dropdown
+                if (currentValue && currentValue.trim() !== '') {
+                    setTimeout(() => {
+                        dropdown.setValue(currentValue);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Initialize Phó Ban dropdowns
+        function initializePhoBanDropdowns() {
+            // Phó Ban Nhân Sú
+            const phoBanNhanSuContainer = document.getElementById('phoBanNhanSuDropdown');
+            if (phoBanNhanSuContainer && allNhanSu && allNhanSu.length > 0) {
+                const phoBanNhanSuDropdown = new SearchableDropdown(phoBanNhanSuContainer, {
+                    data: allNhanSu,
+                    placeholder: 'Tìm kiếm nhân sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    onSelect: function(item) {
+                        addPhoBanNhanSu(item);
+                    }
+                });
+            }
+            
+            // Phó Ban Chấp Sự
+            const phoBanChapSuContainer = document.getElementById('phoBanChapSuDropdown');
+            if (phoBanChapSuContainer && allChapSu && allChapSu.length > 0) {
+                const phoBanChapSuDropdown = new SearchableDropdown(phoBanChapSuContainer, {
+                    data: allChapSu,
+                    placeholder: 'Tìm kiếm chấp sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    onSelect: function(item) {
+                        addPhoBanChapSu(item);
+                    }
+                });
+            }
+        }
+        
+        // Add Phó Ban Nhân Sự
+        function addPhoBanNhanSu(item) {
+            // Check if already selected
+            if (selectedPhoBanNhanSu.find(p => p.id === item.id)) {
+                return;
+            }
+            
+            selectedPhoBanNhanSu.push(item);
+            updatePhoBanNhanSuDisplay();
+            updatePhoBanNhanSuInput();
+        }
+        
+        // Remove Phó Ban Nhân Sự
+        function removePhoBanNhanSu(id) {
+            selectedPhoBanNhanSu = selectedPhoBanNhanSu.filter(p => p.id !== id);
+            updatePhoBanNhanSuDisplay();
+            updatePhoBanNhanSuInput();
+        }
+        
+        // Update Phó Ban Nhân Sự display
+        function updatePhoBanNhanSuDisplay() {
+            const container = document.getElementById('selectedPhoBanNhanSu');
+            container.innerHTML = '';
+            
+            selectedPhoBanNhanSu.forEach(item => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary me-1 mb-1';
+                badge.innerHTML = `
+                    ${item.hoTen}
+                    <button type="button" class="btn-close btn-close-white ms-1" 
+                            onclick="removePhoBanNhanSu(${item.id})" style="font-size: 0.7em;"></button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+        
+        // Update Phó Ban Nhân Sự hidden input
+        function updatePhoBanNhanSuInput() {
+            const input = document.getElementById('phoBanNhanSuIds');
+            input.value = selectedPhoBanNhanSu.map(p => p.id).join(',');
+        }
+        
+        // Add Phó Ban Chấp Sự
+        function addPhoBanChapSu(item) {
+            // Check if already selected
+            if (selectedPhoBanChapSu.find(p => p.id === item.id)) {
+                return;
+            }
+            
+            selectedPhoBanChapSu.push(item);
+            updatePhoBanChapSuDisplay();
+            updatePhoBanChapSuInput();
+        }
+        
+        // Remove Phó Ban Chấp Sự
+        function removePhoBanChapSu(id) {
+            selectedPhoBanChapSu = selectedPhoBanChapSu.filter(p => p.id !== id);
+            updatePhoBanChapSuDisplay();
+            updatePhoBanChapSuInput();
+        }
+        
+        // Update Phó Ban Chấp Sự display
+        function updatePhoBanChapSuDisplay() {
+            const container = document.getElementById('selectedPhoBanChapSu');
+            container.innerHTML = '';
+            
+            selectedPhoBanChapSu.forEach(item => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-success me-1 mb-1';
+                badge.innerHTML = `
+                    ${item.hoTen}
+                    <button type="button" class="btn-close btn-close-white ms-1" 
+                            onclick="removePhoBanChapSu(${item.id})" style="font-size: 0.7em;"></button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+        
+        // Update Phó Ban Chấp Sự hidden input
+        function updatePhoBanChapSuInput() {
+            const input = document.getElementById('phoBanChapSuIds');
+            input.value = selectedPhoBanChapSu.map(p => p.id).join(',');
+        }
+        
+        // Initialize existing data (for edit mode)
+        function initializeExistingData() {
+            // Check if editing existing record
+            const truongBanNhanSuId = document.getElementById('truongBanNhanSuId').value;
+            const truongBanChapSuId = document.getElementById('truongBanChapSuId').value;
+            
+            if (truongBanNhanSuId && truongBanNhanSuId.trim() !== '') {
+                document.getElementById('truongBanNhanSu').checked = true;
+                showTruongBanDropdown('nhansu');
+            } else if (truongBanChapSuId && truongBanChapSuId.trim() !== '') {
+                document.getElementById('truongBanChapSu').checked = true;
+                showTruongBanDropdown('chapsu');
+            }
+            
+            // Initialize existing Phó Ban data only once
+            if (selectedPhoBanNhanSu.length === 0 && selectedPhoBanChapSu.length === 0) {
+                initializeExistingPhoBan();
+            }
+        }
+        
+        // Initialize existing Phó Ban data
+        function initializeExistingPhoBan() {
+            // Clear existing arrays first to avoid duplicates
+            selectedPhoBanNhanSu = [];
+            selectedPhoBanChapSu = [];
+            
+            // Load existing phó ban nhân sự from hidden inputs
+            const existingNhanSuInputs = document.querySelectorAll('.existing-pho-ban-nhan-su');
+            existingNhanSuInputs.forEach(input => {
+                const id = parseInt(input.dataset.id);
+                // Check if already exists to avoid duplicates
+                if (!selectedPhoBanNhanSu.find(p => p.id === id)) {
+                    const nhanSu = {
+                        id: id,
+                        hoTen: input.dataset.name,
+                        email: input.dataset.email || '',
+                        dienThoai: input.dataset.phone || ''
+                    };
+                    selectedPhoBanNhanSu.push(nhanSu);
+                }
+            });
+            
+            if (selectedPhoBanNhanSu.length > 0) {
+                updatePhoBanNhanSuDisplay();
+                updatePhoBanNhanSuInput();
+            }
+            
+            // Load existing phó ban chấp sự from hidden inputs
+            const existingChapSuInputs = document.querySelectorAll('.existing-pho-ban-chap-su');
+            existingChapSuInputs.forEach(input => {
+                const id = parseInt(input.dataset.id);
+                // Check if already exists to avoid duplicates
+                if (!selectedPhoBanChapSu.find(p => p.id === id)) {
+                    const chapSu = {
+                        id: id,
+                        hoTen: input.dataset.name,
+                        email: input.dataset.email || '',
+                        dienThoai: input.dataset.phone || ''
+                    };
+                    selectedPhoBanChapSu.push(chapSu);
+                }
+            });
+            
+            if (selectedPhoBanChapSu.length > 0) {
+                updatePhoBanChapSuDisplay();
+                updatePhoBanChapSuInput();
+            }
+        }
+        
         // Auto-generate maBan from tenBan
         document.getElementById('tenBan').addEventListener('input', function() {
             const tenBan = this.value;
@@ -267,6 +677,24 @@
             // Check if there's a validation error
             if (document.getElementById('maBanError')) {
                 alert('Vui lòng sửa lỗi mã ban trước khi lưu!');
+                e.preventDefault();
+                return;
+            }
+            
+            // Validate Trưởng Ban selection
+            const truongBanNhanSuChecked = document.getElementById('truongBanNhanSu').checked;
+            const truongBanChapSuChecked = document.getElementById('truongBanChapSu').checked;
+            const truongBanNhanSuId = document.getElementById('truongBanNhanSuId').value;
+            const truongBanChapSuId = document.getElementById('truongBanChapSuId').value;
+            
+            if (truongBanNhanSuChecked && !truongBanNhanSuId) {
+                alert('Vui lòng chọn nhân sự làm trưởng ban!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (truongBanChapSuChecked && !truongBanChapSuId) {
+                alert('Vui lòng chọn chấp sự làm trưởng ban!');
                 e.preventDefault();
                 return;
             }

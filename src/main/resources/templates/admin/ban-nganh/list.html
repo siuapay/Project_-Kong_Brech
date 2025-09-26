@@ -125,18 +125,20 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">#</th>
-                                    <th width="20%">Tên Ban</th>
-                                    <th width="10%">Mã Ban</th>
-                                    <th width="25%">Mô Tả</th>
-                                    <th width="15%">Liên Hệ</th>
-                                    <th width="10%">Nhân Sự</th>
-                                    <th width="10%">Trạng Thái</th>
-                                    <th width="5%">Thao Tác</th>
+                                    <th width="15%">Tên Ban</th>
+                                    <th width="8%">Mã Ban</th>
+                                    <th width="20%">Mô Tả</th>
+                                    <th width="15%">Quản Lý</th>
+                                    <th width="12%">Liên Hệ</th>
+                                    <th width="7%">Nhân Sự</th>
+                                    <th width="7%">Chấp Sự</th>
+                                    <th width="8%">Trạng Thái</th>
+                                    <th width="9%">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${banNganhPage.content.empty}">
-                                    <td colspan="8" class="text-center py-4 text-muted">
+                                    <td colspan="10" class="text-center py-4 text-muted">
                                         <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                         Không có ban ngành nào được tìm thấy
                                     </td>
@@ -153,8 +155,9 @@
                                             </div>
                                             <div>
                                                 <h6 class="mb-0" th:text="${banNganh.tenBan}">Tên Ban</h6>
-                                                <small class="text-muted" th:if="${banNganh.truongBan}" 
-                                                       th:text="'Trưởng: ' + ${banNganh.truongBan.hoTen}">Trưởng ban</small>
+                                                <small class="text-muted" th:if="${banNganh.coTruongBan()}" 
+                                                       th:text="'Trưởng: ' + ${banNganh.tenTruongBan}">Trưởng ban</small>
+                                                <small class="text-muted" th:unless="${banNganh.coTruongBan()}">Chưa có trưởng ban</small>
                                             </div>
                                         </div>
                                     </td>
@@ -164,6 +167,30 @@
                                     <td>
                                         <span th:if="${banNganh.moTa}" th:text="${#strings.abbreviate(banNganh.moTa, 50)}">Mô tả</span>
                                         <span th:unless="${banNganh.moTa}" class="text-muted">Chưa có mô tả</span>
+                                    </td>
+                                    <td>
+                                        <!-- Trưởng Ban -->
+                                        <div th:if="${banNganh.coTruongBan()}" class="mb-1">
+                                            <small class="d-block">
+                                                <i class="fas fa-crown text-warning me-1"></i>
+                                                <strong th:text="${banNganh.tenTruongBan}">Trưởng ban</strong>
+                                            </small>
+                                            <small class="text-muted" th:text="'(' + ${banNganh.loaiTruongBan} + ')'">Loại</small>
+                                        </div>
+                                        <!-- Phó Ban -->
+                                        <div th:if="${banNganh.coPhoBan()}" class="mb-1">
+                                            <small class="d-block">
+                                                <i class="fas fa-user-tie text-info me-1"></i>
+                                                <span th:text="${banNganh.soLuongPhoBan} + ' phó ban'">Phó ban</span>
+                                            </small>
+                                            <div th:each="tenPhoBan : ${banNganh.danhSachTenPhoBan}">
+                                                <small class="text-muted d-block" th:text="${tenPhoBan}">Tên phó ban</small>
+                                            </div>
+                                        </div>
+                                        <!-- Chưa có quản lý -->
+                                        <span th:unless="${banNganh.coTruongBan()} or ${banNganh.coPhoBan()}" class="text-muted small">
+                                            Chưa có quản lý
+                                        </span>
                                     </td>
                                     <td>
                                         <div th:if="${banNganh.emailLienHe != null && !banNganh.emailLienHe.isEmpty()} or ${banNganh.dienThoaiLienHe != null && !banNganh.dienThoaiLienHe.isEmpty()}">
@@ -182,21 +209,35 @@
                                         <button type="button" class="btn btn-sm btn-info" 
                                                 th:data-ban-nganh-id="${banNganh.id}"
                                                 th:data-ban-nganh-name="${banNganh.tenBan}"
-                                                onclick="showNhanSuModal(this.dataset.banNganhId, this.dataset.banNganhName)"
+                                                th:data-type="nhan-su"
+                                                onclick="showPersonnelModal(this)"
                                                 title="Xem danh sách nhân sự">
                                             <span class="badge bg-light text-dark me-1" th:text="${banNganh.soLuongNhanSu}">0</span>
                                             <i class="fas fa-users"></i>
                                         </button>
                                     </td>
                                     <td>
-                                        <span th:if="${banNganh.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
-                                            <i class="fas fa-check-circle me-1"></i>Hoạt động
-                                        </span>
-                                        <span th:if="${banNganh.trangThai.name() == 'TAM_NGHI'}" class="badge bg-warning">
-                                            <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
-                                        </span>
-                                        <span th:if="${banNganh.trangThai.name() == 'GIAI_TAN'}" class="badge bg-danger">
-                                            <i class="fas fa-times-circle me-1"></i>Giải tán
+                                        <button type="button" class="btn btn-sm btn-warning" 
+                                                th:data-ban-nganh-id="${banNganh.id}"
+                                                th:data-ban-nganh-name="${banNganh.tenBan}"
+                                                th:data-type="chap-su"
+                                                onclick="showPersonnelModal(this)"
+                                                title="Xem danh sách chấp sự">
+                                            <span class="badge bg-light text-dark me-1" th:text="${banNganh.soLuongChapSu}">0</span>
+                                            <i class="fas fa-user-graduate"></i>
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <span th:switch="${banNganh.trangThai.name()}">
+                                            <span th:case="'HOAT_DONG'" class="badge bg-success">
+                                                <i class="fas fa-check-circle me-1"></i>Hoạt động
+                                            </span>
+                                            <span th:case="'TAM_NGHI'" class="badge bg-warning">
+                                                <i class="fas fa-pause-circle me-1"></i>Tạm nghỉ
+                                            </span>
+                                            <span th:case="'GIAI_TAN'" class="badge bg-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Giải tán
+                                            </span>
                                         </span>
                                     </td>
                                     <td>
@@ -233,13 +274,11 @@
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
-                            
                             <li th:each="pageNum : ${#numbers.sequence(0, banNganhPage.totalPages - 1)}"
                                 class="page-item" th:classappend="${pageNum == banNganhPage.number} ? 'active'">
                                 <a class="page-link" th:href="@{/admin/ban-nganh(page=${pageNum}, search=${search}, trangThai=${trangThai}, fromDate=${fromDate}, toDate=${toDate})}"
                                    th:text="${pageNum + 1}">1</a>
                             </li>
-                            
                             <li class="page-item" th:classappend="${banNganhPage.last} ? 'disabled'">
                                 <a class="page-link" th:href="@{/admin/ban-nganh(page=${banNganhPage.number + 1}, search=${search}, trangThai=${trangThai}, fromDate=${fromDate}, toDate=${toDate})}">
                                     <i class="fas fa-chevron-right"></i>
@@ -270,7 +309,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="deleteForm" method="post" class="d-inline">
+                    <form id="deleteForm" method="post" th:action="@{/admin/ban-nganh/delete/{id}(id=${id})}" class="d-inline">
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-trash me-1"></i>Xóa
                         </button>
@@ -280,27 +319,27 @@
         </div>
     </div>
 
-    <!-- Nhan Su Modal -->
-    <div class="modal fade" id="nhanSuModal" tabindex="-1">
+    <!-- Personnel Modal -->
+    <div class="modal fade" id="personnelModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-users me-2"></i>Danh Sách Nhân Sự - <span id="modalBanNganhName"></span>
+                    <h5 class="modal-title" id="personnelModalLabel">
+                        <i class="fas fa-users me-2"></i>Danh Sách
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div id="nhanSuLoading" class="text-center py-4">
+                <div class="modal-body" id="personnelModalBody">
+                    <div id="personnelLoading" class="text-center py-4">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Đang tải...</span>
                         </div>
-                        <p class="mt-2 text-muted">Đang tải danh sách nhân sự...</p>
+                        <p class="mt-2 text-muted">Đang tải danh sách...</p>
                     </div>
-                    <div id="nhanSuContent" style="display: none;">
+                    <div id="personnelContent" style="display: none;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div>
-                                <span class="badge bg-primary" id="nhanSuCount">0</span> nhân sự
+                                <span class="badge bg-primary" id="personnelCount">0</span> <span id="personnelType">người</span>
                             </div>
                             <div class="btn-group btn-group-sm" role="group">
                                 <button type="button" class="btn btn-outline-secondary active" id="listViewBtn" onclick="toggleView('list')">
@@ -311,7 +350,6 @@
                                 </button>
                             </div>
                         </div>
-                        
                         <!-- List View -->
                         <div id="listView">
                             <div class="table-responsive">
@@ -325,22 +363,18 @@
                                             <th>Trạng Thái</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="nhanSuTableBody">
-                                    </tbody>
+                                    <tbody id="personnelTableBody"></tbody>
                                 </table>
                             </div>
                         </div>
-                        
                         <!-- Grid View -->
                         <div id="gridView" style="display: none;">
-                            <div class="row" id="nhanSuGridContainer">
-                            </div>
+                            <div class="row" id="personnelGridContainer"></div>
                         </div>
-                        
                         <!-- Empty State -->
                         <div id="emptyState" class="text-center py-4" style="display: none;">
                             <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
-                            <h6 class="text-muted">Chưa có nhân sự nào trong ban ngành này</h6>
+                            <h6 class="text-muted" id="emptyStateMessage">Chưa có dữ liệu</h6>
                         </div>
                     </div>
                 </div>
@@ -356,89 +390,99 @@
     <script>
         function confirmDelete(id, name) {
             document.getElementById('deleteName').textContent = name;
-            document.getElementById('deleteForm').action = '/admin/ban-nganh/delete/' + id;
+            document.getElementById('deleteForm').action = `/admin/ban-nganh/delete/${id}`;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
-        
-        // Clear advanced filters
+
         function clearAdvancedFilters() {
             document.querySelector('select[name="trangThai"]').value = '';
             document.querySelector('input[name="fromDate"]').value = '';
             document.querySelector('input[name="toDate"]').value = '';
         }
 
-        // Show nhan su modal
-        function showNhanSuModal(banNganhId, banNganhName) {
-            document.getElementById('modalBanNganhName').textContent = banNganhName;
-            document.getElementById('nhanSuLoading').style.display = 'block';
-            document.getElementById('nhanSuContent').style.display = 'none';
+        function showPersonnelModal(button) {
+            const banNganhId = button.dataset.banNganhId;
+            const banNganhName = button.dataset.banNganhName;
+            const type = button.dataset.type || 'nhan-su';
             
-            const modal = new bootstrap.Modal(document.getElementById('nhanSuModal'));
+            const title = type === 'chap-su' ? 'Danh sách chấp sự' : 'Danh sách nhân sự';
+            const icon = type === 'chap-su' ? 'fa-user-graduate' : 'fa-users';
+            const typeText = type === 'chap-su' ? 'chấp sự' : 'nhân sự';
+            
+            document.getElementById('personnelModalLabel').innerHTML = `<i class="fas ${icon} me-2"></i>${title} - ${banNganhName}`;
+            document.getElementById('personnelType').textContent = typeText;
+            
+            document.getElementById('personnelLoading').style.display = 'block';
+            document.getElementById('personnelContent').style.display = 'none';
+            
+            const modal = new bootstrap.Modal(document.getElementById('personnelModal'));
             modal.show();
             
-            // Fetch nhan su data
-            fetch(`/admin/api/ban-nganh/${banNganhId}/nhan-su`)
+            fetch(`/admin/api/ban-nganh/${banNganhId}/${type}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('nhanSuLoading').style.display = 'none';
-                    document.getElementById('nhanSuContent').style.display = 'block';
+                    document.getElementById('personnelLoading').style.display = 'none';
+                    document.getElementById('personnelContent').style.display = 'block';
                     
                     if (data.length === 0) {
                         document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('emptyStateMessage').textContent = `Chưa có ${typeText} nào trong ban ngành này`;
                         document.getElementById('listView').style.display = 'none';
                         document.getElementById('gridView').style.display = 'none';
                     } else {
                         document.getElementById('emptyState').style.display = 'none';
-                        document.getElementById('nhanSuCount').textContent = data.length;
-                        renderNhanSuList(data);
-                        renderNhanSuGrid(data);
+                        document.getElementById('personnelCount').textContent = data.length;
+                        renderPersonnelList(data, type);
+                        renderPersonnelGrid(data, type);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    document.getElementById('nhanSuLoading').style.display = 'none';
-                    document.getElementById('nhanSuContent').innerHTML = 
-                        '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Có lỗi xảy ra khi tải dữ liệu</div>';
+                    document.getElementById('personnelLoading').style.display = 'none';
+                    document.getElementById('personnelContent').innerHTML = 
+                        `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Có lỗi xảy ra khi tải danh sách ${typeText}</div>`;
                 });
         }
 
-        function renderNhanSuList(nhanSuList) {
-            const tbody = document.getElementById('nhanSuTableBody');
+        function renderPersonnelList(personnelList, type) {
+            const tbody = document.getElementById('personnelTableBody');
             tbody.innerHTML = '';
+            const iconClass = type === 'chap-su' ? 'fa-user-graduate' : 'fa-user';
+            const badgeClass = type === 'chap-su' ? 'bg-warning' : 'bg-primary';
             
-            nhanSuList.forEach(nhanSu => {
+            personnelList.forEach(person => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>
                         <div class="d-flex align-items-center">
-                            <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
-                                ${nhanSu.avatarUrl ? 
-                                    `<img src="${nhanSu.avatarUrl}" class="rounded-circle" width="40" height="40" alt="Avatar">` :
-                                    `<i class="fas fa-user"></i>`
+                            <div class="avatar-sm ${badgeClass} text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                                ${person.avatarUrl ? 
+                                    `<img src="${person.avatarUrl}" class="rounded-circle" width="40" height="40" alt="Avatar">` :
+                                    `<i class="fas ${iconClass}"></i>`
                                 }
                             </div>
                             <div>
-                                <h6 class="mb-0">${nhanSu.hoTen}</h6>
-                                <small class="text-muted">ID: ${nhanSu.id}</small>
+                                <h6 class="mb-0">${person.hoTen}</h6>
+                                <small class="text-muted">ID: ${person.id}</small>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <span class="badge bg-secondary">${nhanSu.chucVu || 'Chưa có'}</span>
+                        <span class="badge bg-secondary">${person.chucVu || 'Chưa có'}</span>
                     </td>
                     <td>
                         <div>
-                            ${nhanSu.email ? `<small class="d-block"><i class="fas fa-envelope text-primary me-1"></i>${nhanSu.email}</small>` : ''}
-                            ${nhanSu.dienThoai ? `<small class="d-block"><i class="fas fa-phone text-success me-1"></i>${nhanSu.dienThoai}</small>` : ''}
-                            ${!nhanSu.email && !nhanSu.dienThoai ? '<span class="text-muted">Chưa có</span>' : ''}
+                            ${person.email ? `<small class="d-block"><i class="fas fa-envelope text-primary me-1"></i>${person.email}</small>` : ''}
+                            ${person.dienThoai ? `<small class="d-block"><i class="fas fa-phone text-success me-1"></i>${person.dienThoai}</small>` : ''}
+                            ${!person.email && !person.dienThoai ? '<span class="text-muted">Chưa có</span>' : ''}
                         </div>
                     </td>
                     <td>
-                        <span class="badge bg-info">${nhanSu.diemNhom || 'Chưa có'}</span>
+                        <span class="badge bg-info">${person.diemNhomTen || 'Chưa có'}</span>
                     </td>
                     <td>
-                        <span class="badge ${getTrangThaiClass(nhanSu.trangThai)}">
-                            ${getTrangThaiText(nhanSu.trangThai)}
+                        <span class="badge ${getTrangThaiClass(person.trangThai)}">
+                            ${getTrangThaiText(person.trangThai)}
                         </span>
                     </td>
                 `;
@@ -446,36 +490,36 @@
             });
         }
 
-        function renderNhanSuGrid(nhanSuList) {
-            const container = document.getElementById('nhanSuGridContainer');
+        function renderPersonnelGrid(personnelList, type) {
+            const container = document.getElementById('personnelGridContainer');
             container.innerHTML = '';
+            const iconClass = type === 'chap-su' ? 'fa-user-graduate' : 'fa-user';
+            const badgeClass = type === 'chap-su' ? 'bg-warning' : 'bg-primary';
             
-            nhanSuList.forEach(nhanSu => {
+            personnelList.forEach(person => {
                 const col = document.createElement('div');
                 col.className = 'col-md-6 col-lg-4 mb-3';
                 col.innerHTML = `
                     <div class="card h-100">
                         <div class="card-body text-center">
-                            <div class="avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
-                                ${nhanSu.avatarUrl ? 
-                                    `<img src="${nhanSu.avatarUrl}" class="rounded-circle" width="60" height="60" alt="Avatar">` :
-                                    `<i class="fas fa-user fa-2x"></i>`
+                            <div class="avatar-lg ${badgeClass} text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                                ${person.avatarUrl ? 
+                                    `<img src="${person.avatarUrl}" class="rounded-circle" width="60" height="60" alt="Avatar">` :
+                                    `<i class="fas ${iconClass} fa-2x"></i>`
                                 }
                             </div>
-                            <h6 class="card-title">${nhanSu.hoTen}</h6>
-                            <p class="card-text">
-                                <span class="badge bg-secondary mb-2">${nhanSu.chucVu || 'Chưa có chức vụ'}</span><br>
-                                <span class="badge bg-info">${nhanSu.diemNhom || 'Chưa có điểm nhóm'}</span>
-                            </p>
-                            <div class="text-muted small">
-                                ${nhanSu.email ? `<div><i class="fas fa-envelope me-1"></i>${nhanSu.email}</div>` : ''}
-                                ${nhanSu.dienThoai ? `<div><i class="fas fa-phone me-1"></i>${nhanSu.dienThoai}</div>` : ''}
+                            <h6 class="mb-1">${person.hoTen}</h6>
+                            <p class="text-muted small mb-2">${person.chucVu || 'Chưa có chức vụ'}</p>
+                            <div class="mb-2">
+                                ${person.email ? `<small class="d-block text-muted"><i class="fas fa-envelope me-1"></i>${person.email}</small>` : ''}
+                                ${person.dienThoai ? `<small class="d-block text-muted"><i class="fas fa-phone me-1"></i>${person.dienThoai}</small>` : ''}
                             </div>
-                        </div>
-                        <div class="card-footer text-center">
-                            <span class="badge ${getTrangThaiClass(nhanSu.trangThai)}">
-                                ${getTrangThaiText(nhanSu.trangThai)}
-                            </span>
+                            <div class="d-flex justify-content-center gap-1">
+                                <span class="badge bg-info small">${person.diemNhomTen || 'Chưa có'}</span>
+                                <span class="badge ${getTrangThaiClass(person.trangThai)} small">
+                                    ${getTrangThaiText(person.trangThai)}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -506,6 +550,7 @@
             switch(trangThai) {
                 case 'HOAT_DONG': return 'bg-success';
                 case 'TAM_NGHI': return 'bg-warning';
+                case 'GIAI_TAN':
                 case 'NGHI_VIEC': return 'bg-danger';
                 default: return 'bg-secondary';
             }
@@ -515,12 +560,13 @@
             switch(trangThai) {
                 case 'HOAT_DONG': return 'Hoạt động';
                 case 'TAM_NGHI': return 'Tạm nghỉ';
+                case 'GIAI_TAN': return 'Giải tán';
                 case 'NGHI_VIEC': return 'Nghỉ việc';
                 default: return 'Không xác định';
             }
         }
     </script>
-    
+
     <style>
         .avatar-sm {
             width: 40px;
@@ -562,7 +608,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
-        #nhanSuModal .table td {
+        #personnelModal .table td {
             vertical-align: middle;
         }
         
@@ -575,6 +621,18 @@
         .btn-sm.btn-info:hover {
             background-color: #138496;
             border-color: #117a8b;
+            transform: translateY(-1px);
+        }
+
+        .btn-sm.btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-sm.btn-warning:hover {
+            background-color: #e0a800;
+            border-color: #d39e00;
             transform: translateY(-1px);
         }
     </style>

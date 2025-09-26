@@ -47,7 +47,7 @@
                             
                             <!-- Name & Basic Info -->
                             <h3 class="text-primary mb-1" th:text="${diemNhom.tenDiemNhom}">Tên Điểm Nhóm</h3>
-                            <p class="text-muted mb-3" th:text="${diemNhom.banNganh?.tenBan ?: 'Chưa phân công ban ngành'}">Ban ngành</p>
+                            <p class="text-muted mb-3" th:text="${!diemNhom.danhSachBanNganh.empty ? diemNhom.danhSachBanNganh.size() + ' ban ngành' : 'Chưa phân công ban ngành'}">Ban ngành</p>
                             
                             <!-- Status Badge -->
                             <div class="mb-4">
@@ -165,11 +165,14 @@
                                     <div class="info-item">
                                         <label class="info-label">Ban Ngành</label>
                                         <div class="info-value">
-                                            <span th:if="${diemNhom.banNganh}">
+                                            <span th:if="${!diemNhom.danhSachBanNganh.isEmpty()}">
                                                 <i class="fas fa-sitemap text-info me-2"></i>
-                                                <span th:text="${diemNhom.banNganh.tenBan}"></span>
+                                                <span th:each="banNganh, iterStat : ${diemNhom.danhSachBanNganh}">
+                                                    <span th:text="${banNganh.tenBan}"></span>
+                                                    <span th:if="${!iterStat.last}">, </span>
+                                                </span>
                                             </span>
-                                            <span th:unless="${diemNhom.banNganh}" class="text-muted">Chưa phân công</span>
+                                            <span th:if="${diemNhom.danhSachBanNganh.isEmpty()}" class="text-muted">Chưa phân công</span>
                                         </div>
                                     </div>
                                 </div>
