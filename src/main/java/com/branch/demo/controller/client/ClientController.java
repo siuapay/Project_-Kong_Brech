@@ -240,30 +240,39 @@ public class ClientController {
 
         try {
             java.util.List<BanNganh> banNganhList = banNganhRepository.findAll();
+            java.util.Map<Long, Long> tinHuuCountMap = new java.util.HashMap<>();
 
-            // Load members for each department
+            // Load members and tin huu count for each department
             for (BanNganh banNganh : banNganhList) {
+                // Load nhân sự members
                 java.util.List<NhanSu> members = nhanSuRepository.findByBanNganh(banNganh);
                 banNganh.setDanhSachNhanSu(members);
+                
+                // Count tin huu in this ban nganh
+                long tinHuuCount = tinHuuRepository.countByBanNganh(banNganh);
+                tinHuuCountMap.put(banNganh.getId(), tinHuuCount);
             }
 
             System.out.println("Found " + banNganhList.size() + " ban nganh");
             model.addAttribute("banNganhList", banNganhList);
+            model.addAttribute("tinHuuCountMap", tinHuuCountMap);
         } catch (Exception e) {
             System.out.println("Error loading ban nganh: " + e.getMessage());
             model.addAttribute("banNganhList", java.util.Collections.emptyList());
+            model.addAttribute("tinHuuCountMap", java.util.Collections.emptyMap());
         }
 
         return "client/departments";
     }
 
-    // Chấp sự
+    // Personnel - Both Chấp sự and Nhân sự
     @GetMapping("/organization/personnel")
     public String personnel(Model model) {
-        model.addAttribute("title", "Chấp Sự - Chi Hội Kong Brech");
-        model.addAttribute("pageTitle", "Ban Chấp Sự");
+        model.addAttribute("title", "Nhân Sự & Chấp Sự - Chi Hội Kong Brech");
+        model.addAttribute("pageTitle", "Nhân Sự & Ban Chấp Sự");
 
         try {
+            // === CHẤP SỰ SECTION ===
             // Get all Chấp sự with active status
             java.util.List<com.branch.demo.domain.ChapSu> allChapSu = chapSuRepository.findByTrangThaiOrderByHoTenAsc(
                     com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
@@ -274,18 +283,19 @@ public class ClientController {
             for (com.branch.demo.domain.ChapSu cs : allChapSu) {
                 if (cs.getChucVu() != null) {
                     // Find main leader (Mục sư or Truyền đạo)
-                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.MUC_SU ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.TRUYEN_DAO) {
+                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.QUAN_NHIEM ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM) {
                         if (chapSuChinh == null) {
                             chapSuChinh = cs;
                         }
                     }
                     // Find all other Chấp sự members
-                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CHAP_SU_TRUONG ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CHAP_SU ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THANH_VIEN) {
+                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM ||
+                        cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_1 ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_2 ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_1 ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_2 ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.UY_VIEN) {
                         banChapSu.add(cs);
                     }
                 }
@@ -298,17 +308,88 @@ public class ClientController {
                 return Integer.compare(priorityA, priorityB);
             });
 
+            // === NHÂN SỰ SECTION ===
+            // Get all active NhanSu
+            java.util.List<NhanSu> allNhanSu = nhanSuRepository.findByTrangThai(
+                    NhanSu.TrangThaiNhanSu.HOAT_DONG);
+            
+            // Sort by name
+            allNhanSu.sort((a, b) -> a.getHoTen().compareToIgnoreCase(b.getHoTen()));
+
+            // Separate by roles
+            java.util.List<NhanSu> lanhDaoNhanSu = new java.util.ArrayList<>();
+            java.util.List<NhanSu> nhanSuKhac = new java.util.ArrayList<>();
+
+            for (NhanSu ns : allNhanSu) {
+                if (ns.getChucVu() != null) {
+                    // Leadership roles
+                    if (ns.getChucVu() == NhanSu.ChucVu.DAC_TRACH ||
+                            ns.getChucVu() == NhanSu.ChucVu.THU_KY_1 ||
+                            ns.getChucVu() == NhanSu.ChucVu.THU_KY_2 ||
+                            ns.getChucVu() == NhanSu.ChucVu.THU_QUY_1 || 
+                            ns.getChucVu() == NhanSu.ChucVu.THU_QUY_2 ||
+                            ns.getChucVu() == NhanSu.ChucVu.UY_VIEN
+                            ) {
+                        lanhDaoNhanSu.add(ns);
+                    } else {
+                        nhanSuKhac.add(ns);
+                    }
+                } else {
+                    nhanSuKhac.add(ns);
+                }
+            }
+
+            // Sort by chức vụ priority
+            lanhDaoNhanSu.sort((a, b) -> {
+                int priorityA = getNhanSuChucVuPriority(a.getChucVu());
+                int priorityB = getNhanSuChucVuPriority(b.getChucVu());
+                return Integer.compare(priorityA, priorityB);
+            });
+
+            nhanSuKhac.sort((a, b) -> {
+                int priorityA = getNhanSuChucVuPriority(a.getChucVu());
+                int priorityB = getNhanSuChucVuPriority(b.getChucVu());
+                return Integer.compare(priorityA, priorityB);
+            });
+
+            // Group by departments
+            java.util.Map<BanNganh, java.util.List<NhanSu>> nhanSuByDepartment = new java.util.LinkedHashMap<>();
+            java.util.List<NhanSu> nhanSuKhongBan = new java.util.ArrayList<>();
+
+            for (NhanSu ns : allNhanSu) {
+                if (ns.getBanNganh() != null) {
+                    nhanSuByDepartment.computeIfAbsent(ns.getBanNganh(), k -> new java.util.ArrayList<>()).add(ns);
+                } else {
+                    nhanSuKhongBan.add(ns);
+                }
+            }
+
+            // Add all data to model
+            // Chấp sự data
             model.addAttribute("chapSuChinh", chapSuChinh);
             model.addAttribute("banChapSu", banChapSu);
             model.addAttribute("totalChapSu", allChapSu.size());
+            
+            // Nhân sự data
+            model.addAttribute("lanhDaoNhanSu", lanhDaoNhanSu);
+            model.addAttribute("nhanSuKhac", nhanSuKhac);
+            model.addAttribute("nhanSuByDepartment", nhanSuByDepartment);
+            model.addAttribute("nhanSuKhongBan", nhanSuKhongBan);
+            model.addAttribute("totalNhanSu", allNhanSu.size());
 
             return "client/personnel";
         } catch (Exception e) {
-            System.out.println("Error loading chấp sự: " + e.getMessage());
+            System.out.println("Error loading personnel: " + e.getMessage());
             e.printStackTrace();
+            // Set default values on error
             model.addAttribute("chapSuChinh", null);
             model.addAttribute("banChapSu", java.util.Collections.emptyList());
             model.addAttribute("totalChapSu", 0);
+            model.addAttribute("lanhDaoNhanSu", java.util.Collections.emptyList());
+            model.addAttribute("nhanSuKhac", java.util.Collections.emptyList());
+            model.addAttribute("nhanSuByDepartment", java.util.Collections.emptyMap());
+            model.addAttribute("nhanSuKhongBan", java.util.Collections.emptyList());
+            model.addAttribute("totalNhanSu", 0);
             return "client/personnel";
         }
     }
@@ -318,23 +399,25 @@ public class ClientController {
         if (chucVu == null)
             return 999;
         switch (chucVu) {
-            case CHAP_SU_TRUONG:
+            case QUAN_NHIEM:
                 return 1;
-            case THU_KY:
+            case PHU_TA_QUAN_NHIEM:
                 return 2;
-            case THU_QUY:
+            case THU_KY_1:
                 return 3;
-            case CHAP_SU:
+            case THU_KY_2:
                 return 4;
-            case THANH_VIEN:
+            case THU_QUY_2:
                 return 5;
+            case UY_VIEN:
+                return 6;
             default:
                 return 999;
         }
     }
 
     // Nhân sự (từ bảng NhanSu)
-    @GetMapping("/organization/staff")
+    @GetMapping("/list/staff")
     public String staff(Model model) {
         model.addAttribute("title", "Nhân Sự - Chi Hội Kong Brech");
         model.addAttribute("pageTitle", "Nhân Sự Chi Hội");
@@ -384,17 +467,17 @@ public class ClientController {
         if (chucVu == null)
             return 999;
         switch (chucVu) {
-            case MUC_SU:
+            case DAC_TRACH:
                 return 1;
-            case TRUYEN_DAO:
+            case THU_KY_1:
                 return 2;
-            case CHAP_SU:
+            case THU_KY_2:
                 return 3;
-            case THU_KY:
+            case THU_QUY_1:
                 return 4;
-            case THU_QUY:
+            case THU_QUY_2:
                 return 5;
-            case THANH_VIEN:
+            case UY_VIEN:
                 return 6;
             default:
                 return 999;
@@ -537,10 +620,24 @@ public class ClientController {
             long totalTinHuu = tinHuuRepository.count();
             long totalNam = tinHuuRepository.countByGioiTinh("Nam");
             long totalNu = tinHuuRepository.countByGioiTinh("Nữ");
+            
+            // Thống kê theo trạng thái
+            long tinHuuHoatDong = tinHuuRepository.countByTrangThaiString("HOAT_DONG");
+            long tinHuuTamNghi = tinHuuRepository.countByTrangThaiString("TAM_NGHI");
+            long tinHuuChuyenDi = tinHuuRepository.countByTrangThaiString("CHUYEN_DI");
+            
+            // Thống kê theo nhóm
+            long tinHuuCoPhanNhom = totalTinHuu - tinHuuRepository.findByNhomIsNullAndDeletedAtIsNull().size();
+            long tinHuuChuaPhanNhom = tinHuuRepository.findByNhomIsNullAndDeletedAtIsNull().size();
 
             model.addAttribute("totalTinHuu", totalTinHuu);
             model.addAttribute("totalNam", totalNam);
             model.addAttribute("totalNu", totalNu);
+            model.addAttribute("tinHuuHoatDong", tinHuuHoatDong);
+            model.addAttribute("tinHuuTamNghi", tinHuuTamNghi);
+            model.addAttribute("tinHuuChuyenDi", tinHuuChuyenDi);
+            model.addAttribute("tinHuuCoPhanNhom", tinHuuCoPhanNhom);
+            model.addAttribute("tinHuuChuaPhanNhom", tinHuuChuaPhanNhom);
 
             // Danh sách tín hữu với phân trang
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "hoTen"));

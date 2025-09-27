@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/admin-layout :: head}">
     <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
 </head>
+
 <body>
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
@@ -31,7 +33,8 @@
                     <div class="col-lg-8">
                         <div class="card">
                             <div class="card-body">
-                                <form th:action="@{/admin/chap-su/save}" method="post" th:object="${chapSu}" enctype="multipart/form-data">
+                                <form th:action="@{/admin/chap-su/save}" method="post" th:object="${chapSu}"
+                                    enctype="multipart/form-data">
                                     <input type="hidden" th:field="*{id}">
                                     <input type="hidden" th:field="*{createdAt}">
                                     <input type="hidden" th:field="*{avatarUrl}">
@@ -45,33 +48,26 @@
                                             <div class="d-flex align-items-start gap-3">
                                                 <!-- Current Avatar Preview -->
                                                 <div class="avatar-preview">
-                                                    <img 
-                                                        id="avatarPreview" 
+                                                    <img id="avatarPreview"
                                                         th:src="${chapSu.avatarUrl != null ? chapSu.avatarUrl : '/static/images/default-avatar.svg'}"
-                                                        alt="Avatar Preview"
-                                                        class="rounded-circle border"
-                                                        style="width: 120px; height: 120px; object-fit: cover;"
-                                                    />
+                                                        alt="Avatar Preview" class="rounded-circle border"
+                                                        style="width: 120px; height: 120px; object-fit: cover;" />
                                                 </div>
-                                                
+
                                                 <!-- Upload Controls -->
                                                 <div class="flex-grow-1">
                                                     <div class="mb-3">
                                                         <label for="avatarFile" class="form-label">Chọn ảnh mới</label>
-                                                        <input 
-                                                            type="file" 
-                                                            class="form-control" 
-                                                            id="avatarFile" 
+                                                        <input type="file" class="form-control" id="avatarFile"
                                                             name="avatarFile"
                                                             accept="image/jpeg,image/jpg,image/png,image/gif"
-                                                            onchange="previewAvatar(this)"
-                                                        />
+                                                            onchange="previewAvatar(this)" />
                                                         <div class="form-text">
                                                             <i class="fas fa-info-circle me-1"></i>
                                                             Chấp nhận: JPG, JPEG, PNG, GIF. Tối đa 5MB.
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Upload Status -->
                                                     <div id="uploadStatus" class="d-none">
                                                         <div class="alert alert-info mb-0">
@@ -83,20 +79,21 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label for="hoTen" class="form-label">Họ tên <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}" required>
+                                            <label for="hoTen" class="form-label">Họ tên <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}"
+                                                required>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="chucVu" class="form-label">Chức vụ</label>
                                             <select class="form-select" id="chucVu" th:field="*{chucVu}">
                                                 <option value="">Chọn chức vụ</option>
-                                                <option th:each="cv : ${chucVuList}" 
-                                                        th:value="${cv}" 
-                                                        th:text="${cv.displayName}"
-                                                        th:selected="${chapSu.chucVu == cv}">Chức vụ</option>
+                                                <option th:each="cv : ${chucVuList}" th:value="${cv}"
+                                                    th:text="${cv.displayName}" th:selected="${chapSu.chucVu == cv}">
+                                                    Chức vụ</option>
                                             </select>
                                         </div>
                                     </div>
@@ -106,7 +103,8 @@
                                             <label for="banNganh" class="form-label">Ban ngành</label>
                                             <div id="banNganhDropdown"></div>
                                             <input type="hidden" id="banNganh" th:field="*{banNganh.id}">
-                                            <div class="invalid-feedback" id="banNganhError">Vui lòng chọn ban ngành</div>
+                                            <div class="invalid-feedback" id="banNganhError">Vui lòng chọn ban ngành
+                                            </div>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="diemNhom" class="form-label">Điểm nhóm</label>
@@ -122,10 +120,9 @@
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="dienThoai" class="form-label">Số điện thoại</label>
-                                            <input type="tel" class="form-control" id="dienThoai" th:field="*{dienThoai}" 
-                                                   pattern="[0-9]{10,11}" 
-                                                   title="Số điện thoại phải có 10-11 chữ số"
-                                                   placeholder="VD: 0123456789">
+                                            <input type="tel" class="form-control" id="dienThoai"
+                                                th:field="*{dienThoai}" pattern="[0-9]{10,11}"
+                                                title="Số điện thoại phải có 10-11 chữ số" placeholder="VD: 0123456789">
                                             <div class="form-text">Chỉ nhập số, từ 10-11 chữ số</div>
                                         </div>
                                     </div>
@@ -133,23 +130,29 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="ngaySinh" class="form-label">Ngày sinh</label>
-                                            <input type="date" class="form-control" id="ngaySinh" th:field="*{ngaySinh}">
-                                            <div class="form-text">Ngày sinh không được vượt quá thời gian hiện tại</div>
+                                            <input type="date" class="form-control" id="ngaySinh"
+                                                th:field="*{ngaySinh}">
+                                            <div class="form-text">Ngày sinh không được vượt quá thời gian hiện tại
+                                            </div>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label for="ngayBatDauPhucVu" class="form-label">Ngày bắt đầu phục vụ</label>
-                                            <input type="date" class="form-control" id="ngayBatDauPhucVu" th:field="*{ngayBatDauPhucVu}">
+                                            <label for="ngayBatDauPhucVu" class="form-label">Ngày bắt đầu phục
+                                                vụ</label>
+                                            <input type="date" class="form-control" id="ngayBatDauPhucVu"
+                                                th:field="*{ngayBatDauPhucVu}">
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label for="nhiemKyBatDau" class="form-label">Nhiệm kỳ bắt đầu</label>
-                                            <input type="date" class="form-control" id="nhiemKyBatDau" th:field="*{nhiemKyBatDau}">
+                                            <input type="date" class="form-control" id="nhiemKyBatDau"
+                                                th:field="*{nhiemKyBatDau}">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label for="nhiemKyKetThuc" class="form-label">Nhiệm kỳ kết thúc</label>
-                                            <input type="date" class="form-control" id="nhiemKyKetThuc" th:field="*{nhiemKyKetThuc}">
+                                            <input type="date" class="form-control" id="nhiemKyKetThuc"
+                                                th:field="*{nhiemKyKetThuc}">
                                         </div>
                                     </div>
 
@@ -157,10 +160,16 @@
                                         <div class="col-md-6 mb-3">
                                             <label for="trangThai" class="form-label">Trạng thái</label>
                                             <select class="form-select" id="trangThai" th:field="*{trangThai}">
-                                                <option th:value="DANG_NHIEM_VU" th:selected="*{trangThai?.name() == 'DANG_NHIEM_VU'}">Đang nhiệm vụ</option>
-                                                <option th:value="HET_NHIEM_KY" th:selected="*{trangThai?.name() == 'HET_NHIEM_KY'}">Hết nhiệm kỳ</option>
-                                                <option th:value="TAM_NGHI" th:selected="*{trangThai?.name() == 'TAM_NGHI'}">Tạm nghỉ</option>
-                                                <option th:value="CHUYEN_DI" th:selected="*{trangThai?.name() == 'CHUYEN_DI'}">Chuyển đi</option>
+                                                <option th:value="DANG_NHIEM_VU"
+                                                    th:selected="*{trangThai?.name() == 'DANG_NHIEM_VU'}">Đang nhiệm vụ
+                                                </option>
+                                                <option th:value="HET_NHIEM_KY"
+                                                    th:selected="*{trangThai?.name() == 'HET_NHIEM_KY'}">Hết nhiệm kỳ
+                                                </option>
+                                                <option th:value="TAM_NGHI"
+                                                    th:selected="*{trangThai?.name() == 'TAM_NGHI'}">Tạm nghỉ</option>
+                                                <option th:value="CHUYEN_DI"
+                                                    th:selected="*{trangThai?.name() == 'CHUYEN_DI'}">Chuyển đi</option>
                                             </select>
                                         </div>
 
@@ -168,26 +177,28 @@
 
                                     <div class="mb-3">
                                         <label for="diaChi" class="form-label">Địa chỉ</label>
-                                        <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"></textarea>
+                                        <textarea class="form-control" id="diaChi" th:field="*{diaChi}"
+                                            rows="2"></textarea>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="moTaCongViec" class="form-label">Mô tả công việc</label>
-                                        <textarea class="form-control" id="moTaCongViec" th:field="*{moTaCongViec}" rows="3" 
-                                                  placeholder="Mô tả về công việc và trách nhiệm..."></textarea>
+                                        <textarea class="form-control" id="moTaCongViec" th:field="*{moTaCongViec}"
+                                            rows="3" placeholder="Mô tả về công việc và trách nhiệm..."></textarea>
                                         <div class="form-text">Tối đa 1000 ký tự</div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="tieuSu" class="form-label">Tiểu sử</label>
-                                        <textarea class="form-control" id="tieuSu" th:field="*{tieuSu}" rows="4" 
-                                                  placeholder="Mô tả về quá trình học tập, công tác, phục vụ..."></textarea>
+                                        <textarea class="form-control" id="tieuSu" th:field="*{tieuSu}" rows="4"
+                                            placeholder="Mô tả về quá trình học tập, công tác, phục vụ..."></textarea>
                                         <div class="form-text">Tối đa 2000 ký tự</div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label for="ghiChu" class="form-label">Ghi chú</label>
-                                        <textarea class="form-control" id="ghiChu" th:field="*{ghiChu}" rows="3"></textarea>
+                                        <textarea class="form-control" id="ghiChu" th:field="*{ghiChu}"
+                                            rows="3"></textarea>
                                     </div>
 
                                     <div class="d-flex justify-content-end gap-2">
@@ -233,21 +244,23 @@
             </div>
         </div>
     </main>
- <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/static/js/searchable-dropdown.js"></script>
     <script>
         let banNganhDropdown;
         let diemNhomDropdown;
-        
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             // Khởi tạo searchable dropdown cho ban ngành
             banNganhDropdown = new SearchableDropdown('banNganhDropdown', {
                 placeholder: 'Chọn ban ngành...',
                 searchPlaceholder: 'Tìm kiếm ban ngành...',
                 displayField: 'tenBan',
                 valueField: 'id',
-                onSelect: function(item) {
+                allowClear: true,
+                clearText: 'Không chọn ban ngành',
+                onSelect: function (item) {
                     // Cập nhật hidden input
                     document.getElementById('banNganh').value = item.id;
                     // Clear error state
@@ -255,34 +268,49 @@
                     banNganhDropdownElement.style.border = '';
                     // Load điểm nhóm theo ban ngành được chọn (không có callback = clear selection)
                     loadDiemNhomByBanNganh(item.id);
+                },
+                onClear: function () {
+                    // Clear hidden input
+                    document.getElementById('banNganh').value = '';
+                    // Load tất cả điểm nhóm khi không chọn ban ngành
+                    loadAllDiemNhom();
+                    // Clear điểm nhóm selection
+                    diemNhomDropdown.clear();
+                    document.getElementById('diemNhom').value = '';
                 }
             });
-            
+
             // Khởi tạo searchable dropdown cho điểm nhóm
             diemNhomDropdown = new SearchableDropdown('diemNhomDropdown', {
                 placeholder: 'Chọn điểm nhóm...',
                 searchPlaceholder: 'Tìm kiếm điểm nhóm...',
                 displayField: 'tenDiemNhom',
                 valueField: 'id',
-                onSelect: function(item) {
+                allowClear: true,
+                clearText: 'Không chọn điểm nhóm',
+                onSelect: function (item) {
                     // Cập nhật hidden input
                     document.getElementById('diemNhom').value = item.id;
+                },
+                onClear: function () {
+                    // Clear hidden input
+                    document.getElementById('diemNhom').value = '';
                 }
             });
-            
+
             // Load ban ngành
             loadAllBanNganh();
-            
+
             // Load tất cả điểm nhóm ban đầu
             loadAllDiemNhom();
-            
+
             // Set giá trị hiện tại nếu có (cho edit mode)
             const currentBanNganhValue = document.getElementById('banNganh').value;
             const currentDiemNhomValue = document.getElementById('diemNhom').value;
-            
+
             console.log('Debug - Ban Nganh Value:', currentBanNganhValue);
             console.log('Debug - Diem Nhom Value:', currentDiemNhomValue);
-            
+
             if (currentBanNganhValue && currentDiemNhomValue) {
                 // Nếu có cả ban ngành và điểm nhóm (edit mode)
                 console.log('Debug - Edit mode: có cả ban ngành và điểm nhóm');
@@ -313,7 +341,7 @@
                 console.log('Debug - Create mode: không có giá trị nào');
             }
         });
-        
+
         // Load tất cả ban ngành
         function loadAllBanNganh() {
             fetch('/admin/api/all-ban-nganh')
@@ -325,7 +353,7 @@
                     console.error('Error loading ban ngành:', error);
                 });
         }
-        
+
         // Load tất cả điểm nhóm
         function loadAllDiemNhom() {
             console.log('Debug - Loading all diem nhom...');
@@ -339,7 +367,7 @@
                     console.error('Error loading điểm nhóm:', error);
                 });
         }
-        
+
         // Lọc điểm nhóm theo ban ngành
         function loadDiemNhomByBanNganh(banNganhId, callback) {
             console.log('Debug - Loading diem nhom by ban nganh:', banNganhId);
@@ -350,13 +378,13 @@
                     .then(data => {
                         console.log('Debug - Diem nhom by ban nganh loaded:', data);
                         diemNhomDropdown.setData(data);
-                        
+
                         // Chỉ clear khi không có callback (tức là user thay đổi, không phải edit mode)
                         if (!callback) {
                             diemNhomDropdown.clear();
                             document.getElementById('diemNhom').value = '';
                         }
-                        
+
                         // Gọi callback nếu có
                         if (callback && typeof callback === 'function') {
                             callback();
@@ -372,7 +400,7 @@
                     diemNhomDropdown.clear();
                     document.getElementById('diemNhom').value = '';
                 }
-                
+
                 if (callback && typeof callback === 'function') {
                     callback();
                 }
@@ -383,14 +411,14 @@
         function previewAvatar(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
-                
+
                 // Validate file size (5MB)
                 if (file.size > 5 * 1024 * 1024) {
                     alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
                     input.value = '';
                     return;
                 }
-                
+
                 // Validate file type
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
                 if (!allowedTypes.includes(file.type)) {
@@ -398,9 +426,9 @@
                     input.value = '';
                     return;
                 }
-                
+
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     document.getElementById('avatarPreview').src = e.target.result;
                     document.getElementById('uploadStatus').classList.remove('d-none');
                 };
@@ -409,18 +437,18 @@
         }
 
         // Validation functions
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Phone number validation
             const phoneInput = document.getElementById('dienThoai');
-            phoneInput.addEventListener('input', function(e) {
+            phoneInput.addEventListener('input', function (e) {
                 // Chỉ cho phép nhập số
                 this.value = this.value.replace(/[^0-9]/g, '');
-                
+
                 // Giới hạn độ dài 10-11 số
                 if (this.value.length > 11) {
                     this.value = this.value.slice(0, 11);
                 }
-                
+
                 // Validation feedback
                 if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
                     this.setCustomValidity('Số điện thoại phải có 10-11 chữ số');
@@ -433,11 +461,11 @@
             const birthDateInput = document.getElementById('ngaySinh');
             const today = new Date().toISOString().split('T')[0];
             birthDateInput.setAttribute('max', today);
-            
-            birthDateInput.addEventListener('change', function(e) {
+
+            birthDateInput.addEventListener('change', function (e) {
                 const selectedDate = new Date(this.value);
                 const currentDate = new Date();
-                
+
                 if (selectedDate > currentDate) {
                     alert('Ngày sinh không được vượt quá thời gian hiện tại!');
                     this.value = '';
@@ -447,28 +475,28 @@
             // Nhiệm kỳ validation
             const nhiemKyBatDauInput = document.getElementById('nhiemKyBatDau');
             const nhiemKyKetThucInput = document.getElementById('nhiemKyKetThuc');
-            
+
             function validateNhiemKy() {
                 const batDau = nhiemKyBatDauInput.value;
                 const ketThuc = nhiemKyKetThucInput.value;
-                
+
                 if (batDau && ketThuc) {
                     const batDauDate = new Date(batDau);
                     const ketThucDate = new Date(ketThuc);
-                    
+
                     if (batDauDate >= ketThucDate) {
                         alert('Ngày kết thúc nhiệm kỳ phải sau ngày bắt đầu!');
                         nhiemKyKetThucInput.value = '';
                     }
                 }
             }
-            
+
             nhiemKyBatDauInput.addEventListener('change', validateNhiemKy);
             nhiemKyKetThucInput.addEventListener('change', validateNhiemKy);
 
             // Character limits
             const moTaCongViecInput = document.getElementById('moTaCongViec');
-            moTaCongViecInput.addEventListener('input', function(e) {
+            moTaCongViecInput.addEventListener('input', function (e) {
                 if (this.value.length > 1000) {
                     this.value = this.value.substring(0, 1000);
                     alert('Mô tả công việc không được vượt quá 1000 ký tự!');
@@ -476,7 +504,7 @@
             });
 
             const tieuSuInput = document.getElementById('tieuSu');
-            tieuSuInput.addEventListener('input', function(e) {
+            tieuSuInput.addEventListener('input', function (e) {
                 if (this.value.length > 2000) {
                     this.value = this.value.substring(0, 2000);
                     alert('Tiểu sử không được vượt quá 2000 ký tự!');
@@ -485,10 +513,10 @@
 
             // Form submission validation
             const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 const phoneValue = phoneInput.value;
                 const birthDateValue = birthDateInput.value;
-                
+
                 // Validate phone number
                 if (phoneValue && (phoneValue.length < 10 || phoneValue.length > 11 || !/^[0-9]+$/.test(phoneValue))) {
                     e.preventDefault();
@@ -496,12 +524,12 @@
                     phoneInput.focus();
                     return;
                 }
-                
+
                 // Validate birth date
                 if (birthDateValue) {
                     const selectedDate = new Date(birthDateValue);
                     const currentDate = new Date();
-                    
+
                     if (selectedDate > currentDate) {
                         e.preventDefault();
                         alert('Ngày sinh không được vượt quá thời gian hiện tại!');
@@ -513,4 +541,5 @@
         });
     </script>
 </body>
+
 </html>

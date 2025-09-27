@@ -343,8 +343,13 @@
                     displayField: 'hoTen',
                     valueField: 'id',
                     searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn trưởng ban nhân sự',
                     onSelect: function(item) {
                         document.getElementById('truongBanNhanSuId').value = item.id;
+                    },
+                    onClear: function() {
+                        document.getElementById('truongBanNhanSuId').value = '';
                     }
                 });
                 
@@ -369,8 +374,13 @@
                     displayField: 'hoTen',
                     valueField: 'id',
                     searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn trưởng ban chấp sự',
                     onSelect: function(item) {
                         document.getElementById('truongBanChapSuId').value = item.id;
+                    },
+                    onClear: function() {
+                        document.getElementById('truongBanChapSuId').value = '';
                     }
                 });
                 
@@ -394,8 +404,13 @@
                     displayField: 'hoTen',
                     valueField: 'id',
                     searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn phó ban nhân sự',
                     onSelect: function(item) {
                         addPhoBanNhanSu(item);
+                    },
+                    onClear: function() {
+                        // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
                     }
                 });
             }
@@ -409,8 +424,13 @@
                     displayField: 'hoTen',
                     valueField: 'id',
                     searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn phó ban chấp sự',
                     onSelect: function(item) {
                         addPhoBanChapSu(item);
+                    },
+                    onClear: function() {
+                        // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
                     }
                 });
             }

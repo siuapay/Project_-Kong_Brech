@@ -373,7 +373,8 @@
                 searchPlaceholder: 'Tìm kiếm danh mục...',
                 displayField: 'tenDanhMuc',
                 valueField: 'id',
-                allowClear: false,
+                allowClear: true,
+                clearText: 'Không chọn danh mục',
                 onSelect: function(item) {
                     // Update hidden input
                     document.getElementById('danhMuc').value = item.id;

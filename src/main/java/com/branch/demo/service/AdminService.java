@@ -1052,19 +1052,33 @@ public class AdminService {
             nhanSu.setMoTaCongViec(null);
         }
 
-        // Nếu có ban ngành ID, tìm và set ban ngành
+        // Xử lý ban ngành
         if (nhanSu.getBanNganh() != null && nhanSu.getBanNganh().getId() != null) {
-            com.branch.demo.domain.BanNganh banNganh = banNganhRepository.findById(nhanSu.getBanNganh().getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy ban ngành"));
-            nhanSu.setBanNganh(banNganh);
+            try {
+                com.branch.demo.domain.BanNganh banNganh = banNganhRepository.findById(nhanSu.getBanNganh().getId())
+                        .orElse(null);
+                nhanSu.setBanNganh(banNganh);
+            } catch (Exception e) {
+                // Nếu không tìm thấy ban ngành, set null
+                nhanSu.setBanNganh(null);
+            }
+        } else {
+            // Nếu không có ban ngành hoặc ID null, set null
+            nhanSu.setBanNganh(null);
         }
 
-        // Nếu có điểm nhóm ID, tìm và set điểm nhóm
+        // Xử lý điểm nhóm
         if (nhanSu.getDiemNhom() != null && nhanSu.getDiemNhom().getId() != null) {
-            com.branch.demo.domain.DiemNhom diemNhom = diemNhomRepository.findById(nhanSu.getDiemNhom().getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy điểm nhóm"));
-            nhanSu.setDiemNhom(diemNhom);
+            try {
+                com.branch.demo.domain.DiemNhom diemNhom = diemNhomRepository.findById(nhanSu.getDiemNhom().getId())
+                        .orElse(null);
+                nhanSu.setDiemNhom(diemNhom);
+            } catch (Exception e) {
+                // Nếu không tìm thấy điểm nhóm, set null
+                nhanSu.setDiemNhom(null);
+            }
         } else {
+            // Nếu không có điểm nhóm hoặc ID null, set null
             nhanSu.setDiemNhom(null);
         }
 

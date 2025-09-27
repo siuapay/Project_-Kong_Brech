@@ -20,33 +20,136 @@
     </section>
 
     <!-- Statistics Section -->
-    <section class="py-4 bg-light">
+    <section class="py-5 bg-light">
       <div class="container">
+        <!-- Main Statistics Cards -->
+        <div class="row mb-4">
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 ">
+              <div class="card-body text-center p-4">
+                <div class="stats-icon bg-primary mb-3">
+                  <i class="fas fa-users fa-2x text-white"></i>
+                </div>
+                <h2 class="stats-number text-primary mb-2" th:text="${totalTinHuu}">0</h2>
+                <p class="stats-label mb-0">Tổng Tín Hữu</p>
+                <small class="text-muted">Tất cả tín hữu trong chi hội</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 ">
+              <div class="card-body text-center p-4">
+                <div class="stats-icon bg-info mb-3">
+                  <i class="fas fa-male fa-2x text-white"></i>
+                </div>
+                <h2 class="stats-number text-info mb-2" th:text="${totalNam}">0</h2>
+                <p class="stats-label mb-0">Nam Giới</p>
+                <div class="progress mt-2" style="height: 6px;">
+                  <div class="progress-bar bg-info" role="progressbar" 
+                       th:style="'width: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0} + '%'"></div>
+                </div>
+                <small class="text-muted" th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNam * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}">0%</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 ">
+              <div class="card-body text-center p-4">
+                <div class="stats-icon bg-success mb-3">
+                  <i class="fas fa-female fa-2x text-white"></i>
+                </div>
+                <h2 class="stats-number text-success mb-2" th:text="${totalNu}">0</h2>
+                <p class="stats-label mb-0">Nữ Giới</p>
+                <div class="progress mt-2" style="height: 6px;">
+                  <div class="progress-bar bg-success" role="progressbar" 
+                       th:style="'width: ' + ${totalTinHuu > 0 ? (totalNu * 100.0 / totalTinHuu) : 0} + '%'"></div>
+                </div>
+                <small class="text-muted" th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNu * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}">0%</small>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 ">
+              <div class="card-body text-center p-4">
+                <div class="stats-icon bg-warning mb-3">
+                  <i class="fas fa-user-check fa-2x text-white"></i>
+                </div>
+                <h2 class="stats-number text-warning mb-2" th:text="${tinHuuHoatDong ?: 0}">0</h2>
+                <p class="stats-label mb-0">Đang Hoạt Động</p>
+                <small class="text-muted">Tín hữu tích cực tham gia</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Statistics -->
         <div class="row">
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card bg-primary text-white h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-users fa-3x mb-3"></i>
-                <h3 class="mb-2" th:text="${totalTinHuu}">0</h3>
-                <p class="mb-0">Tổng Tín Hữu</p>
+          <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-0">
+                <h5 class="card-title mb-0">
+                  <i class="fas fa-chart-pie me-2 text-primary"></i>
+                  Thống Kê Chi Tiết
+                </h5>
               </div>
-            </div>
-          </div>
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card bg-info text-white h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-male fa-3x mb-3"></i>
-                <h3 class="mb-2" th:text="${totalNam}">0</h3>
-                <p class="mb-0">Nam Giới</p>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-4 col-md-6 mb-3">
-            <div class="card bg-success text-white h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-female fa-3x mb-3"></i>
-                <h3 class="mb-2" th:text="${totalNu}">0</h3>
-                <p class="mb-0">Nữ Giới</p>
+              <div class="card-body">
+                <div class="row text-center">
+                  <div class="col-md-3 mb-3">
+                    <div class="border-end">
+                      <h4 class="text-primary mb-1" th:text="${totalTinHuu}">0</h4>
+                      <small class="text-muted">Tổng Tín Hữu</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <div class="border-end">
+                      <h4 class="text-info mb-1" th:text="${totalNam}">0</h4>
+                      <small class="text-muted">Nam Giới</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <div class="border-end">
+                      <h4 class="text-success mb-1" th:text="${totalNu}">0</h4>
+                      <small class="text-muted">Nữ Giới</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mb-3">
+                    <h4 class="text-warning mb-1" th:text="${tinHuuChuaPhanNhom ?: 0}">0</h4>
+                    <small class="text-muted">Chưa Có Nhóm</small>
+                  </div>
+                </div>
+                
+                <!-- Gender Distribution Chart -->
+                <div class="row mt-4">
+                  <div class="col-md-6 mx-auto">
+                    <div class="text-center">
+                      <h6 class="text-muted mb-3">Phân Bố Giới Tính</h6>
+                      <div class="d-flex justify-content-center align-items-center">
+                        <div class="me-4">
+                          <div class="d-flex align-items-center mb-2">
+                            <div class="legend-color bg-info me-2"></div>
+                            <span class="small">Nam: <strong th:text="${totalNam}">0</strong></span>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <div class="legend-color bg-success me-2"></div>
+                            <span class="small">Nữ: <strong th:text="${totalNu}">0</strong></span>
+                          </div>
+                        </div>
+                        <div class="gender-chart">
+                          <div class="chart-circle">
+                            <div class="chart-male" th:style="'--percentage: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0}"></div>
+                            <div class="chart-center">
+                              <span class="h5 mb-0" th:text="${totalTinHuu}">0</span>
+                              <small class="d-block text-muted">Tổng</small>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -54,135 +157,115 @@
       </div>
     </section>
 
-    <!-- Search and List Section -->
+    <!-- Additional Information Section -->
     <section class="py-5">
       <div class="container">
-        <!-- Search Form -->
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-body">
-                <form method="get" th:action="@{/list/tin-huu}">
-                  <div class="row align-items-end">
-                    <div class="col-md-8">
-                      <label for="search" class="form-label">Tìm kiếm tín hữu</label>
-                      <input type="text" class="form-control" id="search" name="search" 
-                             th:value="${search}" placeholder="Nhập tên, email hoặc số điện thoại...">
-                    </div>
-                    <div class="col-md-4">
-                      <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search me-2"></i>Tìm kiếm
-                      </button>
+        <!-- Welcome Message -->
+        <div class="row mb-5">
+          <div class="col-12 text-center">
+            <div class="card border-0 shadow-sm bg-gradient-primary text-white">
+              <div class="card-body py-5">
+                <i class="fas fa-heart fa-3x mb-3 text-white-50"></i>
+                <h3 class="mb-3">Cộng Đồng Tín Hữu Chi Hội Kong Brech</h3>
+                <p class="lead mb-4">
+                  Chúng tôi là một cộng đồng tín hữu đoàn kết, yêu thương và phục vụ Chúa với tấm lòng chân thành. 
+                  Mỗi tín hữu đều là một phần quan trọng trong đại gia đình này.
+                </p>
+                <div class="row text-center">
+                  <div class="col-md-4 mb-3">
+                    <div class="d-flex flex-column align-items-center">
+                      <i class="fas fa-users fa-2x mb-2"></i>
+                      <h4 class="mb-1" th:text="${totalTinHuu}">0</h4>
+                      <small>Tín Hữu</small>
                     </div>
                   </div>
-                </form>
+                  <div class="col-md-4 mb-3">
+                    <div class="d-flex flex-column align-items-center">
+                      <i class="fas fa-hands-praying fa-2x mb-2"></i>
+                      <h4 class="mb-1" th:text="${tinHuuHoatDong ?: 0}">0</h4>
+                      <small>Đang Hoạt Động</small>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <div class="d-flex flex-column align-items-center">
+                      <i class="fas fa-church fa-2x mb-2"></i>
+                      <h4 class="mb-1" th:text="${tinHuuCoPhanNhom ?: 0}">0</h4>
+                      <small>Đã Có Nhóm</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Results -->
+        <!-- Inspirational Quote -->
+        <div class="row mb-5">
+          <div class="col-md-8 mx-auto text-center">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body py-4">
+                <blockquote class="blockquote mb-0">
+                  <p class="fs-5 text-muted fst-italic">
+                    "Vì ở đâu có hai ba người nhóm họp nhân danh Ta, thì Ta ở đó, ở giữa họ."
+                  </p>
+                  <footer class="blockquote-footer mt-3">
+                    <cite title="Source Title">Ma-thi-ơ 18:20</cite>
+                  </footer>
+                </blockquote>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Community Values -->
         <div class="row">
           <div class="col-12">
-            <div class="card">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                  <i class="fas fa-list me-2"></i>Danh Sách Tín Hữu
-                  <span class="badge bg-light text-primary ms-2" th:text="${tinHuuPage.totalElements}">0</span>
-                </h5>
-              </div>
-              <div class="card-body p-0">
-                <div th:if="${tinHuuPage != null and tinHuuPage.hasContent()}" class="table-responsive">
-                  <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                      <tr>
-                        <th>STT</th>
-                        <th>Họ và Tên</th>
-                        <th>Năm Sinh</th>
-                        <th>Giới Tính</th>
-                        <th>Nhóm</th>
-                        <th>Địa Chỉ</th>
-                        <th>Liên Hệ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr th:each="tinHuu, iterStat : ${tinHuuPage.content}">
-                        <td th:text="${(currentPage * 20) + iterStat.index + 1}">1</td>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <div class="avatar-circle me-3">
-                              <span th:text="${#strings.substring(tinHuu.hoTen, 0, 1)}">T</span>
-                            </div>
-                            <div>
-                              <div class="fw-bold" th:text="${tinHuu.hoTen}">Tên tín hữu</div>
-                              <small class="text-muted" th:if="${tinHuu.email}" th:text="${tinHuu.email}">email@example.com</small>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span th:if="${tinHuu.namSinh}" th:text="${tinHuu.namSinh}">1990</span>
-                          <span th:unless="${tinHuu.namSinh}" class="text-muted">Chưa có</span>
-                        </td>
-                        <td>
-                          <span class="badge" 
-                                th:classappend="${tinHuu.gioiTinh == 'Nam'} ? 'bg-primary' : 'bg-success'"
-                                th:text="${tinHuu.gioiTinh}">Nam</span>
-                        </td>
-                        <td>
-                          <span th:if="${tinHuu.nhom}" th:text="${tinHuu.nhom.tenNhom}">Tên nhóm</span>
-                          <span th:unless="${tinHuu.nhom}" class="text-muted">Chưa có nhóm</span>
-                        </td>
-                        <td>
-                          <span th:if="${tinHuu.diaChi}" th:text="${#strings.abbreviate(tinHuu.diaChi, 30)}">Địa chỉ</span>
-                          <span th:unless="${tinHuu.diaChi}" class="text-muted">Chưa có</span>
-                        </td>
-                        <td>
-                          <div th:if="${tinHuu.dienThoai}">
-                            <small class="text-muted">
-                              <i class="fas fa-phone me-1"></i>
-                              <span th:text="${tinHuu.dienThoai}">0123456789</span>
-                            </small>
-                          </div>
-                          <div th:unless="${tinHuu.dienThoai}">
-                            <small class="text-muted">Chưa có SĐT</small>
-                          </div>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+            <div class="text-center mb-4">
+              <h3 class="text-primary">Giá Trị Cộng Đồng</h3>
+              <p class="text-muted">Những giá trị cốt lõi định hướng cộng đồng tín hữu chúng ta</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+              <div class="card-body p-4">
+                <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                  <i class="fas fa-pray fa-2x"></i>
                 </div>
-                
-                <!-- Empty State -->
-                <div th:if="${tinHuuPage == null or !tinHuuPage.hasContent()}" class="text-center py-5">
-                  <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
-                  <h5 class="text-muted">Không tìm thấy tín hữu nào</h5>
-                  <p class="text-muted">Thử thay đổi từ khóa tìm kiếm hoặc kiểm tra lại thông tin.</p>
-                </div>
+                <h5 class="card-title">Đức Tin</h5>
+                <p class="card-text text-muted">
+                  Tin tưởng và yêu mến Chúa Giê-su Christ, sống theo lời dạy của Ngài trong mọi hoàn cảnh.
+                </p>
               </div>
-              
-              <!-- Pagination -->
-              <div th:if="${tinHuuPage != null and tinHuuPage.totalPages > 1}" class="card-footer">
-                <nav aria-label="Pagination">
-                  <ul class="pagination justify-content-center mb-0">
-                    <li class="page-item" th:classappend="${!tinHuuPage.hasPrevious()} ? 'disabled'">
-                      <a class="page-link" th:href="@{/list/tin-huu(page=${currentPage - 1}, search=${search})}">
-                        <i class="fas fa-chevron-left"></i>
-                      </a>
-                    </li>
-                    
-                    <li th:each="pageNum : ${#numbers.sequence(0, tinHuuPage.totalPages - 1)}" 
-                        class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
-                      <a class="page-link" th:href="@{/list/tin-huu(page=${pageNum}, search=${search})}" 
-                         th:text="${pageNum + 1}">1</a>
-                    </li>
-                    
-                    <li class="page-item" th:classappend="${!tinHuuPage.hasNext()} ? 'disabled'">
-                      <a class="page-link" th:href="@{/list/tin-huu(page=${currentPage + 1}, search=${search})}">
-                        <i class="fas fa-chevron-right"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </nav>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+              <div class="card-body p-4">
+                <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                  <i class="fas fa-heart fa-2x"></i>
+                </div>
+                <h5 class="card-title">Yêu Thương</h5>
+                <p class="card-text text-muted">
+                  Yêu thương lẫn nhau như Chúa đã yêu thương chúng ta, chia sẻ và hỗ trợ trong mọi hoàn cảnh.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm h-100 text-center">
+              <div class="card-body p-4">
+                <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3">
+                  <i class="fas fa-hands-helping fa-2x"></i>
+                </div>
+                <h5 class="card-title">Phục Vụ</h5>
+                <p class="card-text text-muted">
+                  Phục vụ Chúa và cộng đồng với tấm lòng sẵn sàng, góp phần xây dựng Vương quốc Thiên Chúa.
+                </p>
               </div>
             </div>
           </div>
@@ -235,6 +318,199 @@
       .pagination .page-item.active .page-link {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-color: #667eea;
+      }
+
+      /* Statistics Cards Styling */
+      .stats-card {
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      
+      .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      }
+      
+      .stats-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      
+      .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+      }
+      
+      .stats-label {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #495057;
+      }
+      
+      .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+      }
+      
+      /* Gender Chart */
+      .gender-chart {
+        position: relative;
+      }
+      
+      .chart-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #17a2b8 0deg,
+          #17a2b8 calc(var(--percentage) * 3.6deg),
+          #28a745 calc(var(--percentage) * 3.6deg),
+          #28a745 360deg
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      
+      .chart-center {
+        width: 80px;
+        height: 80px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      
+      .bg-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      /* Enhanced Progress Bars */
+      .progress {
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      
+      .progress-bar {
+        border-radius: 10px;
+        transition: width 0.6s ease;
+      }
+      
+      /* Card Header Styling */
+      .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      }
+      
+      /* Border Styling */
+      .border-end {
+        border-right: 2px solid #e9ecef !important;
+      }
+      
+      @media (max-width: 768px) {
+        .border-end {
+          border-right: none !important;
+          border-bottom: 2px solid #e9ecef !important;
+          padding-bottom: 1rem;
+        }
+        
+        .stats-number {
+          font-size: 2rem;
+        }
+        
+        .chart-circle {
+          width: 100px;
+          height: 100px;
+        }
+        
+        .chart-center {
+          width: 70px;
+          height: 70px;
+        }
+      }
+      
+      /* Animation for statistics */
+      @keyframes countUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      
+      .stats-number {
+        animation: countUp 0.8s ease-out;
+      }
+      
+      /* Feature Icons */
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      
+      /* Gradient Background */
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      /* Blockquote Styling */
+      .blockquote {
+        position: relative;
+        padding: 1rem 2rem;
+      }
+      
+      .blockquote::before {
+        content: '"';
+        font-size: 4rem;
+        color: #e9ecef;
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        font-family: Georgia, serif;
+      }
+      
+      /* Card Hover Effects */
+      .card:hover {
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      }
+      
+      /* Status Circle */
+      .status-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .feature-icon {
+          width: 60px;
+          height: 60px;
+        }
+        
+        .blockquote::before {
+          font-size: 3rem;
+          top: -5px;
+          left: 5px;
+        }
       }
     </style>
   </body>

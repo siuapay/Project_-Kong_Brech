@@ -491,9 +491,15 @@
         searchPlaceholder: 'Tìm kiếm ban ngành...',
         displayField: 'tenBan',
         valueField: 'id',
+        allowClear: true,
+        clearText: 'Không chọn ban ngành',
         onSelect: function (item) {
           // Cập nhật hidden input
           document.getElementById('banNganh').value = item.id;
+        },
+        onClear: function() {
+          // Clear hidden input
+          document.getElementById('banNganh').value = '';
         }
       });
 
@@ -503,9 +509,15 @@
         searchPlaceholder: 'Tìm kiếm nhóm...',
         displayField: 'displayText',
         valueField: 'id',
+        allowClear: true,
+        clearText: 'Không chọn nhóm',
         onSelect: function (item) {
           // Cập nhật hidden input
           document.getElementById('nhom').value = item.id;
+        },
+        onClear: function() {
+          // Clear hidden input
+          document.getElementById('nhom').value = '';
         }
       });
 

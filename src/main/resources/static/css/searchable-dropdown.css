@@ -15,6 +15,28 @@
     padding-right: 40px !important;
 }
 
+.searchable-dropdown .dropdown-clear + .dropdown-arrow {
+    right: 12px;
+}
+
+.searchable-dropdown:has(.dropdown-clear) .dropdown-input {
+    padding-right: 65px !important;
+}
+
+.dropdown-clear {
+    position: absolute;
+    right: 35px;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color 0.2s ease;
+    z-index: 1;
+}
+
+.dropdown-clear:hover {
+    color: #dc3545;
+}
+
 .dropdown-arrow {
     position: absolute;
     right: 12px;

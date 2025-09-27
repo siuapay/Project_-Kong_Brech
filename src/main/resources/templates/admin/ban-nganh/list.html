@@ -127,7 +127,7 @@
                                     <th width="5%">#</th>
                                     <th width="15%">Tên Ban</th>
                                     <th width="8%">Mã Ban</th>
-                                    <th width="20%">Mô Tả</th>
+                             <!--      <th width="20%">Mô Tả</th>--> 
                                     <th width="15%">Quản Lý</th>
                                     <th width="12%">Liên Hệ</th>
                                     <th width="7%">Nhân Sự</th>
@@ -164,10 +164,10 @@
                                     <td>
                                         <span class="badge bg-secondary" th:text="${banNganh.maBan}">MB001</span>
                                     </td>
-                                    <td>
+                                  <!--  <td>
                                         <span th:if="${banNganh.moTa}" th:text="${#strings.abbreviate(banNganh.moTa, 50)}">Mô tả</span>
                                         <span th:unless="${banNganh.moTa}" class="text-muted">Chưa có mô tả</span>
-                                    </td>
+                                    </td>-->
                                     <td>
                                         <!-- Trưởng Ban -->
                                         <div th:if="${banNganh.coTruongBan()}" class="mb-1">

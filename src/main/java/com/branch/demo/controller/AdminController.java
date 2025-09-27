@@ -5,6 +5,7 @@ import com.branch.demo.service.FileUploadService;
 import com.branch.demo.domain.*;
 import jakarta.validation.Valid;
 
+import com.branch.demo.dto.ChapSuDTO;
 import com.branch.demo.dto.SuKienDTO;
 import com.branch.demo.repository.BaiVietRepository;
 import com.branch.demo.repository.BanNganhRepository;
@@ -614,9 +615,25 @@ public class AdminController {
 
     @GetMapping("/api/all-chap-su")
     @ResponseBody
-    public java.util.List<com.branch.demo.domain.ChapSu> getAllChapSu() {
-        return adminService.getAllActiveChapSu();
+    public java.util.List<ChapSuDTO> getAllChapSu() {
+        java.util.List<com.branch.demo.domain.ChapSu> chapSuList = adminService.getAllActiveChapSu();
+        return chapSuList.stream()
+                .map(this::convertToChapSuDTO)
+                .collect(java.util.stream.Collectors.toList());
     }
+    
+    private ChapSuDTO convertToChapSuDTO(com.branch.demo.domain.ChapSu chapSu) {
+        ChapSuDTO dto = new ChapSuDTO();
+        dto.setId(chapSu.getId());
+        dto.setHoTen(chapSu.getHoTen());
+        dto.setChucVu(chapSu.getChucVu() != null ? chapSu.getChucVu().getDisplayName() : null);
+        dto.setDienThoai(chapSu.getDienThoai());
+        dto.setEmail(chapSu.getEmail());
+        dto.setAvatarUrl(chapSu.getAvatarUrl());
+        // Không include banNganh và diemNhom để tránh lazy loading issues
+        return dto;
+    }
+
 
     // @GetMapping("/api/ban-nganh/{id}/nhan-su")
     // @ResponseBody

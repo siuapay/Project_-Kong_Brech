@@ -255,13 +255,13 @@ public class ChapSu extends BaseAuditableEntity {
 
     // Enums
     public enum ChucVu {
-        MUC_SU("Mục sư"),
-        TRUYEN_DAO("Truyền đạo"),
-        CHAP_SU_TRUONG("Chấp sự trưởng"),
-        CHAP_SU("Chấp sự"),
-        THU_KY("Thư ký"),
-        THU_QUY("Thủ quỹ"),
-        THANH_VIEN("Thành viên");
+        QUAN_NHIEM("Quản nhiệm"),
+        PHU_TA_QUAN_NHIEM("Phụ tá quản nhiệm"),
+        THU_KY_1("Thư ký 1"),
+        THU_KY_2("Thư ký 2"),
+        THU_QUY_1("Thủ quỹ 1"),
+        THU_QUY_2("Thủ quỹ 2"),
+        UY_VIEN("Ủy viên");
 
         private final String displayName;
 

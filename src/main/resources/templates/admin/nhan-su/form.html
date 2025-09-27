@@ -171,6 +171,13 @@
                                         <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"></textarea>
                                     </div>
 
+                                      <div class="mb-3">
+                                        <label for="moTaCongViec" class="form-label">Mô tả công việc</label>
+                                        <textarea class="form-control" id="moTaCongViec" th:field="*{moTaCongViec}"
+                                            rows="3" placeholder="Mô tả về công việc và trách nhiệm..."></textarea>
+                                        <div class="form-text">Tối đa 1000 ký tự</div>
+                                    </div>
+
                                     <div class="mb-3">
                                         <label for="tieuSu" class="form-label">Tiểu sử</label>
                                         <textarea class="form-control" id="tieuSu" th:field="*{tieuSu}" rows="4" 
@@ -239,6 +246,8 @@
                 searchPlaceholder: 'Tìm kiếm ban ngành...',
                 displayField: 'tenBan',
                 valueField: 'id',
+                allowClear: true,
+                clearText: 'Không chọn ban ngành',
                 onSelect: function(item) {
                     // Cập nhật hidden input
                     document.getElementById('banNganh').value = item.id;
@@ -247,6 +256,15 @@
                     banNganhDropdownElement.style.border = '';
                     // Load điểm nhóm theo ban ngành được chọn (không có callback = clear selection)
                     loadDiemNhomByBanNganh(item.id);
+                },
+                onClear: function() {
+                    // Clear hidden input
+                    document.getElementById('banNganh').value = '';
+                    // Load tất cả điểm nhóm khi không chọn ban ngành
+                    loadAllDiemNhom();
+                    // Clear điểm nhóm selection
+                    diemNhomDropdown.clear();
+                    document.getElementById('diemNhom').value = '';
                 }
             });
             
@@ -256,9 +274,15 @@
                 searchPlaceholder: 'Tìm kiếm điểm nhóm...',
                 displayField: 'tenDiemNhom',
                 valueField: 'id',
+                allowClear: true,
+                clearText: 'Không chọn điểm nhóm',
                 onSelect: function(item) {
                     // Cập nhật hidden input
                     document.getElementById('diemNhom').value = item.id;
+                },
+                onClear: function() {
+                    // Clear hidden input
+                    document.getElementById('diemNhom').value = '';
                 }
             });
             

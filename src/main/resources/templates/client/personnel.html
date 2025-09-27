@@ -10,10 +10,20 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold mb-3">Nhân Sự</h1>
+            <h1 class="display-4 fw-bold mb-3">Nhân Sự & Chấp Sự</h1>
             <p class="lead">
-              Ban Chấp Sự và cơ cấu lãnh đạo chi hội
+              Ban Chấp Sự và đội ngũ nhân sự chi hội
             </p>
+            <div class="mt-4">
+              <span class="badge bg-light text-dark fs-6 px-3 py-2 me-2">
+                <i class="fas fa-user-tie me-2"></i>
+                Chấp sự: <span th:text="${totalChapSu}">0</span>
+              </span>
+              <span class="badge bg-light text-dark fs-6 px-3 py-2">
+                <i class="fas fa-users me-2"></i>
+                Nhân sự: <span th:text="${totalNhanSu}">0</span>
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -34,8 +44,16 @@
               <div class="card-body p-4">
                 <div class="row align-items-center">
                   <div class="col-md-4 text-center mb-3 mb-md-0">
-                    <div class="avatar-large bg-primary text-white mx-auto mb-3">
-                      <i class="fas fa-user fa-3x"></i>
+                    <div class="avatar-large mx-auto mb-3">
+                      <img th:if="${chapSuChinh.avatarUrl != null and !chapSuChinh.avatarUrl.isEmpty()}"
+                           th:src="${chapSuChinh.avatarUrl}" 
+                           th:alt="${chapSuChinh.hoTen}"
+                           class="avatar-large rounded-circle border border-3 border-primary"
+                           style="object-fit: cover;">
+                      <div th:unless="${chapSuChinh.avatarUrl != null and !chapSuChinh.avatarUrl.isEmpty()}"
+                           class="avatar-large bg-primary text-white rounded-circle d-flex align-items-center justify-content-center">
+                        <span class="fs-1 fw-bold" th:text="${#strings.substring(chapSuChinh.hoTen, 0, 1)}">T</span>
+                      </div>
                     </div>
                   </div>
                   <div class="col-md-8">
@@ -89,8 +107,16 @@
                       <div class="card border-left-info h-100">
                         <div class="card-body">
                           <div class="d-flex align-items-start">
-                            <div class="avatar-circle bg-info text-white me-3 flex-shrink-0">
-                              <i class="fas fa-user"></i>
+                            <div class="avatar-circle me-3 flex-shrink-0">
+                              <img th:if="${member.avatarUrl != null and !member.avatarUrl.isEmpty()}"
+                                   th:src="${member.avatarUrl}" 
+                                   th:alt="${member.hoTen}"
+                                   class="avatar-circle rounded-circle border border-2 border-info"
+                                   style="object-fit: cover;">
+                              <div th:unless="${member.avatarUrl != null and !member.avatarUrl.isEmpty()}"
+                                   class="avatar-circle bg-info text-white rounded-circle d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" th:text="${#strings.substring(member.hoTen, 0, 1)}">T</span>
+                              </div>
                             </div>
                             <div class="flex-grow-1">
                               <h6 class="mb-2 text-primary" th:text="${member.hoTen}">Họ Tên</h6>
@@ -123,6 +149,117 @@
                   <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
                   <h5 class="text-muted">Chưa Có Thông Tin</h5>
                   <p class="text-muted">Hiện tại chưa có thông tin về Ban Chấp Sự.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NHÂN SỰ SECTION -->
+        <div class="row mt-5 mb-4">
+          <div class="col-12">
+            <h2 class="text-primary text-center mb-4">
+              <i class="fas fa-users me-2"></i>Đội Ngũ Nhân Sự
+            </h2>
+          </div>
+        </div>
+
+        <!-- All Staff Members -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                  <i class="fas fa-users me-2"></i>Thành Viên Nhân Sự
+                </h4>
+              </div>
+              <div class="card-body">
+                <div th:if="${totalNhanSu > 0}">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 mb-4" th:each="nhanSu : ${lanhDaoNhanSu}">
+                      <div class="card border-left-success h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-start">
+                            <div class="avatar-circle me-3 flex-shrink-0">
+                              <img th:if="${nhanSu.avatarUrl != null and !nhanSu.avatarUrl.isEmpty()}"
+                                   th:src="${nhanSu.avatarUrl}" 
+                                   th:alt="${nhanSu.hoTen}"
+                                   class="avatar-circle rounded-circle border border-2 border-success"
+                                   style="object-fit: cover;">
+                              <div th:unless="${nhanSu.avatarUrl != null and !nhanSu.avatarUrl.isEmpty()}"
+                                   class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" th:text="${#strings.substring(nhanSu.hoTen, 0, 1)}">T</span>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-2 text-primary" th:text="${nhanSu.hoTen}">Họ Tên</h6>
+                              <p class="text-muted mb-1">
+                                <i class="fas fa-briefcase me-1"></i>
+                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
+                              </p>
+                              <p class="text-muted mb-1" th:if="${nhanSu.banNganh}">
+                                <i class="fas fa-sitemap me-1"></i>
+                                <span th:text="${nhanSu.banNganh.tenBan}">Ban ngành</span>
+                              </p>
+                              <p class="text-muted mb-1" th:if="${nhanSu.dienThoai}">
+                                <i class="fas fa-phone me-1"></i>
+                                <span th:text="${nhanSu.dienThoai}">Điện thoại</span>
+                              </p>
+                              <p class="text-muted mb-0" th:if="${nhanSu.email}">
+                                <i class="fas fa-envelope me-1"></i>
+                                <span th:text="${nhanSu.email}">Email</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 mb-4" th:each="nhanSu : ${nhanSuKhac}">
+                      <div class="card border-left-success h-100">
+                        <div class="card-body">
+                          <div class="d-flex align-items-start">
+                            <div class="avatar-circle me-3 flex-shrink-0">
+                              <img th:if="${nhanSu.avatarUrl != null and !nhanSu.avatarUrl.isEmpty()}"
+                                   th:src="${nhanSu.avatarUrl}" 
+                                   th:alt="${nhanSu.hoTen}"
+                                   class="avatar-circle rounded-circle border border-2 border-success"
+                                   style="object-fit: cover;">
+                              <div th:unless="${nhanSu.avatarUrl != null and !nhanSu.avatarUrl.isEmpty()}"
+                                   class="avatar-circle bg-success text-white rounded-circle d-flex align-items-center justify-content-center">
+                                <span class="fw-bold" th:text="${#strings.substring(nhanSu.hoTen, 0, 1)}">T</span>
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-2 text-primary" th:text="${nhanSu.hoTen}">Họ Tên</h6>
+                              <p class="text-muted mb-1">
+                                <i class="fas fa-briefcase me-1"></i>
+                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
+                              </p>
+                              <p class="text-muted mb-1" th:if="${nhanSu.banNganh}">
+                                <i class="fas fa-sitemap me-1"></i>
+                                <span th:text="${nhanSu.banNganh.tenBan}">Ban ngành</span>
+                              </p>
+                              <p class="text-muted mb-1" th:if="${nhanSu.dienThoai}">
+                                <i class="fas fa-phone me-1"></i>
+                                <span th:text="${nhanSu.dienThoai}">Điện thoại</span>
+                              </p>
+                              <p class="text-muted mb-0" th:if="${nhanSu.email}">
+                                <i class="fas fa-envelope me-1"></i>
+                                <span th:text="${nhanSu.email}">Email</span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Empty State for Staff -->
+                <div th:if="${totalNhanSu == 0}" class="text-center py-4">
+                  <i class="fas fa-user-slash fa-3x text-muted mb-3"></i>
+                  <h5 class="text-muted">Chưa Có Thông Tin Nhân Sự</h5>
+                  <p class="text-muted">Hiện tại chưa có thông tin về nhân sự chi hội.</p>
                 </div>
               </div>
             </div>
@@ -202,6 +339,10 @@
         border-left: 4px solid #17a2b8 !important;
       }
       
+      .border-left-success {
+        border-left: 4px solid #28a745 !important;
+      }
+      
       .avatar-large {
         width: 120px;
         height: 120px;
@@ -209,6 +350,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+      
+      .avatar-large img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
       }
       
       .avatar-circle {
@@ -221,6 +368,12 @@
         font-size: 1.2rem;
       }
       
+      .avatar-circle img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+      }
+      
       .icon-circle {
         width: 60px;
         height: 60px;
@@ -229,6 +382,33 @@
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
+      }
+      
+      .staff-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .staff-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+      }
+      
+      .staff-card-small {
+        transition: transform 0.2s ease;
+      }
+      
+      .staff-card-small:hover {
+        transform: translateY(-3px);
+      }
+      
+      .avatar-small {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
       }
     </style>
   </body>

@@ -139,17 +139,17 @@ public class DataInitializationService implements CommandLineRunner {
                                 "Phụ trách công tác truyền thông và công nghệ", "truyenthong@httlkongbrech.org");
 
                 // Tạo chấp sự
-                createChapSu("Mục sư Nguyễn Văn A", ChapSu.ChucVu.MUC_SU, "0123456789",
+                createChapSu("Mục sư Nguyễn Văn A", ChapSu.ChucVu.QUAN_NHIEM, "0123456789",
                                 "mucsu@httlkongbrech.org", 1970);
-                createChapSu("Truyền đạo Trần Văn B", ChapSu.ChucVu.TRUYEN_DAO, "0123456790",
+                createChapSu("Truyền đạo Trần Văn B", ChapSu.ChucVu.THU_KY_1, "0123456790",
                                 "truyendao@httlkongbrech.org", 1975);
-                createChapSu("Anh Lê Văn C", ChapSu.ChucVu.CHAP_SU_TRUONG, "0123456791",
+                createChapSu("Anh Lê Văn C", ChapSu.ChucVu.THU_KY_2, "0123456791",
                                 "thuky@httlkongbrech.org", 1980);
-                createChapSu("Chị Phạm Thị D", ChapSu.ChucVu.THU_QUY, "0123456792",
+                createChapSu("Chị Phạm Thị D", ChapSu.ChucVu.THU_QUY_1, "0123456792",
                                 "thuquy@httlkongbrech.org", 1978);
-                createChapSu("Anh Hoàng Văn E", ChapSu.ChucVu.THU_KY, "0123456793",
+                createChapSu("Anh Hoàng Văn E", ChapSu.ChucVu.THU_QUY_2, "0123456793",
                                 "giaoduc@httlkongbrech.org", 1985);
-                createChapSu("Chị Võ Thị F", ChapSu.ChucVu.CHAP_SU, "0123456794",
+                createChapSu("Chị Võ Thị F", ChapSu.ChucVu.UY_VIEN, "0123456794",
                                 "hoiphunu@httlkongbrech.org", 1982);
 
                 // Tạo điểm nhóm
@@ -176,11 +176,11 @@ public class DataInitializationService implements CommandLineRunner {
                 createTinHuu("Hoàng Văn Em", 1955, "NAM", nhom3, "0123456805", "321 Đường JKL, Kông Brech", "Hưu trí");
 
                 // Tạo nhân sự
-                createNhanSu("Truyền đạo Nguyễn Văn X", NhanSu.ChucVu.TRUYEN_DAO, banMucVu, "0123456810",
+                createNhanSu("Truyền đạo Nguyễn Văn X", NhanSu.ChucVu.DAC_TRACH, banMucVu, "0123456810",
                                 "mucvu@httlkongbrech.org");
-                createNhanSu("Anh Trần Văn Y", NhanSu.ChucVu.CHAP_SU, banGiaoDuc, "0123456811",
+                createNhanSu("Anh Trần Văn Y", NhanSu.ChucVu.THU_KY_1, banGiaoDuc, "0123456811",
                                 "giaoduc@httlkongbrech.org");
-                createNhanSu("Chị Lê Thị Z", NhanSu.ChucVu.THU_KY, banThanhNien, "0123456812",
+                createNhanSu("Chị Lê Thị Z", NhanSu.ChucVu.THU_KY_2, banThanhNien, "0123456812",
                                 "thanhnien@httlkongbrech.org");
 
                 // Tạo nhân sự điểm nhóm
@@ -269,26 +269,34 @@ public class DataInitializationService implements CommandLineRunner {
 
                 // Thêm một số thông tin mô tả
                 switch (chucVu) {
-                        case MUC_SU:
-                                chapSu.setMoTaCongViec("Chăm sóc tâm linh, giảng đạo và lãnh đạo hội thánh");
-                                break;
-                        case TRUYEN_DAO:
-                                chapSu.setMoTaCongViec("Hỗ trợ mục sư trong công tác giảng đạo và chăm sóc tín hữu");
-                                break;
-                        case CHAP_SU_TRUONG:
-                                chapSu.setMoTaCongViec("Lãnh đạo ban chấp sự và điều hành các hoạt động hội thánh");
-                                break;
-                        case THU_KY:
-                                chapSu.setMoTaCongViec("Ghi chép biên bản, quản lý tài liệu và thông tin");
-                                break;
-                        case THU_QUY:
-                                chapSu.setMoTaCongViec("Quản lý tài chính, thu chi và báo cáo tài chính");
-                                break;
-                        default:
-                                chapSu.setMoTaCongViec("Tham gia các hoạt động và công tác của hội thánh");
-                                break;
-                }
+    case QUAN_NHIEM:
+        chapSu.setMoTaCongViec("Chăm sóc tâm linh, giảng dạy Lời Chúa và lãnh đạo toàn bộ hoạt động của Hội Thánh");
+        break;
 
+    case THU_KY_1:
+        chapSu.setMoTaCongViec("Ghi chép biên bản, lưu trữ tài liệu và hỗ trợ công tác hành chính của Hội Thánh");
+        break;
+
+    case THU_KY_2:
+        chapSu.setMoTaCongViec("Hỗ trợ Thư ký 1 trong công tác ghi chép, quản lý tài liệu và liên lạc thông tin");
+        break;
+
+    case THU_QUY_1:
+        chapSu.setMoTaCongViec("Quản lý quỹ, thực hiện thu chi và lập báo cáo tài chính định kỳ của Hội Thánh");
+        break;
+
+    case THU_QUY_2:
+        chapSu.setMoTaCongViec("Hỗ trợ Thủ quỹ 1 trong công tác tài chính, ghi chép sổ sách và báo cáo");
+        break;
+
+    case UY_VIEN:
+        chapSu.setMoTaCongViec("Tham gia họp bàn, đóng góp ý kiến và hỗ trợ các công tác chung của Ban Chấp Sự");
+        break;
+
+    default:
+        chapSu.setMoTaCongViec("Tham gia các hoạt động và công tác của Hội Thánh theo sự phân công");
+        break;
+}
                 return chapSuRepository.save(chapSu);
         }
 

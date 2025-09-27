@@ -23,9 +23,12 @@ class SearchableDropdown {
             noResultsText: options.noResultsText || 'Không tìm thấy kết quả',
             apiUrl: options.apiUrl || '',
             onSelect: options.onSelect || function() {},
+            onClear: options.onClear || function() {},
             displayField: options.displayField || 'name',
             valueField: options.valueField || 'id',
             data: options.data || [],
+            allowClear: options.allowClear || false,
+            clearText: options.clearText || 'Không chọn',
             ...options
         };
         
@@ -58,6 +61,7 @@ class SearchableDropdown {
                            class="dropdown-input form-control" 
                            placeholder="${this.options.placeholder}"
                            readonly>
+                    ${this.options.allowClear ? '<i class="dropdown-clear fas fa-times" title="Xóa lựa chọn" style="display: none;"></i>' : ''}
                     <i class="dropdown-arrow fas fa-chevron-down"></i>
                 </div>
                 <div class="dropdown-menu-custom">
@@ -81,6 +85,7 @@ class SearchableDropdown {
         this.menuElement = this.container.querySelector('.dropdown-menu-custom');
         this.resultsElement = this.container.querySelector('.dropdown-results');
         this.arrowElement = this.container.querySelector('.dropdown-arrow');
+        this.clearElement = this.container.querySelector('.dropdown-clear');
     }
     
     bindEvents() {
@@ -105,6 +110,14 @@ class SearchableDropdown {
         this.menuElement.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+        
+        // Clear button functionality
+        if (this.clearElement) {
+            this.clearElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.clearSelection();
+            });
+        }
     }
     
     async loadData() {
@@ -193,6 +206,7 @@ class SearchableDropdown {
         this.selectedItem = item;
         this.inputElement.value = item[this.options.displayField];
         this.close();
+        this.updateClearButton();
         this.options.onSelect(item);
     }
     
@@ -246,6 +260,8 @@ class SearchableDropdown {
         const item = this.data.find(d => d[this.options.valueField] == value);
         if (item) {
             this.select(item);
+        } else {
+            this.clear();
         }
     }
     
@@ -260,6 +276,22 @@ class SearchableDropdown {
     clear() {
         this.selectedItem = null;
         this.inputElement.value = '';
+        this.updateClearButton();
+    }
+    
+    clearSelection() {
+        this.clear();
+        this.options.onClear();
+    }
+    
+    updateClearButton() {
+        if (this.clearElement) {
+            if (this.selectedItem) {
+                this.clearElement.style.display = 'inline-block';
+            } else {
+                this.clearElement.style.display = 'none';
+            }
+        }
     }
     
     getData() {
