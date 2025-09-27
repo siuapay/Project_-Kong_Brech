@@ -1,5 +1,6 @@
 package com.branch.demo.repository;
 
+import com.branch.demo.domain.BanNganh;
 import com.branch.demo.domain.TinHuu;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -159,4 +160,10 @@ public interface TinHuuRepository extends JpaRepository<TinHuu, Long> {
     // Tìm tin hữu chưa có nhóm và chưa bị xóa
     @Query("SELECT t FROM TinHuu t WHERE t.nhom IS NULL AND t.deletedAt IS NULL")
     List<TinHuu> findByNhomIsNullAndDeletedAtIsNull();
+    
+    // Đếm tín hữu theo ban ngành
+    long countByBanNganh(BanNganh banNganh);
+    
+    // Tìm tín hữu theo ban ngành
+    List<TinHuu> findByBanNganh(BanNganh banNganh);
 }

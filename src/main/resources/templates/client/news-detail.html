@@ -222,6 +222,84 @@
                         </div>
                     </div>
 
+                 
+          <!-- Featured Articles -->
+          <div th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0"><i class="fas fa-star me-2"></i>Bài Viết Nổi Bật</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietNoiBat}" class="border-bottom p-3">
+                <div class="d-flex">
+                  <img th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'" 
+                       class="rounded me-3" 
+                       style="width: 60px; height: 60px; object-fit: cover"
+                       th:alt="${bv.tieuDe}">
+                  <div>
+                    <h6 class="mb-2">
+                      <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                         class="text-decoration-none text-dark"
+                         th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                    </h6>
+                    <div class="news-meta">
+                      <i class="fas fa-calendar me-1"></i>
+                      <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                      <span class="mx-2">•</span>
+                      <i class="fas fa-eye me-1"></i>
+                      <span th:text="${bv.luotXem}">0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent News -->
+          <div th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-success text-white">
+              <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Tin Mới Nhất</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietMoiNhat}" class="border-bottom p-3">
+                <h6 class="mb-2">
+                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                     class="text-decoration-none text-dark"
+                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                </h6>
+                <div class="news-meta">
+                  <i class="fas fa-calendar me-1"></i>
+                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Popular Articles -->
+          <div th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}" class="card sidebar-card mb-4">
+            <div class="card-header bg-warning text-dark">
+              <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Bài Viết Phổ Biến</h5>
+            </div>
+            <div class="card-body p-0">
+              <div th:each="bv : ${baiVietPhoBien}" class="border-bottom p-3">
+                <h6 class="mb-2">
+                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                     class="text-decoration-none text-dark"
+                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                </h6>
+                <div class="news-meta">
+                  <i class="fas fa-eye me-1"></i>
+                  <span th:text="${bv.luotXem}">0</span> lượt xem
+                  <span class="mx-2">•</span>
+                  <i class="fas fa-calendar me-1"></i>
+                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}">01/01</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Newsletter -->
+      
+
                     <!-- Back to News -->
                     <div class="card">
                         <div class="card-body text-center">

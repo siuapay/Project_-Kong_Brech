@@ -260,9 +260,15 @@
                 searchPlaceholder: 'Tìm kiếm nhân sự...',
                 displayField: 'hoTen',
                 valueField: 'id',
+                allowClear: true,
+                clearText: 'Không chọn nhân sự',
                 onSelect: function(item) {
                     // Cập nhật hidden input
                     document.getElementById('nhanSu').value = item.id;
+                },
+                onClear: function() {
+                    // Clear hidden input
+                    document.getElementById('nhanSu').value = '';
                 }
             });
             

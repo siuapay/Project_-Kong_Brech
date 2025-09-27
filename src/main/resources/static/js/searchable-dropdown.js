@@ -3,20 +3,36 @@
  * Tạo dropdown có thể tìm kiếm cho việc chọn điểm nhóm
  */
 class SearchableDropdown {
-    constructor(containerId, options = {}) {
-        this.container = document.getElementById(containerId);
+    constructor(container, options = {}) {
+        // Accept either element or string ID
+        if (typeof container === 'string') {
+            this.container = document.getElementById(container);
+        } else {
+            this.container = container;
+        }
+        
+        // Check if container exists
+        if (!this.container) {
+            console.error('SearchableDropdown: Container not found');
+            return;
+        }
+        
         this.options = {
             placeholder: options.placeholder || 'Tìm kiếm và chọn...',
             searchPlaceholder: options.searchPlaceholder || 'Nhập để tìm kiếm...',
             noResultsText: options.noResultsText || 'Không tìm thấy kết quả',
             apiUrl: options.apiUrl || '',
             onSelect: options.onSelect || function() {},
+            onClear: options.onClear || function() {},
             displayField: options.displayField || 'name',
             valueField: options.valueField || 'id',
+            data: options.data || [],
+            allowClear: options.allowClear || false,
+            clearText: options.clearText || 'Không chọn',
             ...options
         };
         
-        this.data = [];
+        this.data = this.options.data || [];
         this.filteredData = [];
         this.selectedItem = null;
         this.isOpen = false;
@@ -33,6 +49,11 @@ class SearchableDropdown {
     }
     
     createHTML() {
+        if (!this.container) {
+            console.error('SearchableDropdown: Cannot create HTML - container is null');
+            return;
+        }
+        
         this.container.innerHTML = `
             <div class="searchable-dropdown">
                 <div class="dropdown-input-container">
@@ -40,6 +61,7 @@ class SearchableDropdown {
                            class="dropdown-input form-control" 
                            placeholder="${this.options.placeholder}"
                            readonly>
+                    ${this.options.allowClear ? '<i class="dropdown-clear fas fa-times" title="Xóa lựa chọn" style="display: none;"></i>' : ''}
                     <i class="dropdown-arrow fas fa-chevron-down"></i>
                 </div>
                 <div class="dropdown-menu-custom">
@@ -63,6 +85,7 @@ class SearchableDropdown {
         this.menuElement = this.container.querySelector('.dropdown-menu-custom');
         this.resultsElement = this.container.querySelector('.dropdown-results');
         this.arrowElement = this.container.querySelector('.dropdown-arrow');
+        this.clearElement = this.container.querySelector('.dropdown-clear');
     }
     
     bindEvents() {
@@ -87,6 +110,14 @@ class SearchableDropdown {
         this.menuElement.addEventListener('click', (e) => {
             e.stopPropagation();
         });
+        
+        // Clear button functionality
+        if (this.clearElement) {
+            this.clearElement.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.clearSelection();
+            });
+        }
     }
     
     async loadData() {
@@ -103,16 +134,24 @@ class SearchableDropdown {
     
     setData(data) {
         this.data = data;
+        this.hiddenIds = []; // Reset hidden items
         this.filteredData = [...data];
         this.renderResults();
     }
     
     search(query) {
+        let baseData = this.data;
+        
+        // Filter out hidden items first
+        if (this.hiddenIds && this.hiddenIds.length > 0) {
+            baseData = this.data.filter(item => !this.hiddenIds.includes(item[this.options.valueField]));
+        }
+        
         if (!query.trim()) {
-            this.filteredData = [...this.data];
+            this.filteredData = [...baseData];
         } else {
             const searchTerm = query.toLowerCase();
-            this.filteredData = this.data.filter(item => {
+            this.filteredData = baseData.filter(item => {
                 const displayValue = item[this.options.displayField];
                 return displayValue && displayValue.toLowerCase().includes(searchTerm);
             });
@@ -167,6 +206,7 @@ class SearchableDropdown {
         this.selectedItem = item;
         this.inputElement.value = item[this.options.displayField];
         this.close();
+        this.updateClearButton();
         this.options.onSelect(item);
     }
     
@@ -184,9 +224,16 @@ class SearchableDropdown {
         this.arrowElement.classList.add('rotated');
         this.searchElement.focus();
         
-        // Reset search
+        // Reset search but respect hidden items
         this.searchElement.value = '';
-        this.filteredData = [...this.data];
+        
+        // Apply filter to respect hidden items
+        let baseData = this.data;
+        if (this.hiddenIds && this.hiddenIds.length > 0) {
+            baseData = this.data.filter(item => !this.hiddenIds.includes(item[this.options.valueField]));
+        }
+        this.filteredData = [...baseData];
+        
         this.renderResults();
     }
     
@@ -213,11 +260,68 @@ class SearchableDropdown {
         const item = this.data.find(d => d[this.options.valueField] == value);
         if (item) {
             this.select(item);
+        } else {
+            this.clear();
+        }
+    }
+    
+    setData(data) {
+        this.data = data || [];
+        this.filteredData = [...this.data];
+        if (this.isOpen) {
+            this.renderResults();
         }
     }
     
     clear() {
         this.selectedItem = null;
         this.inputElement.value = '';
+        this.updateClearButton();
+    }
+    
+    clearSelection() {
+        this.clear();
+        this.options.onClear();
+    }
+    
+    updateClearButton() {
+        if (this.clearElement) {
+            if (this.selectedItem) {
+                this.clearElement.style.display = 'inline-block';
+            } else {
+                this.clearElement.style.display = 'none';
+            }
+        }
+    }
+    
+    getData() {
+        return this.data;
+    }
+    
+    // Filter items by hiding selected ones
+    filterItems(hiddenIds = []) {
+        this.hiddenIds = hiddenIds;
+        this.filteredData = this.data.filter(item => !hiddenIds.includes(item[this.options.valueField]));
+        this.renderResults();
+    }
+    
+    // Show/hide specific item
+    hideItem(id) {
+        if (!this.hiddenIds) this.hiddenIds = [];
+        if (!this.hiddenIds.includes(id)) {
+            this.hiddenIds.push(id);
+            this.filterItems(this.hiddenIds);
+        }
+    }
+    
+    showItem(id) {
+        if (!this.hiddenIds) this.hiddenIds = [];
+        this.hiddenIds = this.hiddenIds.filter(hiddenId => hiddenId !== id);
+        this.filterItems(this.hiddenIds);
+    }
+    
+    // Get item by ID
+    getItemById(id) {
+        return this.data.find(item => item[this.options.valueField] == id);
     }
 }

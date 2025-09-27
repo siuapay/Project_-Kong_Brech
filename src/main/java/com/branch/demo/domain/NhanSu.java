@@ -9,165 +9,266 @@ import java.util.List;
 @Entity
 @Table(name = "nhan_su")
 public class NhanSu extends BaseAuditableEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(name = "ho_ten", nullable = false, length = 255)
     private String hoTen;
-    
+
     @Column(name = "chuc_vu")
     @Enumerated(EnumType.STRING)
     private ChucVu chucVu;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ban_nganh_id")
     private BanNganh banNganh;
-    
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diem_nhom_id")
     private DiemNhom diemNhom;
-    
+
     @Column(name = "dien_thoai", length = 20)
     private String dienThoai;
-    
+
     @Column(name = "email", length = 255)
     private String email;
-    
+
     @Column(name = "ngay_sinh")
     private LocalDate ngaySinh;
-    
+
     @Column(name = "dia_chi", length = 500)
     private String diaChi;
-    
+
     @Column(name = "ghi_chu", length = 1000)
     private String ghiChu;
-    
+
     @Column(name = "ngay_bat_dau_phuc_vu")
     private LocalDate ngayBatDauPhucVu;
-    
+
     @Column(name = "nhiem_ky_bat_dau")
     private LocalDate nhiemKyBatDau;
-    
+
     @Column(name = "nhiem_ky_ket_thuc")
     private LocalDate nhiemKyKetThuc;
-    
+
     @Column(name = "tieu_su", length = 2000)
     private String tieuSu;
-    
+
     @Column(name = "mo_ta_cong_viec", length = 1000)
     private String moTaCongViec;
-    
+
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
-    
+
     @ElementCollection
     @CollectionTable(name = "nhan_su_trach_nhiem", joinColumns = @JoinColumn(name = "nhan_su_id"))
     @Column(name = "trach_nhiem", length = 255)
     private List<String> danhSachTrachNhiem = new ArrayList<>();
-    
+
     @Column(name = "trang_thai")
     @Enumerated(EnumType.STRING)
     private TrangThaiNhanSu trangThai = TrangThaiNhanSu.HOAT_DONG;
-    
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
-    
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    
+
     // Constructors
-    public NhanSu() {}
-    
+    public NhanSu() {
+    }
+
     public NhanSu(String hoTen, ChucVu chucVu) {
         this.hoTen = hoTen;
         this.chucVu = chucVu;
     }
-    
+
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    
-    public String getHoTen() { return hoTen; }
-    public void setHoTen(String hoTen) { this.hoTen = hoTen; }
-    
-    public ChucVu getChucVu() { return chucVu; }
-    public void setChucVu(ChucVu chucVu) { this.chucVu = chucVu; }
-    
-    public BanNganh getBanNganh() { return banNganh; }
-    public void setBanNganh(BanNganh banNganh) { this.banNganh = banNganh; }
-    
-    public DiemNhom getDiemNhom() { return diemNhom; }
-    public void setDiemNhom(DiemNhom diemNhom) { this.diemNhom = diemNhom; }
-    
-    public String getDienThoai() { return dienThoai; }
-    public void setDienThoai(String dienThoai) { this.dienThoai = dienThoai; }
-    
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    
-    public LocalDate getNgaySinh() { return ngaySinh; }
-    public void setNgaySinh(LocalDate ngaySinh) { this.ngaySinh = ngaySinh; }
-    
-    public String getDiaChi() { return diaChi; }
-    public void setDiaChi(String diaChi) { this.diaChi = diaChi; }
-    
-    public String getGhiChu() { return ghiChu; }
-    public void setGhiChu(String ghiChu) { this.ghiChu = ghiChu; }
-    
-    public LocalDate getNgayBatDauPhucVu() { return ngayBatDauPhucVu; }
-    public void setNgayBatDauPhucVu(LocalDate ngayBatDauPhucVu) { this.ngayBatDauPhucVu = ngayBatDauPhucVu; }
-    
-    public LocalDate getNhiemKyBatDau() { return nhiemKyBatDau; }
-    public void setNhiemKyBatDau(LocalDate nhiemKyBatDau) { this.nhiemKyBatDau = nhiemKyBatDau; }
-    
-    public LocalDate getNhiemKyKetThuc() { return nhiemKyKetThuc; }
-    public void setNhiemKyKetThuc(LocalDate nhiemKyKetThuc) { this.nhiemKyKetThuc = nhiemKyKetThuc; }
-    
-    public String getTieuSu() { return tieuSu; }
-    public void setTieuSu(String tieuSu) { this.tieuSu = tieuSu; }
-    
-    public String getMoTaCongViec() { return moTaCongViec; }
-    public void setMoTaCongViec(String moTaCongViec) { this.moTaCongViec = moTaCongViec; }
-    
-    public String getAvatarUrl() { return avatarUrl; }
-    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
-    
-    public List<String> getDanhSachTrachNhiem() { return danhSachTrachNhiem; }
-    public void setDanhSachTrachNhiem(List<String> danhSachTrachNhiem) { this.danhSachTrachNhiem = danhSachTrachNhiem; }
-    
-    public TrangThaiNhanSu getTrangThai() { return trangThai; }
-    public void setTrangThai(TrangThaiNhanSu trangThai) { this.trangThai = trangThai; }
-    
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getHoTen() {
+        return hoTen;
+    }
+
+    public void setHoTen(String hoTen) {
+        this.hoTen = hoTen;
+    }
+
+    public ChucVu getChucVu() {
+        return chucVu;
+    }
+
+    public void setChucVu(ChucVu chucVu) {
+        this.chucVu = chucVu;
+    }
+
+    public BanNganh getBanNganh() {
+        return banNganh;
+    }
+
+    public void setBanNganh(BanNganh banNganh) {
+        this.banNganh = banNganh;
+    }
+
+    public DiemNhom getDiemNhom() {
+        return diemNhom;
+    }
+
+    public void setDiemNhom(DiemNhom diemNhom) {
+        this.diemNhom = diemNhom;
+    }
+
+    public String getDienThoai() {
+        return dienThoai;
+    }
+
+    public void setDienThoai(String dienThoai) {
+        this.dienThoai = dienThoai;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getNgaySinh() {
+        return ngaySinh;
+    }
+
+    public void setNgaySinh(LocalDate ngaySinh) {
+        this.ngaySinh = ngaySinh;
+    }
+
+    public String getDiaChi() {
+        return diaChi;
+    }
+
+    public void setDiaChi(String diaChi) {
+        this.diaChi = diaChi;
+    }
+
+    public String getGhiChu() {
+        return ghiChu;
+    }
+
+    public void setGhiChu(String ghiChu) {
+        this.ghiChu = ghiChu;
+    }
+
+    public LocalDate getNgayBatDauPhucVu() {
+        return ngayBatDauPhucVu;
+    }
+
+    public void setNgayBatDauPhucVu(LocalDate ngayBatDauPhucVu) {
+        this.ngayBatDauPhucVu = ngayBatDauPhucVu;
+    }
+
+    public LocalDate getNhiemKyBatDau() {
+        return nhiemKyBatDau;
+    }
+
+    public void setNhiemKyBatDau(LocalDate nhiemKyBatDau) {
+        this.nhiemKyBatDau = nhiemKyBatDau;
+    }
+
+    public LocalDate getNhiemKyKetThuc() {
+        return nhiemKyKetThuc;
+    }
+
+    public void setNhiemKyKetThuc(LocalDate nhiemKyKetThuc) {
+        this.nhiemKyKetThuc = nhiemKyKetThuc;
+    }
+
+    public String getTieuSu() {
+        return tieuSu;
+    }
+
+    public void setTieuSu(String tieuSu) {
+        this.tieuSu = tieuSu;
+    }
+
+    public String getMoTaCongViec() {
+        return moTaCongViec;
+    }
+
+    public void setMoTaCongViec(String moTaCongViec) {
+        this.moTaCongViec = moTaCongViec;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public List<String> getDanhSachTrachNhiem() {
+        return danhSachTrachNhiem;
+    }
+
+    public void setDanhSachTrachNhiem(List<String> danhSachTrachNhiem) {
+        this.danhSachTrachNhiem = danhSachTrachNhiem;
+    }
+
+    public TrangThaiNhanSu getTrangThai() {
+        return trangThai;
+    }
+
+    public void setTrangThai(TrangThaiNhanSu trangThai) {
+        this.trangThai = trangThai;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     // Helper methods
     public void addTrachNhiem(String trachNhiem) {
         if (!danhSachTrachNhiem.contains(trachNhiem)) {
             danhSachTrachNhiem.add(trachNhiem);
         }
     }
-    
+
     public void removeTrachNhiem(String trachNhiem) {
         danhSachTrachNhiem.remove(trachNhiem);
     }
-    
+
     // Helper method to get nhiệm kỳ as string
     public String getNhiemKy() {
         if (nhiemKyBatDau != null && nhiemKyKetThuc != null) {
@@ -177,27 +278,27 @@ public class NhanSu extends BaseAuditableEntity {
         }
         return null;
     }
-    
+
     // Enums
     public enum ChucVu {
-        MUC_SU("Mục sư"),
-        TRUYEN_DAO("Truyền đạo"),
-        CHAP_SU("Chấp sự"),
-        THU_KY("Thư ký"),
-        THU_QUY("Thủ quỹ"),
-        THANH_VIEN("Thành viên");
-        
+        DAC_TRACH("Đặc trách"),
+        THU_KY_1("Thư ký 1"),
+        THU_KY_2("Thư ký 2"),
+        THU_QUY_1("Thủ quỹ 1"),
+        THU_QUY_2("Thủ quỹ 2"),
+        UY_VIEN("Ủy viên");
+
         private final String displayName;
-        
+
         ChucVu(String displayName) {
             this.displayName = displayName;
         }
-        
+
         public String getDisplayName() {
             return displayName;
         }
     }
-    
+
     public enum TrangThaiNhanSu {
         HOAT_DONG, DANG_PHUC_VU, TAM_NGHI, NGHI_VIEC, CHUYEN_BAN
     }

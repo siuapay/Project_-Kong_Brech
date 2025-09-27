@@ -188,6 +188,55 @@
                         </div>
                     </div>
 
+                    <!-- Management Information -->
+                    <div class="card shadow border-0 mb-4">
+                        <div class="card-header bg-light border-0">
+                            <h5 class="text-warning mb-0">
+                                <i class="fas fa-users-cog me-2"></i>Quản Lý Ban
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+                                <!-- Trưởng Ban -->
+                                <div class="col-md-6">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Trưởng Ban</label>
+                                        <div class="info-value">
+                                            <span th:if="${banNganh.coTruongBan()}">
+                                                <i class="fas fa-crown text-warning me-1"></i>
+                                                <span th:text="${banNganh.tenTruongBan}"></span>
+                                                <br>
+                                                <small class="text-muted" th:text="'(' + ${banNganh.loaiTruongBan} + ')'"></small>
+                                            </span>
+                                            <span th:unless="${banNganh.coTruongBan()}" class="text-muted">Chưa có</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Phó Ban -->
+                                <div class="col-md-6">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Phó Ban</label>
+                                        <div class="info-value">
+                                            <span th:if="${banNganh.coPhoBan()}">
+                                                <span class="badge bg-info fs-6" th:text="${banNganh.soLuongPhoBan} + ' người'"></span>
+                                                <div class="mt-2">
+                                                    <div th:each="tenPhoBan : ${banNganh.danhSachTenPhoBan}" class="mb-1">
+                                                        <small class="d-block">
+                                                            <i class="fas fa-user-tie text-info me-1"></i>
+                                                            <span th:text="${tenPhoBan}"></span>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </span>
+                                            <span th:unless="${banNganh.coPhoBan()}" class="text-muted">Chưa có</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Personnel Information -->
                     <div class="card shadow border-0 mb-4">
                         <div class="card-header bg-light border-0">
@@ -197,13 +246,14 @@
                         </div>
                         <div class="card-body">
                             <div class="row g-4">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="info-item text-center">
                                         <label class="info-label">Tổng Số Nhân Sự</label>
                                         <div class="info-value">
                                             <button type="button" class="btn btn-link p-0 text-decoration-none personnel-btn" 
                                                     th:data-ban-nganh-id="${banNganh.id}"
                                                     th:data-ban-nganh-name="${banNganh.tenBan}"
+                                                    th:data-type="nhan-su"
                                                     th:disabled="${banNganh.soLuongNhanSu == 0}"
                                                     th:title="${banNganh.soLuongNhanSu > 0 ? 'Click để xem danh sách nhân sự' : 'Chưa có nhân sự nào'}"
                                                     data-bs-toggle="tooltip"
@@ -220,15 +270,36 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="info-item text-center">
-                                        <label class="info-label">Trưởng Ban</label>
+                                        <label class="info-label">Tổng Số Chấp Sự</label>
                                         <div class="info-value">
-                                            <span th:if="${banNganh.truongBan}">
-                                                <i class="fas fa-user-tie text-warning me-1"></i>
-                                                <span th:text="${banNganh.truongBan.hoTen}"></span>
-                                            </span>
-                                            <span th:unless="${banNganh.truongBan}" class="text-muted">Chưa có</span>
+                                            <button type="button" class="btn btn-link p-0 text-decoration-none personnel-btn" 
+                                                    th:data-ban-nganh-id="${banNganh.id}"
+                                                    th:data-ban-nganh-name="${banNganh.tenBan}"
+                                                    th:data-type="chap-su"
+                                                    th:disabled="${banNganh.soLuongChapSu == 0}"
+                                                    th:title="${banNganh.soLuongChapSu > 0 ? 'Click để xem danh sách chấp sự' : 'Chưa có chấp sự nào'}"
+                                                    data-bs-toggle="tooltip"
+                                                    onclick="showPersonnelModal(this)">
+                                                <div class="position-relative">
+                                                    <span class="badge bg-warning fs-4" th:text="${banNganh.soLuongChapSu}">0</span>
+                                                    <small class="text-muted d-block">
+                                                        <i class="fas fa-user-graduate me-1" th:if="${banNganh.soLuongChapSu > 0}"></i>
+                                                        người
+                                                        <i class="fas fa-external-link-alt ms-1 opacity-50" th:if="${banNganh.soLuongChapSu > 0}" style="font-size: 0.7em;"></i>
+                                                    </small>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Tổng Số Tin Hữu</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-success fs-4" th:text="${banNganh.soLuongTinHuu}">0</span>
+                                            <small class="text-muted d-block">người</small>
                                         </div>
                                     </div>
                                 </div>
@@ -292,8 +363,8 @@
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-users me-2"></i>Danh Sách Nhân Sự - <span id="modalBanNganhName"></span>
+                    <h5 class="modal-title" id="personnelModalLabel">
+                        <i class="fas fa-users me-2"></i>Danh Sách Nhân Sự
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
@@ -406,8 +477,13 @@
         function showPersonnelModal(element) {
             const banNganhId = element.getAttribute('data-ban-nganh-id');
             const banNganhName = element.getAttribute('data-ban-nganh-name');
+            const type = element.getAttribute('data-type') || 'nhan-su';
             
-            document.getElementById('modalBanNganhName').textContent = banNganhName;
+            // Update modal title and content
+            const title = type === 'chap-su' ? 'Danh sách chấp sự' : 'Danh sách nhân sự';
+            const typeText = type === 'chap-su' ? 'chấp sự' : 'nhân sự';
+            
+            document.getElementById('personnelModalLabel').innerHTML = `<i class="fas ${type === 'chap-su' ? 'fa-user-graduate' : 'fa-users'} me-2"></i>${title} - ${banNganhName}`;
             
             // Show loading
             document.getElementById('personnelLoading').style.display = 'block';
@@ -419,17 +495,25 @@
             modal.show();
             
             // Load personnel data
-            fetch(`/admin/api/ban-nganh/${banNganhId}/nhan-su`)
+            fetch(`/admin/api/ban-nganh/${banNganhId}/${type}`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('personnelLoading').style.display = 'none';
                     
                     if (data.length === 0) {
                         document.getElementById('personnelEmpty').style.display = 'block';
+                        document.getElementById('personnelEmpty').innerHTML = `
+                            <i class="fas fa-user-slash fa-3x mb-3 d-block"></i>
+                            <h5>Chưa có ${typeText} nào</h5>
+                            <p>Ban ngành này chưa có ${typeText}. Hãy thêm ${typeText} mới.</p>
+                            <a href="/admin/${type}/new" class="btn btn-primary">
+                                <i class="fas fa-user-plus me-2"></i>Thêm ${typeText} đầu tiên
+                            </a>
+                        `;
                     } else {
                         document.getElementById('personnelContent').style.display = 'block';
                         document.getElementById('totalPersonnel').textContent = data.length;
-                        renderPersonnelList(data);
+                        renderPersonnelList(data, type);
                     }
                 })
                 .catch(error => {
@@ -439,61 +523,68 @@
                     document.getElementById('personnelEmpty').innerHTML = `
                         <i class="fas fa-exclamation-triangle fa-3x mb-3 d-block text-warning"></i>
                         <h5>Có lỗi xảy ra</h5>
-                        <p>Không thể tải danh sách nhân sự</p>
+                        <p>Không thể tải danh sách ${typeText}</p>
                     `;
                 });
         }
         
-        function renderPersonnelList(personnelList) {
+        function renderPersonnelList(personnelList, type = 'nhan-su') {
             const listContainer = document.getElementById('personnelListContainer');
             const gridContainer = document.getElementById('personnelGridContainer');
             
             listContainer.innerHTML = '';
             gridContainer.innerHTML = '';
             
-            personnelList.forEach(nhanSu => {
+            personnelList.forEach(person => {
                 // List view item
-                const listItem = createPersonnelListItem(nhanSu);
+                const listItem = createPersonnelListItem(person, type);
                 listContainer.appendChild(listItem);
                 
                 // Grid view item
-                const gridItem = createPersonnelGridItem(nhanSu);
+                const gridItem = createPersonnelGridItem(person, type);
                 gridContainer.appendChild(gridItem);
             });
         }
         
-        function createPersonnelListItem(nhanSu) {
+        function createPersonnelListItem(person, type = 'nhan-su') {
             const col = document.createElement('div');
             col.className = 'col-12';
             
-            const avatarUrl = nhanSu.avatarUrl || '/static/images/default-avatar.svg';
-            const statusBadge = getStatusBadge(nhanSu.trangThai);
+            const avatarUrl = person.avatarUrl || '/static/images/default-avatar.svg';
+            const statusBadge = getStatusBadge(person.trangThai);
+            const iconClass = type === 'chap-su' ? 'fa-user-graduate' : 'fa-user';
+            const badgeClass = type === 'chap-su' ? 'bg-warning' : 'bg-primary';
             
             col.innerHTML = `
                 <div class="personnel-item border rounded p-3 mb-3 bg-light">
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
-                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                            ${person.avatarUrl ? 
+                                `<img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">` :
+                                `<div class="rounded-circle ${badgeClass} text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="fas ${iconClass} fa-2x"></i>
+                                </div>`
+                            }
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <h6 class="mb-1 d-flex align-items-center">
-                                <span>${nhanSu.hoTen}</span>
-                                ${nhanSu.chucVu ? `<span class="badge bg-primary ms-2">${nhanSu.chucVu}</span>` : ''}
+                                <span>${person.hoTen}</span>
+                                ${person.chucVu ? `<span class="badge ${badgeClass} ms-2">${person.chucVu}</span>` : ''}
                             </h6>
                             <div class="d-flex align-items-center gap-3 text-muted small">
-                                ${nhanSu.email ? `<span><i class="fas fa-envelope me-1"></i>${nhanSu.email}</span>` : ''}
-                                ${nhanSu.dienThoai ? `<span><i class="fas fa-phone me-1"></i>${nhanSu.dienThoai}</span>` : ''}
-                                ${nhanSu.diemNhomTen ? `<span><i class="fas fa-map-marker-alt me-1"></i>${nhanSu.diemNhomTen}</span>` : ''}
+                                ${person.email ? `<span><i class="fas fa-envelope me-1"></i>${person.email}</span>` : ''}
+                                ${person.dienThoai ? `<span><i class="fas fa-phone me-1"></i>${person.dienThoai}</span>` : ''}
+                                ${person.diemNhomTen ? `<span><i class="fas fa-map-marker-alt me-1"></i>${person.diemNhomTen}</span>` : ''}
                             </div>
                         </div>
                         <div class="flex-shrink-0">
                             <div class="d-flex align-items-center gap-2">
                                 ${statusBadge}
                                 <div class="btn-group">
-                                    <a href="/admin/nhan-su/view/${nhanSu.id}" class="btn btn-sm btn-outline-primary">
+                                    <a href="/admin/${type}/view/${person.id}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="/admin/nhan-su/edit/${nhanSu.id}" class="btn btn-sm btn-outline-warning">
+                                    <a href="/admin/${type}/edit/${person.id}" class="btn btn-sm btn-outline-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                 </div>
@@ -506,27 +597,34 @@
             return col;
         }
         
-        function createPersonnelGridItem(nhanSu) {
+        function createPersonnelGridItem(person, type = 'nhan-su') {
             const col = document.createElement('div');
             col.className = 'col-lg-4 col-md-6 mb-4';
             
-            const avatarUrl = nhanSu.avatarUrl || '/static/images/default-avatar.svg';
-            const statusBadge = getStatusBadge(nhanSu.trangThai);
+            const avatarUrl = person.avatarUrl || '/static/images/default-avatar.svg';
+            const statusBadge = getStatusBadge(person.trangThai);
+            const iconClass = type === 'chap-su' ? 'fa-user-graduate' : 'fa-user';
+            const badgeClass = type === 'chap-su' ? 'bg-warning' : 'bg-primary';
             
             col.innerHTML = `
                 <div class="card personnel-card h-100">
                     <div class="card-body text-center p-3">
                         <div class="mb-3">
-                            <img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                            ${person.avatarUrl ? 
+                                `<img src="${avatarUrl}" alt="Avatar" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">` :
+                                `<div class="rounded-circle ${badgeClass} text-white d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                                    <i class="fas ${iconClass} fa-2x"></i>
+                                </div>`
+                            }
                         </div>
-                        <h6 class="card-title mb-1">${nhanSu.hoTen}</h6>
-                        ${nhanSu.chucVu ? `<p class="text-muted small mb-2"><span class="badge bg-primary">${nhanSu.chucVu}</span></p>` : ''}
+                        <h6 class="card-title mb-1">${person.hoTen}</h6>
+                        ${person.chucVu ? `<p class="text-muted small mb-2"><span class="badge ${badgeClass}">${person.chucVu}</span></p>` : ''}
                         <div class="mb-2">${statusBadge}</div>
                         <div class="d-flex justify-content-center gap-1">
-                            <a href="/admin/nhan-su/view/${nhanSu.id}" class="btn btn-sm btn-outline-primary">
+                            <a href="/admin/${type}/view/${person.id}" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="/admin/nhan-su/edit/${nhanSu.id}" class="btn btn-sm btn-outline-warning">
+                            <a href="/admin/${type}/edit/${person.id}" class="btn btn-sm btn-outline-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
                         </div>

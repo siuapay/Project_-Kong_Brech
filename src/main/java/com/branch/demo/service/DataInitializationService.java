@@ -75,7 +75,7 @@ public class DataInitializationService implements CommandLineRunner {
                 if (accountRepository.count() == 0) {
                         initializeDefaultAdmin();
                 }
-                
+
                 if (banNganhRepository.count() == 0) {
                         initializeData();
                 }
@@ -96,7 +96,7 @@ public class DataInitializationService implements CommandLineRunner {
                 admin.setFullName("Quản trị viên hệ thống");
                 admin.setRole(Account.Role.ADMIN);
                 admin.setStatus(Account.AccountStatus.ACTIVE);
-                
+
                 accountRepository.save(admin);
                 System.out.println("✅ Đã tạo tài khoản admin mặc định:");
                 System.out.println("   Username: admin");
@@ -139,13 +139,18 @@ public class DataInitializationService implements CommandLineRunner {
                                 "Phụ trách công tác truyền thông và công nghệ", "truyenthong@httlkongbrech.org");
 
                 // Tạo chấp sự
-                createChapSu("Mục sư Nguyễn Văn A", "Chấp sự trưởng", "Mục sư", "0123456789", "mucsu@httlkongbrech.org",
-                                1970);
-                createChapSu("Truyền đạo Trần Văn B", "Phó Chấp sự", "Truyền đạo", "0123456790",
-                                "truyendao@httlkongbrech.org",
-                                1975);
-                createChapSu("Anh Lê Văn C", "Thư ký", "Chấp sự", "0123456791", "thuky@httlkongbrech.org", 1980);
-                createChapSu("Chị Phạm Thị D", "Thủ quỹ", "Chấp sự", "0123456792", "thuquy@httlkongbrech.org", 1978);
+                createChapSu("Mục sư Nguyễn Văn A", ChapSu.ChucVu.QUAN_NHIEM, "0123456789",
+                                "mucsu@httlkongbrech.org", 1970);
+                createChapSu("Truyền đạo Trần Văn B", ChapSu.ChucVu.THU_KY_1, "0123456790",
+                                "truyendao@httlkongbrech.org", 1975);
+                createChapSu("Anh Lê Văn C", ChapSu.ChucVu.THU_KY_2, "0123456791",
+                                "thuky@httlkongbrech.org", 1980);
+                createChapSu("Chị Phạm Thị D", ChapSu.ChucVu.THU_QUY_1, "0123456792",
+                                "thuquy@httlkongbrech.org", 1978);
+                createChapSu("Anh Hoàng Văn E", ChapSu.ChucVu.THU_QUY_2, "0123456793",
+                                "giaoduc@httlkongbrech.org", 1985);
+                createChapSu("Chị Võ Thị F", ChapSu.ChucVu.UY_VIEN, "0123456794",
+                                "hoiphunu@httlkongbrech.org", 1982);
 
                 // Tạo điểm nhóm
                 DiemNhom diemTrungTam = createDiemNhom("Kông Brech Trung tâm", "123 Đường Trần Hưng Đạo, Kông Brech");
@@ -171,11 +176,11 @@ public class DataInitializationService implements CommandLineRunner {
                 createTinHuu("Hoàng Văn Em", 1955, "NAM", nhom3, "0123456805", "321 Đường JKL, Kông Brech", "Hưu trí");
 
                 // Tạo nhân sự
-                createNhanSu("Truyền đạo Nguyễn Văn X", NhanSu.ChucVu.TRUYEN_DAO, banMucVu, "0123456810",
+                createNhanSu("Truyền đạo Nguyễn Văn X", NhanSu.ChucVu.DAC_TRACH, banMucVu, "0123456810",
                                 "mucvu@httlkongbrech.org");
-                createNhanSu("Anh Trần Văn Y", NhanSu.ChucVu.CHAP_SU, banGiaoDuc, "0123456811",
+                createNhanSu("Anh Trần Văn Y", NhanSu.ChucVu.THU_KY_1, banGiaoDuc, "0123456811",
                                 "giaoduc@httlkongbrech.org");
-                createNhanSu("Chị Lê Thị Z", NhanSu.ChucVu.THU_KY, banThanhNien, "0123456812",
+                createNhanSu("Chị Lê Thị Z", NhanSu.ChucVu.THU_KY_2, banThanhNien, "0123456812",
                                 "thanhnien@httlkongbrech.org");
 
                 // Tạo nhân sự điểm nhóm
@@ -192,23 +197,29 @@ public class DataInitializationService implements CommandLineRunner {
                                 LocalTime.of(14, 0), LocalTime.of(17, 0), "Thôn Ea Súp", loaiTuThien);
 
                 // Tạo danh mục tài chính
-                TaiChinhDanhMuc dmQuyenGop = createTaiChinhDanhMuc("Quyên góp", TaiChinhDanhMuc.LoaiDanhMuc.THU, "Các khoản quyên góp từ thành viên");
-                TaiChinhDanhMuc dmBanHang = createTaiChinhDanhMuc("Bán hàng", TaiChinhDanhMuc.LoaiDanhMuc.THU, "Doanh thu từ bán hàng");
-                TaiChinhDanhMuc dmTaiTro = createTaiChinhDanhMuc("Tài trợ", TaiChinhDanhMuc.LoaiDanhMuc.THU, "Các khoản tài trợ từ bên ngoài");
-                TaiChinhDanhMuc dmDienNuoc = createTaiChinhDanhMuc("Điện nước", TaiChinhDanhMuc.LoaiDanhMuc.CHI, "Chi phí điện nước hàng tháng");
-                TaiChinhDanhMuc dmVanPhongPham = createTaiChinhDanhMuc("Văn phòng phẩm", TaiChinhDanhMuc.LoaiDanhMuc.CHI, "Chi phí mua văn phòng phẩm");
-                TaiChinhDanhMuc dmSuaChua = createTaiChinhDanhMuc("Sửa chữa", TaiChinhDanhMuc.LoaiDanhMuc.CHI, "Chi phí sửa chữa cơ sở vật chất");
+                TaiChinhDanhMuc dmQuyenGop = createTaiChinhDanhMuc("Quyên góp", TaiChinhDanhMuc.LoaiDanhMuc.THU,
+                                "Các khoản quyên góp từ thành viên");
+                TaiChinhDanhMuc dmBanHang = createTaiChinhDanhMuc("Bán hàng", TaiChinhDanhMuc.LoaiDanhMuc.THU,
+                                "Doanh thu từ bán hàng");
+                TaiChinhDanhMuc dmTaiTro = createTaiChinhDanhMuc("Tài trợ", TaiChinhDanhMuc.LoaiDanhMuc.THU,
+                                "Các khoản tài trợ từ bên ngoài");
+                TaiChinhDanhMuc dmDienNuoc = createTaiChinhDanhMuc("Điện nước", TaiChinhDanhMuc.LoaiDanhMuc.CHI,
+                                "Chi phí điện nước hàng tháng");
+                TaiChinhDanhMuc dmVanPhongPham = createTaiChinhDanhMuc("Văn phòng phẩm",
+                                TaiChinhDanhMuc.LoaiDanhMuc.CHI, "Chi phí mua văn phòng phẩm");
+                TaiChinhDanhMuc dmSuaChua = createTaiChinhDanhMuc("Sửa chữa", TaiChinhDanhMuc.LoaiDanhMuc.CHI,
+                                "Chi phí sửa chữa cơ sở vật chất");
 
                 // Tạo giao dịch tài chính
-                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(1), TaiChinhGiaoDich.LoaiGiaoDich.THU, 
+                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(1), TaiChinhGiaoDich.LoaiGiaoDich.THU,
                                 new BigDecimal("15500000"), "Dâng hiến Chúa nhật", dmQuyenGop, null);
-                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(2), TaiChinhGiaoDich.LoaiGiaoDich.CHI, 
+                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(2), TaiChinhGiaoDich.LoaiGiaoDich.CHI,
                                 new BigDecimal("2000000"), "Mua vật dụng thờ phượng", dmVanPhongPham, null);
-                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(3), TaiChinhGiaoDich.LoaiGiaoDich.THU, 
+                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(3), TaiChinhGiaoDich.LoaiGiaoDich.THU,
                                 new BigDecimal("5000000"), "Quyên góp từ thiện", dmQuyenGop, null);
-                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(5), TaiChinhGiaoDich.LoaiGiaoDich.CHI, 
+                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(5), TaiChinhGiaoDich.LoaiGiaoDich.CHI,
                                 new BigDecimal("1500000"), "Thanh toán tiền điện tháng 12", dmDienNuoc, null);
-                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(7), TaiChinhGiaoDich.LoaiGiaoDich.THU, 
+                createTaiChinhGiaoDich(LocalDateTime.now().minusDays(7), TaiChinhGiaoDich.LoaiGiaoDich.THU,
                                 new BigDecimal("3000000"), "Tài trợ từ doanh nghiệp", dmTaiTro, null);
 
                 // Tạo giao dịch tài chính (legacy - keep for compatibility)
@@ -245,14 +256,47 @@ public class DataInitializationService implements CommandLineRunner {
                 return banNganhRepository.save(banNganh);
         }
 
-        private ChapSu createChapSu(String hoTen, String chucVu, String capBac, String dienThoai, String email,
-                        int namSinh) {
-                ChapSu chapSu = new ChapSu(hoTen, chucVu, capBac);
+        private ChapSu createChapSu(String hoTen, ChapSu.ChucVu chucVu,
+                        String dienThoai, String email, int namSinh) {
+                ChapSu chapSu = new ChapSu(hoTen, chucVu);
                 chapSu.setDienThoai(dienThoai);
                 chapSu.setEmail(email);
-                chapSu.setNamSinh(namSinh);
+                chapSu.setNgaySinh(LocalDate.of(namSinh, 1, 1));
+                chapSu.setNgayBatDauPhucVu(LocalDate.of(2020, 1, 1));
                 chapSu.setNhiemKyBatDau(LocalDate.of(2020, 1, 1));
                 chapSu.setNhiemKyKetThuc(LocalDate.of(2025, 12, 31));
+                chapSu.setTrangThai(ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
+
+                // Thêm một số thông tin mô tả
+                switch (chucVu) {
+    case QUAN_NHIEM:
+        chapSu.setMoTaCongViec("Chăm sóc tâm linh, giảng dạy Lời Chúa và lãnh đạo toàn bộ hoạt động của Hội Thánh");
+        break;
+
+    case THU_KY_1:
+        chapSu.setMoTaCongViec("Ghi chép biên bản, lưu trữ tài liệu và hỗ trợ công tác hành chính của Hội Thánh");
+        break;
+
+    case THU_KY_2:
+        chapSu.setMoTaCongViec("Hỗ trợ Thư ký 1 trong công tác ghi chép, quản lý tài liệu và liên lạc thông tin");
+        break;
+
+    case THU_QUY_1:
+        chapSu.setMoTaCongViec("Quản lý quỹ, thực hiện thu chi và lập báo cáo tài chính định kỳ của Hội Thánh");
+        break;
+
+    case THU_QUY_2:
+        chapSu.setMoTaCongViec("Hỗ trợ Thủ quỹ 1 trong công tác tài chính, ghi chép sổ sách và báo cáo");
+        break;
+
+    case UY_VIEN:
+        chapSu.setMoTaCongViec("Tham gia họp bàn, đóng góp ý kiến và hỗ trợ các công tác chung của Ban Chấp Sự");
+        break;
+
+    default:
+        chapSu.setMoTaCongViec("Tham gia các hoạt động và công tác của Hội Thánh theo sự phân công");
+        break;
+}
                 return chapSuRepository.save(chapSu);
         }
 
@@ -353,34 +397,36 @@ public class DataInitializationService implements CommandLineRunner {
                 lienHe.setLoaiLienHe(loaiLienHe);
                 return lienHeRepository.save(lienHe);
         }
-      
-  // Financial Management Helper Methods
-        private TaiChinhDanhMuc createTaiChinhDanhMuc(String tenDanhMuc, TaiChinhDanhMuc.LoaiDanhMuc loai, String moTa) {
+
+        // Financial Management Helper Methods
+        private TaiChinhDanhMuc createTaiChinhDanhMuc(String tenDanhMuc, TaiChinhDanhMuc.LoaiDanhMuc loai,
+                        String moTa) {
                 TaiChinhDanhMuc danhMuc = new TaiChinhDanhMuc(tenDanhMuc, loai, moTa);
                 return taiChinhDanhMucRepository.save(danhMuc);
         }
 
-        private TaiChinhGiaoDich createTaiChinhGiaoDich(LocalDateTime thoiGian, TaiChinhGiaoDich.LoaiGiaoDich loai, 
+        private TaiChinhGiaoDich createTaiChinhGiaoDich(LocalDateTime thoiGian, TaiChinhGiaoDich.LoaiGiaoDich loai,
                         BigDecimal soTien, String noiDung, TaiChinhDanhMuc danhMuc, NhanSu nguoiPhuTrach) {
-                TaiChinhGiaoDich giaoDich = new TaiChinhGiaoDich(thoiGian, loai, soTien, noiDung, danhMuc, nguoiPhuTrach);
+                TaiChinhGiaoDich giaoDich = new TaiChinhGiaoDich(thoiGian, loai, soTien, noiDung, danhMuc,
+                                nguoiPhuTrach);
                 TaiChinhGiaoDich saved = taiChinhGiaoDichRepository.save(giaoDich);
-                
+
                 // Update year summary
                 updateTaiChinhNam(thoiGian.getYear(), loai, soTien);
-                
+
                 return saved;
         }
 
         private void updateTaiChinhNam(Integer nam, TaiChinhGiaoDich.LoaiGiaoDich loai, BigDecimal soTien) {
                 TaiChinhNam taiChinhNam = taiChinhNamRepository.findByNam(nam)
-                        .orElse(new TaiChinhNam(nam));
-                
+                                .orElse(new TaiChinhNam(nam));
+
                 if (loai == TaiChinhGiaoDich.LoaiGiaoDich.THU) {
                         taiChinhNam.addThu(soTien);
                 } else {
                         taiChinhNam.addChi(soTien);
                 }
-                
+
                 taiChinhNamRepository.save(taiChinhNam);
         }
 }
