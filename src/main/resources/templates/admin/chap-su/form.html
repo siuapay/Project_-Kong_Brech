@@ -121,9 +121,19 @@
                                         <div class="col-md-6 mb-3">
                                             <label for="dienThoai" class="form-label">Số điện thoại</label>
                                             <input type="tel" class="form-control" id="dienThoai"
-                                                th:field="*{dienThoai}" pattern="[0-9]{10,11}"
-                                                title="Số điện thoại phải có 10-11 chữ số" placeholder="VD: 0123456789">
-                                            <div class="form-text">Chỉ nhập số, từ 10-11 chữ số</div>
+                                                th:field="*{dienThoai}" 
+                                                pattern="[0-9]{10,11}"
+                                                minlength="10" 
+                                                maxlength="11"
+                                                title="Số điện thoại phải có 10-11 chữ số" 
+                                                placeholder="0123456789"
+                                                oninput="validatePhoneNumber(this)">
+                                            <div class="invalid-feedback" id="phoneError">
+                                                Số điện thoại phải có 10-11 chữ số và chỉ chứa số
+                                            </div>
+                                            <div class="form-text">
+                                                <small class="text-muted">Nhập 10-11 chữ số (VD: 0123456789 hoặc 84123456789)</small>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -440,21 +450,47 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Phone number validation
             const phoneInput = document.getElementById('dienThoai');
-            phoneInput.addEventListener('input', function (e) {
-                // Chỉ cho phép nhập số
-                this.value = this.value.replace(/[^0-9]/g, '');
-
-                // Giới hạn độ dài 10-11 số
-                if (this.value.length > 11) {
-                    this.value = this.value.slice(0, 11);
+            
+            // Prevent non-numeric input
+            phoneInput.addEventListener('keypress', function(e) {
+                // Allow backspace, delete, tab, escape, enter
+                if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+                    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                    (e.keyCode === 65 && e.ctrlKey === true) ||
+                    (e.keyCode === 67 && e.ctrlKey === true) ||
+                    (e.keyCode === 86 && e.ctrlKey === true) ||
+                    (e.keyCode === 88 && e.ctrlKey === true)) {
+                    return;
                 }
-
-                // Validation feedback
-                if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
-                    this.setCustomValidity('Số điện thoại phải có 10-11 chữ số');
-                } else {
-                    this.setCustomValidity('');
+                
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
                 }
+            });
+            
+            // Validate on paste
+            phoneInput.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    validatePhoneNumber(this);
+                }, 10);
+            });
+            
+            // Format phone number display (optional)
+            phoneInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                if (value.length === 10 && value.startsWith('0')) {
+                    // Vietnamese mobile format: 0123 456 789
+                    this.value = value.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+                } else if (value.length === 11 && value.startsWith('84')) {
+                    // International format: 84 123 456 789
+                    this.value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
+                }
+            });
+            
+            // Remove formatting on focus for easier editing
+            phoneInput.addEventListener('focus', function() {
+                this.value = this.value.replace(/\s/g, '');
             });
 
             // Birth date validation
@@ -539,6 +575,43 @@
                 }
             });
         });
+        
+        // Phone number validation function
+        function validatePhoneNumber(input) {
+            const value = input.value;
+            const phoneRegex = /^[0-9]{10,11}$/;
+            const numbersOnlyRegex = /^[0-9]*$/;
+            
+            // Remove any non-numeric characters
+            const cleanValue = value.replace(/[^0-9]/g, '');
+            if (cleanValue !== value) {
+                input.value = cleanValue;
+            }
+            
+            // Validate length and format
+            const isValid = phoneRegex.test(cleanValue);
+            const isNumbersOnly = numbersOnlyRegex.test(cleanValue);
+            
+            if (cleanValue.length > 0 && (!isNumbersOnly || cleanValue.length < 10 || cleanValue.length > 11)) {
+                input.classList.add('is-invalid');
+                input.classList.remove('is-valid');
+                
+                // Update error message based on the issue
+                const errorDiv = document.getElementById('phoneError');
+                if (!isNumbersOnly) {
+                    errorDiv.textContent = 'Chỉ được nhập số';
+                } else if (cleanValue.length < 10) {
+                    errorDiv.textContent = 'Số điện thoại phải có ít nhất 10 chữ số';
+                } else if (cleanValue.length > 11) {
+                    errorDiv.textContent = 'Số điện thoại không được quá 11 chữ số';
+                }
+            } else if (cleanValue.length >= 10 && cleanValue.length <= 11) {
+                input.classList.remove('is-invalid');
+                input.classList.add('is-valid');
+            } else {
+                input.classList.remove('is-invalid', 'is-valid');
+            }
+        }
     </script>
 </body>
 

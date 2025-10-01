@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<!-- Account Sidebar Fragment -->
+<div th:fragment="sidebar" class="account-sidebar">
+    <div class="card border-0 shadow-sm">
+        <!-- User Profile Header -->
+        <div class="card-header bg-primary text-white text-center py-4">
+            <div class="position-relative d-inline-block mb-3">
+                <img
+                    th:src="${nhanSu != null and nhanSu.avatarUrl != null ? nhanSu.avatarUrl : (chapSu != null and chapSu.avatarUrl != null ? chapSu.avatarUrl : '/images/default-avatar.svg')}"
+                    alt="Avatar"
+                    class="rounded-circle border border-3 border-white"
+                    style="width: 80px; height: 80px; object-fit: cover"
+                />
+                <span class="position-absolute bottom-0 end-0 bg-success border border-2 border-white rounded-circle" 
+                      style="width: 20px; height: 20px;" title="Đang hoạt động"></span>
+            </div>
+            <h5 class="mb-1 fw-bold"
+                th:text="${nhanSu != null and nhanSu.hoTen != null ? nhanSu.hoTen : (chapSu != null and chapSu.hoTen != null ? chapSu.hoTen : account.username)}">
+                Tên người dùng
+            </h5>
+            <p class="mb-2 opacity-75 small" 
+               th:text="${nhanSu != null and nhanSu.email != null ? nhanSu.email : (chapSu != null and chapSu.email != null ? chapSu.email : account.email)}">
+                email@example.com
+            </p>
+            
+            <!-- Role Badge -->
+            <div class="mb-0">
+                <span th:if="${nhanSu != null}" class="badge bg-light text-primary px-3 py-2">
+                    <i class="fas fa-user me-1"></i>Nhân Sự
+                </span>
+                <span th:if="${chapSu != null}" class="badge bg-light text-primary px-3 py-2">
+                    <i class="fas fa-crown me-1"></i>Chấp Sự
+                </span>
+                <span th:if="${account.role.name() == 'MODERATOR'}" class="badge bg-warning text-dark px-3 py-2 ms-1">
+                    <i class="fas fa-shield-alt me-1"></i>Moderator
+                </span>
+                <span th:if="${account.role.name() == 'ADMIN'}" class="badge bg-danger px-3 py-2 ms-1">
+                    <i class="fas fa-crown me-1"></i>Admin
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <div class="card-body p-0">
+            <!-- Thông tin cá nhân -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <i class="fas fa-user text-primary me-2"></i>
+                    <span class="fw-semibold text-muted small">THÔNG TIN CÁ NHÂN</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:href="@{/account/profile}" 
+                       class="list-group-item list-group-item-action border-0 py-3"
+                       th:classappend="${activeTab == 'profile'} ? 'active'">
+                        <i class="fas fa-id-card me-3 text-primary"></i>
+                        <span>Hồ sơ cá nhân</span>
+                        <i class="fas fa-chevron-right ms-auto small text-muted"></i>
+                    </a>
+                    <a th:href="@{/account/security}" 
+                       class="list-group-item list-group-item-action border-0 py-3"
+                       th:classappend="${activeTab == 'security'} ? 'active'">
+                        <i class="fas fa-shield-alt me-3 text-success"></i>
+                        <span>Bảo mật</span>
+                        <i class="fas fa-chevron-right ms-auto small text-muted"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quản lý nội dung -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <i class="fas fa-edit text-info me-2"></i>
+                    <span class="fw-semibold text-muted small">QUẢN LÝ NỘI DUNG</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:href="@{/account/posts}" 
+                       class="list-group-item list-group-item-action border-0 py-3"
+                       th:classappend="${activeTab == 'create'} ? 'active'">
+                        <i class="fas fa-plus-circle me-3 text-success"></i>
+                        <span>Đăng bài viết</span>
+                        <i class="fas fa-chevron-right ms-auto small text-muted"></i>
+                    </a>
+                    <a th:href="@{/account/my-posts}" 
+                       class="list-group-item list-group-item-action border-0 py-3"
+                       th:classappend="${activeTab == 'posts'} ? 'active'">
+                        <i class="fas fa-file-alt me-3 text-info"></i>
+                        <span>Danh sách bài viết</span>
+                        <span th:if="${totalPosts != null and totalPosts > 0}" 
+                              class="badge bg-secondary rounded-pill ms-auto me-2" th:text="${totalPosts}">0</span>
+                        <i class="fas fa-chevron-right ms-auto small text-muted"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Moderator/Admin Tools -->
+            <div th:if="${account.role.name() == 'MODERATOR' or account.role.name() == 'ADMIN'}" class="sidebar-section">
+                <div class="sidebar-section-header">
+                    <i class="fas fa-tools text-warning me-2"></i>
+                    <span class="fw-semibold text-muted small">CÔNG CỤ QUẢN TRỊ</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:href="@{/account/lien-he}" 
+                       class="list-group-item list-group-item-action border-0 py-3"
+                       th:classappend="${activeTab == 'lien-he'} ? 'active'">
+                        <i class="fas fa-envelope me-3 text-primary"></i>
+                        <span>Quản lý liên hệ</span>
+                        <span th:if="${pendingContacts != null and pendingContacts > 0}" 
+                              class="badge bg-danger rounded-pill ms-auto me-2" th:text="${pendingContacts}">0</span>
+                        <i class="fas fa-chevron-right ms-auto small text-muted"></i>
+                    </a>
+                    
+                    <a th:if="${account.role.name() == 'ADMIN'}" th:href="@{/admin}" 
+                       class="list-group-item list-group-item-action border-0 py-3">
+                        <i class="fas fa-cog me-3 text-danger"></i>
+                        <span>Quản trị hệ thống</span>
+                        <i class="fas fa-external-link-alt ms-auto small text-muted"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="sidebar-section border-0">
+                <div class="sidebar-section-header">
+                    <i class="fas fa-bolt text-success me-2"></i>
+                    <span class="fw-semibold text-muted small">THAO TÁC NHANH</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a th:href="@{/}" class="list-group-item list-group-item-action border-0 py-3">
+                        <i class="fas fa-home me-3 text-secondary"></i>
+                        <span>Về trang chủ</span>
+                        <i class="fas fa-external-link-alt ms-auto small text-muted"></i>
+                    </a>
+                    
+
+                    
+                    <a th:href="@{/logout}" class="list-group-item list-group-item-action border-0 py-3 text-danger">
+                        <i class="fas fa-sign-out-alt me-3"></i>
+                        <span>Đăng xuất</span>
+                        <i class="fas fa-chevron-right ms-auto small"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS for Account Sidebar -->
+<style th:fragment="styles">
+.account-sidebar .sidebar-section {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.account-sidebar .sidebar-section:last-child {
+    border-bottom: none;
+}
+
+.account-sidebar .sidebar-section-header {
+    padding: 1rem 1.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.account-sidebar .list-group-item {
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.account-sidebar .list-group-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.account-sidebar .list-group-item.active {
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.account-sidebar .list-group-item.active i {
+    color: #1976d2 !important;
+}
+
+.account-sidebar .badge {
+    font-size: 0.75rem;
+}
+
+.account-sidebar .card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.account-sidebar .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+@media (max-width: 768px) {
+    .account-sidebar .sidebar-section-header span {
+        font-size: 0.7rem;
+    }
+    
+    .account-sidebar .list-group-item {
+        padding: 0.75rem 1rem;
+    }
+    
+    .account-sidebar .list-group-item span {
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+</body>
+</html>

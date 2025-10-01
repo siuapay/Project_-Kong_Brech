@@ -30,37 +30,56 @@
                             </h4>
                         </div>
                         <div class="card-body">
-                            <form>
+                            <!-- Alert Messages -->
+                            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <span th:text="${successMessage}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            
+                            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                <span th:text="${errorMessage}"></span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            
+                            <form th:action="@{/contact}" th:object="${lienHe}" method="post">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="name" class="form-label">Họ và Tên *</label>
-                                        <input type="text" class="form-control" id="name" required>
+                                        <label for="hoTen" class="form-label">Họ và Tên *</label>
+                                        <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="email" class="form-label">Email *</label>
-                                        <input type="email" class="form-control" id="email" required>
+                                        <input type="email" class="form-control" id="email" th:field="*{email}" required>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="phone" class="form-label">Số Điện Thoại</label>
-                                        <input type="tel" class="form-control" id="phone">
+                                        <label for="dienThoai" class="form-label">Số Điện Thoại</label>
+                                        <input type="tel" class="form-control" id="dienThoai" th:field="*{dienThoai}">
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="subject" class="form-label">Chủ Đề *</label>
-                                        <select class="form-select" id="subject" required>
-                                            <option value="">Chọn chủ đề</option>
-                                            <option value="general">Thông tin chung</option>
-                                            <option value="join">Tham gia chi hội</option>
-                                            <option value="event">Sự kiện</option>
-                                            <option value="support">Hỗ trợ</option>
-                                            <option value="other">Khác</option>
+                                        <label for="loaiLienHe" class="form-label">Loại Liên Hệ *</label>
+                                        <select class="form-select" id="loaiLienHe" th:field="*{loaiLienHe}" required>
+                                            <option value="">Chọn loại liên hệ</option>
+                                            <option value="GOP_Y">Góp ý</option>
+                                            <option value="KHIEU_NAI">Khiếu nại</option>
+                                            <option value="DE_XUAT">Đề xuất</option>
+                                            <option value="QUANG_CAO">Quảng cáo</option>
+                                            <option value="HOP_TAC">Hợp tác</option>
+                                            <option value="KHAC">Khác</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="message" class="form-label">Tin Nhắn *</label>
-                                    <textarea class="form-control" id="message" rows="5" required 
+                                    <label for="chuDe" class="form-label">Chủ Đề *</label>
+                                    <input type="text" class="form-control" id="chuDe" th:field="*{chuDe}" 
+                                           placeholder="Nhập chủ đề liên hệ..." required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="noiDung" class="form-label">Nội Dung *</label>
+                                    <textarea class="form-control" id="noiDung" th:field="*{noiDung}" rows="5" required 
                                               placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-lg">
@@ -188,23 +207,6 @@
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
     
-    <script>
-        // Contact form handling
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Show success message
-            const alert = document.createElement('div');
-            alert.className = 'alert alert-success alert-dismissible fade show';
-            alert.innerHTML = `
-                <i class="fas fa-check-circle me-2"></i>
-                Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            this.parentNode.insertBefore(alert, this);
-            this.reset();
-        });
-    </script>
+
 </body>
 </html>

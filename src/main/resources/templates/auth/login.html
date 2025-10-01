@@ -6,6 +6,12 @@
     <title>Đăng nhập - Hệ thống quản lý</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+         <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" th:href="@{/images/icon-head.png}">
+    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/images/icon-head.png}">
+    <link rel="apple-touch-icon" sizes="180x180" th:href="@{/images/icon-head.png}">
+    <!-- Toast Notification Styles -->
+    <link rel="stylesheet" th:href="@{/css/toast-notifications.css}">
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -175,16 +181,19 @@
         </div>
         
         <div class="login-body">
-            <!-- Error Alert -->
-            <div th:if="${error}" class="alert alert-danger" role="alert">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <span th:text="${errorMessage}">Đăng nhập thất bại</span>
+            <!-- Toast Messages (ẩn, sẽ được xử lý bởi JavaScript) -->
+            <div th:if="${success}" 
+                 class="alert alert-success d-none" 
+                 data-toast="true" 
+                 data-title="Thành công"
+                 th:text="${successMessage}">
             </div>
             
-            <!-- Success Alert -->
-            <div th:if="${success}" class="alert alert-success" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                <span th:text="${successMessage}">Thành công</span>
+            <div th:if="${error}" 
+                 class="alert alert-danger d-none" 
+                 data-toast="true" 
+                 data-title="Lỗi đăng nhập"
+                 th:text="${errorMessage}">
             </div>
             
             <form th:action="@{/perform-login}" method="post">
@@ -302,6 +311,8 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toast Notification Scripts -->
+    <script th:src="@{/js/toast-notifications.js}"></script>
     <script>
         function togglePassword() {
             const passwordField = document.getElementById('password');

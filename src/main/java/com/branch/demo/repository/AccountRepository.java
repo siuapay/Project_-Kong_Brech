@@ -32,4 +32,13 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     
     Page<Account> findByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCaseOrFullNameContainingIgnoreCase(
             String username, String email, String fullName, Pageable pageable);
+    
+    // Kiểm tra nhân sự đã có tài khoản chưa
+    boolean existsByNhanSu(com.branch.demo.domain.NhanSu nhanSu);
+    
+    // Kiểm tra chấp sự đã có tài khoản chưa
+    boolean existsByChapSu(com.branch.demo.domain.ChapSu chapSu);
+    
+    // Tìm tài khoản theo role
+    java.util.List<Account> findByRole(Account.Role role);
 }

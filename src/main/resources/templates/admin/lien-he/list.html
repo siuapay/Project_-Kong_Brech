@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="admin-header">
+                <h1><i class="fas fa-envelope me-2"></i>Quản lý liên hệ</h1>
+                <p class="mb-0">Quản lý tất cả liên hệ từ khách hàng và xử lý vi phạm</p>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" 
+                               th:classappend="${activeTab == 'tat-ca'} ? 'active' : ''"
+                               th:href="@{/admin/lien-he(tab='tat-ca')}">
+                                <i class="fas fa-list me-2"></i>Tất cả liên hệ
+                                <span class="badge bg-primary ms-2" th:text="${lienHePage.totalElements}">0</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" 
+                               th:classappend="${activeTab == 'vi-pham'} ? 'active' : ''"
+                               th:href="@{/admin/lien-he(tab='vi-pham')}">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Vi phạm
+                                <span class="badge bg-danger ms-2" th:text="${lienHePage.totalElements}">0</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-body">
+                    <!-- Search Bar (chỉ hiển thị ở tab tất cả) -->
+                    <div th:if="${activeTab == 'tat-ca'}" class="row mb-4">
+                        <div class="col-md-6">
+                            <form method="get" th:action="@{/admin/lien-he}">
+                                <input type="hidden" name="tab" th:value="${activeTab}">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="search" 
+                                           th:value="${search}" placeholder="Tìm kiếm theo tên, email, chủ đề...">
+                                    <button class="btn btn-outline-primary" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                    <a th:href="@{/admin/lien-he(tab=${activeTab})}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content">
+                        <!-- Tab Tất cả liên hệ -->
+                        <div th:if="${activeTab == 'tat-ca'}" class="tab-pane fade show active">
+                            <div th:if="${lienHePage.content.empty}" class="text-center py-5">
+                                <i class="fas fa-envelope fa-5x text-muted mb-3"></i>
+                                <h5 class="text-muted">Không có liên hệ nào</h5>
+                                <p class="text-muted">Chưa có liên hệ nào từ khách hàng</p>
+                            </div>
+
+                            <div th:if="${!lienHePage.content.empty}">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Thông tin liên hệ</th>
+                                                <th>Loại & Chủ đề</th>
+                                                <th>Trạng thái</th>
+                                                <th>Người xử lý</th>
+                                                <th>Ngày tạo</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="lienHe : ${lienHePage.content}">
+                                                <td>
+                                                    <div>
+                                                        <strong th:text="${lienHe.hoTen}">Họ tên</strong>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-envelope me-1"></i>
+                                                            <span th:text="${lienHe.email}">email@example.com</span>
+                                                        </small>
+                                                        <br>
+                                                        <small class="text-muted" th:if="${lienHe.dienThoai}">
+                                                            <i class="fas fa-phone me-1"></i>
+                                                            <span th:text="${lienHe.dienThoai}">0123456789</span>
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info mb-1" 
+                                                          th:text="${lienHe.loaiLienHe?.displayName} ?: 'Khác'">Loại</span>
+                                                    <br>
+                                                    <small th:text="${lienHe.chuDe}">Chủ đề</small>
+                                                </td>
+                                                <td>
+                                                    <span class="badge" 
+                                                          th:classappend="${lienHe.trangThai.name() == 'CHUA_XU_LY'} ? 'bg-secondary' : 
+                                                                         (${lienHe.trangThai.name() == 'DANG_XU_LY'} ? 'bg-warning' : 'bg-success')"
+                                                          th:text="${lienHe.trangThai.displayName}">Trạng thái</span>
+                                                </td>
+                                                <td>
+                                                    <div th:if="${lienHe.moderatorXuLy != null}">
+                                                        <small class="text-success">
+                                                            <i class="fas fa-user me-1"></i>
+                                                            <span th:text="${lienHe.moderatorXuLy.username}">Moderator</span>
+                                                        </small>
+                                                        <br>
+                                                        <small class="text-muted" th:if="${lienHe.ngayXuLy}">
+                                                            <span th:text="${#temporals.format(lienHe.ngayXuLy, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                                        </small>
+                                                    </div>
+                                                    <div th:if="${lienHe.moderatorXuLy == null}">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-minus-circle me-1"></i>Chưa nhận
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <small th:text="${#temporals.format(lienHe.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Vi phạm -->
+                        <div th:if="${activeTab == 'vi-pham'}" class="tab-pane fade show active">
+                            <div th:if="${lienHePage.content.empty}" class="text-center py-5">
+                                <i class="fas fa-shield-alt fa-5x text-muted mb-3"></i>
+                                <h5 class="text-muted">Không có vi phạm nào</h5>
+                                <p class="text-muted">Chưa có liên hệ vi phạm nào cần xử lý</p>
+                            </div>
+
+                            <div th:if="${!lienHePage.content.empty}">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Thông tin liên hệ</th>
+                                                <th>Loại & Chủ đề</th>
+                                                <th>Báo cáo vi phạm</th>
+                                                <th>Ngày báo cáo</th>
+                                                <th>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="lienHe : ${lienHePage.content}">
+                                                <td>
+                                                    <div>
+                                                        <strong th:text="${lienHe.hoTen}">Họ tên</strong>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-envelope me-1"></i>
+                                                            <span th:text="${lienHe.email}">email@example.com</span>
+                                                        </small>
+                                                        <br>
+                                                        <small class="text-muted" th:if="${lienHe.dienThoai}">
+                                                            <i class="fas fa-phone me-1"></i>
+                                                            <span th:text="${lienHe.dienThoai}">0123456789</span>
+                                                        </small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info mb-1" 
+                                                          th:text="${lienHe.loaiLienHe?.displayName} ?: 'Khác'">Loại</span>
+                                                    <br>
+                                                    <small th:text="${lienHe.chuDe}">Chủ đề</small>
+                                                </td>
+                                                <td>
+                                                    <div>
+                                                        <small class="text-danger">
+                                                            <i class="fas fa-user me-1"></i>
+                                                            <span th:text="${lienHe.moderatorBaoCao?.username} ?: 'N/A'">Moderator</span>
+                                                        </small>
+                                                        <br>
+                                                        <small class="text-muted" th:text="${lienHe.lyDoViPham}">Lý do vi phạm</small>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <small th:text="${#temporals.format(lienHe.ngayBaoCao, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</small>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group btn-group-sm">
+                                                        <a th:href="@{/admin/lien-he/view/{id}(id=${lienHe.id})}" 
+                                                           class="btn btn-outline-primary" title="Xem chi tiết">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <button type="button" 
+                                                                class="btn btn-outline-danger" 
+                                                                title="Xóa liên hệ"
+                                                                onclick="confirmDelete(this)"
+                                                                th:data-id="${lienHe.id}"
+                                                                th:data-name="${lienHe.hoTen}">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav th:if="${lienHePage.totalPages > 1}" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item" th:classappend="${lienHePage.first} ? 'disabled'">
+                                <a class="page-link" 
+                                   th:href="@{/admin/lien-he(tab=${activeTab}, page=${lienHePage.number - 1}, search=${search})}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            
+                            <li th:each="pageNum : ${#numbers.sequence(0, lienHePage.totalPages - 1)}"
+                                class="page-item" th:classappend="${pageNum == lienHePage.number} ? 'active'">
+                                <a class="page-link" 
+                                   th:href="@{/admin/lien-he(tab=${activeTab}, page=${pageNum}, search=${search})}"
+                                   th:text="${pageNum + 1}">1</a>
+                            </li>
+                            
+                            <li class="page-item" th:classappend="${lienHePage.last} ? 'disabled'">
+                                <a class="page-link" 
+                                   th:href="@{/admin/lien-he(tab=${activeTab}, page=${lienHePage.number + 1}, search=${search})}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa liên hệ vi phạm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa liên hệ vi phạm này không?</p>
+                    <p><strong>Người gửi:</strong> <span id="deleteName"></span></p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Liên hệ sẽ bị xóa vĩnh viễn và không thể khôi phục!
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i>Xóa liên hệ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(button) {
+            const id = button.getAttribute('data-id');
+            const name = button.getAttribute('data-name');
+            
+            document.getElementById('deleteName').textContent = name;
+            document.getElementById('deleteForm').action = '/admin/lien-he/delete/' + id;
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html>

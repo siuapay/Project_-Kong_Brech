@@ -622,6 +622,20 @@ public class AdminController {
                 .collect(java.util.stream.Collectors.toList());
     }
     
+    // API để lấy chấp sự chưa có tài khoản (cho form account)
+    @GetMapping("/api/chap-su-without-account")
+    @ResponseBody
+    public java.util.List<ChapSuDTO> getChapSuWithoutAccount() {
+        return adminService.getChapSuWithoutAccount();
+    }
+    
+    // API để lấy chấp sự cho edit account (bao gồm người hiện tại)
+    @GetMapping("/api/chap-su-for-account-edit")
+    @ResponseBody
+    public java.util.List<ChapSuDTO> getChapSuForAccountEdit(@RequestParam Long accountId) {
+        return adminService.getChapSuForAccountEdit(accountId);
+    }
+    
     private ChapSuDTO convertToChapSuDTO(com.branch.demo.domain.ChapSu chapSu) {
         ChapSuDTO dto = new ChapSuDTO();
         dto.setId(chapSu.getId());
@@ -984,6 +998,20 @@ public class AdminController {
             e.printStackTrace();
             return new java.util.ArrayList<>();
         }
+    }
+    
+    // API để lấy nhân sự chưa có tài khoản (cho form account)
+    @GetMapping("/api/nhan-su-without-account")
+    @ResponseBody
+    public java.util.List<com.branch.demo.dto.NhanSuDTO> getNhanSuWithoutAccount() {
+        return adminService.getNhanSuWithoutAccount();
+    }
+    
+    // API để lấy nhân sự cho edit account (bao gồm người hiện tại)
+    @GetMapping("/api/nhan-su-for-account-edit")
+    @ResponseBody
+    public java.util.List<com.branch.demo.dto.NhanSuDTO> getNhanSuForAccountEdit(@RequestParam Long accountId) {
+        return adminService.getNhanSuForAccountEdit(accountId);
     }
 
     @GetMapping("/api/ban-nganh/{banNganhId}/nhan-su")
@@ -1469,7 +1497,15 @@ public class AdminController {
             @RequestParam(required = false) String search) {
         Page<com.branch.demo.domain.LoaiSuKien> loaiSuKienPage = adminService.getLoaiSuKienPage(page, search);
 
+        // Tạo Map chứa số lượng sự kiện cho mỗi loại sự kiện
+        java.util.Map<Long, Long> suKienCountMap = new java.util.HashMap<>();
+        for (com.branch.demo.domain.LoaiSuKien loaiSuKien : loaiSuKienPage.getContent()) {
+            long count = adminService.countSuKienByLoaiSuKien(loaiSuKien.getId());
+            suKienCountMap.put(loaiSuKien.getId(), count);
+        }
+
         model.addAttribute("loaiSuKienPage", loaiSuKienPage);
+        model.addAttribute("suKienCountMap", suKienCountMap);
         model.addAttribute("currentPage", page);
         model.addAttribute("search", search);
         model.addAttribute("totalPages", loaiSuKienPage.getTotalPages());
@@ -1521,8 +1557,12 @@ public class AdminController {
         try {
             adminService.deleteLoaiSuKien(id);
             redirectAttributes.addFlashAttribute("success", "Loại sự kiện đã được xóa thành công!");
+        } catch (RuntimeException e) {
+            // Hiển thị thông báo lỗi thân thiện từ service
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            // Các lỗi khác
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xóa loại sự kiện. Vui lòng thử lại.");
         }
         return "redirect:/admin/loai-su-kien";
     }
@@ -1918,6 +1958,8 @@ public class AdminController {
 
     @PostMapping("/account/save")
     public String saveAccount(@ModelAttribute Account account,
+            @RequestParam(value = "nhanSu.id", required = false) Long nhanSuId,
+            @RequestParam(value = "chapSu.id", required = false) Long chapSuId,
             BindingResult result,
             Model model,
             RedirectAttributes redirectAttributes) {
@@ -2011,6 +2053,39 @@ public class AdminController {
                 }
             }
 
+            // Xử lý logic nhân sự và chấp sự - load từ database hoặc set null
+            if (account.getNhanSu() != null && account.getNhanSu().getId() != null && account.getNhanSu().getId() > 0) {
+                try {
+                    // Load nhân sự từ database
+                    account.setNhanSu(adminService.getNhanSuById(account.getNhanSu().getId()));
+                } catch (Exception e) {
+                    // Nếu không tìm thấy, set null
+                    account.setNhanSu(null);
+                }
+            } else {
+                // Set null nếu không có ID hợp lệ
+                account.setNhanSu(null);
+            }
+            
+            if (account.getChapSu() != null && account.getChapSu().getId() != null && account.getChapSu().getId() > 0) {
+                try {
+                    // Load chấp sự từ database
+                    account.setChapSu(adminService.getChapSuById(account.getChapSu().getId()));
+                } catch (Exception e) {
+                    // Nếu không tìm thấy, set null
+                    account.setChapSu(null);
+                }
+            } else {
+                // Set null nếu không có ID hợp lệ
+                account.setChapSu(null);
+            }
+            
+            // Đảm bảo chỉ chọn một trong hai
+            if (account.getNhanSu() != null && account.getChapSu() != null) {
+                // Nếu cả hai đều được set, ưu tiên nhân sự và clear chấp sự
+                account.setChapSu(null);
+            }
+            
             String generatedPassword = adminService.saveAccount(account, null);
 
             if (generatedPassword != null) {

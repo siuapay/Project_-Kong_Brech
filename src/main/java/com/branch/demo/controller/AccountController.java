@@ -5,8 +5,10 @@ import com.branch.demo.domain.BaiViet;
 import com.branch.demo.domain.DanhMuc;
 import com.branch.demo.repository.AccountRepository;
 import com.branch.demo.repository.BaiVietRepository;
+import com.branch.demo.repository.ChapSuRepository;
 import com.branch.demo.repository.DanhMucRepository;
 import com.branch.demo.repository.NhanSuRepository;
+import com.branch.demo.util.ToastUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,9 @@ public class AccountController {
 
     @Autowired
     private AccountRepository accountRepository;
+    
+    @Autowired
+    private com.branch.demo.service.LienHeService lienHeService;
 
     @Autowired
     private BaiVietRepository baiVietRepository;
@@ -44,7 +49,13 @@ public class AccountController {
     private NhanSuRepository nhanSuRepository;
 
     @Autowired
+    private ChapSuRepository chapSuRepository;
+
+    @Autowired
     private com.branch.demo.service.FileUploadService fileUploadService;
+
+    @Autowired
+    private com.branch.demo.service.ThongBaoService thongBaoService;
 
     // Trang profile chính
     @GetMapping("/profile")
@@ -61,9 +72,25 @@ public class AccountController {
         }
 
         Account account = accountOpt.get();
+        
+        // Tính toán thống kê bài viết
+        long totalPosts = baiVietRepository.countByTacGia(username);
+        long publishedPosts = baiVietRepository.countByTacGiaAndTrangThai(username, BaiViet.TrangThaiBaiViet.DA_XUAT_BAN);
+        long pendingPosts = baiVietRepository.countByTacGiaAndTrangThai(username, BaiViet.TrangThaiBaiViet.CHO_DUYET);
+        long draftPosts = baiVietRepository.countByTacGiaAndTrangThai(username, BaiViet.TrangThaiBaiViet.NHAP);
+        long rejectedPosts = baiVietRepository.countByTacGiaAndTrangThai(username, BaiViet.TrangThaiBaiViet.TU_CHOI);
+        
         model.addAttribute("account", account);
         model.addAttribute("nhanSu", account.getNhanSu()); // Thêm thông tin nhân sự
+        model.addAttribute("chapSu", account.getChapSu()); // Thêm thông tin chấp sự
         model.addAttribute("activeTab", "profile");
+        
+        // Thêm thống kê bài viết
+        model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("publishedPosts", publishedPosts);
+        model.addAttribute("pendingPosts", pendingPosts);
+        model.addAttribute("draftPosts", draftPosts);
+        model.addAttribute("rejectedPosts", rejectedPosts);
 
         return "account/profile";
     }
@@ -86,6 +113,8 @@ public class AccountController {
         model.addAttribute("account", account);
         model.addAttribute("nhanSu",
                 account.getNhanSu() != null ? account.getNhanSu() : new com.branch.demo.domain.NhanSu());
+        model.addAttribute("chapSu",
+                account.getChapSu() != null ? account.getChapSu() : new com.branch.demo.domain.ChapSu());
         model.addAttribute("activeTab", "profile");
 
         return "account/profile-edit";
@@ -93,7 +122,9 @@ public class AccountController {
 
     // Xử lý cập nhật profile
     @PostMapping("/profile/update")
-    public String updateProfile(@ModelAttribute com.branch.demo.domain.NhanSu nhanSu,
+    public String updateProfile(@RequestParam("profileType") String profileType,
+            @ModelAttribute com.branch.demo.domain.NhanSu nhanSu,
+            @ModelAttribute com.branch.demo.domain.ChapSu chapSu,
             Authentication auth,
             RedirectAttributes redirectAttributes) {
         if (auth == null) {
@@ -105,35 +136,55 @@ public class AccountController {
             Optional<Account> accountOpt = accountRepository.findByUsername(username);
 
             if (accountOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                ToastUtil.addNotFoundError(redirectAttributes, "tài khoản");
                 return "redirect:/account/profile";
             }
 
             Account account = accountOpt.get();
 
-            // Nếu chưa có NhanSu, tạo mới
-            if (account.getNhanSu() == null) {
-                nhanSu.setTrangThai(com.branch.demo.domain.NhanSu.TrangThaiNhanSu.HOAT_DONG);
-                com.branch.demo.domain.NhanSu savedNhanSu = nhanSuRepository.save(nhanSu);
-                account.setNhanSu(savedNhanSu);
-                accountRepository.save(account);
-            } else {
-                // Cập nhật thông tin NhanSu hiện có
-                com.branch.demo.domain.NhanSu existingNhanSu = account.getNhanSu();
-                existingNhanSu.setHoTen(nhanSu.getHoTen());
-                existingNhanSu.setEmail(nhanSu.getEmail());
-                existingNhanSu.setDienThoai(nhanSu.getDienThoai());
-                existingNhanSu.setNgaySinh(nhanSu.getNgaySinh());
-                existingNhanSu.setDiaChi(nhanSu.getDiaChi());
-                existingNhanSu.setTieuSu(nhanSu.getTieuSu());
-                nhanSuRepository.save(existingNhanSu);
+            if ("nhansu".equals(profileType)) {
+                // Xử lý cập nhật nhân sự
+                if (account.getNhanSu() == null) {
+                    nhanSu.setTrangThai(com.branch.demo.domain.NhanSu.TrangThaiNhanSu.HOAT_DONG);
+                    com.branch.demo.domain.NhanSu savedNhanSu = nhanSuRepository.save(nhanSu);
+                    account.setNhanSu(savedNhanSu);
+                    accountRepository.save(account);
+                } else {
+                    // Cập nhật thông tin NhanSu hiện có
+                    com.branch.demo.domain.NhanSu existingNhanSu = account.getNhanSu();
+                    existingNhanSu.setHoTen(nhanSu.getHoTen());
+                    existingNhanSu.setEmail(nhanSu.getEmail());
+                    existingNhanSu.setDienThoai(nhanSu.getDienThoai());
+                    existingNhanSu.setNgaySinh(nhanSu.getNgaySinh());
+                    existingNhanSu.setDiaChi(nhanSu.getDiaChi());
+                    existingNhanSu.setTieuSu(nhanSu.getTieuSu());
+                    nhanSuRepository.save(existingNhanSu);
+                }
+            } else if ("chapsu".equals(profileType)) {
+                // Xử lý cập nhật chấp sự
+                if (account.getChapSu() == null) {
+                    chapSu.setTrangThai(com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
+                    com.branch.demo.domain.ChapSu savedChapSu = chapSuRepository.save(chapSu);
+                    account.setChapSu(savedChapSu);
+                    accountRepository.save(account);
+                } else {
+                    // Cập nhật thông tin ChapSu hiện có
+                    com.branch.demo.domain.ChapSu existingChapSu = account.getChapSu();
+                    existingChapSu.setHoTen(chapSu.getHoTen());
+                    existingChapSu.setEmail(chapSu.getEmail());
+                    existingChapSu.setDienThoai(chapSu.getDienThoai());
+                    existingChapSu.setNgaySinh(chapSu.getNgaySinh());
+                    existingChapSu.setDiaChi(chapSu.getDiaChi());
+                    existingChapSu.setTieuSu(chapSu.getTieuSu());
+                    chapSuRepository.save(existingChapSu);
+                }
             }
 
-            redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công!");
+            ToastUtil.addProfileUpdateSuccess(redirectAttributes);
             return "redirect:/account/profile";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            ToastUtil.addSystemError(redirectAttributes, e.getMessage());
             return "redirect:/account/profile/edit";
         }
     }
@@ -189,7 +240,7 @@ public class AccountController {
         }
 
         if (baiVietOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Không tìm thấy bài viết");
+            ToastUtil.addNotFoundError(redirectAttributes, "bài viết");
             return "redirect:/account/my-posts";
         }
 
@@ -198,15 +249,15 @@ public class AccountController {
 
         // Kiểm tra quyền sở hữu
         if (!baiViet.getTacGia().equals(account.getUsername())) {
-            redirectAttributes.addFlashAttribute("error", "Bạn không có quyền chỉnh sửa bài viết này");
+            ToastUtil.addPermissionError(redirectAttributes);
             return "redirect:/account/my-posts";
         }
 
         // Chỉ cho phép chỉnh sửa bài viết ở trạng thái NHAP hoặc TU_CHOI
         if (baiViet.getTrangThai() != BaiViet.TrangThaiBaiViet.NHAP &&
                 baiViet.getTrangThai() != BaiViet.TrangThaiBaiViet.TU_CHOI) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Chỉ có thể chỉnh sửa bài viết ở trạng thái nháp hoặc bị từ chối");
+            ToastUtil.addWarning(redirectAttributes, "Không thể chỉnh sửa", 
+                "Chỉ có thể chỉnh sửa bài viết ở trạng thái nháp hoặc bị từ chối");
             return "redirect:/account/my-posts";
         }
 
@@ -243,7 +294,7 @@ public class AccountController {
             Optional<BaiViet> existingBaiVietOpt = baiVietRepository.findByIdNotDeleted(id);
 
             if (accountOpt.isEmpty() || danhMucOpt.isEmpty() || existingBaiVietOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi cập nhật bài viết");
+                ToastUtil.addSystemError(redirectAttributes, "Không thể cập nhật bài viết");
                 return "redirect:/account/my-posts";
             }
 
@@ -253,7 +304,7 @@ public class AccountController {
 
             // Kiểm tra quyền sở hữu
             if (!existingBaiViet.getTacGia().equals(account.getUsername())) {
-                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền chỉnh sửa bài viết này");
+                ToastUtil.addPermissionError(redirectAttributes);
                 return "redirect:/account/my-posts";
             }
 
@@ -317,13 +368,18 @@ public class AccountController {
 
             BaiViet savedBaiViet = baiVietRepository.save(baiViet);
 
-            redirectAttributes.addFlashAttribute("success",
-                    "Cập nhật bài viết thành công! Bài viết sẽ được gửi lại để admin duyệt.");
+            // Tạo thông báo cho admin về bài viết cập nhật
+            try {
+                thongBaoService.taoThongBaiBaiVietCapNhat(savedBaiViet, username);
+            } catch (Exception e) {
+                System.err.println("Lỗi tạo thông báo: " + e.getMessage());
+            }
 
+            ToastUtil.addPostUpdateSuccess(redirectAttributes);
             return "redirect:/account/my-posts";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            ToastUtil.addSystemError(redirectAttributes, e.getMessage());
             return "redirect:/account/my-posts";
         }
     }
@@ -341,7 +397,7 @@ public class AccountController {
             Optional<BaiViet> baiVietOpt = baiVietRepository.findByIdNotDeleted(id);
 
             if (accountOpt.isEmpty() || baiVietOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy bài viết");
+                ToastUtil.addNotFoundError(redirectAttributes, "bài viết");
                 return "redirect:/account/my-posts";
             }
 
@@ -350,15 +406,15 @@ public class AccountController {
 
             // Kiểm tra quyền sở hữu
             if (!baiViet.getTacGia().equals(account.getUsername())) {
-                redirectAttributes.addFlashAttribute("error", "Bạn không có quyền xóa bài viết này");
+                ToastUtil.addPermissionError(redirectAttributes);
                 return "redirect:/account/my-posts";
             }
 
             // Chỉ cho phép xóa bài viết ở trạng thái NHAP hoặc TU_CHOI
             if (baiViet.getTrangThai() != BaiViet.TrangThaiBaiViet.NHAP &&
                     baiViet.getTrangThai() != BaiViet.TrangThaiBaiViet.TU_CHOI) {
-                redirectAttributes.addFlashAttribute("error",
-                        "Chỉ có thể xóa bài viết ở trạng thái nháp hoặc bị từ chối");
+                ToastUtil.addWarning(redirectAttributes, "Không thể xóa", 
+                    "Chỉ có thể xóa bài viết ở trạng thái nháp hoặc bị từ chối");
                 return "redirect:/account/my-posts";
             }
 
@@ -383,10 +439,10 @@ public class AccountController {
             // Hard delete - xóa hoàn toàn khỏi database
             baiVietRepository.delete(baiViet);
 
-            redirectAttributes.addFlashAttribute("success", "Đã xóa bài viết thành công!");
+            ToastUtil.addPostDeleteSuccess(redirectAttributes);
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xóa bài viết: " + e.getMessage());
+            ToastUtil.addSystemError(redirectAttributes, "Không thể xóa bài viết: " + e.getMessage());
         }
 
         return "redirect:/account/my-posts";
@@ -440,7 +496,7 @@ public class AccountController {
             Optional<DanhMuc> danhMucOpt = danhMucRepository.findById(danhMucId);
 
             if (accountOpt.isEmpty() || danhMucOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi đăng bài");
+                ToastUtil.addSystemError(redirectAttributes, "Không thể đăng bài");
                 return "redirect:/account/posts";
             }
 
@@ -487,13 +543,18 @@ public class AccountController {
 
             BaiViet savedBaiViet = baiVietRepository.save(baiViet);
 
-            redirectAttributes.addFlashAttribute("success",
-                    "Đăng bài thành công! ID: " + savedBaiViet.getId() + ". Bài viết đang chờ admin duyệt.");
+            // Tạo thông báo cho admin
+            try {
+                thongBaoService.taoThongBaoBaiVietMoi(savedBaiViet, username);
+            } catch (Exception e) {
+                System.err.println("Lỗi tạo thông báo: " + e.getMessage());
+            }
 
+            ToastUtil.addPostCreateSuccess(redirectAttributes, savedBaiViet.getId());
             return "redirect:/account/my-posts";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            ToastUtil.addSystemError(redirectAttributes, e.getMessage());
             return "redirect:/account/posts";
         }
     }
@@ -515,6 +576,7 @@ public class AccountController {
         Account account = accountOpt.get();
         model.addAttribute("account", account);
         model.addAttribute("nhanSu", account.getNhanSu());
+        model.addAttribute("chapSu", account.getChapSu());
         model.addAttribute("activeTab", "security");
 
         return "account/security";
@@ -526,6 +588,7 @@ public class AccountController {
             @RequestParam String newPassword,
             @RequestParam String confirmPassword,
             Authentication auth,
+            jakarta.servlet.http.HttpServletRequest request,
             RedirectAttributes redirectAttributes) {
         if (auth == null) {
             return "redirect:/login";
@@ -536,7 +599,7 @@ public class AccountController {
             Optional<Account> accountOpt = accountRepository.findByUsername(username);
 
             if (accountOpt.isEmpty()) {
-                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                ToastUtil.addNotFoundError(redirectAttributes, "tài khoản");
                 return "redirect:/account/security";
             }
 
@@ -544,18 +607,18 @@ public class AccountController {
 
             // Kiểm tra mật khẩu hiện tại
             if (!passwordEncoder.matches(currentPassword, account.getPassword())) {
-                redirectAttributes.addFlashAttribute("error", "Mật khẩu hiện tại không đúng");
+                ToastUtil.addValidationError(redirectAttributes, "Mật khẩu hiện tại không đúng");
                 return "redirect:/account/security";
             }
 
             // Kiểm tra mật khẩu mới
             if (!newPassword.equals(confirmPassword)) {
-                redirectAttributes.addFlashAttribute("error", "Mật khẩu xác nhận không khớp");
+                ToastUtil.addValidationError(redirectAttributes, "Mật khẩu xác nhận không khớp");
                 return "redirect:/account/security";
             }
 
             if (newPassword.length() < 6) {
-                redirectAttributes.addFlashAttribute("error", "Mật khẩu mới phải có ít nhất 6 ký tự");
+                ToastUtil.addValidationError(redirectAttributes, "Mật khẩu mới phải có ít nhất 6 ký tự");
                 return "redirect:/account/security";
             }
 
@@ -563,14 +626,20 @@ public class AccountController {
             account.setPassword(passwordEncoder.encode(newPassword));
             accountRepository.save(account);
 
-            redirectAttributes.addFlashAttribute("success", "Đổi mật khẩu thành công");
-            return "redirect:/account/security";
+            // Invalidate session để đăng xuất người dùng
+            request.getSession().invalidate();
+            
+            // Redirect đến trang login với thông báo thành công
+            ToastUtil.addPasswordChangeSuccess(redirectAttributes);
+            return "redirect:/login";
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            ToastUtil.addSystemError(redirectAttributes, e.getMessage());
             return "redirect:/account/security";
         }
     }
+
+
 
     // Helper method để tạo slug
     private String createSlug(String title) {
@@ -599,5 +668,239 @@ public class AccountController {
         }
 
         return slug;
+    }
+
+    // ==================== LIÊN HỆ MANAGEMENT (CHỈ CHO MODERATOR) ====================
+    
+
+
+    @GetMapping("/lien-he")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
+    public String lienHeManagement(Model model, Authentication authentication,
+                                   @RequestParam(defaultValue = "0") int chuaXuLyPage,
+                                   @RequestParam(defaultValue = "0") int dangXuLyPage,
+                                   @RequestParam(defaultValue = "0") int daXuLyPage,
+                                   @RequestParam(defaultValue = "0") int adminPage,
+                                   jakarta.servlet.http.HttpServletRequest request) {
+        Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+        if (account == null) {
+            return "redirect:/login";
+        }
+        
+
+        
+        // Thêm thông tin nhân sự/chấp sự để hiển thị sidebar
+        if (account.getNhanSu() != null) {
+            model.addAttribute("nhanSu", account.getNhanSu());
+        }
+        if (account.getChapSu() != null) {
+            model.addAttribute("chapSu", account.getChapSu());
+        }
+        
+        int pageSize = 5; // 5 items per page
+        
+        // Debug và load data
+        try {
+            if (account.getRole() == Account.Role.MODERATOR) {
+                
+                // Tab "Chưa xử lý" - tạm thời không phân trang
+                try {
+                    java.util.List<com.branch.demo.domain.LienHe> chuaXuLyList = lienHeService.getLienHeChuaXuLy();
+                    
+                    // Manual pagination - lấy 5 items đầu tiên
+                    int startIndex = chuaXuLyPage * pageSize;
+                    int endIndex = Math.min(startIndex + pageSize, chuaXuLyList.size());
+                    java.util.List<com.branch.demo.domain.LienHe> pageContent = 
+                        startIndex < chuaXuLyList.size() ? chuaXuLyList.subList(startIndex, endIndex) : new java.util.ArrayList<>();
+                    
+                    model.addAttribute("lienHeChuaXuLy", pageContent);
+                    
+                    // Tạo manual page info
+                    int totalPages = (int) Math.ceil((double) chuaXuLyList.size() / pageSize);
+                    model.addAttribute("chuaXuLyCurrentPage", chuaXuLyPage);
+                    model.addAttribute("chuaXuLyTotalPages", totalPages);
+                    model.addAttribute("chuaXuLyTotalElements", chuaXuLyList.size());
+                    
+
+                } catch (Exception e) {
+                    model.addAttribute("lienHeChuaXuLy", new java.util.ArrayList<>());
+                    model.addAttribute("error", "Lỗi tải dữ liệu Chưa xử lý: " + e.getMessage());
+                }
+                
+                // Tab "Đang xử lý" - tạm thời không phân trang
+                try {
+                    java.util.List<com.branch.demo.domain.LienHe> dangXuLyList = lienHeService.getLienHeDangXuLyByModerator(account.getId());
+                    
+                    // Manual pagination
+                    int startIndex = dangXuLyPage * pageSize;
+                    int endIndex = Math.min(startIndex + pageSize, dangXuLyList.size());
+                    java.util.List<com.branch.demo.domain.LienHe> pageContent = 
+                        startIndex < dangXuLyList.size() ? dangXuLyList.subList(startIndex, endIndex) : new java.util.ArrayList<>();
+                    
+                    model.addAttribute("lienHeDangXuLy", pageContent);
+                    
+                    // Manual page info
+                    int totalPages = (int) Math.ceil((double) dangXuLyList.size() / pageSize);
+                    model.addAttribute("dangXuLyCurrentPage", dangXuLyPage);
+                    model.addAttribute("dangXuLyTotalPages", totalPages);
+                    model.addAttribute("dangXuLyTotalElements", dangXuLyList.size());
+                    
+
+                } catch (Exception e) {
+                    model.addAttribute("lienHeDangXuLy", new java.util.ArrayList<>());
+                }
+                
+                // Tab "Đã xử lý" - tạm thời không phân trang
+                try {
+                    java.util.List<com.branch.demo.domain.LienHe> daXuLyList = lienHeService.getLienHeDaXuLyByModerator(account.getId());
+                    
+                    // Manual pagination
+                    int startIndex = daXuLyPage * pageSize;
+                    int endIndex = Math.min(startIndex + pageSize, daXuLyList.size());
+                    java.util.List<com.branch.demo.domain.LienHe> pageContent = 
+                        startIndex < daXuLyList.size() ? daXuLyList.subList(startIndex, endIndex) : new java.util.ArrayList<>();
+                    
+                    model.addAttribute("lienHeByModerator", pageContent);
+                    
+                    // Manual page info
+                    int totalPages = (int) Math.ceil((double) daXuLyList.size() / pageSize);
+                    model.addAttribute("daXuLyCurrentPage", daXuLyPage);
+                    model.addAttribute("daXuLyTotalPages", totalPages);
+                    model.addAttribute("daXuLyTotalElements", daXuLyList.size());
+                    
+
+                } catch (Exception e) {
+                    model.addAttribute("lienHeByModerator", new java.util.ArrayList<>());
+                }
+                
+            } else if (account.getRole() == Account.Role.ADMIN) {
+                // Tab ADMIN - tạm thời không phân trang
+                try {
+                    java.util.List<com.branch.demo.domain.LienHe> adminList = lienHeService.getLienHeChoAdminXuLy();
+                    
+                    // Manual pagination
+                    int startIndex = adminPage * pageSize;
+                    int endIndex = Math.min(startIndex + pageSize, adminList.size());
+                    java.util.List<com.branch.demo.domain.LienHe> pageContent = 
+                        startIndex < adminList.size() ? adminList.subList(startIndex, endIndex) : new java.util.ArrayList<>();
+                    
+                    model.addAttribute("lienHeChoAdminXuLy", pageContent);
+                    
+                    // Manual page info
+                    int totalPages = (int) Math.ceil((double) adminList.size() / pageSize);
+                    model.addAttribute("adminCurrentPage", adminPage);
+                    model.addAttribute("adminTotalPages", totalPages);
+                    model.addAttribute("adminTotalElements", adminList.size());
+                    
+
+                } catch (Exception e) {
+                    model.addAttribute("lienHeChoAdminXuLy", new java.util.ArrayList<>());
+                    model.addAttribute("error", "Lỗi tải dữ liệu Admin: " + e.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            // Fallback toàn bộ nếu có lỗi
+            model.addAttribute("lienHeChuaXuLy", new java.util.ArrayList<>());
+            model.addAttribute("lienHeDangXuLy", new java.util.ArrayList<>());
+            model.addAttribute("lienHeByModerator", new java.util.ArrayList<>());
+            model.addAttribute("lienHeChoAdminXuLy", new java.util.ArrayList<>());
+            model.addAttribute("error", "Lỗi kết nối cơ sở dữ liệu: " + e.getMessage());
+        }
+        
+        model.addAttribute("account", account);
+        model.addAttribute("activeTab", "lien-he");
+        model.addAttribute("title", "Quản Lý Liên Hệ");
+        
+        // Thêm thông tin để JavaScript biết tab nào đang active
+        String activeTabParam = request.getParameter("tab");
+        if (activeTabParam != null) {
+            model.addAttribute("currentTab", activeTabParam);
+        }
+        
+        return "account/lien-he";
+    }
+    
+    @PostMapping("/lien-he/{id}/bat-dau-xu-ly")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('MODERATOR')")
+    public String batDauXuLyLienHe(@PathVariable Long id, Authentication authentication, 
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+            if (account == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                return "redirect:/account/lien-he";
+            }
+            
+            lienHeService.batDauXuLy(id, account.getId());
+            redirectAttributes.addFlashAttribute("success", "Đã bắt đầu xử lý liên hệ");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/account/lien-he";
+    }
+    
+    @PostMapping("/lien-he/{id}/xac-nhan-xu-ly")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('MODERATOR')")
+    public String xacNhanXuLyLienHe(@PathVariable Long id, @RequestParam String ghiChu,
+                                    Authentication authentication, RedirectAttributes redirectAttributes) {
+        try {
+            Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+            if (account == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                return "redirect:/account/lien-he";
+            }
+            
+            lienHeService.xacNhanXuLy(id, account.getId(), ghiChu);
+            redirectAttributes.addFlashAttribute("success", "Đã xác nhận xử lý liên hệ thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/account/lien-he";
+    }
+    
+    @PostMapping("/lien-he/{id}/bao-cao-vi-pham")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('MODERATOR')")
+    public String baoCaoViPhamLienHe(@PathVariable Long id, @RequestParam String lyDoViPham,
+                                     Authentication authentication, RedirectAttributes redirectAttributes) {
+        try {
+            Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+            if (account == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                return "redirect:/account/lien-he";
+            }
+            
+            lienHeService.baoCaoViPham(id, account.getId(), lyDoViPham);
+            redirectAttributes.addFlashAttribute("success", "Đã báo cáo vi phạm cho Admin");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/account/lien-he";
+    }
+    
+    @PostMapping("/lien-he/{id}/admin-xu-ly")
+    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    public String adminXuLyViPham(@PathVariable Long id, @RequestParam String quyetDinh,
+                                  Authentication authentication, RedirectAttributes redirectAttributes) {
+        try {
+            Account account = accountRepository.findByUsername(authentication.getName()).orElse(null);
+            if (account == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản");
+                return "redirect:/account/lien-he";
+            }
+            
+            com.branch.demo.domain.LienHe.QuyetDinhAdmin quyetDinhEnum = 
+                com.branch.demo.domain.LienHe.QuyetDinhAdmin.valueOf(quyetDinh);
+            
+            lienHeService.adminXuLyViPham(id, account.getId(), quyetDinhEnum);
+            
+            if (quyetDinhEnum == com.branch.demo.domain.LienHe.QuyetDinhAdmin.XOA_LIEN_HE) {
+                redirectAttributes.addFlashAttribute("success", "Đã xóa liên hệ vi phạm");
+            } else {
+                redirectAttributes.addFlashAttribute("success", "Đã giữ lại liên hệ");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+        }
+        return "redirect:/account/lien-he";
     }
 }

@@ -100,13 +100,19 @@
                                                 <i class="fas fa-hashtag me-1"></i>ID: <span th:text="${account.id}">1</span>
                                             </small>
                                             <small class="text-info" th:if="${account.nhanSu != null}">
-                                                <i class="fas fa-user-tie me-1"></i>
+                                                <i class="fas fa-user me-1"></i>
                                                 <span th:text="${account.nhanSu.hoTen}">Nhân sự</span>
                                                 <span th:if="${account.nhanSu.chucVu != null}" 
                                                       th:text="' - ' + ${account.nhanSu.chucVu.displayName}"></span>
                                             </small>
-                                            <small class="text-muted" th:if="${account.nhanSu == null}">
-                                                <i class="fas fa-unlink me-1"></i>Chưa liên kết nhân sự
+                                            <small class="text-success" th:if="${account.chapSu != null}">
+                                                <i class="fas fa-user-tie me-1"></i>
+                                                <span th:text="${account.chapSu.hoTen}">Chấp sự</span>
+                                                <span th:if="${account.chapSu.chucVu != null}" 
+                                                      th:text="' - ' + ${account.chapSu.chucVu.displayName}"></span>
+                                            </small>
+                                            <small class="text-muted" th:if="${account.nhanSu == null && account.chapSu == null}">
+                                                <i class="fas fa-unlink me-1"></i>Chưa liên kết hồ sơ
                                             </small>
                                         </div>
                                     </td>

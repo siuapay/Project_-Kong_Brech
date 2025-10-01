@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "lien_he")
-public class LienHe {
+public class LienHe extends BaseAuditableEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class LienHe {
     @Column(name = "chu_de", length = 255)
     private String chuDe;
     
-    @Column(name = "noi_dung", columnDefinition = "TEXT")
+    @Column(name = "noi_dung", columnDefinition = "NVARCHAR(MAX)")
     private String noiDung;
     
     @Column(name = "loai_lien_he")
@@ -32,36 +32,44 @@ public class LienHe {
     
     @Column(name = "trang_thai")
     @Enumerated(EnumType.STRING)
-    private TrangThaiLienHe trangThai = TrangThaiLienHe.CHUA_DOC;
+    private TrangThaiLienHe trangThai = TrangThaiLienHe.CHUA_XU_LY;
     
-    @Column(name = "ngay_phan_hoi")
-    private LocalDateTime ngayPhanHoi;
+    // Thông tin xử lý bởi MODERATOR
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "moderator_xu_ly_id")
+    private Account moderatorXuLy;
     
-    @Column(name = "noi_dung_phan_hoi", columnDefinition = "TEXT")
-    private String noiDungPhanHoi;
+    @Column(name = "ngay_xu_ly")
+    private LocalDateTime ngayXuLy;
     
-    @Column(name = "nguoi_phan_hoi", length = 255)
-    private String nguoiPhanHoi;
+    @Column(name = "ghi_chu_xu_ly", columnDefinition = "NVARCHAR(MAX)")
+    private String ghiChuXuLy;
     
-    @Column(name = "dang_ky_nhan_tin")
-    private Boolean dangKyNhanTin = false;
+    // Thông tin báo cáo vi phạm
+    @Column(name = "co_vi_pham")
+    private Boolean coViPham = false;
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "ly_do_vi_pham", columnDefinition = "NVARCHAR(MAX)")
+    private String lyDoViPham;
     
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "moderator_bao_cao_id")
+    private Account moderatorBaoCao;
     
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(name = "ngay_bao_cao")
+    private LocalDateTime ngayBaoCao;
     
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    // Thông tin xử lý vi phạm bởi ADMIN
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_xu_ly_id")
+    private Account adminXuLy;
+    
+    @Column(name = "ngay_admin_xu_ly")
+    private LocalDateTime ngayAdminXuLy;
+    
+    @Column(name = "quyet_dinh_admin")
+    @Enumerated(EnumType.STRING)
+    private QuyetDinhAdmin quyetDinhAdmin;
     
     // Constructors
     public LienHe() {}
@@ -98,48 +106,134 @@ public class LienHe {
     public TrangThaiLienHe getTrangThai() { return trangThai; }
     public void setTrangThai(TrangThaiLienHe trangThai) { this.trangThai = trangThai; }
     
-    public LocalDateTime getNgayPhanHoi() { return ngayPhanHoi; }
-    public void setNgayPhanHoi(LocalDateTime ngayPhanHoi) { this.ngayPhanHoi = ngayPhanHoi; }
+    public Account getModeratorXuLy() { return moderatorXuLy; }
+    public void setModeratorXuLy(Account moderatorXuLy) { this.moderatorXuLy = moderatorXuLy; }
     
-    public String getNoiDungPhanHoi() { return noiDungPhanHoi; }
-    public void setNoiDungPhanHoi(String noiDungPhanHoi) { this.noiDungPhanHoi = noiDungPhanHoi; }
+    public LocalDateTime getNgayXuLy() { return ngayXuLy; }
+    public void setNgayXuLy(LocalDateTime ngayXuLy) { this.ngayXuLy = ngayXuLy; }
     
-    public String getNguoiPhanHoi() { return nguoiPhanHoi; }
-    public void setNguoiPhanHoi(String nguoiPhanHoi) { this.nguoiPhanHoi = nguoiPhanHoi; }
+    public String getGhiChuXuLy() { return ghiChuXuLy; }
+    public void setGhiChuXuLy(String ghiChuXuLy) { this.ghiChuXuLy = ghiChuXuLy; }
     
-    public Boolean getDangKyNhanTin() { return dangKyNhanTin; }
-    public void setDangKyNhanTin(Boolean dangKyNhanTin) { this.dangKyNhanTin = dangKyNhanTin; }
+    public Boolean getCoViPham() { return coViPham; }
+    public void setCoViPham(Boolean coViPham) { this.coViPham = coViPham; }
     
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getLyDoViPham() { return lyDoViPham; }
+    public void setLyDoViPham(String lyDoViPham) { this.lyDoViPham = lyDoViPham; }
     
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public Account getModeratorBaoCao() { return moderatorBaoCao; }
+    public void setModeratorBaoCao(Account moderatorBaoCao) { this.moderatorBaoCao = moderatorBaoCao; }
+    
+    public LocalDateTime getNgayBaoCao() { return ngayBaoCao; }
+    public void setNgayBaoCao(LocalDateTime ngayBaoCao) { this.ngayBaoCao = ngayBaoCao; }
+    
+    public Account getAdminXuLy() { return adminXuLy; }
+    public void setAdminXuLy(Account adminXuLy) { this.adminXuLy = adminXuLy; }
+    
+    public LocalDateTime getNgayAdminXuLy() { return ngayAdminXuLy; }
+    public void setNgayAdminXuLy(LocalDateTime ngayAdminXuLy) { this.ngayAdminXuLy = ngayAdminXuLy; }
+    
+    public QuyetDinhAdmin getQuyetDinhAdmin() { return quyetDinhAdmin; }
+    public void setQuyetDinhAdmin(QuyetDinhAdmin quyetDinhAdmin) { this.quyetDinhAdmin = quyetDinhAdmin; }
     
     // Helper methods
-    public void phanHoi(String noiDungPhanHoi, String nguoiPhanHoi) {
-        this.noiDungPhanHoi = noiDungPhanHoi;
-        this.nguoiPhanHoi = nguoiPhanHoi;
-        this.ngayPhanHoi = LocalDateTime.now();
-        this.trangThai = TrangThaiLienHe.DA_PHAN_HOI;
+    public void xacNhanXuLy(Account moderator, String ghiChu) {
+        this.moderatorXuLy = moderator;
+        this.ngayXuLy = LocalDateTime.now();
+        this.ghiChuXuLy = ghiChu;
+        this.trangThai = TrangThaiLienHe.DA_XU_LY;
     }
     
-    public void daDoc() {
-        if (this.trangThai == TrangThaiLienHe.CHUA_DOC) {
-            this.trangThai = TrangThaiLienHe.DA_DOC;
+    public void baoCaoViPham(Account moderator, String lyDo) {
+        this.moderatorBaoCao = moderator;
+        this.lyDoViPham = lyDo;
+        this.ngayBaoCao = LocalDateTime.now();
+        this.coViPham = true;
+        this.trangThai = TrangThaiLienHe.CHO_ADMIN_XU_LY;
+    }
+    
+    public void adminXuLyViPham(Account admin, QuyetDinhAdmin quyetDinh) {
+        this.adminXuLy = admin;
+        this.quyetDinhAdmin = quyetDinh;
+        this.ngayAdminXuLy = LocalDateTime.now();
+        
+        if (quyetDinh == QuyetDinhAdmin.XOA_LIEN_HE) {
+            this.trangThai = TrangThaiLienHe.DA_XOA;
+        } else if (quyetDinh == QuyetDinhAdmin.GIU_LAI) {
+            this.trangThai = TrangThaiLienHe.DA_XU_LY;
+            this.coViPham = false; // Reset vi phạm
         }
     }
     
-    public boolean isDaPhanHoi() {
-        return trangThai == TrangThaiLienHe.DA_PHAN_HOI;
+    public boolean isDaXuLy() {
+        return trangThai == TrangThaiLienHe.DA_XU_LY;
+    }
+    
+    public boolean isChoAdminXuLy() {
+        return trangThai == TrangThaiLienHe.CHO_ADMIN_XU_LY;
+    }
+    
+    public String getTenNguoiXuLy() {
+        if (moderatorXuLy != null) {
+            if (moderatorXuLy.getNhanSu() != null) {
+                return moderatorXuLy.getNhanSu().getHoTen();
+            } else if (moderatorXuLy.getChapSu() != null) {
+                return moderatorXuLy.getChapSu().getHoTen();
+            }
+        }
+        return null;
     }
     
     // Enums
     public enum LoaiLienHe {
-        GOP_Y, KHIEU_NAI, DE_XUAT, QUANG_CAO, HOP_TAC, KHAC
+        GOP_Y("Góp ý"), 
+        KHIEU_NAI("Khiếu nại"), 
+        DE_XUAT("Đề xuất"), 
+        QUANG_CAO("Quảng cáo"), 
+        HOP_TAC("Hợp tác"), 
+        KHAC("Khác");
+        
+        private final String displayName;
+        
+        LoaiLienHe(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
     }
     
     public enum TrangThaiLienHe {
-        CHUA_DOC, DA_DOC, DANG_XU_LY, DA_PHAN_HOI, BI_XOA
+        CHUA_XU_LY("Chưa xử lý"),
+        DANG_XU_LY("Đang xử lý"), 
+        DA_XU_LY("Đã xử lý"),
+        CHO_ADMIN_XU_LY("Chờ Admin xử lý"),
+        DA_XOA("Đã xóa");
+        
+        private final String displayName;
+        
+        TrangThaiLienHe(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+    
+    public enum QuyetDinhAdmin {
+        XOA_LIEN_HE("Xóa liên hệ"),
+        GIU_LAI("Giữ lại");
+        
+        private final String displayName;
+        
+        QuyetDinhAdmin(String displayName) {
+            this.displayName = displayName;
+        }
+        
+        public String getDisplayName() {
+            return displayName;
+        }
     }
 }

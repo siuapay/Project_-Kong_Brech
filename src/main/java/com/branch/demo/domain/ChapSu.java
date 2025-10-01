@@ -1,6 +1,7 @@
 package com.branch.demo.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ public class ChapSu extends BaseAuditableEntity {
     private DiemNhom diemNhom;
 
     @Column(name = "dien_thoai", length = 20)
+    @Pattern(regexp = "^[0-9]{10,11}$|^$", message = "Số điện thoại phải có 10-11 chữ số")
     private String dienThoai;
 
     @Column(name = "email", length = 255)
@@ -126,7 +128,12 @@ public class ChapSu extends BaseAuditableEntity {
     }
 
     public void setDienThoai(String dienThoai) {
-        this.dienThoai = dienThoai;
+        // Clean phone number: remove spaces and non-numeric characters
+        if (dienThoai != null && !dienThoai.trim().isEmpty()) {
+            this.dienThoai = dienThoai.replaceAll("[^0-9]", "");
+        } else {
+            this.dienThoai = null;
+        }
     }
 
     public String getEmail() {

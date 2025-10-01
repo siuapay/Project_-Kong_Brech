@@ -204,4 +204,12 @@ public interface BaiVietRepository extends JpaRepository<BaiViet, Long> {
            "LOWER(bv.tomTat) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            "LOWER(bv.noiDung) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<BaiViet> findByTacGiaWithSearch(@Param("tacGia") String tacGia, @Param("search") String search, Pageable pageable);
+    
+    // Đếm tổng số bài viết theo tác giả
+    @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.tacGia = :tacGia AND bv.deletedAt IS NULL")
+    long countByTacGia(@Param("tacGia") String tacGia);
+    
+    // Đếm bài viết theo tác giả và trạng thái
+    @Query("SELECT COUNT(bv) FROM BaiViet bv WHERE bv.tacGia = :tacGia AND bv.trangThai = :trangThai AND bv.deletedAt IS NULL")
+    long countByTacGiaAndTrangThai(@Param("tacGia") String tacGia, @Param("trangThai") TrangThaiBaiViet trangThai);
 }

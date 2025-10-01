@@ -170,8 +170,16 @@ class SearchableDropdown {
             return;
         }
         
-        const html = this.filteredData.map(item => `
-            <div class="dropdown-item" data-value="${item[this.options.valueField]}">
+        const html = this.filteredData.map(item => {
+            // Check if custom formatDisplayHTML is provided
+            if (this.options.formatDisplayHTML && typeof this.options.formatDisplayHTML === 'function') {
+                return `<div class="dropdown-item" data-value="${item[this.options.valueField]}">
+                    ${this.options.formatDisplayHTML(item)}
+                </div>`;
+            }
+            
+            // Default template
+            return `<div class="dropdown-item" data-value="${item[this.options.valueField]}">
                 <div class="item-main">
                     <strong>${item[this.options.displayField]}</strong>
                 </div>
@@ -187,8 +195,8 @@ class SearchableDropdown {
                         ${item.diaChi}
                     </div>
                 ` : ''}
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
         
         this.resultsElement.innerHTML = html;
         

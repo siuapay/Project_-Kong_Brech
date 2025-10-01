@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<!-- Toast Notification Styles -->
+<th:block th:fragment="styles">
+    <link rel="stylesheet" th:href="@{/css/toast-notifications.css}">
+</th:block>
+
+<!-- Toast Notification Scripts -->
+<th:block th:fragment="scripts">
+    <script th:src="@{/js/toast-notifications.js}"></script>
+</th:block>
+
+<!-- Toast Container (tự động tạo bởi JavaScript) -->
+<th:block th:fragment="container">
+    <!-- Container sẽ được tạo tự động bởi JavaScript -->
+</th:block>
+
+<!-- Server-side Toast Messages -->
+<th:block th:fragment="messages">
+    <!-- Success Messages -->
+    <div th:if="${success}" 
+         class="alert alert-success d-none" 
+         data-toast="true" 
+         data-title="Thành công"
+         th:text="${success}">
+    </div>
+    
+    <!-- Error Messages -->
+    <div th:if="${error}" 
+         class="alert alert-danger d-none" 
+         data-toast="true" 
+         data-title="Lỗi"
+         th:text="${error}">
+    </div>
+    
+    <!-- Warning Messages -->
+    <div th:if="${warning}" 
+         class="alert alert-warning d-none" 
+         data-toast="true" 
+         data-title="Cảnh báo"
+         th:text="${warning}">
+    </div>
+    
+    <!-- Info Messages -->
+    <div th:if="${info}" 
+         class="alert alert-info d-none" 
+         data-toast="true" 
+         data-title="Thông tin"
+         th:text="${info}">
+    </div>
+    
+    <!-- Custom Messages với title tùy chỉnh -->
+    <div th:if="${successTitle != null and successMessage != null}" 
+         class="alert alert-success d-none" 
+         data-toast="true" 
+         th:attr="data-title=${successTitle}"
+         th:text="${successMessage}">
+    </div>
+    
+    <div th:if="${errorTitle != null and errorMessage != null}" 
+         class="alert alert-danger d-none" 
+         data-toast="true" 
+         th:attr="data-title=${errorTitle}"
+         th:text="${errorMessage}">
+    </div>
+    
+    <div th:if="${warningTitle != null and warningMessage != null}" 
+         class="alert alert-warning d-none" 
+         data-toast="true" 
+         th:attr="data-title=${warningTitle}"
+         th:text="${warningMessage}">
+    </div>
+    
+    <div th:if="${infoTitle != null and infoMessage != null}" 
+         class="alert alert-info d-none" 
+         data-toast="true" 
+         th:attr="data-title=${infoTitle}"
+         th:text="${infoMessage}">
+    </div>
+</th:block>
+
+<!-- JavaScript Helper Functions -->
+<th:block th:fragment="helpers">
+    <script>
+        // Các hàm tiện ích để sử dụng trong template
+        function showSuccessToast(title, message, duration) {
+            if (window.Toast) {
+                return window.Toast.success(title, message, duration);
+            }
+        }
+        
+        function showErrorToast(title, message, duration) {
+            if (window.Toast) {
+                return window.Toast.error(title, message, duration);
+            }
+        }
+        
+        function showWarningToast(title, message, duration) {
+            if (window.Toast) {
+                return window.Toast.warning(title, message, duration);
+            }
+        }
+        
+        function showInfoToast(title, message, duration) {
+            if (window.Toast) {
+                return window.Toast.info(title, message, duration);
+            }
+        }
+        
+        // Hàm để hiển thị toast từ response AJAX
+        function handleAjaxResponse(response) {
+            if (response.toast) {
+                const toast = response.toast;
+                window.Toast.show(
+                    toast.type || 'info',
+                    toast.title || '',
+                    toast.message || '',
+                    toast.duration || 5000
+                );
+            }
+        }
+        
+        // Hàm để xử lý form submission với toast
+        function submitFormWithToast(form, successCallback, errorCallback) {
+            const formData = new FormData(form);
+            const url = form.action || window.location.href;
+            const method = form.method || 'POST';
+            
+            fetch(url, {
+                method: method,
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessToast(
+                        data.title || 'Thành công', 
+                        data.message || 'Thao tác đã được thực hiện thành công'
+                    );
+                    if (successCallback) successCallback(data);
+                    if (data.redirect) {
+                        setTimeout(() => {
+                            window.location.href = data.redirect;
+                        }, 1500);
+                    }
+                } else {
+                    showErrorToast(
+                        data.title || 'Lỗi', 
+                        data.message || 'Có lỗi xảy ra khi thực hiện thao tác'
+                    );
+                    if (errorCallback) errorCallback(data);
+                }
+            })
+            .catch(error => {
+                showErrorToast('Lỗi kết nối', 'Không thể kết nối đến server');
+                if (errorCallback) errorCallback(error);
+            });
+        }
+    </script>
+</th:block>
+
+<!-- Complete Toast System (bao gồm tất cả) -->
+<th:block th:fragment="complete">
+    <div th:replace="~{fragments/toast-notifications :: styles}"></div>
+    <div th:replace="~{fragments/toast-notifications :: messages}"></div>
+    <div th:replace="~{fragments/toast-notifications :: scripts}"></div>
+    <div th:replace="~{fragments/toast-notifications :: helpers}"></div>
+</th:block>
+
+</html>

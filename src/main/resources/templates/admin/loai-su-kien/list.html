@@ -92,11 +92,12 @@
                 <thead class="table-light">
                   <tr>
                     <th width="5%">#</th>
-                    <th width="30%">Tên Loại</th>
-                    <th width="35%">Mô Tả</th>
-                    <th width="15%">Màu Sắc</th>
+                    <th width="25%">Tên Loại</th>
+                    <th width="30%">Mô Tả</th>
+                    <th width="10%">Màu Sắc</th>
                     <th width="10%">Trạng Thái</th>
-                    <th width="5%">Thao Tác</th>
+                    <th width="10%">Sự Kiện</th>
+                    <th width="10%">Thao Tác</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -155,6 +156,14 @@
                       </span>
                     </td>
                     <td>
+                      <span 
+                        th:with="count=${suKienCountMap.get(loaiSuKien.id)}"
+                        th:class="${count > 0} ? 'badge bg-info' : 'badge bg-secondary'"
+                        th:text="${count} + ' sự kiện'"
+                        th:title="${count > 0} ? 'Có ' + ${count} + ' sự kiện đang sử dụng loại này' : 'Chưa có sự kiện nào'"
+                      >0 sự kiện</span>
+                    </td>
+                    <td>
                       <div class="btn-group" role="group">
                         <a
                           th:href="@{/admin/loai-su-kien/{id}/edit(id=${loaiSuKien.id})}"
@@ -165,11 +174,14 @@
                         </a>
                         <button
                           type="button"
-                          class="btn btn-sm btn-outline-danger"
+                          th:with="count=${suKienCountMap.get(loaiSuKien.id)}"
+                          th:class="${count > 0} ? 'btn btn-sm btn-outline-secondary' : 'btn btn-sm btn-outline-danger'"
+                          th:disabled="${count > 0}"
                           th:data-id="${loaiSuKien.id}"
                           th:data-name="${loaiSuKien.tenLoai}"
-                          onclick="confirmDelete(this.dataset.id, this.dataset.name)"
-                          title="Xóa"
+                          th:data-count="${count}"
+                          th:onclick="${count > 0} ? 'showCannotDeleteMessage(' + ${count} + ')' : 'confirmDelete(this.dataset.id, this.dataset.name)'"
+                          th:title="${count > 0} ? 'Không thể xóa vì có ' + ${count} + ' sự kiện đang sử dụng' : 'Xóa loại sự kiện'"
                         >
                           <i class="fas fa-trash"></i>
                         </button>
@@ -291,6 +303,42 @@
       </div>
     </div>
 
+    <!-- Cannot Delete Modal -->
+    <div class="modal fade" id="cannotDeleteModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>Không Thể Xóa
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Không thể xóa loại sự kiện này vì đang có 
+              <strong id="eventCount"></strong> sự kiện sử dụng.
+            </p>
+            <p class="text-muted">
+              Vui lòng xóa hoặc chuyển các sự kiện sang loại khác trước khi xóa loại này.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-dismiss="modal"
+            >
+              Đã hiểu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
@@ -299,6 +347,11 @@
         document.getElementById("deleteForm").action =
           "/admin/loai-su-kien/delete/" + id;
         new bootstrap.Modal(document.getElementById("deleteModal")).show();
+      }
+
+      function showCannotDeleteMessage(count) {
+        document.getElementById("eventCount").textContent = count;
+        new bootstrap.Modal(document.getElementById("cannotDeleteModal")).show();
       }
     </script>
   </body>

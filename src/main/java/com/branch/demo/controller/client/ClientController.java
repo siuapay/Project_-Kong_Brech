@@ -41,6 +41,9 @@ public class ClientController {
 
     @Autowired
     private AdminService adminService;
+    
+    @Autowired
+    private com.branch.demo.service.LienHeService lienHeService;
 
     @Autowired
     private BaiVietRepository baiVietRepository;
@@ -110,7 +113,20 @@ public class ClientController {
     public String contact(Model model) {
         model.addAttribute("title", "Liên Hệ - Chi Hội Kong Brech");
         model.addAttribute("pageTitle", "Liên Hệ Với Chúng Tôi");
+        model.addAttribute("lienHe", new com.branch.demo.domain.LienHe());
         return "client/contact";
+    }
+    
+    @org.springframework.web.bind.annotation.PostMapping("/contact")
+    public String submitContact(@org.springframework.web.bind.annotation.ModelAttribute com.branch.demo.domain.LienHe lienHe,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            lienHeService.guiLienHe(lienHe);
+            redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi gửi liên hệ. Vui lòng thử lại.");
+        }
+        return "redirect:/contact";
     }
 
     @GetMapping("/news")

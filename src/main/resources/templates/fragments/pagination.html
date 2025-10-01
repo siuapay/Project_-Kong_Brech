@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<!-- Pagination Component -->
+<div th:fragment="pagination(page, baseUrl, paramName)" th:if="${page.totalPages > 1}" class="d-flex justify-content-center mt-3">
+    <nav>
+        <ul class="pagination">
+            <!-- Previous Button -->
+            <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                <a class="page-link" th:href="${page.first} ? '#' : ${baseUrl + '?' + paramName + '=' + (page.number - 1)}">
+                    <i class="fas fa-chevron-left"></i> Trước
+                </a>
+            </li>
+            
+            <!-- Page Numbers -->
+            <li th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}" 
+                class="page-item" th:classappend="${i == page.number} ? 'active'">
+                <a class="page-link" th:href="${baseUrl + '?' + paramName + '=' + i}" th:text="${i + 1}">1</a>
+            </li>
+            
+            <!-- Next Button -->
+            <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                <a class="page-link" th:href="${page.last} ? '#' : ${baseUrl + '?' + paramName + '=' + (page.number + 1)}">
+                    Sau <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+<!-- Pagination Info -->
+<div th:fragment="paginationInfo(page)" th:if="${page.totalElements > 0}" class="text-center text-muted small mt-2">
+    Hiển thị <span th:text="${page.number * page.size + 1}">1</span> - 
+    <span th:text="${(page.number + 1) * page.size > page.totalElements ? page.totalElements : (page.number + 1) * page.size}">10</span> 
+    trong tổng số <span th:text="${page.totalElements}">100</span> kết quả
+</div>
+
+</html>

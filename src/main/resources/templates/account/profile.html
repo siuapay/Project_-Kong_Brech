@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <head th:replace="~{fragments/client-layout :: head}">
+    <!-- Account Sidebar Styles -->
+    <div th:replace="~{fragments/account-sidebar :: styles}"></div>
+    <!-- Toast Notification Styles -->
+    <div th:replace="~{fragments/toast-notifications :: styles}"></div>
+  </head>
   <body>
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
@@ -9,82 +14,15 @@
       <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3 mb-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body text-center">
-              <img
-                th:src="${nhanSu?.avatarUrl} ?: '/images/default-avatar.svg'"
-                alt="Avatar"
-                class="rounded-circle mb-3"
-                style="width: 80px; height: 80px; object-fit: cover"
-              />
-              <h5
-                class="mb-1"
-                th:text="${nhanSu?.hoTen} ?: ${account.username}"
-              >
-                Tên người dùng
-              </h5>
-              <p class="text-muted small" th:text="${nhanSu?.email} ?: ${account.email}">
-                email@example.com
-              </p>
-              <span
-                class="badge bg-success"
-                th:if="${account.status.name() == 'ACTIVE'}"
-                >Hoạt động</span
-              >
-              <span
-                class="badge bg-warning"
-                th:if="${account.status.name() == 'INACTIVE'}"
-                >Không hoạt động</span
-              >
-            </div>
-          </div>
-
-          <!-- Navigation Menu -->
-          <div class="card border-0 shadow-sm mt-3">
-            <div class="list-group list-group-flush">
-              <a
-                href="/account/profile"
-                class="list-group-item list-group-item-action border-0"
-                th:classappend="${activeTab == 'profile'} ? 'active' : ''"
-              >
-                <i class="fas fa-user me-2"></i>Thông tin cá nhân
-              </a>
-             
-              <a
-                href="/account/my-posts"
-                class="list-group-item list-group-item-action border-0"
-                th:classappend="${activeTab == 'posts'} ? 'active' : ''"
-              >
-                <i class="fas fa-edit me-2"></i>Danh sách bài viết
-              </a>
-              <a
-                href="/news"
-                class="list-group-item list-group-item-action border-0"
-              >
-                <i class="fas fa-compass me-2"></i>Khám phá tin tức
-              </a>
-              <a
-                href="/account/posts"
-                class="list-group-item list-group-item-action border-0"
-                th:classappend="${activeTab == 'create'} ? 'active' : ''"
-              >
-                <i class="fas fa-plus me-2"></i>Đăng bài viết
-              </a>
-              <a
-                href="/account/security"
-                class="list-group-item list-group-item-action border-0"
-                th:classappend="${activeTab == 'security'} ? 'active' : ''"
-              >
-                <i class="fas fa-shield-alt me-2"></i>Bảo mật
-              </a>
-            </div>
-          </div>
+          <div th:replace="~{fragments/account-sidebar :: sidebar}"></div>
         </div>
 
         <!-- Main Content -->
         <div class="col-lg-9">
           <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+            <div
+              class="card-header bg-white border-bottom d-flex justify-content-between align-items-center"
+            >
               <h4 class="mb-0">
                 <i class="fas fa-user me-2 text-primary"></i>Thông tin cá nhân
               </h4>
@@ -93,32 +31,8 @@
               </a>
             </div>
             <div class="card-body">
-              <!-- Alert Messages -->
-              <div
-                th:if="${success}"
-                class="alert alert-success alert-dismissible fade show"
-              >
-                <i class="fas fa-check-circle me-2"></i>
-                <span th:text="${success}"></span>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                ></button>
-              </div>
-
-              <div
-                th:if="${error}"
-                class="alert alert-danger alert-dismissible fade show"
-              >
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <span th:text="${error}"></span>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="alert"
-                ></button>
-              </div>
+              <!-- Toast Messages (ẩn, sẽ được xử lý bởi JavaScript) -->
+              <div th:replace="~{fragments/toast-notifications :: messages}"></div>
 
               <div class="row">
                 <div class="col-md-6">
@@ -126,7 +40,7 @@
                     <label class="form-label fw-medium">Họ và tên</label>
                     <div
                       class="form-control bg-light"
-                      th:text="${nhanSu?.hoTen} ?: 'Chưa cập nhật'"
+                      th:text="${nhanSu != null and nhanSu.hoTen != null ? nhanSu.hoTen : (chapSu != null and chapSu.hoTen != null ? chapSu.hoTen : 'Chưa cập nhật')}"
                     >
                       Họ và tên
                     </div>
@@ -136,7 +50,7 @@
                     <label class="form-label fw-medium">Chức vụ</label>
                     <div
                       class="form-control bg-light"
-                      th:text="${nhanSu?.chucVu?.displayName} ?: 'Chưa cập nhật'"
+                      th:text="${nhanSu != null and nhanSu.chucVu != null ? nhanSu.chucVu.displayName : (chapSu != null and chapSu.chucVu != null ? chapSu.chucVu.displayName : 'Chưa cập nhật')}"
                     >
                       Chức vụ
                     </div>
@@ -146,7 +60,7 @@
                     <label class="form-label fw-medium">Email</label>
                     <div
                       class="form-control bg-light"
-                      th:text="${nhanSu?.email} ?: 'Chưa cập nhật'"
+                      th:text="${nhanSu != null and nhanSu.email != null ? nhanSu.email : (chapSu != null and chapSu.email != null ? chapSu.email : 'Chưa cập nhật')}"
                     >
                       email@example.com
                     </div>
@@ -156,7 +70,7 @@
                     <label class="form-label fw-medium">Điện thoại</label>
                     <div
                       class="form-control bg-light"
-                      th:text="${nhanSu?.dienThoai} ?: 'Chưa cập nhật'"
+                      th:text="${nhanSu != null and nhanSu.dienThoai != null ? nhanSu.dienThoai : (chapSu != null and chapSu.dienThoai != null ? chapSu.dienThoai : 'Chưa cập nhật')}"
                     >
                       Điện thoại
                     </div>
@@ -164,7 +78,8 @@
                 </div>
 
                 <div class="col-md-6">
-                  <div class="mb-3">
+                  <!-- Chỉ hiển thị cho Nhân Sự -->
+                  <div th:if="${nhanSu != null}" class="mb-3">
                     <label class="form-label fw-medium">Ban ngành</label>
                     <div
                       class="form-control bg-light"
@@ -174,7 +89,7 @@
                     </div>
                   </div>
 
-                  <div class="mb-3">
+                  <div th:if="${nhanSu != null}" class="mb-3">
                     <label class="form-label fw-medium">Điểm nhóm</label>
                     <div
                       class="form-control bg-light"
@@ -184,13 +99,41 @@
                     </div>
                   </div>
 
+                  <!-- Hiển thị loại hồ sơ -->
+                  <div class="mb-3">
+                    <label class="form-label fw-medium">Loại hồ sơ</label>
+                    <div class="form-control bg-light">
+                      <span th:if="${nhanSu != null}" class="badge bg-primary">
+                        <i class="fas fa-user me-1"></i>Nhân Sự
+                      </span>
+                      <span th:if="${chapSu != null}" class="badge bg-success">
+                        <i class="fas fa-user-tie me-1"></i>Chấp Sự
+                      </span>
+                      <span
+                        th:if="${nhanSu == null && chapSu == null}"
+                        class="text-muted"
+                      >
+                        Chưa liên kết hồ sơ
+                      </span>
+                    </div>
+                  </div>
+
                   <div class="mb-3">
                     <label class="form-label fw-medium">Ngày sinh</label>
-                    <div
-                      class="form-control bg-light"
-                      th:text="${nhanSu?.ngaySinh != null ? #temporals.format(nhanSu.ngaySinh, 'dd/MM/yyyy') : 'Chưa cập nhật'}"
-                    >
-                      Ngày sinh
+                    <div class="form-control bg-light">
+                      <span
+                        th:if="${nhanSu?.ngaySinh != null}"
+                        th:text="${#temporals.format(nhanSu.ngaySinh, 'dd/MM/yyyy')}"
+                      ></span>
+                      <span
+                        th:if="${chapSu?.ngaySinh != null}"
+                        th:text="${#temporals.format(chapSu.ngaySinh, 'dd/MM/yyyy')}"
+                      ></span>
+                      <span
+                        th:if="${nhanSu?.ngaySinh == null && chapSu?.ngaySinh == null}"
+                        class="text-muted"
+                        >Chưa cập nhật</span
+                      >
                     </div>
                   </div>
 
@@ -198,7 +141,7 @@
                     <label class="form-label fw-medium">Nhiệm kỳ</label>
                     <div
                       class="form-control bg-light"
-                      th:text="${nhanSu?.nhiemKy} ?: 'Chưa cập nhật'"
+                      th:text="${nhanSu != null and nhanSu.nhiemKy != null ? nhanSu.nhiemKy : (chapSu != null and chapSu.nhiemKy != null ? chapSu.nhiemKy : 'Chưa cập nhật')}"
                     >
                       Nhiệm kỳ
                     </div>
@@ -207,23 +150,45 @@
               </div>
 
               <!-- Thông tin bổ sung -->
-              <div th:if="${nhanSu?.tieuSu != null and !nhanSu.tieuSu.isEmpty()}" class="mt-4">
+              <div
+                th:if="${(nhanSu?.tieuSu != null and !nhanSu.tieuSu.isEmpty()) or (chapSu?.tieuSu != null and !chapSu.tieuSu.isEmpty())}"
+                class="mt-4"
+              >
                 <h6 class="fw-medium mb-3">Tiểu sử</h6>
                 <div class="card bg-light">
                   <div class="card-body">
-                    <p class="mb-0" th:text="${nhanSu.tieuSu}">Tiểu sử</p>
+                    <p
+                      class="mb-0"
+                      th:text="${nhanSu != null and nhanSu.tieuSu != null ? nhanSu.tieuSu : (chapSu != null and chapSu.tieuSu != null ? chapSu.tieuSu : '')}"
+                    >
+                      Tiểu sử
+                    </p>
                   </div>
                 </div>
               </div>
 
               <!-- Trách nhiệm -->
-              <div th:if="${nhanSu?.danhSachTrachNhiem != null and !nhanSu.danhSachTrachNhiem.isEmpty()}" class="mt-4">
+              <div
+                th:if="${(nhanSu?.danhSachTrachNhiem != null and !nhanSu.danhSachTrachNhiem.isEmpty()) or (chapSu?.danhSachTrachNhiem != null and !chapSu.danhSachTrachNhiem.isEmpty())}"
+                class="mt-4"
+              >
                 <h6 class="fw-medium mb-3">Trách nhiệm</h6>
                 <div class="row">
                   <div class="col-12">
                     <ul class="list-group list-group-flush">
-                      <li th:each="trachNhiem : ${nhanSu.danhSachTrachNhiem}" 
-                          class="list-group-item bg-light border-0 py-2">
+                      <!-- Trách nhiệm từ Nhân Sự -->
+                      <li
+                        th:each="trachNhiem : ${nhanSu?.danhSachTrachNhiem ?: {}}"
+                        class="list-group-item bg-light border-0 py-2"
+                      >
+                        <i class="fas fa-check-circle text-primary me-2"></i>
+                        <span th:text="${trachNhiem}">Trách nhiệm</span>
+                      </li>
+                      <!-- Trách nhiệm từ Chấp Sự -->
+                      <li
+                        th:each="trachNhiem : ${chapSu?.danhSachTrachNhiem ?: {}}"
+                        class="list-group-item bg-light border-0 py-2"
+                      >
                         <i class="fas fa-check-circle text-success me-2"></i>
                         <span th:text="${trachNhiem}">Trách nhiệm</span>
                       </li>
@@ -233,35 +198,110 @@
               </div>
 
               <div class="mt-4">
-                <h6 class="fw-medium mb-3">Thống kê hoạt động</h6>
-                <div class="row">
-                  <div class="col-md-4">
-                    <div class="card bg-primary text-white">
+                <h6 class="fw-medium mb-3">
+                  <i class="fas fa-chart-bar me-2 text-primary"></i>Thống kê hoạt động
+                </h6>
+                <div class="row g-3">
+                  <div class="col-md-6 col-lg-3">
+                    <div class="card bg-primary text-white h-100">
                       <div class="card-body text-center">
                         <i class="fas fa-edit fa-2x mb-2"></i>
-                        <h4 class="mb-0">0</h4>
-                        <small>Bài viết đã đăng</small>
+                        <h4 class="mb-0" th:text="${totalPosts ?: 0}">0</h4>
+                        <small>Tổng bài viết</small>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="card bg-success text-white">
+                  <div class="col-md-6 col-lg-3">
+                    <div class="card bg-success text-white h-100">
                       <div class="card-body text-center">
                         <i class="fas fa-check-circle fa-2x mb-2"></i>
-                        <h4 class="mb-0">0</h4>
-                        <small>Bài viết đã duyệt</small>
+                        <h4 class="mb-0" th:text="${publishedPosts ?: 0}">0</h4>
+                        <small>Đã xuất bản</small>
                       </div>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="card bg-warning text-white">
+                  <div class="col-md-6 col-lg-3">
+                    <div class="card bg-warning text-white h-100">
                       <div class="card-body text-center">
                         <i class="fas fa-clock fa-2x mb-2"></i>
-                        <h4 class="mb-0">0</h4>
-                        <small>Bài viết chờ duyệt</small>
+                        <h4 class="mb-0" th:text="${pendingPosts ?: 0}">0</h4>
+                        <small>Chờ duyệt</small>
                       </div>
                     </div>
                   </div>
+                  <div class="col-md-6 col-lg-3">
+                    <div class="card bg-secondary text-white h-100">
+                      <div class="card-body text-center">
+                        <i class="fas fa-file-alt fa-2x mb-2"></i>
+                        <h4 class="mb-0" th:text="${draftPosts ?: 0}">0</h4>
+                        <small>Bản nháp</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Thêm thống kê bị từ chối nếu có -->
+                <div th:if="${rejectedPosts > 0}" class="row g-3 mt-2">
+                  <div class="col-md-6 col-lg-3">
+                    <div class="card bg-danger text-white h-100">
+                      <div class="card-body text-center">
+                        <i class="fas fa-times-circle fa-2x mb-2"></i>
+                        <h4 class="mb-0" th:text="${rejectedPosts}">0</h4>
+                        <small>Bị từ chối</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Hiển thị progress bar nếu có bài viết -->
+                <div th:if="${totalPosts > 0}" class="mt-3">
+                  <div class="card bg-light">
+                    <div class="card-body">
+                      <h6 class="card-title mb-3">
+                        <i class="fas fa-chart-pie me-2"></i>Tỷ lệ hoàn thành
+                      </h6>
+                      <div class="mb-2">
+                        <small class="text-muted">Bài viết đã xuất bản</small>
+                        <div class="progress" style="height: 8px;">
+                          <div class="progress-bar bg-success" 
+                               th:style="'width: ' + ${totalPosts > 0 ? (publishedPosts * 100 / totalPosts) : 0} + '%'"
+                               th:text="${totalPosts > 0 ? #numbers.formatDecimal((publishedPosts * 100 / totalPosts), 1, 1) + '%' : '0%'}">
+                            0%
+                          </div>
+                        </div>
+                      </div>
+                      <div class="row text-center">
+                        <div class="col">
+                          <small class="text-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            <span th:text="${publishedPosts}">0</span> đã duyệt
+                          </small>
+                        </div>
+                        <div class="col" th:if="${pendingPosts > 0}">
+                          <small class="text-warning">
+                            <i class="fas fa-clock me-1"></i>
+                            <span th:text="${pendingPosts}">0</span> chờ duyệt
+                          </small>
+                        </div>
+                        <div class="col" th:if="${draftPosts > 0}">
+                          <small class="text-secondary">
+                            <i class="fas fa-file-alt me-1"></i>
+                            <span th:text="${draftPosts}">0</span> nháp
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Thông báo nếu chưa có bài viết -->
+                <div th:if="${totalPosts == 0}" class="text-center py-4">
+                  <i class="fas fa-edit fa-3x text-muted mb-3"></i>
+                  <h6 class="text-muted">Bạn chưa có bài viết nào</h6>
+                  <p class="text-muted mb-3">Hãy bắt đầu chia sẻ những câu chuyện của bạn!</p>
+                  <a href="/account/posts" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Đăng bài viết đầu tiên
+                  </a>
                 </div>
               </div>
             </div>
@@ -275,5 +315,8 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
+    <!-- Toast Notification Scripts -->
+    <div th:replace="~{fragments/toast-notifications :: scripts}"></div>
+    <div th:replace="~{fragments/toast-notifications :: helpers}"></div>
   </body>
 </html>

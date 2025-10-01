@@ -67,6 +67,10 @@ public class Account implements UserDetails {
     @JoinColumn(name = "nhan_su_id")
     private NhanSu nhanSu;
     
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chap_su_id")
+    private ChapSu chapSu;
+    
     public enum Role {
         ADMIN("Quản trị viên"),
         MODERATOR("Điều hành viên"),
@@ -251,5 +255,13 @@ public class Account implements UserDetails {
     
     public void setNhanSu(NhanSu nhanSu) {
         this.nhanSu = nhanSu;
+    }
+    
+    public ChapSu getChapSu() {
+        return chapSu;
+    }
+    
+    public void setChapSu(ChapSu chapSu) {
+        this.chapSu = chapSu;
     }
 }

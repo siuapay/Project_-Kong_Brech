@@ -1,6 +1,7 @@
 package com.branch.demo.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class BanNganh extends BaseAuditableEntity {
     private String emailLienHe;
 
     @Column(name = "dien_thoai_lien_he", length = 20)
+    @Pattern(regexp = "^[0-9]{10,11}$|^$", message = "Số điện thoại phải có 10-11 chữ số")
     private String dienThoaiLienHe;
 
     @OneToMany(mappedBy = "banNganh", fetch = FetchType.LAZY)
@@ -211,7 +213,12 @@ public class BanNganh extends BaseAuditableEntity {
     }
 
     public void setDienThoaiLienHe(String dienThoaiLienHe) {
-        this.dienThoaiLienHe = dienThoaiLienHe;
+        // Clean phone number: remove spaces and non-numeric characters
+        if (dienThoaiLienHe != null && !dienThoaiLienHe.trim().isEmpty()) {
+            this.dienThoaiLienHe = dienThoaiLienHe.replaceAll("[^0-9]", "");
+        } else {
+            this.dienThoaiLienHe = null;
+        }
     }
 
     public TrangThaiBanNganh getTrangThai() {

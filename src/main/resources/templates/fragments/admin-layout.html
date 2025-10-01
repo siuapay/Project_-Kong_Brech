@@ -6,6 +6,27 @@
     <title th:text="${title} + ' - Admin Chi Hội Kong Brech'">
       Admin Chi Hội Kong Brech
     </title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      th:href="@{/images/icon-head.png}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      th:href="@{/images/icon-head.png}"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      th:href="@{/images/icon-head.png}"
+    />
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -305,7 +326,17 @@
               </li>
             </ul>
           </li>
-       
+
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              th:href="@{/admin/lien-he}"
+              th:classappend="${#strings.equals(activeMenu, 'lien-he')} ? 'active'"
+            >
+              <i class="fas fa-envelope me-2"></i>Quản lý liên hệ
+            </a>
+          </li>
+
           <li class="nav-item">
             <a
               class="nav-link"
@@ -326,7 +357,7 @@
               <i class="fas fa-home me-2"></i>Về Trang Chủ
             </a>
           </li>
-           <li class="nav-item">
+          <li class="nav-item">
             <a
               class="nav-link"
               th:href="@{/admin/account}"
@@ -335,7 +366,8 @@
               <i class="fas fa-user me-2"></i>Quản lý tài khoản
             </a>
           </li>
-         <!-- <li class="nav-item">
+
+          <!-- <li class="nav-item">
             <a class="nav-link" href="#" onclick="logout()">
               <i class="fas fa-sign-out-alt me-2"></i>Đăng Xuất
             </a>
@@ -362,9 +394,59 @@
         >Admin</span
       >
       <div class="ms-auto d-flex align-items-center">
+        <!-- Notification Dropdown -->
+        <div
+          class="dropdown me-3"
+          sec:authorize="hasRole('ADMIN')"
+          id="notificationDropdown"
+        >
+          <button
+            class="btn btn-outline-secondary position-relative"
+            type="button"
+            data-bs-toggle="dropdown"
+            id="notificationBtn"
+            onclick="loadNotifications()"
+          >
+            <i class="fas fa-bell"></i>
+            <span
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              id="notificationBadge"
+              style="display: none"
+            >
+              0
+            </span>
+          </button>
+          <div
+            class="dropdown-menu dropdown-menu-end"
+            style="width: 350px; max-height: 400px; overflow-y: auto"
+          >
+            <div
+              class="dropdown-header d-flex justify-content-between align-items-center"
+            >
+              <span><i class="fas fa-bell me-2"></i>Thông báo</span>
+              <button
+                class="btn btn-sm btn-outline-primary"
+                onclick="markAllAsRead()"
+              >
+                <i class="fas fa-check-double"></i> Đọc tất cả
+              </button>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div id="notificationList">
+              <div class="text-center py-3">
+                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- User Dropdown -->
         <div class="dropdown me-3" sec:authorize="isAuthenticated()">
-          <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <button
+            class="btn btn-outline-primary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+          >
             <i class="fas fa-user-circle me-1"></i>
             <span sec:authentication="principal.fullName">Admin</span>
           </button>
@@ -375,18 +457,18 @@
                 <span sec:authentication="principal.fullName">Admin</span>
               </h6>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
-              <a class="dropdown-item" th:href="@{/profile}">
+              <a class="dropdown-item" th:href="@{/account/profile}">
                 <i class="fas fa-user-edit me-2"></i>Thông tin cá nhân
               </a>
             </li>
             <li>
-              <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+              <a class="dropdown-item" th:href="@{/account/security}">
                 <i class="fas fa-key me-2"></i>Đổi mật khẩu
               </a>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            <li><hr class="dropdown-divider" /></li>
             <li>
               <form th:action="@{/logout}" method="post" class="d-inline">
                 <button type="submit" class="dropdown-item text-danger">
@@ -396,7 +478,7 @@
             </li>
           </ul>
         </div>
-        
+
         <!-- Clock -->
         <span class="text-muted d-none d-sm-inline">
           <i class="fas fa-clock me-1"></i>
@@ -513,6 +595,196 @@
           bsAlert.close();
         });
       }, 5000);
+
+      // ==================== NOTIFICATION SYSTEM ====================
+      let notificationInterval;
+
+      // Load notifications when dropdown is opened
+      function loadNotifications() {
+        fetch("/api/thong-bao/moi-nhat")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("HTTP error! status: " + response.status);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Notification data:", data);
+            if (data.success) {
+              updateNotificationUI(data.thongBaoList, data.chuaDocCount);
+            } else {
+              document.getElementById("notificationList").innerHTML =
+                '<div class="text-center py-3 text-warning"><i class="fas fa-exclamation-triangle"></i> ' +
+                (data.message || "Không thể tải thông báo") +
+                "</div>";
+            }
+          })
+          .catch((error) => {
+            console.error("Error loading notifications:", error);
+            document.getElementById("notificationList").innerHTML =
+              '<div class="text-center py-3 text-danger"><i class="fas fa-exclamation-triangle"></i> Lỗi: ' +
+              error.message +
+              "</div>";
+          });
+      }
+
+      // Update notification UI
+      function updateNotificationUI(notifications, unreadCount) {
+        const badge = document.getElementById("notificationBadge");
+        const list = document.getElementById("notificationList");
+
+        // Update badge
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+          badge.style.display = "block";
+        } else {
+          badge.style.display = "none";
+        }
+
+        // Update notification list
+        if (notifications.length === 0) {
+          list.innerHTML =
+            '<div class="text-center py-3 text-muted"><i class="fas fa-bell-slash"></i> Không có thông báo</div>';
+          return;
+        }
+
+        let html = "";
+        notifications.forEach((notification) => {
+          const isUnread = notification.trangThai === "CHUA_DOC";
+          const bgClass = isUnread ? "bg-light" : "";
+          const iconColor = getIconColor(notification.mauSac);
+
+          html += `
+            <div class="dropdown-item ${bgClass}" style="white-space: normal; cursor: pointer;" 
+                 onclick="handleNotificationClick(${notification.id}, '${
+            notification.linkAction || "#"
+          }')">
+              <div class="d-flex">
+                <div class="flex-shrink-0 me-2">
+                  <i class="${notification.icon} ${iconColor}"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-bold small">${notification.tieuDe}</div>
+                  <div class="text-muted small">${notification.noiDung}</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">
+                    <i class="fas fa-clock me-1"></i>${notification.timeAgo}
+                  </div>
+                </div>
+                ${
+                  isUnread
+                    ? '<div class="flex-shrink-0"><span class="badge bg-primary rounded-pill" style="width: 8px; height: 8px;"></span></div>'
+                    : ""
+                }
+              </div>
+            </div>
+          `;
+        });
+
+        list.innerHTML = html;
+      }
+
+      // Get icon color based on notification type
+      function getIconColor(mauSac) {
+        switch (mauSac) {
+          case "primary":
+            return "text-primary";
+          case "success":
+            return "text-success";
+          case "warning":
+            return "text-warning";
+          case "danger":
+            return "text-danger";
+          case "info":
+            return "text-info";
+          default:
+            return "text-secondary";
+        }
+      }
+
+      // Handle notification click
+      function handleNotificationClick(notificationId, linkAction) {
+        // Mark as read
+        fetch(`/api/thong-bao/da-doc/${notificationId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then(() => {
+          // Reload notifications to update UI
+          loadNotifications();
+        });
+
+        // Navigate to link if provided
+        if (linkAction && linkAction !== "#") {
+          window.location.href = linkAction;
+        }
+      }
+
+      // Mark all notifications as read
+      function markAllAsRead() {
+        fetch("/api/thong-bao/da-doc-tat-ca", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              loadNotifications();
+            }
+          })
+          .catch((error) => {
+            console.error("Error marking all as read:", error);
+          });
+      }
+
+      // Auto-refresh notification count every 30 seconds
+      function startNotificationPolling() {
+        notificationInterval = setInterval(() => {
+          fetch("/api/thong-bao/count-chua-doc")
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                const badge = document.getElementById("notificationBadge");
+                if (data.count > 0) {
+                  badge.textContent = data.count > 99 ? "99+" : data.count;
+                  badge.style.display = "block";
+                } else {
+                  badge.style.display = "none";
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Error polling notifications:", error);
+            });
+        }, 30000); // 30 seconds
+      }
+
+      // Initialize notification system
+      document.addEventListener("DOMContentLoaded", function () {
+        // Only start polling if user is admin
+        if (document.getElementById("notificationDropdown")) {
+          startNotificationPolling();
+          // Load initial count
+          fetch("/api/thong-bao/count-chua-doc")
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success && data.count > 0) {
+                const badge = document.getElementById("notificationBadge");
+                badge.textContent = data.count > 99 ? "99+" : data.count;
+                badge.style.display = "block";
+              }
+            });
+        }
+      });
+
+      // Clean up interval when page unloads
+      window.addEventListener("beforeunload", function () {
+        if (notificationInterval) {
+          clearInterval(notificationInterval);
+        }
+      });
     </script>
   </div>
 </html>

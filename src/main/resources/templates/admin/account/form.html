@@ -75,16 +75,39 @@
                                            required placeholder="Nhập họ và tên đầy đủ">
                                 </div>
 
-                                <!-- Nhân Sự Selection -->
+                                <!-- Liên Kết Nhân Sự/Chấp Sự -->
+                                <hr class="my-4" />
+                                <h6 class="text-primary mb-3">
+                                    <i class="fas fa-user-friends me-2"></i>Liên Kết Hồ Sơ
+                                </h6>
+                                
                                 <div class="mb-3">
-                                    <label for="nhanSu" class="form-label">
-                                        Nhân Sự
-                                    </label>
-                                    <div id="nhanSuDropdown"></div>
-                                    <input type="hidden" id="nhanSu" th:field="*{nhanSu.id}">
+                                    <label class="form-label">Liên kết với hồ sơ (tùy chọn)</label>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="profileType" id="profileNhanSu" value="nhansu">
+                                                <label class="form-check-label" for="profileNhanSu">
+                                                    <i class="fas fa-user text-primary me-1"></i>Nhân Sự
+                                                </label>
+                                            </div>
+                                            <div id="nhanSuDropdown" class="mt-2" style="display: none;"></div>
+                                            <input type="hidden" id="nhanSu" th:field="*{nhanSu.id}">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="profileType" id="profileChapSu" value="chapsu">
+                                                <label class="form-check-label" for="profileChapSu">
+                                                    <i class="fas fa-user-tie text-success me-1"></i>Chấp Sự
+                                                </label>
+                                            </div>
+                                            <div id="chapSuDropdown" class="mt-2" style="display: none;"></div>
+                                            <input type="hidden" id="chapSu" th:field="*{chapSu.id}">
+                                        </div>
+                                    </div>
                                     <div class="form-text">
                                         <i class="fas fa-info-circle me-1"></i>
-                                        Chọn nhân sự để liên kết với tài khoản này (tùy chọn)
+                                        Chọn một trong hai loại để liên kết với tài khoản này
                                     </div>
                                 </div>
 
@@ -210,23 +233,27 @@
 
                             <hr>
 
-                            <h6 class="text-primary">Liên Kết Nhân Sự:</h6>
+                            <h6 class="text-primary">Liên Kết Hồ Sơ:</h6>
                             <p class="small text-muted mb-2">
-                                Bạn có thể liên kết tài khoản này với một nhân sự trong hệ thống. 
-                                Khi liên kết, thông tin cá nhân sẽ được hiển thị từ hồ sơ nhân sự.
+                                Bạn có thể liên kết tài khoản này với một nhân sự hoặc chấp sự trong hệ thống. 
+                                Khi liên kết, thông tin cá nhân sẽ được hiển thị từ hồ sơ tương ứng.
                             </p>
                             <ul class="list-unstyled small">
                                 <li class="mb-1">
-                                    <i class="fas fa-check text-success me-2"></i>
-                                    Hiển thị thông tin cá nhân từ hồ sơ nhân sự
+                                    <i class="fas fa-user text-primary me-2"></i>
+                                    <strong>Nhân Sự:</strong> Liên kết với hồ sơ nhân sự
                                 </li>
                                 <li class="mb-1">
-                                    <i class="fas fa-check text-success me-2"></i>
-                                    Đồng bộ ảnh đại diện và thông tin liên hệ
+                                    <i class="fas fa-user-tie text-success me-2"></i>
+                                    <strong>Chấp Sự:</strong> Liên kết với hồ sơ chấp sự
                                 </li>
                                 <li class="mb-1">
                                     <i class="fas fa-info text-info me-2"></i>
-                                    Có thể để trống nếu chưa có nhân sự tương ứng
+                                    Chỉ có thể chọn một trong hai loại
+                                </li>
+                                <li class="mb-1">
+                                    <i class="fas fa-info text-info me-2"></i>
+                                    Có thể để trống nếu chưa có hồ sơ tương ứng
                                 </li>
                             </ul>
 
@@ -245,63 +272,206 @@
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script src="/static/js/searchable-dropdown.js"></script>
 
-    <!-- NhanSu Data -->
     <script th:inline="javascript">
-        window.nhanSuData = /*[[${nhanSuList}]]*/ [];
-    </script>
-
-    <script>
+        // Global variables
+        let allNhanSu = [];
+        let allChapSu = [];
         let nhanSuDropdown;
+        let chapSuDropdown;
+        
+        // Account data from Thymeleaf
+        const currentAccount = {
+            id: /*[[${account.id}]]*/ null,
+            nhanSuId: /*[[${account.nhanSu?.id}]]*/ null,
+            chapSuId: /*[[${account.chapSu?.id}]]*/ null
+        };
+        
+        const isEditMode = currentAccount.id !== null;
         
         document.addEventListener('DOMContentLoaded', function() {
-            // Khởi tạo searchable dropdown cho nhân sự
-            nhanSuDropdown = new SearchableDropdown('nhanSuDropdown', {
-                placeholder: 'Chọn nhân sự...',
-                searchPlaceholder: 'Tìm kiếm nhân sự...',
-                displayField: 'hoTen',
-                valueField: 'id',
-                allowClear: true,
-                clearText: 'Không chọn nhân sự',
-                onSelect: function(item) {
-                    // Cập nhật hidden input
-                    document.getElementById('nhanSu').value = item.id;
-                },
-                onClear: function() {
-                    // Clear hidden input
-                    document.getElementById('nhanSu').value = '';
+            loadAllData();
+            initializeProfileRadios();
+            // Initialize existing data after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                initializeExistingData();
+            }, 200);
+        });
+        
+        // Load all data from APIs
+        async function loadAllData() {
+            try {
+                let nhanSuUrl, chapSuUrl;
+                
+                if (isEditMode) {
+                    // EDIT mode: Load all active + current account's person
+                    nhanSuUrl = `/admin/api/nhan-su-for-account-edit?accountId=${currentAccount.id}`;
+                    chapSuUrl = `/admin/api/chap-su-for-account-edit?accountId=${currentAccount.id}`;
+                } else {
+                    // CREATE mode: Only load those without account
+                    nhanSuUrl = '/admin/api/nhan-su-without-account';
+                    chapSuUrl = '/admin/api/chap-su-without-account';
+                }
+                
+                const [nhanSuResponse, chapSuResponse] = await Promise.all([
+                    fetch(nhanSuUrl),
+                    fetch(chapSuUrl)
+                ]);
+                
+                if (nhanSuResponse.ok && chapSuResponse.ok) {
+                    allNhanSu = await nhanSuResponse.json();
+                    allChapSu = await chapSuResponse.json();
+                    
+                    console.log(`Loaded nhân sự (${isEditMode ? 'edit' : 'create'} mode):`, allNhanSu.length);
+                    console.log(`Loaded chấp sự (${isEditMode ? 'edit' : 'create'} mode):`, allChapSu.length);
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+        
+        // Initialize profile type radio buttons
+        function initializeProfileRadios() {
+            const profileNhanSuRadio = document.getElementById('profileNhanSu');
+            const profileChapSuRadio = document.getElementById('profileChapSu');
+            
+            profileNhanSuRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    showProfileDropdown('nhansu');
+                    hideProfileDropdown('chapsu');
+                    // Clear ChapSu selection
+                    document.getElementById('chapSu').value = '';
                 }
             });
             
-            // Load danh sách nhân sự
-            loadAllNhanSu();
-            
-            // Set giá trị hiện tại nếu có (cho edit mode)
-            const currentNhanSuValue = document.getElementById('nhanSu').value;
-            if (currentNhanSuValue) {
-                setTimeout(() => {
-                    nhanSuDropdown.setValue(currentNhanSuValue);
-                }, 500);
-            }
-        });
+            profileChapSuRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    showProfileDropdown('chapsu');
+                    hideProfileDropdown('nhansu');
+                    // Clear NhanSu selection
+                    document.getElementById('nhanSu').value = '';
+                }
+            });
+        }
         
-        // Load tất cả nhân sự
-        function loadAllNhanSu() {
-            fetch('/admin/api/all-nhan-su')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+        // Show profile dropdown
+        function showProfileDropdown(type) {
+            const dropdownContainer = document.getElementById(`${type === 'nhansu' ? 'nhanSu' : 'chapSu'}Dropdown`);
+            dropdownContainer.style.display = 'block';
+            
+            if (type === 'nhansu') {
+                createNhanSuDropdown();
+            } else {
+                createChapSuDropdown();
+            }
+        }
+        
+        // Hide profile dropdown
+        function hideProfileDropdown(type) {
+            const dropdownContainer = document.getElementById(`${type === 'nhansu' ? 'nhanSu' : 'chapSu'}Dropdown`);
+            dropdownContainer.style.display = 'none';
+            dropdownContainer.innerHTML = '';
+        }
+        
+        // Create Nhân Sự dropdown
+        function createNhanSuDropdown() {
+            const container = document.getElementById('nhanSuDropdown');
+            const currentValue = document.getElementById('nhanSu').value;
+            
+            if (container) {
+                if (!allNhanSu || allNhanSu.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Tất cả nhân sự đã có tài khoản</div>';
+                    return;
+                }
+                nhanSuDropdown = new SearchableDropdown(container, {
+                    data: allNhanSu,
+                    placeholder: 'Tìm kiếm nhân sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn nhân sự',
+                    formatDisplayHTML: function(item) {
+                        let html = '<div class="d-flex flex-column">';
+                        html += '<div class="fw-medium">' + item.hoTen + '</div>';
+                        if (item.chucVu) {
+                            html += '<small class="text-muted">' + item.chucVu + '</small>';
+                        }
+                        html += '</div>';
+                        return html;
+                    },
+                    onSelect: function(item) {
+                        document.getElementById('nhanSu').value = item.id;
+                    },
+                    onClear: function() {
+                        document.getElementById('nhanSu').value = '';
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('NhanSu data loaded:', data);
-                    nhanSuDropdown.setData(data);
-                })
-                .catch(error => {
-                    console.error('Error loading nhân sự:', error);
-                    // Set empty data on error
-                    nhanSuDropdown.setData([]);
                 });
+                
+                // Set selected value after creating dropdown
+                if (currentValue && currentValue.trim() !== '') {
+                    setTimeout(() => {
+                        nhanSuDropdown.setValue(currentValue);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Create Chấp Sự dropdown
+        function createChapSuDropdown() {
+            const container = document.getElementById('chapSuDropdown');
+            const currentValue = document.getElementById('chapSu').value;
+            
+            if (container) {
+                if (!allChapSu || allChapSu.length === 0) {
+                    container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>Tất cả chấp sự đã có tài khoản</div>';
+                    return;
+                }
+                chapSuDropdown = new SearchableDropdown(container, {
+                    data: allChapSu,
+                    placeholder: 'Tìm kiếm chấp sự...',
+                    displayField: 'hoTen',
+                    valueField: 'id',
+                    searchFields: ['hoTen', 'email', 'dienThoai'],
+                    allowClear: true,
+                    clearText: 'Không chọn chấp sự',
+                    formatDisplayHTML: function(item) {
+                        let html = '<div class="d-flex flex-column">';
+                        html += '<div class="fw-medium">' + item.hoTen + '</div>';
+                        if (item.chucVu) {
+                            html += '<small class="text-muted">' + item.chucVu + '</small>';
+                        }
+                        html += '</div>';
+                        return html;
+                    },
+                    onSelect: function(item) {
+                        document.getElementById('chapSu').value = item.id;
+                    },
+                    onClear: function() {
+                        document.getElementById('chapSu').value = '';
+                    }
+                });
+                
+                // Set selected value after creating dropdown
+                if (currentValue && currentValue.trim() !== '') {
+                    setTimeout(() => {
+                        chapSuDropdown.setValue(currentValue);
+                    }, 100);
+                }
+            }
+        }
+        
+        // Initialize existing data (for edit mode)
+        function initializeExistingData() {
+            const nhanSuId = document.getElementById('nhanSu').value;
+            const chapSuId = document.getElementById('chapSu').value;
+            
+            if (nhanSuId && nhanSuId.trim() !== '') {
+                document.getElementById('profileNhanSu').checked = true;
+                showProfileDropdown('nhansu');
+            } else if (chapSuId && chapSuId.trim() !== '') {
+                document.getElementById('profileChapSu').checked = true;
+                showProfileDropdown('chapsu');
+            }
         }
 
         function togglePassword(fieldId) {

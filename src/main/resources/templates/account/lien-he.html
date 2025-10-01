@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/client-layout :: head}">
+    <!-- Account Sidebar Styles -->
+    <div th:replace="~{fragments/account-sidebar :: styles}"></div>
+    <!-- Toast Notification Styles -->
+    <div th:replace="~{fragments/toast-notifications :: styles}"></div>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
+
+    <div class="container my-5">
+        <!-- Hiển thị lỗi nếu có -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}">Lỗi</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        
+
+        
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div th:replace="~{fragments/account-sidebar :: sidebar}"></div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Toast Messages (ẩn, sẽ được xử lý bởi JavaScript) -->
+                <div th:replace="~{fragments/toast-notifications :: messages}"></div>
+
+                <!-- MODERATOR View -->
+                <div th:if="${account.role.name() == 'MODERATOR'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-envelope me-2"></i>Quản Lý Liên Hệ - Moderator</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Tabs -->
+                            <ul class="nav nav-tabs" id="lienHeTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="chua-xu-ly-tab" data-bs-toggle="tab" 
+                                            data-bs-target="#chua-xu-ly" type="button" role="tab">
+                                        <i class="fas fa-clock me-2"></i>Chưa Xử Lý 
+                                        <span class="badge bg-warning" th:text="${#lists.size(lienHeChuaXuLy)}">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="dang-xu-ly-tab" data-bs-toggle="tab" 
+                                            data-bs-target="#dang-xu-ly" type="button" role="tab">
+                                        <i class="fas fa-spinner me-2"></i>Đang Xử Lý 
+                                        <span class="badge bg-info" th:text="${#lists.size(lienHeDangXuLy)}">0</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="da-xu-ly-tab" data-bs-toggle="tab" 
+                                            data-bs-target="#da-xu-ly" type="button" role="tab">
+                                        <i class="fas fa-check me-2"></i>Đã Xử Lý 
+                                        <span class="badge bg-success" th:text="${#lists.size(lienHeByModerator)}">0</span>
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- Tab Content -->
+                            <div class="tab-content mt-3" id="lienHeTabContent">
+                                <!-- Chưa Xử Lý -->
+                                <div class="tab-pane fade show active" id="chua-xu-ly" role="tabpanel">
+
+                                    
+                                    <div th:if="${#lists.isEmpty(lienHeChuaXuLy)}" class="text-center py-4">
+                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Không có liên hệ nào chưa xử lý</p>
+                                    </div>
+                                    
+                                    <div th:each="lienHe : ${lienHeChuaXuLy}" class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <h6 class="card-title">
+                                                        <span th:text="${lienHe.chuDe}">Chủ đề</span>
+                                                        <span class="badge bg-primary ms-2" th:text="${lienHe.loaiLienHe.displayName}">Loại</span>
+                                                    </h6>
+                                                    <p class="card-text">
+                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
+                                                        (<span th:text="${lienHe.email}">email</span>)
+                                                    </p>
+                                                    <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock me-1"></i>
+                                                        <span th:text="${#temporals.format(lienHe.createdAt, 'dd/MM/yyyy HH:mm')}">Ngày gửi</span>
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-4 text-end">
+                                                    <form th:action="@{/account/lien-he/{id}/bat-dau-xu-ly(id=${lienHe.id})}" 
+                                                          method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-play me-1"></i>Bắt Đầu Xử Lý
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Manual Pagination cho Chưa Xử Lý -->
+                                <div th:if="${chuaXuLyTotalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="pagination-info">
+                                        Trang <span th:text="${chuaXuLyCurrentPage + 1}">1</span> / <span th:text="${chuaXuLyTotalPages}">1</span>
+                                        (<span th:text="${chuaXuLyTotalElements}">0</span> liên hệ)
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item" th:classappend="${chuaXuLyCurrentPage == 0} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(chuaXuLyPage=${chuaXuLyCurrentPage - 1})}">Trước</a>
+                                            </li>
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(0, chuaXuLyTotalPages - 1)}" 
+                                                th:classappend="${i == chuaXuLyCurrentPage} ? 'active'">
+                                                <a class="page-link" th:href="@{/account/lien-he(chuaXuLyPage=${i})}" th:text="${i + 1}">1</a>
+                                            </li>
+                                            <li class="page-item" th:classappend="${chuaXuLyCurrentPage >= chuaXuLyTotalPages - 1} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(chuaXuLyPage=${chuaXuLyCurrentPage + 1})}">Sau</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+
+                                <!-- Đang Xử Lý -->
+                                <div class="tab-pane fade" id="dang-xu-ly" role="tabpanel">
+                                    <div th:if="${#lists.isEmpty(lienHeDangXuLy)}" class="text-center py-4">
+                                        <i class="fas fa-spinner fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Không có liên hệ nào đang xử lý</p>
+                                    </div>
+                                    
+                                    <div th:each="lienHe : ${lienHeDangXuLy}" class="card mb-3">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <h6 class="card-title">
+                                                        <span th:text="${lienHe.chuDe}">Chủ đề</span>
+                                                        <span class="badge bg-info ms-2">Đang xử lý</span>
+                                                    </h6>
+                                                    <p class="card-text">
+                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
+                                                        (<span th:text="${lienHe.email}">email</span>)
+                                                    </p>
+                                                    <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
+                                                    
+                                                    <!-- Form xác nhận xử lý -->
+                                                    <div class="mt-3">
+                                                        <form th:action="@{/account/lien-he/{id}/xac-nhan-xu-ly(id=${lienHe.id})}" 
+                                                              method="post" class="mb-2">
+                                                            <div class="mb-2">
+                                                                <label class="form-label">Ghi chú xử lý:</label>
+                                                                <textarea name="ghiChu" class="form-control" rows="2" 
+                                                                          placeholder="Nhập ghi chú về cách xử lý..."></textarea>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-success btn-sm me-2">
+                                                                <i class="fas fa-check me-1"></i>Xác Nhận Hoàn Thành
+                                                            </button>
+                                                        </form>
+                                                        
+                                                        <!-- Form báo cáo vi phạm -->
+                                                        <button class="btn btn-warning btn-sm" type="button" 
+                                                                data-bs-toggle="collapse" 
+                                                                th:data-bs-target="'#baoCao' + ${lienHe.id}">
+                                                            <i class="fas fa-flag me-1"></i>Báo Cáo Vi Phạm
+                                                        </button>
+                                                        
+                                                        <div class="collapse mt-2" th:id="'baoCao' + ${lienHe.id}">
+                                                            <form th:action="@{/account/lien-he/{id}/bao-cao-vi-pham(id=${lienHe.id})}" 
+                                                                  method="post">
+                                                                <div class="mb-2">
+                                                                    <label class="form-label">Lý do vi phạm:</label>
+                                                                    <textarea name="lyDoViPham" class="form-control" rows="2" 
+                                                                              placeholder="Mô tả lý do vi phạm..." required></textarea>
+                                                                </div>
+                                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                                    <i class="fas fa-exclamation-triangle me-1"></i>Gửi Báo Cáo
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Manual Pagination cho Đang Xử Lý -->
+                                <div th:if="${dangXuLyTotalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="pagination-info">
+                                        Trang <span th:text="${dangXuLyCurrentPage + 1}">1</span> / <span th:text="${dangXuLyTotalPages}">1</span>
+                                        (<span th:text="${dangXuLyTotalElements}">0</span> liên hệ)
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item" th:classappend="${dangXuLyCurrentPage == 0} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(dangXuLyPage=${dangXuLyCurrentPage - 1})}">Trước</a>
+                                            </li>
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(0, dangXuLyTotalPages - 1)}" 
+                                                th:classappend="${i == dangXuLyCurrentPage} ? 'active'">
+                                                <a class="page-link" th:href="@{/account/lien-he(dangXuLyPage=${i})}" th:text="${i + 1}">1</a>
+                                            </li>
+                                            <li class="page-item" th:classappend="${dangXuLyCurrentPage >= dangXuLyTotalPages - 1} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(dangXuLyPage=${dangXuLyCurrentPage + 1})}">Sau</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+
+                                <!-- Đã Xử Lý -->
+                                <div class="tab-pane fade" id="da-xu-ly" role="tabpanel">
+                                    <div th:if="${#lists.isEmpty(lienHeByModerator)}" class="text-center py-4">
+                                        <i class="fas fa-check-circle fa-3x text-muted mb-3"></i>
+                                        <p class="text-muted">Bạn chưa xử lý liên hệ nào</p>
+                                    </div>
+                                    
+                                    <div th:each="lienHe : ${lienHeByModerator}" class="card mb-3">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <span th:text="${lienHe.chuDe}">Chủ đề</span>
+                                                <!-- Hiển thị badge theo trạng thái -->
+                                                <span th:if="${lienHe.trangThai.name() == 'DA_XU_LY'}" class="badge bg-success ms-2">Đã xử lý</span>
+                                                <span th:if="${lienHe.trangThai.name() == 'CHO_ADMIN_XU_LY'}" class="badge bg-warning ms-2">Chờ Admin xử lý</span>
+                                            </h6>
+                                            <p class="card-text">
+                                                <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
+                                                (<span th:text="${lienHe.email}">email</span>)
+                                            </p>
+                                            <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
+                                            <!-- Hiển thị thông tin theo trạng thái -->
+                                            <div th:if="${lienHe.trangThai.name() == 'DA_XU_LY'}">
+                                                <div th:if="${lienHe.ghiChuXuLy}" class="alert alert-info">
+                                                    <strong>Ghi chú xử lý:</strong> <span th:text="${lienHe.ghiChuXuLy}">Ghi chú</span>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    Xử lý lúc: <span th:text="${#temporals.format(lienHe.ngayXuLy, 'dd/MM/yyyy HH:mm')}">Ngày xử lý</span>
+                                                </small>
+                                            </div>
+                                            
+                                            <div th:if="${lienHe.trangThai.name() == 'CHO_ADMIN_XU_LY'}">
+                                                <div class="alert alert-warning">
+                                                    <strong>Báo cáo vi phạm:</strong> <span th:text="${lienHe.lyDoViPham}">Lý do</span>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-flag me-1"></i>
+                                                    Báo cáo lúc: <span th:text="${#temporals.format(lienHe.ngayBaoCao, 'dd/MM/yyyy HH:mm')}">Ngày báo cáo</span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Manual Pagination cho Đã Xử Lý -->
+                                <div th:if="${daXuLyTotalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                                    <div class="pagination-info">
+                                        Trang <span th:text="${daXuLyCurrentPage + 1}">1</span> / <span th:text="${daXuLyTotalPages}">1</span>
+                                        (<span th:text="${daXuLyTotalElements}">0</span> liên hệ)
+                                    </div>
+                                    <nav>
+                                        <ul class="pagination pagination-sm mb-0">
+                                            <li class="page-item" th:classappend="${daXuLyCurrentPage == 0} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(daXuLyPage=${daXuLyCurrentPage - 1})}">Trước</a>
+                                            </li>
+                                            <li class="page-item" th:each="i : ${#numbers.sequence(0, daXuLyTotalPages - 1)}" 
+                                                th:classappend="${i == daXuLyCurrentPage} ? 'active'">
+                                                <a class="page-link" th:href="@{/account/lien-he(daXuLyPage=${i})}" th:text="${i + 1}">1</a>
+                                            </li>
+                                            <li class="page-item" th:classappend="${daXuLyCurrentPage >= daXuLyTotalPages - 1} ? 'disabled'">
+                                                <a class="page-link" th:href="@{/account/lien-he(daXuLyPage=${daXuLyCurrentPage + 1})}">Sau</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN View -->
+                <div th:if="${account.role.name() == 'ADMIN'}">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4><i class="fas fa-shield-alt me-2"></i>Xử Lý Báo Cáo Vi Phạm - Admin</h4>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${#lists.isEmpty(lienHeChoAdminXuLy)}" class="text-center py-4">
+                                <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Không có báo cáo vi phạm nào cần xử lý</p>
+                            </div>
+                            
+                            <div th:each="lienHe : ${lienHeChoAdminXuLy}" class="card mb-3 border-warning">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <span th:text="${lienHe.chuDe}">Chủ đề</span>
+                                        <span class="badge bg-warning ms-2">Chờ Admin xử lý</span>
+                                    </h6>
+                                    <p class="card-text">
+                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
+                                        (<span th:text="${lienHe.email}">email</span>)
+                                    </p>
+                                    <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
+                                    
+                                    <div class="alert alert-warning">
+                                        <strong>Báo cáo vi phạm:</strong> <span th:text="${lienHe.lyDoViPham}">Lý do</span><br>
+                                        <small>
+                                            Báo cáo bởi: <span th:text="${lienHe.tenNguoiXuLy}">Moderator</span> - 
+                                            <span th:text="${#temporals.format(lienHe.ngayBaoCao, 'dd/MM/yyyy HH:mm')}">Ngày báo cáo</span>
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mt-3">
+                                        <form th:action="@{/account/lien-he/{id}/admin-xu-ly(id=${lienHe.id})}" 
+                                              method="post" class="d-inline me-2">
+                                            <input type="hidden" name="quyetDinh" value="XOA_LIEN_HE">
+                                            <button type="submit" class="btn btn-danger btn-sm" 
+                                                    onclick="return confirm('Bạn có chắc chắn muốn xóa liên hệ này?')">
+                                                <i class="fas fa-trash me-1"></i>Xóa Liên Hệ
+                                            </button>
+                                        </form>
+                                        
+                                        <form th:action="@{/account/lien-he/{id}/admin-xu-ly(id=${lienHe.id})}" 
+                                              method="post" class="d-inline">
+                                            <input type="hidden" name="quyetDinh" value="GIU_LAI">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check me-1"></i>Giữ Lại
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Manual Pagination cho ADMIN -->
+                            <div th:if="${adminTotalPages > 1}" class="d-flex justify-content-between align-items-center mt-3">
+                                <div class="pagination-info">
+                                    Trang <span th:text="${adminCurrentPage + 1}">1</span> / <span th:text="${adminTotalPages}">1</span>
+                                    (<span th:text="${adminTotalElements}">0</span> liên hệ)
+                                </div>
+                                <nav>
+                                    <ul class="pagination pagination-sm mb-0">
+                                        <li class="page-item" th:classappend="${adminCurrentPage == 0} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/account/lien-he(adminPage=${adminCurrentPage - 1})}">Trước</a>
+                                        </li>
+                                        <li class="page-item" th:each="i : ${#numbers.sequence(0, adminTotalPages - 1)}" 
+                                            th:classappend="${i == adminCurrentPage} ? 'active'">
+                                            <a class="page-link" th:href="@{/account/lien-he(adminPage=${i})}" th:text="${i + 1}">1</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${adminCurrentPage >= adminTotalPages - 1} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/account/lien-he(adminPage=${adminCurrentPage + 1})}">Sau</a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer th:replace="~{fragments/client-layout :: footer}"></footer>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/client-layout :: scripts}"></div>
+    <!-- Toast Notification Scripts -->
+    <div th:replace="~{fragments/toast-notifications :: scripts}"></div>
+    <div th:replace="~{fragments/toast-notifications :: helpers}"></div>
+    
+    <!-- Tab Memory Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lấy tab từ URL hash hoặc từ server
+            let activeTab = window.location.hash.substring(1) || 'chua-xu-ly';
+            
+            // Nếu có currentTab từ server, sử dụng nó
+            const serverTab = /*[[${currentTab}]]*/ null;
+            if (serverTab) {
+                activeTab = serverTab;
+            }
+            
+            // Kích hoạt tab
+            const tabElement = document.getElementById(activeTab + '-tab');
+            const tabContent = document.getElementById(activeTab);
+            
+            if (tabElement && tabContent) {
+                // Xóa active từ tất cả tabs
+                document.querySelectorAll('.nav-link').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                
+                // Kích hoạt tab hiện tại
+                tabElement.classList.add('active');
+                tabContent.classList.add('show', 'active');
+                
+                // Cập nhật URL hash
+                window.location.hash = activeTab;
+            }
+            
+            // Lắng nghe sự kiện click tab
+            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-bs-target').substring(1);
+                    window.location.hash = targetTab;
+                });
+            });
+            
+            // Cập nhật tất cả pagination links để giữ tab hiện tại
+            function updatePaginationLinks() {
+                const currentHash = window.location.hash.substring(1) || 'chua-xu-ly';
+                
+                document.querySelectorAll('.pagination a').forEach(link => {
+                    const href = link.getAttribute('href');
+                    if (href && href.includes('/account/lien-he')) {
+                        // Thêm tab parameter vào URL
+                        const url = new URL(href, window.location.origin);
+                        url.searchParams.set('tab', currentHash);
+                        link.setAttribute('href', url.pathname + url.search);
+                    }
+                });
+            }
+            
+            // Cập nhật pagination links khi load và khi thay đổi tab
+            updatePaginationLinks();
+            
+            // Lắng nghe sự kiện thay đổi hash
+            window.addEventListener('hashchange', updatePaginationLinks);
+        });
+    </script>
+</body>
+</html>

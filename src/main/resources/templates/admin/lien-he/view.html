@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/admin-layout :: head}"></head>
+<body>
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+        <!-- Content -->
+        <div class="container-fluid py-4">
+            <!-- Flash Messages -->
+            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Chi tiết liên hệ vi phạm
+                    </h2>
+                    <p class="text-muted mb-0">Xem chi tiết và xử lý liên hệ vi phạm</p>
+                </div>
+                <a href="/admin/lien-he?tab=vi-pham" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Quay lại
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Thông tin liên hệ -->
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope me-2 text-primary"></i>Thông tin liên hệ
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Họ và tên</label>
+                                        <div class="form-control bg-light" th:text="${lienHe.hoTen}">Họ tên</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Email</label>
+                                        <div class="form-control bg-light" th:text="${lienHe.email}">email@example.com</div>
+                                    </div>
+                                    
+                                    <div class="mb-3" th:if="${lienHe.dienThoai}">
+                                        <label class="form-label fw-medium">Điện thoại</label>
+                                        <div class="form-control bg-light" th:text="${lienHe.dienThoai}">0123456789</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Loại liên hệ</label>
+                                        <div class="form-control bg-light">
+                                            <span class="badge bg-info" th:text="${lienHe.loaiLienHe?.displayName} ?: 'Khác'">Loại</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Chủ đề</label>
+                                        <div class="form-control bg-light" th:text="${lienHe.chuDe}">Chủ đề</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Ngày gửi</label>
+                                        <div class="form-control bg-light" 
+                                             th:text="${#temporals.format(lienHe.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Nội dung liên hệ</label>
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <p class="mb-0" th:text="${lienHe.noiDung}">Nội dung liên hệ...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin báo cáo vi phạm -->
+                    <div class="card border-0 shadow-sm border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Thông tin báo cáo vi phạm
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Moderator báo cáo</label>
+                                        <div class="form-control bg-light">
+                                            <i class="fas fa-user me-2 text-danger"></i>
+                                            <span th:text="${lienHe.moderatorBaoCao?.username} ?: 'N/A'">Moderator</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Ngày báo cáo</label>
+                                        <div class="form-control bg-light" 
+                                             th:text="${#temporals.format(lienHe.ngayBaoCao, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Lý do vi phạm</label>
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    <span th:text="${lienHe.lyDoViPham}">Lý do vi phạm...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel xử lý -->
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white border-bottom">
+                            <h5 class="mb-0">
+                                <i class="fas fa-gavel me-2 text-warning"></i>Xử lý vi phạm
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Lưu ý:</strong> Hãy xem xét kỹ nội dung trước khi đưa ra quyết định.
+                            </div>
+                            
+                            <form th:action="@{/admin/lien-he/xu-ly/{id}(id=${lienHe.id})}" method="post">
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium">Quyết định xử lý</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="quyetDinh" 
+                                               value="XOA_LIEN_HE" id="xoaLienHe" required>
+                                        <label class="form-check-label text-danger" for="xoaLienHe">
+                                            <i class="fas fa-trash me-2"></i>Xóa liên hệ vi phạm
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="quyetDinh" 
+                                               value="GIU_LAI" id="giuLai" required>
+                                        <label class="form-check-label text-success" for="giuLai">
+                                            <i class="fas fa-check me-2"></i>Giữ lại liên hệ
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-warning">
+                                        <i class="fas fa-gavel me-2"></i>Xử lý vi phạm
+                                    </button>
+                                    <a href="/admin/lien-he?tab=vi-pham" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin trạng thái -->
+                    <div class="card border-0 shadow-sm mt-3">
+                        <div class="card-header bg-white border-bottom">
+                            <h6 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Thông tin trạng thái
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2">
+                                <small class="text-muted">Trạng thái hiện tại:</small>
+                                <br>
+                                <span class="badge bg-danger" th:text="${lienHe.trangThai.displayName}">Chờ Admin xử lý</span>
+                            </div>
+                            
+                            <div class="mb-2" th:if="${lienHe.moderatorXuLy}">
+                                <small class="text-muted">Moderator xử lý ban đầu:</small>
+                                <br>
+                                <small class="text-success">
+                                    <i class="fas fa-user me-1"></i>
+                                    <span th:text="${lienHe.moderatorXuLy.username}">Moderator</span>
+                                </small>
+                            </div>
+                            
+                            <div th:if="${lienHe.ngayXuLy}">
+                                <small class="text-muted">Ngày xử lý ban đầu:</small>
+                                <br>
+                                <small th:text="${#temporals.format(lienHe.ngayXuLy, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+</body>
+</html>

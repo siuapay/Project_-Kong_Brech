@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/client-layout :: head}"></head>
+<head th:replace="~{fragments/client-layout :: head}">
+    <!-- Account Sidebar Styles -->
+    <div th:replace="~{fragments/account-sidebar :: styles}"></div>
+    <!-- Toast Notification Styles -->
+    <div th:replace="~{fragments/toast-notifications :: styles}"></div>
+</head>
 <body>
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
@@ -9,49 +14,7 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-lg-3 mb-4">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <img th:src="${account.nhanSu?.avatarUrl} ?: '/images/default-avatar.svg'" 
-                             alt="Avatar" 
-                             class="rounded-circle mb-3"
-                             style="width: 80px; height: 80px; object-fit: cover;">
-                        <h5 class="mb-1" th:text="${account.nhanSu?.hoTen} ?: ${account.username}">Tên người dùng</h5>
-                        <p class="text-muted small" th:text="${account.nhanSu?.email} ?: ${account.email}">email@example.com</p>
-                        <span class="badge bg-success" th:if="${account.status.name() == 'ACTIVE'}">Hoạt động</span>
-                        <span class="badge bg-warning" th:if="${account.status.name() == 'INACTIVE'}">Không hoạt động</span>
-                    </div>
-                </div>
-
-                <!-- Navigation Menu -->
-                <div class="card border-0 shadow-sm mt-3">
-                    <div class="list-group list-group-flush">
-                        <a href="/account/profile" 
-                           class="list-group-item list-group-item-action border-0"
-                           th:classappend="${activeTab == 'profile'} ? 'active' : ''">
-                            <i class="fas fa-user me-2"></i>Thông tin cá nhân
-                        </a>
-                        
-                        <a href="/account/my-posts" 
-                           class="list-group-item list-group-item-action border-0"
-                           th:classappend="${activeTab == 'posts'} ? 'active' : ''">
-                            <i class="fas fa-edit me-2"></i>Danh sách bài viết
-                        </a>
-                        <a href="/news" 
-                           class="list-group-item list-group-item-action border-0">
-                            <i class="fas fa-compass me-2"></i>Khám phá tin tức
-                        </a>
-                        <a href="/account/posts" 
-                           class="list-group-item list-group-item-action border-0"
-                           th:classappend="${activeTab == 'create'} ? 'active' : ''">
-                            <i class="fas fa-plus me-2"></i>Đăng bài viết
-                        </a>
-                        <a href="/account/security" 
-                           class="list-group-item list-group-item-action border-0"
-                           th:classappend="${activeTab == 'security'} ? 'active' : ''">
-                            <i class="fas fa-shield-alt me-2"></i>Bảo mật
-                        </a>
-                    </div>
-                </div>
+                <div th:replace="~{fragments/account-sidebar :: sidebar}"></div>
             </div>
 
             <!-- Main Content -->
@@ -63,18 +26,8 @@
                         </h4>
                     </div>
                     <div class="card-body">
-                        <!-- Alert Messages -->
-                        <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
-                            <i class="fas fa-check-circle me-2"></i>
-                            <span th:text="${success}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                        
-                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <span th:text="${error}"></span>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
+                        <!-- Toast Messages (ẩn, sẽ được xử lý bởi JavaScript) -->
+                        <div th:replace="~{fragments/toast-notifications :: messages}"></div>
 
                         <!-- Security Status -->
                         <div class="row mb-4">
@@ -98,11 +51,25 @@
                                 <div class="card bg-light">
                                     <div class="card-body">
                                         <h6 class="card-title">
-                                            <i class="fas fa-phone me-2 text-primary"></i>Số điện thoại
+                                            <i class="fas fa-id-card me-2 text-primary"></i>Loại Hồ Sơ
                                         </h6>
-                                        <p class="card-text">Chưa cập nhật</p>
-                                        <span class="badge bg-warning">
-                                            <i class="fas fa-exclamation-triangle me-1"></i>Chưa cập nhật
+                                        <p class="card-text" th:if="${account.nhanSu != null}">
+                                            <i class="fas fa-user me-1 text-primary"></i>Nhân Sự
+                                        </p>
+                                        <p class="card-text" th:if="${account.chapSu != null}">
+                                            <i class="fas fa-user-tie me-1 text-success"></i>Chấp Sự
+                                        </p>
+                                        <p class="card-text" th:if="${account.nhanSu == null && account.chapSu == null}">
+                                            Chưa liên kết hồ sơ
+                                        </p>
+                                        <span class="badge bg-primary" th:if="${account.nhanSu != null}">
+                                            <i class="fas fa-check-circle me-1"></i>Nhân Sự
+                                        </span>
+                                        <span class="badge bg-success" th:if="${account.chapSu != null}">
+                                            <i class="fas fa-check-circle me-1"></i>Chấp Sự
+                                        </span>
+                                        <span class="badge bg-secondary" th:if="${account.nhanSu == null && account.chapSu == null}">
+                                            <i class="fas fa-minus-circle me-1"></i>Chưa liên kết
                                         </span>
                                     </div>
                                 </div>
@@ -234,6 +201,9 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
+    <!-- Toast Notification Scripts -->
+    <div th:replace="~{fragments/toast-notifications :: scripts}"></div>
+    <div th:replace="~{fragments/toast-notifications :: helpers}"></div>
 
     <script>
         function togglePassword(fieldId) {

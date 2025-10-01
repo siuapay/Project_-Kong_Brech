@@ -34,30 +34,53 @@ public interface LienHeRepository extends JpaRepository<LienHe, Long> {
     // Tìm theo trạng thái và sắp xếp theo ngày tạo
     List<LienHe> findByTrangThaiOrderByCreatedAtDesc(TrangThaiLienHe trangThai);
     
-    // Tìm tin nhắn chưa đọc
+    // Tìm liên hệ chưa xử lý (cho MODERATOR) - với phân trang
     @Query("SELECT lh FROM LienHe lh WHERE " +
-           "lh.trangThai = 'CHUA_DOC' " +
+           "lh.trangThai = 'CHUA_XU_LY' " +
            "ORDER BY lh.createdAt DESC")
-    List<LienHe> findTinNhanChuaDoc();
+    Page<LienHe> findLienHeChuaXuLy(Pageable pageable);
     
-    // Tìm tin nhắn cần xử lý
+    // Tìm liên hệ đang xử lý bởi moderator cụ thể - với phân trang
     @Query("SELECT lh FROM LienHe lh WHERE " +
-           "lh.trangThai IN ('CHUA_DOC', 'DA_DOC', 'DANG_XU_LY') " +
+           "lh.trangThai = 'DANG_XU_LY' AND lh.moderatorXuLy.id = :moderatorId " +
            "ORDER BY lh.createdAt DESC")
-    List<LienHe> findTinNhanCanXuLy();
+    Page<LienHe> findLienHeDangXuLyByModerator(@Param("moderatorId") Long moderatorId, Pageable pageable);
+    
+    // Tìm liên hệ đã xử lý bởi moderator cụ thể - với phân trang
+    @Query("SELECT lh FROM LienHe lh WHERE " +
+           "lh.moderatorXuLy.id = :moderatorId AND " +
+           "lh.trangThai IN ('DA_XU_LY', 'CHO_ADMIN_XU_LY') " +
+           "ORDER BY COALESCE(lh.ngayXuLy, lh.ngayBaoCao) DESC")
+    Page<LienHe> findLienHeDaXuLyByModerator(@Param("moderatorId") Long moderatorId, Pageable pageable);
+    
+    // Tìm liên hệ chờ admin xử lý - với phân trang
+    @Query("SELECT lh FROM LienHe lh WHERE " +
+           "lh.trangThai = 'CHO_ADMIN_XU_LY' AND lh.coViPham = true " +
+           "ORDER BY lh.ngayBaoCao DESC")
+    Page<LienHe> findLienHeChoAdminXuLy(Pageable pageable);
+    
+    // Backward compatibility - không phân trang (cho các method khác)
+    @Query("SELECT lh FROM LienHe lh WHERE " +
+           "lh.trangThai = 'CHUA_XU_LY' " +
+           "ORDER BY lh.createdAt DESC")
+    List<LienHe> findLienHeChuaXuLyList();
+    
+    // Tìm liên hệ có vi phạm được báo cáo bởi moderator cụ thể
+    List<LienHe> findByModeratorBaoCaoOrderByNgayBaoCaoDesc(com.branch.demo.domain.Account moderator);
     
     // Tìm theo khoảng thời gian
     List<LienHe> findByCreatedAtBetween(LocalDateTime tuNgay, LocalDateTime denNgay);
     
-    // Tìm người đăng ký nhận tin
-    List<LienHe> findByDangKyNhanTinTrue();
-    
     // Đếm số tin nhắn theo trạng thái
     long countByTrangThai(TrangThaiLienHe trangThai);
     
-    // Đếm số tin nhắn chưa đọc
-    @Query("SELECT COUNT(lh) FROM LienHe lh WHERE lh.trangThai = 'CHUA_DOC'")
-    long countTinNhanChuaDoc();
+    // Đếm số liên hệ chưa xử lý
+    @Query("SELECT COUNT(lh) FROM LienHe lh WHERE lh.trangThai = 'CHUA_XU_LY'")
+    long countLienHeChuaXuLy();
+    
+    // Đếm số liên hệ chờ admin xử lý
+    @Query("SELECT COUNT(lh) FROM LienHe lh WHERE lh.trangThai = 'CHO_ADMIN_XU_LY' AND lh.coViPham = true")
+    long countLienHeChoAdminXuLy();
     
     // Tìm với phân trang
     Page<LienHe> findByHoTenContainingIgnoreCaseOrEmailContainingIgnoreCaseOrChuDeContainingIgnoreCase(
@@ -99,4 +122,19 @@ public interface LienHeRepository extends JpaRepository<LienHe, Long> {
            "GROUP BY YEAR(lh.createdAt), MONTH(lh.createdAt) " +
            "ORDER BY YEAR(lh.createdAt) DESC, MONTH(lh.createdAt) DESC")
     List<Object[]> getThongKeTheoThang();
+    
+    // Tìm theo danh sách trạng thái
+    @Query("SELECT lh FROM LienHe lh WHERE lh.trangThai IN :trangThaiList ORDER BY lh.createdAt DESC")
+    Page<LienHe> findByTrangThaiIn(@Param("trangThaiList") List<TrangThaiLienHe> trangThaiList, Pageable pageable);
+    
+    // Tìm theo danh sách trạng thái với tìm kiếm
+    @Query("SELECT lh FROM LienHe lh WHERE " +
+           "lh.trangThai IN :trangThaiList AND " +
+           "(LOWER(lh.hoTen) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(lh.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           "LOWER(lh.chuDe) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY lh.createdAt DESC")
+    Page<LienHe> findByTrangThaiInAndSearchText(@Param("trangThaiList") List<TrangThaiLienHe> trangThaiList,
+                                               @Param("search") String search,
+                                               Pageable pageable);
 }
