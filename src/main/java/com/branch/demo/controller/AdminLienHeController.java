@@ -58,6 +58,18 @@ public class AdminLienHeController {
             model.addAttribute("lienHePage", lienHePage);
         }
         
+        // Get counts for both tabs
+        try {
+            long totalAll = lienHeService.countAllLienHeForAdmin();
+            long totalViPham = lienHeService.countLienHeChoAdminXuLy();
+            
+            model.addAttribute("totalAll", totalAll);
+            model.addAttribute("totalViPham", totalViPham);
+        } catch (Exception e) {
+            model.addAttribute("totalAll", 0L);
+            model.addAttribute("totalViPham", 0L);
+        }
+        
         model.addAttribute("activeTab", tab);
         model.addAttribute("search", search);
         model.addAttribute("activeMenu", "lien-he");
@@ -149,6 +161,59 @@ public class AdminLienHeController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Lỗi xóa liên hệ: " + e.getMessage());
             return "redirect:/admin/lien-he?tab=vi-pham";
+        }
+    }
+    
+    /**
+     * Xóa một liên hệ (cho tab tất cả)
+     */
+    @PostMapping("/delete-single/{id}")
+    public String deleteSingleLienHe(@PathVariable Long id, 
+                                    RedirectAttributes redirectAttributes) {
+        try {
+            lienHeService.deleteLienHe(id);
+            redirectAttributes.addFlashAttribute("success", "Đã xóa liên hệ thành công");
+            return "redirect:/admin/lien-he?tab=tat-ca";
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi xóa liên hệ: " + e.getMessage());
+            return "redirect:/admin/lien-he?tab=tat-ca";
+        }
+    }
+    
+    /**
+     * Xóa nhiều liên hệ (cho tab tất cả)
+     */
+    @PostMapping("/delete-bulk")
+    public String deleteBulkLienHe(@RequestParam String selectedIds,
+                                  RedirectAttributes redirectAttributes) {
+        try {
+            String[] ids = selectedIds.split(",");
+            int deletedCount = 0;
+            
+            for (String idStr : ids) {
+                try {
+                    Long id = Long.parseLong(idStr.trim());
+                    lienHeService.deleteLienHe(id);
+                    deletedCount++;
+                } catch (Exception e) {
+                    // Log error but continue with other deletions
+                    System.err.println("Lỗi xóa liên hệ ID " + idStr + ": " + e.getMessage());
+                }
+            }
+            
+            if (deletedCount > 0) {
+                redirectAttributes.addFlashAttribute("success", 
+                    "Đã xóa thành công " + deletedCount + " liên hệ");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không thể xóa liên hệ nào");
+            }
+            
+            return "redirect:/admin/lien-he?tab=tat-ca";
+            
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi xóa liên hệ: " + e.getMessage());
+            return "redirect:/admin/lien-he?tab=tat-ca";
         }
     }
 }

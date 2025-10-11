@@ -5,236 +5,284 @@
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container">
-        <div class="row align-items-center">
+    <!-- Modern Hero Section -->
+    <section class="modern-hero-section">
+      <div class="hero-background"></div>
+      <div class="hero-overlay"></div>
+      <div class="container position-relative" style="z-index: 10;">
+        <div class="row justify-content-center text-center">
           <div class="col-lg-8">
-            <h1 class="display-4 fw-bold mb-3">Tin Tức Chi Hội Thánh</h1>
-            <p class="lead mb-4">
-              Cập nhật những tin tức mới nhất về hoạt động của chi hội thánh
-            </p>
-          </div>
-          <div class="col-lg-4">
-            <form method="get" action="/news">
-              <input
-                type="hidden"
-                name="danhMucId"
-                th:value="${selectedDanhMuc?.id}"
-                th:if="${selectedDanhMuc}"
-              />
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  name="search"
-                  th:value="${search}"
-                  placeholder="Tìm kiếm tin tức..."
-                />
-                <button class="btn btn-light" type="submit">
-                  <i class="fas fa-search"></i>
-                </button>
+            <div class="hero-content">
+              <div class="hero-icon mb-4">
+                <i class="fas fa-newspaper"></i>
               </div>
-            </form>
+              <h1 class="hero-title mb-3">Tin Tức Chi Hội Thánh</h1>
+              <p class="hero-subtitle mb-4">
+                Cập nhật những tin tức mới nhất về hoạt động của chi hội thánh
+              </p>
+              <div class="hero-actions">
+                <div class="hero-description mb-4">
+                  <p class="description-text">
+                    "Hãy để ánh sáng các ngươi soi trước mặt người ta, để họ thấy việc lành của các ngươi và ngợi khen Cha các ngươi ở trên trời." - Ma-thi-ơ 5:16
+                  </p>
+                </div>
+                <div class="hero-buttons">
+                  <a href="#news-content" class="hero-btn primary">
+                    <i class="fas fa-arrow-down me-2"></i>
+                    Xem Tin Tức
+                  </a>
+                  <a href="/about" class="hero-btn secondary">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Về Chúng Tôi
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <div class="container my-5">
+    <div class="container my-5" id="news-content">
       <div class="row">
         <!-- Main Content -->
         <div class="col-lg-8">
-          <!-- Category Filter -->
-          <div class="mb-4">
-            <div class="d-flex flex-wrap gap-2">
-              <a
-                href="/news"
-                class="btn btn-outline-primary"
-                th:classappend="${selectedDanhMuc == null} ? 'active' : ''"
-              >
-                <i class="fas fa-list me-1"></i>Tất cả
-              </a>
-              <a
-                th:each="category : ${danhMucList}"
-                th:href="@{/news(danhMucId=${category.id})}"
-                class="btn category-btn"
-                th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
-                th:style="${category.mauSac != null} ? '--category-color: ' + ${category.mauSac} + ';' : '--category-color: #0d6efd;'"
-              >
-                <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
-                <span th:text="${category.tenDanhMuc}">Danh mục</span>
-              </a>
+          <!-- Smart Category Filter with Dropdown -->
+          <div class="smart-category-filter mb-5">
+            <div class="filter-header mb-3">
+              <h5 class="filter-title">
+                <i class="fas fa-filter me-2"></i>Danh Mục Tin Tức
+              </h5>
+            </div>
+            <div class="category-container">
+              <!-- Always visible categories -->
+              <div class="visible-categories">
+                <!-- All categories button -->
+                <a
+                  href="/news"
+                  class="category-pill"
+                  th:classappend="${selectedDanhMuc == null} ? 'active' : ''"
+                >
+                  <i class="fas fa-th-large me-2"></i>
+                  <span>Tất cả</span>
+                  <span class="pill-count" th:text="${baiVietPage.totalElements ?: '0'}">0</span>
+                </a>
+                
+                <!-- First 4 categories -->
+                <a
+                  th:each="category, iterStat : ${danhMucList}"
+                  th:if="${iterStat.index < 4}"
+                  th:href="@{/news(danhMucId=${category.id})}"
+                  class="category-pill"
+                  th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
+                  th:style="${category.mauSac != null} ? '--pill-color: ' + ${category.mauSac} + ';' : '--pill-color: #007bff;'"
+                >
+                  <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} + ' me-2' : 'fas fa-folder me-2'"></i>
+                  <span th:text="${category.tenDanhMuc}">Danh mục</span>
+                </a>
+              </div>
+              
+              <!-- More categories dropdown -->
+              <div class="dropdown-container" th:if="${#lists.size(danhMucList) > 4}">
+                <button class="category-pill dropdown-toggle-btn" id="moreCategories" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="fas fa-ellipsis-h me-2"></i>
+                  <span>Xem thêm</span>
+                  <span class="pill-count" th:text="${#lists.size(danhMucList) - 4}">+</span>
+                </button>
+                <div class="dropdown-menu category-dropdown" aria-labelledby="moreCategories">
+                  <div class="dropdown-header">
+                    <i class="fas fa-list me-2"></i>Danh mục khác
+                  </div>
+                  <a
+                    th:each="category, iterStat : ${danhMucList}"
+                    th:if="${iterStat.index >= 4}"
+                    th:href="@{/news(danhMucId=${category.id})}"
+                    class="dropdown-item category-dropdown-item"
+                    th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
+                    th:style="${category.mauSac != null} ? '--item-color: ' + ${category.mauSac} + ';' : '--item-color: #007bff;'"
+                  >
+                    <div class="dropdown-item-content">
+                      <div class="item-icon" th:style="${category.mauSac != null} ? 'background-color: ' + ${category.mauSac} + ';' : 'background-color: #007bff;'">
+                        <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} : 'fas fa-folder'"></i>
+                      </div>
+                      <span class="item-text" th:text="${category.tenDanhMuc}">Danh mục</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- Search/Filter Results Info -->
           <div
             th:if="${(search != null and !#strings.isEmpty(search)) or selectedDanhMuc != null}"
-            class="alert alert-info mb-4"
+            class="filter-results-info mb-4"
           >
-            <i class="fas fa-filter me-2"></i>
-
-            <!-- Search results -->
-            <span
-              th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content != null and !baiVietPage.content.empty)}"
-            >
-              Tìm thấy <strong th:text="${baiVietPage.totalElements}">0</strong> kết
-              quả cho từ khóa "<strong th:text="${search}">search</strong>"
-              <span th:if="${selectedDanhMuc != null}">
-                trong danh mục "<strong th:text="${selectedDanhMuc.tenDanhMuc}"
-                  >category</strong
-                >"</span
-              >
-            </span>
-
-            <span
-              th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content == null or baiVietPage.content.empty)}"
-            >
-              Không tìm thấy kết quả nào cho từ khóa "<strong
-                th:text="${search}"
-                >search</strong
-              >"
-              <span th:if="${selectedDanhMuc != null}">
-                trong danh mục "<strong th:text="${selectedDanhMuc.tenDanhMuc}"
-                  >category</strong
-                >"</span
-              >
-            </span>
-
-            <!-- Category filter only -->
-            <span
-              th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content != null and !baiVietPage.content.empty)}"
-            >
-              Hiển thị <strong th:text="${baiVietPage.totalElements}">0</strong> tin
-              tức trong danh mục "<strong
-                th:text="${selectedDanhMuc.tenDanhMuc}"
-                >category</strong
-              >"
-            </span>
-
-            <span
-              th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content == null or baiVietPage.content.empty)}"
-            >
-              Không có tin tức nào trong danh mục "<strong
-                th:text="${selectedDanhMuc.tenDanhMuc}"
-                >category</strong
-              >"
-            </span>
-
-            <a href="/news" class="btn btn-sm btn-outline-secondary ms-2">
-              <i class="fas fa-times me-1"></i>Xóa bộ lọc
-            </a>
-          </div>
-
-          <!-- Featured Article (First Article) -->
-          <div th:if="${baiVietPage.content != null and !baiVietPage.content.empty}" class="mb-5">
-            <div
-              th:with="featured=${baiVietPage.content[0]}"
-              class="card news-card border-0 shadow"
-            >
-              <div class="position-relative">
-                <img
-                  th:src="${featured.anhDaiDien} ?: '/images/default-news.jpg'"
-                  class="card-img-top featured-image"
-                  th:alt="${featured.tieuDe}"
-                />
-                <div th:if="${featured.danhMuc != null}" class="category-badge">
-                  <span
-                    class="badge bg-primary"
-                    th:text="${featured.danhMuc.tenDanhMuc}"
-                    >Danh mục</span
+            <div class="results-card">
+              <div class="results-icon">
+                <i class="fas fa-filter"></i>
+              </div>
+              <div class="results-content">
+                <!-- Search results -->
+                <div
+                  th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+                  class="result-text"
+                >
+                  Tìm thấy <strong class="highlight-number" th:text="${baiVietPage.totalElements}">0</strong> kết
+                  quả cho từ khóa "<strong class="highlight-keyword" th:text="${search}">search</strong>"
+                  <span th:if="${selectedDanhMuc != null}">
+                    trong danh mục "<strong class="highlight-category" th:text="${selectedDanhMuc.tenDanhMuc}"
+                      >category</strong
+                    >"</span
                   >
                 </div>
-              </div>
-              <div class="card-body">
-                <h2 class="card-title h4 mb-3">
-                  <a
-                    th:href="@{/news/{slug}(slug=${featured.slug})}"
-                    class="text-decoration-none text-dark"
-                    th:text="${featured.tieuDe}"
-                    >Tiêu đề bài viết</a
-                  >
-                </h2>
-                <p
-                  class="card-text text-muted mb-3"
-                  th:text="${featured.tomTat}"
-                >
-                  Tóm tắt bài viết...
-                </p>
+
                 <div
-                  class="d-flex justify-content-between align-items-center news-meta"
+                  th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content == null or baiVietPage.content.empty)}"
+                  class="result-text no-results"
                 >
-                  <div>
-                    <i class="fas fa-calendar me-1"></i>
-                    <span
-                      th:text="${#temporals.format(featured.ngayXuatBan, 'dd/MM/yyyy')}"
-                      >01/01/2024</span
-                    >
+                  <i class="fas fa-search me-2"></i>
+                  Không tìm thấy kết quả nào cho từ khóa "<strong class="highlight-keyword"
+                    th:text="${search}"
+                    >search</strong
+                  >"
+                  <span th:if="${selectedDanhMuc != null}">
+                    trong danh mục "<strong class="highlight-category" th:text="${selectedDanhMuc.tenDanhMuc}"
+                      >category</strong
+                    >"</span
+                  >
+                </div>
+
+                <!-- Category filter only -->
+                <div
+                  th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+                  class="result-text"
+                >
+                  <i class="fas fa-folder-open me-2"></i>
+                  Hiển thị <strong class="highlight-number" th:text="${baiVietPage.totalElements}">0</strong> tin
+                  tức trong danh mục "<strong class="highlight-category"
+                    th:text="${selectedDanhMuc.tenDanhMuc}"
+                    >category</strong
+                  >"
+                </div>
+
+                <div
+                  th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content == null or baiVietPage.content.empty)}"
+                  class="result-text no-results"
+                >
+                  <i class="fas fa-folder me-2"></i>
+                  Không có tin tức nào trong danh mục "<strong class="highlight-category"
+                    th:text="${selectedDanhMuc.tenDanhMuc}"
+                    >category</strong
+                  >"
+                </div>
+              </div>
+              <a href="/news" class="clear-filter-btn">
+                <i class="fas fa-times me-1"></i>Xóa bộ lọc
+              </a>
+            </div>
+          </div>
+
+
+          <!-- Modern Featured Article -->
+          <div th:if="${baiVietPage.content != null and !baiVietPage.content.empty}" class="mb-5">
+            <div th:with="featured=${baiVietPage.content[0]}" class="featured-article">
+              <div class="featured-content">
+                <div class="featured-image-container">
+                  <img
+                    th:src="${featured.anhDaiDien} ?: '/images/default-news.jpg'"
+                    class="featured-image"
+                    th:alt="${featured.tieuDe}"
+                  />
+                  <div class="featured-overlay"></div>
+                  <div th:if="${featured.danhMuc != null}" class="featured-category"
+                       th:style="${featured.danhMuc.mauSac != null} ? 'background-color: ' + ${featured.danhMuc.mauSac} + '; color: white;' : ''">
+                    <i th:class="${featured.danhMuc.icon != null} ? 'fas fa-' + ${featured.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
+                    <span th:text="${featured.danhMuc.tenDanhMuc}">Danh mục</span>
                   </div>
-                  <div>
-                    <i class="fas fa-eye me-1"></i>
-                    <span th:text="${featured.luotXem}">0</span> lượt xem
+                </div>
+                <div class="featured-info">
+                  <div class="featured-badge">
+                    <i class="fas fa-star me-1"></i>Nổi bật
                   </div>
+                  <h2 class="featured-title">
+                    <a
+                      th:href="@{/news/{slug}(slug=${featured.slug})}"
+                      class="text-decoration-none"
+                      th:text="${featured.tieuDe}"
+                    >Tiêu đề bài viết</a>
+                  </h2>
+                  <p class="featured-summary" th:text="${featured.tomTat}">
+                    Tóm tắt bài viết...
+                  </p>
+                  <div class="featured-meta">
+                    <div class="meta-item">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span th:text="${#temporals.format(featured.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                    </div>
+                    <div class="meta-item">
+                      <i class="fas fa-eye"></i>
+                      <span th:text="${featured.luotXem}">0</span> lượt xem
+                    </div>
+                    <div class="meta-item">
+                      <i class="fas fa-clock"></i>
+                      <span>5 phút đọc</span>
+                    </div>
+                  </div>
+                  <a th:href="@{/news/{slug}(slug=${featured.slug})}" class="featured-btn">
+                    Đọc bài viết
+                    <i class="fas fa-arrow-right ms-2"></i>
+                  </a>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- News Grid -->
-          <div class="row">
+          <!-- Modern News Grid -->
+          <div class="modern-news-grid">
             <div
               th:each="news, iterStat : ${baiVietPage.content}"
               th:if="${iterStat.index > 0}"
-              class="col-md-6 mb-4"
+              class="news-grid-item"
             >
-              <div class="card news-card border-0 shadow-sm">
-                <div class="position-relative">
+              <article class="modern-news-card">
+                <div class="news-card-image">
                   <img
                     th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'"
-                    class="card-img-top news-image"
                     th:alt="${news.tieuDe}"
                   />
-                  <div th:if="${news.danhMuc != null}" class="category-badge">
-                    <span
-                      class="badge bg-primary"
-                      th:text="${news.danhMuc.tenDanhMuc}"
-                      >Danh mục</span
-                    >
+                  <div class="news-card-overlay"></div>
+                  <div th:if="${news.danhMuc != null}" class="news-card-category"
+                       th:style="${news.danhMuc.mauSac != null} ? 'background-color: ' + ${news.danhMuc.mauSac} + '; color: white;' : ''">
+                    <i th:class="${news.danhMuc.icon != null} ? 'fas fa-' + ${news.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
+                    <span th:text="${news.danhMuc.tenDanhMuc}">Danh mục</span>
                   </div>
                 </div>
-                <div class="card-body">
-                  <h5 class="card-title">
+                <div class="news-card-content">
+                  <h3 class="news-card-title">
                     <a
                       th:href="@{/news/{slug}(slug=${news.slug})}"
-                      class="text-decoration-none text-dark"
                       th:text="${#strings.abbreviate(news.tieuDe, 60)}"
-                      >Tiêu đề</a
-                    >
-                  </h5>
-                  <p
-                    class="card-text text-muted small"
-                    th:text="${#strings.abbreviate(news.tomTat, 100)}"
-                  >
+                    >Tiêu đề</a>
+                  </h3>
+                  <p class="news-card-summary" th:text="${#strings.abbreviate(news.tomTat, 100)}">
                     Tóm tắt...
                   </p>
-                  <div
-                    class="d-flex justify-content-between align-items-center news-meta"
-                  >
-                    <small>
-                      <i class="fas fa-calendar me-1"></i>
-                      <span
-                        th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM')}"
-                        >01/01</span
-                      >
-                    </small>
-                    <small>
-                      <i class="fas fa-eye me-1"></i>
+                  <div class="news-card-meta">
+                    <div class="meta-group">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}">01/01</span>
+                    </div>
+                    <div class="meta-group">
+                      <i class="fas fa-eye"></i>
                       <span th:text="${news.luotXem}">0</span>
-                    </small>
+                    </div>
                   </div>
+                  <a th:href="@{/news/{slug}(slug=${news.slug})}" class="news-card-btn">
+                    Đọc thêm
+                  </a>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
 
@@ -386,82 +434,764 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
+    
+    <!-- Category Dropdown Script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap dropdown
+        const dropdownToggle = document.getElementById('moreCategories');
+        if (dropdownToggle) {
+          const dropdown = new bootstrap.Dropdown(dropdownToggle);
+          
+          // Add smooth animation
+          const dropdownMenu = dropdownToggle.nextElementSibling;
+          
+          dropdownToggle.addEventListener('show.bs.dropdown', function() {
+            dropdownMenu.style.display = 'block';
+            setTimeout(() => {
+              dropdownMenu.classList.add('show');
+            }, 10);
+          });
+          
+          dropdownToggle.addEventListener('hide.bs.dropdown', function() {
+            dropdownMenu.classList.remove('show');
+            setTimeout(() => {
+              dropdownMenu.style.display = 'none';
+            }, 300);
+          });
+        }
+      });
+    </script>
 
     <style>
-      .news-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        height: 100%;
+      /* Modern Hero Section */
+      .modern-hero-section {
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        overflow: hidden;
       }
-      .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-      .news-image {
-        height: 200px;
-        object-fit: cover;
-        width: 100%;
-      }
-      .featured-image {
-        height: 300px;
-        object-fit: cover;
-        width: 100%;
-      }
-      .category-badge {
+      
+      .hero-background {
         position: absolute;
-        top: 10px;
-        left: 10px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        z-index: 1;
+      }
+      
+      .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
         z-index: 2;
       }
-      .sidebar-card {
+      
+      .hero-content {
+        position: relative;
+        z-index: 10;
+        color: white !important;
+      }
+      
+      .hero-icon {
+        font-size: 4rem;
+        opacity: 0.9;
+        color: white !important;
+      }
+      
+      .hero-title {
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: white !important;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        font-weight: 300;
+        color: white !important;
+      }
+      
+      .hero-actions {
+        margin-top: 2rem;
+      }
+      
+      .hero-description {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      
+      .description-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        font-style: italic;
+        opacity: 0.95;
+        color: #f8f9fa !important;
+        background: rgba(255,255,255,0.1);
+        padding: 1.5rem;
+        border-radius: 15px;
+        border-left: 4px solid #ffd700;
+        margin: 0;
+      }
+      
+      .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+      
+      .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+      }
+      
+      .hero-btn.primary {
+        background: linear-gradient(45deg, #ffd700, #ffed4e);
+        color: #2c3e50 !important;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      }
+      
+      .hero-btn.primary:hover {
+        background: linear-gradient(45deg, #ffed4e, #ffd700);
+        color: #2c3e50 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+      }
+      
+      .hero-btn.secondary {
+        background: transparent;
+        color: white !important;
+        border-color: rgba(255,255,255,0.5);
+      }
+      
+      .hero-btn.secondary:hover {
+        background: rgba(255,255,255,0.1);
+        color: white !important;
+        border-color: white;
+        transform: translateY(-2px);
+      }
+      
+      /* Smart Category Filter with Dropdown */
+      .smart-category-filter {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+      }
+      
+      .filter-title {
+        color: #2c3e50;
+        font-weight: 600;
+        margin: 0;
+      }
+      
+      .category-container {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      
+      .visible-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+      }
+      
+      .category-pill {
+        --pill-color: #007bff;
+        display: inline-flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        background: white;
+        border: 2px solid var(--pill-color);
+        border-radius: 50px;
+        color: var(--pill-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+      
+      .category-pill:hover {
+        background: var(--pill-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      }
+      
+      .category-pill.active {
+        background: var(--pill-color);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      }
+      
+      .pill-count {
+        background: rgba(255,255,255,0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        margin-left: 0.5rem;
+        font-weight: 600;
+      }
+      
+      /* Dropdown specific styles */
+      .dropdown-container {
+        position: relative;
+      }
+      
+      .dropdown-toggle-btn {
+        --pill-color: #6c757d;
+        border-style: dashed !important;
+        background: #f8f9fa;
+      }
+      
+      .dropdown-toggle-btn:hover {
+        --pill-color: #495057;
+        background: #495057;
+      }
+      
+      .category-dropdown {
+        min-width: 280px;
         border: none;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        padding: 0;
+        margin-top: 0.5rem;
+        overflow: hidden;
       }
-      .news-meta {
-        font-size: 0.85rem;
-        color: #6c757d;
-      }
-      .hero-section {
+      
+      .dropdown-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 60px 0;
+        padding: 1rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        margin: 0;
       }
       
-      /* Category buttons styling */
-      .category-btn {
-        --category-color: #0d6efd;
-        border: 2px solid var(--category-color);
-        color: var(--category-color);
-        background-color: transparent;
-        transition: all 0.3s ease;
-        margin: 2px;
-        border-radius: 25px;
-        padding: 8px 16px;
-        font-weight: 500;
-      }
-      
-      .category-btn:hover {
-        background-color: var(--category-color);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      
-      .category-btn.active {
-        background-color: var(--category-color);
-        color: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      }
-      
-      .btn-outline-primary {
-        border-radius: 25px;
-        padding: 8px 16px;
-        font-weight: 500;
+      .category-dropdown-item {
+        --item-color: #007bff;
+        padding: 0;
+        border: none;
         transition: all 0.3s ease;
       }
       
-      .btn-outline-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      .category-dropdown-item:hover {
+        background: #f8f9fa;
+      }
+      
+      .category-dropdown-item.active {
+        background: var(--item-color);
+        color: white;
+      }
+      
+      .category-dropdown-item.active .dropdown-item-content {
+        color: white;
+      }
+      
+      .dropdown-item-content {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.25rem;
+        color: #2c3e50;
+        text-decoration: none;
+      }
+      
+      .item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 0.75rem;
+        color: white;
+        font-size: 0.8rem;
+      }
+      
+      .item-text {
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+      
+      /* Animation for dropdown */
+      .category-dropdown {
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+      }
+      
+      .category-dropdown.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      /* Filter Results Info */
+      .filter-results-info {
+        margin-bottom: 2rem;
+      }
+      
+      .results-card {
+        background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+        border: 1px solid #e1f5fe;
+        border-radius: 15px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .results-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(to bottom, #2196f3, #9c27b0);
+      }
+      
+      .results-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #2196f3, #9c27b0);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+      }
+      
+      .results-content {
+        flex: 1;
+      }
+      
+      .result-text {
+        color: #2c3e50;
+        font-size: 1rem;
+        line-height: 1.5;
+        margin: 0;
+      }
+      
+      .result-text.no-results {
+        color: #e74c3c;
+      }
+      
+      .highlight-number {
+        color: #2196f3;
+        font-weight: 700;
+      }
+      
+      .highlight-keyword {
+        color: #9c27b0;
+        font-weight: 600;
+        background: rgba(156, 39, 176, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+      }
+      
+      .highlight-category {
+        color: #ff9800;
+        font-weight: 600;
+        background: rgba(255, 152, 0, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+      }
+      
+      .clear-filter-btn {
+        background: white;
+        color: #6c757d;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid #dee2e6;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+      
+      .clear-filter-btn:hover {
+        background: #f8f9fa;
+        color: #495057;
+        border-color: #adb5bd;
+        transform: translateY(-1px);
+      }
+      
+      /* Featured Article */
+      .featured-article {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+      }
+      
+      .featured-article:hover {
+        transform: translateY(-5px);
+      }
+      
+      .featured-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 400px;
+      }
+      
+      .featured-image-container {
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .featured-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      .featured-article:hover .featured-image {
+        transform: scale(1.05);
+      }
+      
+      .featured-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(0,0,0,0.3), transparent);
+      }
+      
+      .featured-category {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(255,255,255,0.9);
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+      
+      .featured-category i {
+        font-size: 0.75rem;
+      }
+      
+      /* Dynamic color support for featured */
+      .featured-category[style*="background-color"] {
+        backdrop-filter: none;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      }
+      
+      .featured-article:hover .featured-category {
+        transform: scale(1.05);
+      }
+      
+      .featured-info {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .featured-badge {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        width: fit-content;
+        margin-bottom: 1rem;
+      }
+      
+      .featured-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+      }
+      
+      .featured-title a {
+        color: inherit;
+        transition: color 0.3s ease;
+      }
+      
+      .featured-title a:hover {
+        color: #007bff;
+      }
+      
+      .featured-summary {
+        color: #6c757d;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+      }
+      
+      .featured-meta {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+      
+      .meta-item i {
+        color: #007bff;
+      }
+      
+      .featured-btn {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 600;
+        width: fit-content;
+        transition: all 0.3s ease;
+      }
+      
+      .featured-btn:hover {
+        background: linear-gradient(45deg, #0056b3, #004085);
+        color: white;
+        transform: translateX(5px);
+      }
+      
+      /* Modern News Grid */
+      .modern-news-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2rem;
+      }
+      
+      .modern-news-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+      }
+      
+      .modern-news-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      }
+      
+      .news-card-image {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+      }
+      
+      .news-card-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      .modern-news-card:hover .news-card-image img {
+        transform: scale(1.1);
+      }
+      
+      .news-card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+      }
+      
+      .news-card-category {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.95);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      }
+      
+      .news-card-category i {
+        font-size: 0.7rem;
+      }
+      
+      /* Dynamic color support for news cards */
+      .news-card-category[style*="background-color"] {
+        backdrop-filter: none;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      }
+      
+      .modern-news-card:hover .news-card-category {
+        transform: scale(1.05);
+      }
+      
+      .news-card-content {
+        padding: 1.5rem;
+      }
+      
+      .news-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+      }
+      
+      .news-card-title a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      
+      .news-card-title a:hover {
+        color: #007bff;
+      }
+      
+      .news-card-summary {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      
+      .news-card-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+      
+      .meta-group {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #6c757d;
+        font-size: 0.8rem;
+      }
+      
+      .meta-group i {
+        color: #007bff;
+      }
+      
+      .news-card-btn {
+        display: inline-flex;
+        align-items: center;
+        background: #f8f9fa;
+        color: #007bff;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .news-card-btn:hover {
+        background: #007bff;
+        color: white;
+      }
+      
+      /* Sidebar */
+      .sidebar-card {
+        border: none;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border-radius: 15px;
+        overflow: hidden;
+      }
+      
+      /* Smooth scroll */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Responsive */
+      @media (max-width: 768px) {
+        .hero-title {
+          font-size: 2.5rem;
+        }
+        
+        .description-text {
+          font-size: 1rem;
+          padding: 1rem;
+        }
+        
+        .hero-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .hero-btn {
+          width: 200px;
+          justify-content: center;
+        }
+        
+        .featured-content {
+          grid-template-columns: 1fr;
+        }
+        
+        .featured-info {
+          padding: 1.5rem;
+        }
+        
+        .modern-news-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .category-pills {
+          justify-content: center;
+        }
       }
     </style>
   </body>

@@ -265,8 +265,27 @@ public class LienHeService {
     public long countLienHeChoAdminXuLy() {
         return lienHeRepository.countLienHeChoAdminXuLy();
     }
+    
+    public long countAllLienHeForAdmin() {
+        return lienHeRepository.countByTrangThaiIn(
+            java.util.Arrays.asList(
+                LienHe.TrangThaiLienHe.CHUA_XU_LY,
+                LienHe.TrangThaiLienHe.DANG_XU_LY,
+                LienHe.TrangThaiLienHe.DA_XU_LY
+            )
+        );
+    }
 
     public long countByTrangThai(LienHe.TrangThaiLienHe trangThai) {
         return lienHeRepository.countByTrangThai(trangThai);
+    }
+    
+    /**
+     * Xóa liên hệ (hard delete)
+     */
+    @Transactional
+    public void deleteLienHe(Long id) {
+        LienHe lienHe = getLienHeById(id);
+        lienHeRepository.delete(lienHe);
     }
 }

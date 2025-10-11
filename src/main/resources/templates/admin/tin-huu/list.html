@@ -89,6 +89,8 @@
                                         </option>
                                     </select>
                                 </div>
+                                <!-- COMMENTED OUT - Nhóm functionality for future use -->
+                                <!--
                                 <div class="col-md-3">
                                     <label class="form-label">Nhóm</label>
                                     <select class="form-select" name="nhomId" id="nhomSelect">
@@ -100,6 +102,7 @@
                                         </option>
                                     </select>
                                 </div>
+                                -->
                                 <div class="col-md-3">
                                     <label class="form-label">Ngày Báo Tin</label>
                                     <div class="input-group input-group-sm">
@@ -153,7 +156,7 @@
                                 <tr>
                                     <th class="ps-3">ID</th>
                                     <th>Họ Tên</th>
-                                    <th>Nhóm</th>
+                                    <!-- <th>Nhóm</th> COMMENTED OUT -->
                                     <th>Ngày Sinh</th>
                                     <th>Giới Tính</th>
                                     <th>Điện Thoại</th>
@@ -181,6 +184,8 @@
                                             </div>
                                         </div>
                                     </td>
+                                    <!-- COMMENTED OUT - Nhóm column -->
+                                    <!--
                                     <td>
                                         <div th:if="${tinHuu.nhom}">
                                             <div class="fw-semibold text-primary" th:text="${tinHuu.nhom.tenNhom}"></div>
@@ -189,6 +194,7 @@
                                         </div>
                                         <span th:unless="${tinHuu.nhom}" class="text-muted">Chưa phân nhóm</span>
                                     </td>
+                                    -->
                                     <td>
                                         <span th:if="${tinHuu.namSinh}" th:text="${tinHuu.namSinh}"></span>
                                         <span th:unless="${tinHuu.namSinh}" class="text-muted">Chưa cập nhật</span>
@@ -236,7 +242,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(tinHuuPage.content)}">
-                                    <td colspan="8" class="text-center py-5">
+                                    <td colspan="7" class="text-center py-5">
                                         <div class="text-muted">
                                             <i class="fas fa-users fa-3x mb-3"></i>
                                             <h5>Không có dữ liệu</h5>
@@ -257,7 +263,7 @@
                     <nav aria-label="Pagination">
                         <ul class="pagination justify-content-center mb-0">
                             <li class="page-item" th:classappend="${tinHuuPage.first} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number - 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number - 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
                                     <i class="fas fa-chevron-left"></i> Trước
                                 </a>
                             </li>
@@ -265,12 +271,12 @@
                             <li class="page-item" th:each="i : ${#numbers.sequence(0, tinHuuPage.totalPages - 1)}"
                                 th:if="${i >= tinHuuPage.number - 2 && i <= tinHuuPage.number + 2}"
                                 th:classappend="${i == tinHuuPage.number} ? 'active'">
-                                <a class="page-link" th:href="@{/admin/tin-huu(page=${i}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}" 
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${i}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}" 
                                    th:text="${i + 1}"></a>
                             </li>
                             
                             <li class="page-item" th:classappend="${tinHuuPage.last} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number + 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, nhomId=${nhomId}, fromDate=${fromDate}, toDate=${toDate})}">
+                                <a class="page-link" th:href="@{/admin/tin-huu(page=${tinHuuPage.number + 1}, search=${search}, trangThai=${trangThai}, diemNhomId=${diemNhomId}, fromDate=${fromDate}, toDate=${toDate})}">
                                     Sau <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
@@ -368,12 +374,13 @@
         function clearAdvancedFilters() {
             document.querySelector('select[name="trangThai"]').value = '';
             document.querySelector('select[name="diemNhomId"]').value = '';
-            document.querySelector('select[name="nhomId"]').value = '';
+            // document.querySelector('select[name="nhomId"]').value = ''; // COMMENTED OUT
             document.querySelector('input[name="fromDate"]').value = '';
             document.querySelector('input[name="toDate"]').value = '';
         }
         
-        // Filter nhóm based on điểm nhóm selection
+        // COMMENTED OUT - Filter nhóm based on điểm nhóm selection
+        /*
         document.addEventListener('DOMContentLoaded', function() {
             const diemNhomSelect = document.getElementById('diemNhomSelect');
             const nhomSelect = document.getElementById('nhomSelect');
@@ -405,6 +412,7 @@
             console.log('Page loaded, Bootstrap available:', typeof bootstrap !== 'undefined');
             console.log('jQuery available:', typeof $ !== 'undefined');
         });
+        */
     </script>
     
     <style>

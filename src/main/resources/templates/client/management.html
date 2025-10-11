@@ -10,7 +10,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold mb-3">Quản Nhiệm Hội Thánh</h1>
+            <h1 class="display-4 fw-bold mb-3">Sự kiện & Hoạt đông</h1>
             <p class="lead">
               Tổng quan hoạt động và thống kê của chi hội
             </p>
@@ -59,15 +59,15 @@
                     </div>
                   </div>
 
-                  <!-- Dâng Hiến Tháng Này -->
+                  <!-- Tổng Bài Viết -->
                   <div class="col-lg-3 col-md-6 mb-4">
                     <div class="card bg-warning text-white h-100">
                       <div class="card-body text-center">
                         <div class="icon-large mb-3">
-                          <i class="fas fa-hand-holding-heart fa-3x"></i>
+                          <i class="fas fa-newspaper fa-3x"></i>
                         </div>
-                        <h2 class="mb-2" th:text="${#numbers.formatDecimal(dangHienThangNay, 0, 'COMMA', 0, 'POINT')}">0</h2>
-                        <p class="mb-0">Dâng Hiến (VNĐ)</p>
+                        <h2 class="mb-2" th:text="${totalBaiViet}">0</h2>
+                        <p class="mb-0">Tổng Bài Viết</p>
                       </div>
                     </div>
                   </div>

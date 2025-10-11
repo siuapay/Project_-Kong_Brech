@@ -164,12 +164,15 @@
                     <input type="hidden" id="banNganh" th:field="*{banNganh.id}">
                     <div class="form-text">Chọn ban ngành mà tin hữu tham gia</div>
                   </div>
+                  <!-- COMMENTED OUT - Nhóm functionality for future use -->
+                  <!--
                   <div class="col-md-6 mb-3">
                     <label for="nhom" class="form-label">Nhóm</label>
                     <div id="nhomDropdown"></div>
                     <input type="hidden" id="nhom" th:field="*{nhom.id}">
                     <div class="form-text">Chọn nhóm mà tin hữu tham gia (hiển thị điểm nhóm)</div>
                   </div>
+                  -->
                 </div>
 
                 <div class="row">
@@ -503,7 +506,8 @@
         }
       });
 
-      // Khởi tạo searchable dropdown cho nhóm
+      // COMMENTED OUT - Nhóm dropdown initialization
+      /*
       nhomDropdown = new SearchableDropdown('nhomDropdown', {
         placeholder: 'Chọn nhóm...',
         searchPlaceholder: 'Tìm kiếm nhóm...',
@@ -520,16 +524,17 @@
           document.getElementById('nhom').value = '';
         }
       });
+      */
 
       // Load ban ngành
       loadAllBanNganh();
 
-      // Load nhóm
-      loadAllNhom();
+      // COMMENTED OUT - Load nhóm
+      // loadAllNhom();
 
       // Set giá trị hiện tại nếu có (cho edit mode)
       const currentBanNganhValue = document.getElementById('banNganh').value;
-      const currentNhomValue = document.getElementById('nhom').value;
+      // const currentNhomValue = document.getElementById('nhom').value; // COMMENTED OUT
 
       if (currentBanNganhValue) {
         setTimeout(() => {
@@ -537,11 +542,14 @@
         }, 500);
       }
 
+      // COMMENTED OUT - Set nhóm value
+      /*
       if (currentNhomValue) {
         setTimeout(() => {
           nhomDropdown.setValue(currentNhomValue);
         }, 500);
       }
+      */
     });
 
     // Load tất cả ban ngành
@@ -556,7 +564,8 @@
         });
     }
 
-    // Load tất cả nhóm với thông tin điểm nhóm
+    // COMMENTED OUT - Load tất cả nhóm với thông tin điểm nhóm
+    /*
     function loadAllNhom() {
       fetch('/admin/api/all-nhom-with-diem-nhom')
         .then(response => response.json())
@@ -586,6 +595,7 @@
           console.error('Error loading nhóm:', error);
         });
     }
+    */
   </script>
 </body>
 

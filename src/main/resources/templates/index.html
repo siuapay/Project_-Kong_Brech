@@ -1,231 +1,359 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/client-layout :: head}"></head>
-<body>
+  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <body>
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
     <!-- Hero Section -->
     <section class="hero-section position-relative overflow-hidden">
-        <!-- Background Image -->
-        <div class="hero-bg position-absolute w-100 h-100" 
-             th:style="'background-image: url(' + @{/images/HTTLKongBrech.jpg} + '); background-size: cover; background-position: center; background-repeat: no-repeat;'">
-        </div>
-        
-        <!-- Overlay -->
-        <div class="hero-overlay position-absolute w-100 h-100" 
-             style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.8) 0%, rgba(29, 78, 216, 0.9) 100%);">
-        </div>
-        
-        <!-- Content -->
-        <div class="container position-relative" style="z-index: 2;">
-            <div class="row align-items-center min-vh-75">
-                <div class="col-lg-8 mx-auto text-center text-white">
-                    <div class="hero-content">
-                        <!-- Logo -->
-                        <div class="mb-4">
-                            <img th:src="@{/images/9c0ebced-b34c-4138-b4ad-b5c31e59a988.png}" alt="HTTL Kong Brech" 
-                                 class="rounded-circle shadow-lg mb-3" 
-                                 style="width: 120px; height: 120px; object-fit: cover; border: 4px solid rgba(255,255,255,0.3);">
-                        </div>
-                        
-                        <!-- Title -->
-                        <h1 class="display-3 fw-bold mb-4 text-shadow">
-                            Chào Mừng Đến Với<br>
-                            <span class="text-warning">Hội Thánh Tin Lành</span><br>
-                            <span class="h2">KÔNG BRECH</span>
-                        </h1>
-                        
-                        <!-- Subtitle -->
-                        <p class="lead mb-4 fs-5" style="max-width: 600px; margin: 0 auto;">
-                            "Hãy đến cùng ta, hỡi tất cả những kẻ khó nhọc và gánh nặng, 
-                            ta sẽ cho các ngươi được yên nghỉ." - Ma-thi-ơ 11:28
-                        </p>
-                        
-                        <!-- Buttons -->
-                        <div class="d-flex gap-3 justify-content-center flex-wrap">
-                            <a href="/about" class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow">
-                                <i class="fas fa-church me-2"></i>Về Chúng Tôi
-                            </a>
-                            <a href="/news" class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill">
-                                <i class="fas fa-newspaper me-2"></i>Tin Tức
-                            </a>
-                            <a href="/contact" class="btn btn-warning btn-lg px-4 py-3 rounded-pill shadow">
-                                <i class="fas fa-envelope me-2"></i>Liên Hệ
-                            </a>
-                        </div>
-                        
-                        <!-- Scroll indicator -->
-                        <div class="mt-5 pt-3">
-                            <div class="scroll-indicator">
-                                <i class="fas fa-chevron-down fa-2x text-white opacity-75 animate-bounce"></i>
-                            </div>
-                        </div>
-                    </div>
+      <!-- Background Image -->
+      <div
+        class="hero-bg position-absolute w-100 h-100"
+        th:style="'background-image: url(' + @{/images/HTTLKongBrech.jpg} + '); background-size: cover; background-position: center; background-repeat: no-repeat;'"
+      ></div>
+
+      <!-- Overlay -->
+      <div
+        class="hero-overlay position-absolute w-100 h-100"
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(37, 99, 235, 0.4) 0%,
+            rgba(29, 78, 216, 0.5) 100%
+          );
+        "
+      ></div>
+
+      <!-- Content -->
+      <div class="container position-relative" style="z-index: 2">
+        <div class="row align-items-center min-vh-75">
+          <div class="col-lg-8 mx-auto text-center text-white">
+            <div class="hero-content">
+              <!-- Logo -->
+              <div class="mb-4">
+                <img
+                  th:src="@{/images/9c0ebced-b34c-4138-b4ad-b5c31e59a988.png}"
+                  alt="HTTL Kong Brech"
+                  class="rounded-circle shadow-lg mb-3"
+                  style="
+                    width: 120px;
+                    height: 120px;
+                    object-fit: cover;
+                    border: 4px solid rgba(255, 255, 255, 0.3);
+                  "
+                />
+              </div>
+
+              <!-- Title -->
+              <h1 class="display-3 fw-bold mb-4 text-shadow">
+                Chào Mừng Đến Với<br />
+                <span class="text-warning">Hội Thánh Tin Lành</span><br />
+                <span class="h2">KÔNG BRECH</span>
+              </h1>
+
+              <!-- Subtitle -->
+              <div class="hero-quote mb-4">
+                <p class="quote-text">
+                  "Vì Đức Chúa Trời yêu thương thế gian, đến nỗi đã ban Con một của Ngài, 
+                  hầu cho hễ ai tin Con ấy không bị hư mất mà được sự sống đời đời."
+                </p>
+                <p class="quote-reference">- Giăng 3:16</p>
+              </div>
+
+              <!-- Buttons -->
+              <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a
+                  href="/about"
+                  class="btn btn-light btn-lg px-4 py-3 rounded-pill shadow"
+                >
+                  <i class="fas fa-church me-2"></i>Về Chúng Tôi
+                </a>
+                <a
+                  href="/news"
+                  class="btn btn-outline-light btn-lg px-4 py-3 rounded-pill"
+                >
+                  <i class="fas fa-newspaper me-2"></i>Tin Tức
+                </a>
+                <a
+                  href="/contact"
+                  class="btn btn-warning btn-lg px-4 py-3 rounded-pill shadow"
+                >
+                  <i class="fas fa-envelope me-2"></i>Liên Hệ
+                </a>
+              </div>
+
+              <!-- Scroll indicator -->
+              <div class="mt-5 pt-3">
+                <div class="scroll-indicator">
+                  <i
+                    class="fas fa-chevron-down fa-2x text-white opacity-75 animate-bounce"
+                  ></i>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Statistics Section -->
     <section class="py-5 bg-light">
-        <div class="container">
-            <div class="row text-center">
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card card p-4">
-                        <i class="fas fa-users fa-3x mb-3"></i>
-                        <h3 class="fw-bold" th:text="${stats.totalTinHuu} ?: '0'">0</h3>
-                        <p class="mb-0">Tin Hữu</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card card p-4">
-                        <i class="fas fa-layer-group fa-3x mb-3"></i>
-                        <h3 class="fw-bold" th:text="${stats.totalNhom} ?: '0'">0</h3>
-                        <p class="mb-0">Nhóm</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card card p-4">
-                        <i class="fas fa-calendar-alt fa-3x mb-3"></i>
-                        <h3 class="fw-bold" th:text="${stats.totalSuKien} ?: '0'">0</h3>
-                        <p class="mb-0">Sự Kiện</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card card p-4">
-                        <i class="fas fa-newspaper fa-3x mb-3"></i>
-                        <h3 class="fw-bold" th:text="${stats.totalBaiViet} ?: '0'">0</h3>
-                        <p class="mb-0">Bài Viết</p>
-                    </div>
-                </div>
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card card p-4">
+              <i class="fas fa-users fa-3x mb-3"></i>
+              <h3 class="fw-bold" th:text="${stats.totalTinHuu} ?: '0'">0</h3>
+              <p class="mb-0">Tin Hữu</p>
             </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card card p-4">
+              <i class="fas fa-sitemap fa-3x mb-3"></i>
+              <h3 class="fw-bold" th:text="${stats.totalBanNganh} ?: '0'">0</h3>
+              <p class="mb-0">Ban Ngành</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card card p-4">
+              <i class="fas fa-calendar-alt fa-3x mb-3"></i>
+              <h3 class="fw-bold" th:text="${stats.totalSuKien} ?: '0'">0</h3>
+              <p class="mb-0">Sự Kiện</p>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card card p-4">
+              <i class="fas fa-newspaper fa-3x mb-3"></i>
+              <h3 class="fw-bold" th:text="${stats.totalBaiViet} ?: '0'">0</h3>
+              <p class="mb-0">Bài Viết</p>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Services Section -->
     <section class="py-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-primary-custom">Dịch Vụ Của Chúng Tôi</h2>
-                <p class="lead text-muted">Khám phá các hoạt động và dịch vụ mà chi hội cung cấp</p>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100 text-center">
-                        <div class="card-body">
-                            <i class="fas fa-newspaper fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Tin Tức & Thông Báo</h5>
-                            <p class="card-text">
-                                Cập nhật thông tin mới nhất về các hoạt động, 
-                                sự kiện và thông báo quan trọng từ chi hội.
-                            </p>
-                            <a href="/news" class="btn btn-primary">
-                                <i class="fas fa-arrow-right me-2"></i>Xem Tin Tức
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100 text-center">
-                        <div class="card-body">
-                            <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
-                            <h5 class="card-title">Sự Kiện & Hoạt Động</h5>
-                            <p class="card-text">
-                                Tham gia các sự kiện, hoạt động cộng đồng 
-                                và chương trình từ thiện của chi hội.
-                            </p>
-                            <a href="/organization/management" class="btn btn-success">
-                                <i class="fas fa-calendar me-2"></i>Xem Sự Kiện
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100 text-center">
-                        <div class="card-body">
-                            <i class="fas fa-users fa-3x text-info mb-3"></i>
-                            <h5 class="card-title">Cộng Đồng</h5>
-                            <p class="card-text">
-                                Kết nối với các thành viên khác, 
-                                chia sẻ kinh nghiệm và xây dựng mối quan hệ.
-                            </p>
-                            <a href="/list/tin-huu" class="btn btn-info">
-                                <i class="fas fa-handshake me-2"></i>Tham Gia
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="text-center mb-5">
+          <h2 class="fw-bold text-primary-custom">Dịch Vụ Của Chúng Tôi</h2>
+          <p class="lead text-muted">
+            Khám phá các hoạt động và dịch vụ mà chi hội cung cấp
+          </p>
         </div>
+
+        <div class="row">
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-newspaper fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Tin Tức & Thông Báo</h5>
+                <p class="card-text">
+                  Cập nhật thông tin mới nhất về các hoạt động, sự kiện và thông
+                  báo quan trọng từ chi hội.
+                </p>
+                <a href="/news" class="btn btn-primary">
+                  <i class="fas fa-arrow-right me-2"></i>Xem Tin Tức
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-calendar-alt fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Sự Kiện & Hoạt Động</h5>
+                <p class="card-text">
+                  Tham gia các sự kiện, hoạt động cộng đồng và chương trình từ
+                  thiện của chi hội.
+                </p>
+                <a href="/organization/management" class="btn btn-success">
+                  <i class="fas fa-calendar me-2"></i>Xem Sự Kiện
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 text-center">
+              <div class="card-body">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Cộng Đồng</h5>
+                <p class="card-text">
+                  Kết nối với các thành viên khác, chia sẻ kinh nghiệm và xây
+                  dựng mối quan hệ.
+                </p>
+                <a href="/list/tin-huu" class="btn btn-info">
+                  <i class="fas fa-handshake me-2"></i>Tham Gia
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Latest News Section -->
-    <section class="py-5 bg-light" th:if="${latestNews != null and !latestNews.empty}">
-        <div class="container">
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-primary-custom">Tin Tức Mới Nhất</h2>
-                <p class="lead text-muted">Cập nhật những thông tin mới nhất từ chi hội</p>
-            </div>
-            
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4" th:each="news : ${latestNews}">
-                    <div class="card news-card">
-                        <img th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'" 
-                             class="card-img-top" 
-                             th:alt="${news.tieuDe}">
-                        <div class="card-body">
-                            <h6 class="card-title" th:text="${news.tieuDe}">Tiêu đề tin tức</h6>
-                            <p class="card-text small text-muted" 
-                               th:text="${#strings.abbreviate(news.tomTat, 100)}">
-                               Tóm tắt nội dung tin tức...
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <small class="text-muted">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    <span th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                                </small>
-                                <a th:href="@{/news/{slug}(slug=${news.slug})}" class="btn btn-sm btn-outline-primary">
-                                    Đọc thêm
-                                </a>
-                            </div>
-                        </div>
+    <!-- Recent Events Section -->
+    <section class="py-5" th:if="${recentEvents != null and !recentEvents.empty}">
+      <div class="container">
+        <!-- Events Container with Border -->
+        <div class="events-container">
+          <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary-custom">Sự Kiện Gần Nhất</h2>
+            <p class="lead text-muted">
+              Các sự kiện trong 7 ngày gần đây
+            </p>
+          </div>
+
+          <!-- Recent Events Content - Compact Design -->
+          <div>
+          <div class="row">
+            <div class="col-lg-3 col-md-6 mb-3" th:each="event : ${recentEvents}">
+              <div class="card event-card-compact h-100 border-0 shadow-sm">
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-start">
+                    <!-- Compact Date Badge -->
+                    <div class="event-date-compact bg-primary text-white me-2 flex-shrink-0">
+                      <div class="day" th:text="${#temporals.day(event.ngayDienRa)}">15</div>
+                      <div class="month" th:text="${#strings.substring(#temporals.monthName(event.ngayDienRa), 0, 3)}">T12</div>
                     </div>
+                    
+                    <div class="flex-grow-1">
+                      <h6 class="card-title text-primary mb-1" th:text="${#strings.abbreviate(event.tenSuKien, 40)}">
+                        Tên sự kiện
+                      </h6>
+                      <p class="card-text text-muted small mb-2" th:text="${#strings.abbreviate(event.moTa, 60)}">
+                        Mô tả sự kiện...
+                      </p>
+                      
+                      <!-- Compact Event Info -->
+                      <div class="event-info-compact">
+                        <div class="d-flex align-items-center mb-1" th:if="${event.diaDiem}">
+                          <i class="fas fa-map-marker-alt text-muted me-1" style="font-size: 0.7rem;"></i>
+                          <small class="text-muted" th:text="${#strings.abbreviate(event.diaDiem, 25)}">Địa điểm</small>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between">
+                          <span class="badge badge-sm" 
+                                th:if="${event.trangThai?.name() != 'DANG_CHUAN_BI'}"
+                                th:class="(${event.trangThai?.name() == 'DANG_DIEN_RA'} ? 'bg-primary' : 
+                                          (${event.trangThai?.name() == 'DA_KET_THUC'} ? 'bg-secondary' : 'bg-danger'))"
+                                th:text="${event.trangThai?.displayName}">Trạng thái</span>
+                          <span class="badge bg-info badge-sm" th:if="${event.loaiSuKien}" th:text="${event.loaiSuKien.tenLoai}">Loại</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              </div>
             </div>
-            
-            <div class="text-center mt-4">
-                <a href="/news" class="btn btn-primary btn-lg">
-                    <i class="fas fa-newspaper me-2"></i>Xem Tất Cả Tin Tức
-                </a>
-            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <a href="/organization/management" class="btn btn-primary btn-lg">
+              <i class="fas fa-calendar-alt me-2"></i>Xem Tất Cả Sự Kiện
+            </a>
+          </div>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Modern Latest News Section -->
+    <section
+      class="py-5"
+      th:if="${latestNews != null and !latestNews.empty}"
+    >
+      <div class="container">
+        <!-- News Container with Modern Design -->
+        <div class="modern-news-container">
+          <div class="news-header text-center mb-5">
+            <div class="header-icon mb-3">
+              <i class="fas fa-newspaper"></i>
+            </div>
+            <h2 class="news-title">Tin Tức Mới Nhất</h2>
+            <p class="news-subtitle">
+              Cập nhật những thông tin mới nhất từ chi hội
+            </p>
+          </div>
+
+          <!-- Modern News Grid -->
+          <div class="modern-news-grid-home">
+            <article class="modern-news-card-home" th:each="news : ${latestNews}">
+              <div class="news-card-image-home">
+                <img
+                  th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'"
+                  th:alt="${news.tieuDe}"
+                />
+                <div class="news-card-overlay-home"></div>
+                <div th:if="${news.danhMuc != null}" class="news-card-category-home"
+                     th:style="${news.danhMuc.mauSac != null} ? 'background-color: ' + ${news.danhMuc.mauSac} + '; color: white;' : ''">
+                  <i th:class="${news.danhMuc.icon != null} ? 'fas fa-' + ${news.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
+                  <span th:text="${news.danhMuc.tenDanhMuc}">Danh mục</span>
+                </div>
+              </div>
+              <div class="news-card-content-home">
+                <h3 class="news-card-title-home">
+                  <a
+                    th:href="@{/news/{slug}(slug=${news.slug})}"
+                    th:text="${#strings.abbreviate(news.tieuDe, 60)}"
+                  >Tiêu đề tin tức</a>
+                </h3>
+                <p class="news-card-summary-home" th:text="${#strings.abbreviate(news.tomTat, 100)}">
+                  Tóm tắt nội dung tin tức...
+                </p>
+                <div class="news-card-meta-home">
+                  <div class="meta-group-home">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                  </div>
+                  <div class="meta-group-home">
+                    <i class="fas fa-eye"></i>
+                    <span th:text="${news.luotXem ?: '0'}">0</span>
+                  </div>
+                </div>
+                <a th:href="@{/news/{slug}(slug=${news.slug})}" class="news-card-btn-home">
+                  Đọc thêm
+                  <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </article>
+          </div>
+
+          <!-- Modern CTA Button -->
+          <div class="news-cta text-center mt-5">
+            <a href="/news" class="modern-cta-btn">
+              <i class="fas fa-newspaper me-2"></i>
+              <span>Xem Tất Cả Tin Tức</span>
+              <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Call to Action Section -->
     <section class="py-5 bg-primary-custom text-white">
-        <div class="container text-center">
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <h2 class="fw-bold mb-4">Tham Gia Cùng Chúng Tôi</h2>
-                    <p class="lead mb-4">
-                        Hãy trở thành một phần của cộng đồng Chi Hội KÔNG BRECH. 
-                        Cùng nhau xây dựng một tương lai tốt đẹp hơn.
-                    </p>
-                    <div class="d-flex gap-3 justify-content-center">
-                        <a href="/contact" class="btn btn-light btn-lg">
-                            <i class="fas fa-envelope me-2"></i>Liên Hệ Ngay
-                        </a>
-                        <a href="/about" class="btn btn-outline-light btn-lg">
-                            <i class="fas fa-info-circle me-2"></i>Tìm Hiểu Thêm
-                        </a>
-                    </div>
-                </div>
+      <div class="container text-center">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <h2 class="fw-bold mb-4">Tham Gia Cùng Chúng Tôi</h2>
+            <p class="lead mb-4">
+              Hãy trở thành một phần của cộng đồng Chi Hội KÔNG BRECH. Cùng nhau
+              xây dựng một tương lai tốt đẹp hơn.
+            </p>
+            <div class="d-flex gap-3 justify-content-center">
+              <a href="/contact" class="btn btn-light btn-lg">
+                <i class="fas fa-envelope me-2"></i>Liên Hệ Ngay
+              </a>
+              <a href="/about" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-info-circle me-2"></i>Tìm Hiểu Thêm
+              </a>
             </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer -->
@@ -233,5 +361,405 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
-</body>
+    
+    <style>
+      /* Events Container with Border and Background */
+      .events-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .events-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+135deg, #667eea 0%, #764ba2 100%)
+      }
+      
+      .event-card-compact {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: white;
+        border: 1px solid #e9ecef;
+      }
+      
+      .event-card-compact:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+        border-color: #007bff;
+      }
+      
+      .event-date-compact {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.7rem;
+        box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+      }
+      
+      .event-date-compact .day {
+        font-size: 0.9rem;
+        line-height: 1;
+      }
+      
+      .event-date-compact .month {
+        font-size: 0.5rem;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+      
+      .badge-sm {
+        font-size: 0.65rem;
+        padding: 0.2em 0.4em;
+      }
+      
+      .event-info-compact {
+        font-size: 0.8rem;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .events-container {
+          padding: 1.5rem;
+          border-radius: 10px;
+        }
+        
+        .event-date-compact {
+          width: 35px;
+          height: 35px;
+          font-size: 0.6rem;
+        }
+        
+        .event-date-compact .day {
+          font-size: 0.8rem;
+        }
+        
+        .event-date-compact .month {
+          font-size: 0.45rem;
+        }
+      }
+      
+      /* Hero Quote Styling */
+      .hero-quote {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+      
+      .quote-text {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        font-style: italic;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        background: rgba(255,255,255,0.1);
+        padding: 1.5rem 2rem;
+        border-radius: 15px;
+        border-left: 4px solid #ffd700;
+        margin-bottom: 0.5rem;
+        backdrop-filter: blur(10px);
+      }
+      
+      .quote-reference {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffd700;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        margin: 0;
+        text-align: right;
+        padding-right: 1rem;
+      }
+      
+      /* Responsive quote */
+      @media (max-width: 768px) {
+        .quote-text {
+          font-size: 1.1rem;
+          padding: 1rem 1.5rem;
+        }
+        
+        .quote-reference {
+          font-size: 0.9rem;
+        }
+      }
+      
+      /* Modern News Section */
+      .modern-news-container {
+        background: white;
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .modern-news-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(
+135deg, #667eea 0%, #764ba2 100%);
+      }
+      
+      .news-header {
+        position: relative;
+      }
+      
+      .header-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+      }
+      
+      .news-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .news-subtitle {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin: 0;
+      }
+      
+      /* Modern News Grid */
+      .modern-news-grid-home {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .modern-news-card-home {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 1px solid #e9ecef;
+        position: relative;
+      }
+      
+      .modern-news-card-home:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      }
+      
+      .news-card-image-home {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+      }
+      
+      .news-card-image-home img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+      
+      .modern-news-card-home:hover .news-card-image-home img {
+        transform: scale(1.1);
+      }
+      
+      .news-card-overlay-home {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+      }
+      
+      .news-card-category-home {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: rgba(255,255,255,0.95);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2c3e50;
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .news-card-category-home i {
+        font-size: 0.7rem;
+      }
+      
+      /* Dynamic color support */
+      .news-card-category-home[style*="background-color"] {
+        backdrop-filter: none;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      }
+      
+      .modern-news-card-home:hover .news-card-category-home {
+        transform: scale(1.05);
+      }
+      
+      .news-card-content-home {
+        padding: 1.5rem;
+      }
+      
+      .news-card-title-home {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+      }
+      
+      .news-card-title-home a {
+        color: inherit;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      
+      .news-card-title-home a:hover {
+        color: #007bff;
+      }
+      
+      .news-card-summary-home {
+        color: #6c757d;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1rem;
+      }
+      
+      .news-card-meta-home {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+      
+      .meta-group-home {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: #6c757d;
+        font-size: 0.8rem;
+      }
+      
+      .meta-group-home i {
+        color: #007bff;
+      }
+      
+      .news-card-btn-home {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(
+135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      
+      .news-card-btn-home:hover {
+        background: linear-gradient(
+135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: translateX(3px);
+      }
+      
+      /* Modern CTA Button */
+      .modern-cta-btn {
+        display: inline-flex;
+        align-items: center;
+        background: linear-gradient(
+135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(40,167,69,0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .modern-cta-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+      }
+      
+      .modern-cta-btn:hover::before {
+        left: 100%;
+      }
+      
+      .modern-cta-btn:hover {
+        background: linear-gradient(135deg, #20c997, #17a2b8);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(40,167,69,0.4);
+      }
+      
+      /* Responsive */
+      @media (max-width: 768px) {
+        .modern-news-container {
+          padding: 2rem 1rem;
+          border-radius: 15px;
+        }
+        
+        .news-title {
+          font-size: 2rem;
+        }
+        
+        .modern-news-grid-home {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        
+        .header-icon {
+          width: 60px;
+          height: 60px;
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </body>
 </html>

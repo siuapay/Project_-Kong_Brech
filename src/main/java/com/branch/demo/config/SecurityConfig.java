@@ -24,6 +24,9 @@ public class SecurityConfig {
     @Autowired
     private CustomUserDetailsService userDetailsService;
     
+    @Autowired
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -60,6 +63,9 @@ public class SecurityConfig {
                 // Profile pages - require authentication
                 .requestMatchers("/profile", "/change-password").authenticated()
                 
+                // Block access to /admin/nhom (commented out functionality)
+                .requestMatchers("/admin/nhom/**").denyAll()
+                
                 // Admin pages - require ADMIN role
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 
@@ -69,15 +75,22 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/perform-login")
-                .defaultSuccessUrl("/admin", true)
+                .successHandler(customAuthenticationSuccessHandler)
                 .failureUrl("/login?error=true")
                 .permitAll()
+            )
+            .rememberMe(remember -> remember
+                .key("uniqueAndSecret") // Secret key for remember-me token
+                .tokenValiditySeconds(86400 * 7) // 7 days
+                .userDetailsService(userDetailsService)
+                .rememberMeParameter("remember-me") // Parameter name from form
+                .rememberMeCookieName("remember-me-cookie")
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
+                .deleteCookies("JSESSIONID", "remember-me-cookie")
                 .permitAll()
             )
             .csrf(csrf -> csrf.disable()); // Disable for development

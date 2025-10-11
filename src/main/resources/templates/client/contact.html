@@ -1,212 +1,481 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/client-layout :: head}"></head>
-<body>
+  <head th:replace="~{fragments/client-layout :: head}"></head>
+  <body>
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
     <!-- Page Header -->
     <section class="py-5 bg-primary-custom text-white">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="display-4 fw-bold mb-3">Liên Hệ Với Chúng Tôi</h1>
-                    <p class="lead">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
-                </div>
-            </div>
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 mx-auto text-center">
+            <h1 class="display-4 fw-bold mb-3">Liên Hệ Với Chúng Tôi</h1>
+            <p class="lead">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn</p>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Contact Content -->
     <section class="py-5">
-        <div class="container">
-            <div class="row">
-                <!-- Contact Form -->
-                <div class="col-lg-8 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-primary-custom text-white">
-                            <h4 class="mb-0">
-                                <i class="fas fa-envelope me-2"></i>Gửi Tin Nhắn
-                            </h4>
-                        </div>
-                        <div class="card-body">
-                            <!-- Alert Messages -->
-                            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="fas fa-check-circle me-2"></i>
-                                <span th:text="${successMessage}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                <span th:text="${errorMessage}"></span>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                            
-                            <form th:action="@{/contact}" th:object="${lienHe}" method="post">
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="hoTen" class="form-label">Họ và Tên *</label>
-                                        <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}" required>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">Email *</label>
-                                        <input type="email" class="form-control" id="email" th:field="*{email}" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="dienThoai" class="form-label">Số Điện Thoại</label>
-                                        <input type="tel" class="form-control" id="dienThoai" th:field="*{dienThoai}">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="loaiLienHe" class="form-label">Loại Liên Hệ *</label>
-                                        <select class="form-select" id="loaiLienHe" th:field="*{loaiLienHe}" required>
-                                            <option value="">Chọn loại liên hệ</option>
-                                            <option value="GOP_Y">Góp ý</option>
-                                            <option value="KHIEU_NAI">Khiếu nại</option>
-                                            <option value="DE_XUAT">Đề xuất</option>
-                                            <option value="QUANG_CAO">Quảng cáo</option>
-                                            <option value="HOP_TAC">Hợp tác</option>
-                                            <option value="KHAC">Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="chuDe" class="form-label">Chủ Đề *</label>
-                                    <input type="text" class="form-control" id="chuDe" th:field="*{chuDe}" 
-                                           placeholder="Nhập chủ đề liên hệ..." required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="noiDung" class="form-label">Nội Dung *</label>
-                                    <textarea class="form-control" id="noiDung" th:field="*{noiDung}" rows="5" required 
-                                              placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="fas fa-paper-plane me-2"></i>Gửi Tin Nhắn
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+      <div class="container">
+        <div class="row">
+          <!-- Contact Form -->
+          <div class="col-lg-8 mb-4">
+            <div class="card">
+              <div class="card-header bg-primary-custom text-white">
+                <h4 class="mb-0">
+                  <i class="fas fa-envelope me-2"></i>Gửi Tin Nhắn
+                </h4>
+              </div>
+              <div class="card-body">
+                <!-- Alert Messages -->
+                <div
+                  th:if="${successMessage}"
+                  class="alert alert-success alert-dismissible fade show"
+                  role="alert"
+                >
+                  <i class="fas fa-check-circle me-2"></i>
+                  <span th:text="${successMessage}"></span>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                  ></button>
                 </div>
 
-                <!-- Contact Info -->
-                <div class="col-lg-4">
-                    <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Liên Hệ
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6 class="text-primary-custom">
-                                    <i class="fas fa-map-marker-alt me-2"></i>Địa Chỉ
-                                </h6>
-                                <p class="text-muted mb-0">
-                                    Kông Brech, Đắk Lắk<br>
-                                    Việt Nam
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <h6 class="text-primary-custom">
-                                    <i class="fas fa-phone me-2"></i>Điện Thoại
-                                </h6>
-                                <p class="text-muted mb-0">
-                                    <a href="tel:+84123456789" class="text-decoration-none">
-                                        +84 123 456 789
-                                    </a>
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <h6 class="text-primary-custom">
-                                    <i class="fas fa-envelope me-2"></i>Email
-                                </h6>
-                                <p class="text-muted mb-0">
-                                    <a href="mailto:info@kongbrech.com" class="text-decoration-none">
-                                        info@kongbrech.com
-                                    </a>
-                                </p>
-                            </div>
-                            
-                            <div class="mb-3">
-                                <h6 class="text-primary-custom">
-                                    <i class="fas fa-clock me-2"></i>Giờ Làm Việc
-                                </h6>
-                                <p class="text-muted mb-0">
-                                    Thứ 2 - Thứ 6: 8:00 - 17:00<br>
-                                    Thứ 7: 8:00 - 12:00<br>
-                                    Chủ Nhật: Nghỉ
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Social Media -->
-                    <div class="card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-share-alt me-2"></i>Kết Nối Với Chúng Tôi
-                            </h5>
-                        </div>
-                        <div class="card-body text-center">
-                            <div class="d-flex justify-content-center gap-3">
-                                <a href="#" class="btn btn-outline-primary btn-lg">
-                                    <i class="fab fa-facebook"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-danger btn-lg">
-                                    <i class="fab fa-youtube"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-info btn-lg">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                                <a href="#" class="btn btn-outline-success btn-lg">
-                                    <i class="fas fa-envelope"></i>
-                                </a>
-                            </div>
-                            <p class="text-muted mt-3 mb-0">
-                                Theo dõi chúng tôi để cập nhật thông tin mới nhất
-                            </p>
-                        </div>
-                    </div>
+                <div
+                  th:if="${errorMessage}"
+                  class="alert alert-danger alert-dismissible fade show"
+                  role="alert"
+                >
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <span th:text="${errorMessage}"></span>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                  ></button>
                 </div>
+
+                <form
+                  th:action="@{/contact}"
+                  th:object="${lienHe}"
+                  method="post"
+                >
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="hoTen" class="form-label">Họ và Tên *</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="hoTen"
+                        th:field="*{hoTen}"
+                        required
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="email" class="form-label">Email *</label>
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        th:field="*{email}"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label for="dienThoai" class="form-label"
+                        >Số Điện Thoại</label
+                      >
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="dienThoai"
+                        th:field="*{dienThoai}"
+                      />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label for="loaiLienHe" class="form-label"
+                        >Loại Liên Hệ *</label
+                      >
+                      <select
+                        class="form-select"
+                        id="loaiLienHe"
+                        th:field="*{loaiLienHe}"
+                        required
+                      >
+                        <option value="">Chọn loại liên hệ</option>
+                        <option value="GOP_Y">Góp ý</option>
+                        <option value="KHIEU_NAI">Khiếu nại</option>
+                        <option value="DE_XUAT">Đề xuất</option>
+                        <option value="QUANG_CAO">Quảng cáo</option>
+                        <option value="HOP_TAC">Hợp tác</option>
+                        <option value="KHAC">Khác</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="chuDe" class="form-label">Chủ Đề *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="chuDe"
+                      th:field="*{chuDe}"
+                      placeholder="Nhập chủ đề liên hệ..."
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="noiDung" class="form-label">Nội Dung *</label>
+                    <textarea
+                      class="form-control"
+                      id="noiDung"
+                      th:field="*{noiDung}"
+                      rows="5"
+                      required
+                      placeholder="Nhập nội dung tin nhắn của bạn..."
+                    ></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-paper-plane me-2"></i>Gửi Tin Nhắn
+                  </button>
+                </form>
+              </div>
             </div>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                  <i class="fas fa-info-circle me-2"></i>Thông Tin Liên Hệ
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-primary-custom">
+                    <i class="fas fa-map-marker-alt me-2"></i>Địa Chỉ
+                  </h6>
+                  <p class="text-muted mb-0">
+                    Kông Brech, Đắk Lắk<br />
+                    Việt Nam
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-primary-custom">
+                    <i class="fas fa-phone me-2"></i>Điện Thoại
+                  </h6>
+                  <p class="text-muted mb-0">
+                    <a href="tel:+84123456789" class="text-decoration-none">
+                      +84 123 456 789
+                    </a>
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-primary-custom">
+                    <i class="fas fa-envelope me-2"></i>Email
+                  </h6>
+                  <p class="text-muted mb-0">
+                    <a
+                      href="mailto:info@kongbrech.com"
+                      class="text-decoration-none"
+                    >
+                      info@kongbrech.com
+                    </a>
+                  </p>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-primary-custom">
+                    <i class="fas fa-clock me-2"></i>Giờ Làm Việc
+                  </h6>
+                  <p class="text-muted mb-0">
+                    Thứ 2 - Thứ 6: 8:00 - 17:00<br />
+                    Thứ 7: 8:00 - 12:00<br />
+                    Chủ Nhật: Nghỉ
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media -->
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                  <i class="fas fa-share-alt me-2"></i>Kết Nối Với Chúng Tôi
+                </h5>
+              </div>
+              <div class="card-body text-center">
+                <div class="d-flex justify-content-center gap-3">
+                  <a href="#" class="btn btn-outline-primary btn-lg">
+                    <i class="fab fa-facebook"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-danger btn-lg">
+                    <i class="fab fa-youtube"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-info btn-lg">
+                    <i class="fab fa-instagram"></i>
+                  </a>
+                  <a href="#" class="btn btn-outline-success btn-lg">
+                    <i class="fas fa-envelope"></i>
+                  </a>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                  Theo dõi chúng tôi để cập nhật thông tin mới nhất
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Map Section -->
     <section class="py-5 bg-light">
-        <div class="container">
-            <div class="text-center mb-4">
-                <h2 class="fw-bold text-primary-custom">Vị Trí Của Chúng Tôi</h2>
-                <p class="lead text-muted">Tìm đường đến chi hội</p>
-            </div>
-            
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="card">
-                        <div class="card-body p-0">
-                            <!-- Placeholder for Google Maps -->
-                            <div class="bg-secondary text-white text-center py-5" style="min-height: 400px;">
-                                <i class="fas fa-map-marked-alt fa-5x mb-3"></i>
-                                <h4>Bản Đồ Vị Trí</h4>
-                                <p>Tích hợp Google Maps sẽ được thêm vào đây</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="container">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-primary-custom">Vị Trí Của Chúng Tôi</h2>
+          <p class="lead text-muted">Tìm đường đến chi hội</p>
         </div>
+
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="card">
+              <div class="card-body p-0">
+                <!-- Google Maps Embed -->
+                <div id="map" style="height: 400px; width: 100%">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d993982.2014170027!2d107.4090741!3d13.3039896!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x316e9fa7610575d5%3A0xf1027fa57b83cb08!2sHTTLVN%20-%20Hnam%20&#39;Bok%20Kei-Dei%20K%C3%B4ng%20Brech!5e0!3m2!1svi!2s!4v1760020604146!5m2!1svi!2s"
+                    width="100%"
+                    height="400"
+                    style="border: 0"
+                    allowfullscreen=""
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="Bản đồ vị trí Hội Thánh Tin Lành Kông Brech"
+                  >
+                  </iframe>
+                </div>
+
+                <!-- Map Info Overlay -->
+                <div
+                  class="position-absolute top-0 start-0 m-3"
+                  style="z-index: 1000"
+                >
+                  <div class="card shadow-sm">
+                    <div class="card-body p-3">
+                      <h6 class="mb-2 text-primary">
+                        <i class="fas fa-map-marker-alt me-2"></i>Hội Thánh Tin
+                        Lành Kông Brech
+                      </h6>
+                      <p class="mb-2 small text-muted">
+                        <i class="fas fa-location-arrow me-1"></i>
+                        A Dơk, Đắk Đoa, Gia Lai, Việt Nam
+                      </p>
+                      <div class="d-flex gap-2">
+                        <a
+                          href="https://www.google.com/maps/place/HTTLVN+-+Hnam+'Bok+Kei-Dei+K%C3%B4ng+Brech/@13.3039896,107.4090741,9z/data=!4m10!1m2!2m1!1zS8O0bmcgQnJlY2gsIMSQ4bqvayBM4bqvaywgVmnhu4d0IE5hbQ!3m6!1s0x316e9fa7610575d5:0xf1027fa57b83cb08!8m2!3d13.9336305!4d108.0949662!15sCiVLw7RuZyBCcmVjaCwgxJDhuq9rIEzhuq9rLCBWaeG7h3QgTmFtkgEGY2h1cmNo4AEA!16s%2Fg%2F11f5h2tbcy?entry=ttu&g_ep=EgoyMDI1MTAwNi4wIKXMDSoASAFQAw%3D%3D"
+                          target="_blank"
+                          class="btn btn-sm btn-primary"
+                        >
+                          <i class="fas fa-directions me-1"></i>Chỉ đường
+                        </a>
+                        <button
+                          class="btn btn-sm btn-outline-secondary"
+                          data-bs-toggle="modal"
+                          data-bs-target="#mapModal"
+                        >
+                          <i class="fas fa-expand me-1"></i>Phóng to
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- Map Modal -->
+    <div
+      class="modal fade"
+      id="mapModal"
+      tabindex="-1"
+      aria-labelledby="mapModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="mapModalLabel">
+              <i class="fas fa-map-marker-alt me-2"></i>Vị Trí Hội Thánh Tin
+              Lành Kông Brech
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div style="height: 70vh; width: 100%">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d993982.2014170027!2d107.4090741!3d13.3039896!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x316e9fa7610575d5%3A0xf1027fa57b83cb08!2sHTTLVN%20-%20Hnam%20&#39;Bok%20Kei-Dei%20K%C3%B4ng%20Brech!5e0!3m2!1svi!2s!4v1760020604146!5m2!1svi!2s"
+                width="100%"
+                height="100%"
+                style="border: 0"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                title="Bản đồ vị trí Hội Thánh Tin Lành Kông Brech - Phóng to"
+              >
+              </iframe>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="me-auto">
+              <small class="text-muted">
+                <i class="fas fa-location-arrow me-1"></i>
+                Kông Brech, Đắk Lắk, Việt Nam
+              </small>
+            </div>
+            <a
+              href="https://maps.google.com/?q=Kông+Brech,+Đắk+Lắk,+Việt+Nam"
+              target="_blank"
+              class="btn btn-primary"
+            >
+              <i class="fas fa-directions me-1"></i>Mở Google Maps
+            </a>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="fas fa-times me-1"></i>Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Footer -->
     <footer th:replace="~{fragments/client-layout :: footer}"></footer>
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
-    
 
-</body>
+    <script>
+      // Simple and safe JavaScript without service worker conflicts
+      document.addEventListener("DOMContentLoaded", function () {
+        // Auto-hide success/error messages after 5 seconds
+        const alerts = document.querySelectorAll(".alert");
+        alerts.forEach((alert) => {
+          setTimeout(() => {
+            if (alert && alert.parentNode) {
+              alert.style.transition = "opacity 0.5s";
+              alert.style.opacity = "0";
+              setTimeout(() => {
+                if (alert && alert.parentNode) {
+                  alert.parentNode.removeChild(alert);
+                }
+              }, 500);
+            }
+          }, 5000);
+        });
+
+        // Form validation enhancement
+        const form = document.querySelector("form");
+        if (form) {
+          form.addEventListener("submit", function (e) {
+            const requiredFields = this.querySelectorAll("[required]");
+            let isValid = true;
+
+            requiredFields.forEach((field) => {
+              if (!field.value.trim()) {
+                field.classList.add("is-invalid");
+                isValid = false;
+              } else {
+                field.classList.remove("is-invalid");
+              }
+            });
+
+            if (!isValid) {
+              e.preventDefault();
+              // Remove existing error message
+              const existingError = this.querySelector(".validation-error");
+              if (existingError) {
+                existingError.remove();
+              }
+
+              // Show new error message
+              const errorDiv = document.createElement("div");
+              errorDiv.className =
+                "alert alert-danger alert-dismissible fade show validation-error";
+              errorDiv.innerHTML = `
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Vui lòng điền đầy đủ thông tin bắt buộc.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        `;
+              this.insertBefore(errorDiv, this.firstChild);
+            }
+          });
+        }
+      });
+    </script>
+
+    <style>
+      .card-body {
+        position: relative;
+      }
+
+      /* Responsive map adjustments */
+      @media (max-width: 768px) {
+        .position-absolute.top-0.start-0 {
+          position: relative !important;
+          margin: 0 !important;
+        }
+
+        #map iframe {
+          min-height: 300px;
+        }
+      }
+
+      /* Form validation styles */
+      .is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+
+      /* Map info card hover effect */
+      .position-absolute .card {
+        transition: transform 0.2s ease;
+      }
+
+      .position-absolute .card:hover {
+        transform: translateY(-2px);
+      }
+
+      /* Modal map styling */
+      .modal-xl {
+        max-width: 95%;
+      }
+
+      @media (max-width: 768px) {
+        .modal-xl {
+          max-width: 98%;
+          margin: 0.5rem;
+        }
+      }
+    </style>
+  </body>
 </html>

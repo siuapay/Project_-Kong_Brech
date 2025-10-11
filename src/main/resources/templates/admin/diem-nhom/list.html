@@ -129,14 +129,14 @@
                                     <th width="20%">Tên Điểm Nhóm</th>
                                     <th width="20%">Địa Chỉ</th>
                                     <th width="15%">Ban Ngành</th>
-                                    <th width="10%">Số Nhóm</th>
+                                    <!-- <th width="10%">Số Nhóm</th> COMMENTED OUT -->
                                     <th width="10%">Trạng Thái</th>
                                     <th width="10%">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr th:if="${diemNhomPage.content.empty}">
-                                    <td colspan="7" class="text-center py-4 text-muted">
+                                    <td colspan="6" class="text-center py-4 text-muted">
                                         <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                         Không có điểm nhóm nào được tìm thấy
                                     </td>
@@ -171,6 +171,7 @@
                                         <span th:if="${diemNhom.danhSachBanNganh == null or diemNhom.danhSachBanNganh.empty}" 
                                               class="text-muted">Chưa phân ban</span>
                                     </td>
+                                    <!-- COMMENTED OUT: Group count column
                                     <td>
                                         <button type="button" class="btn btn-link p-0 text-decoration-none nhom-btn" 
                                                 th:data-diem-nhom-id="${diemNhom.id}"
@@ -180,6 +181,7 @@
                                             <small class="text-muted ms-1">nhóm</small>
                                         </button>
                                     </td>
+                                    -->
                                     <td>
                                         <span th:if="${diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success">
                                             <i class="fas fa-check-circle me-1"></i>Hoạt động
@@ -247,7 +249,7 @@
         </div>
     </main>
 
-    <!-- Nhom Modal -->
+    <!-- COMMENTED OUT: Nhom Modal - Group functionality disabled
     <div class="modal fade" id="nhomModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -266,7 +268,6 @@
                     </div>
                     <div id="nhomContent" style="display: none;">
                         <div class="row" id="nhomList">
-                            <!-- Nhom items will be loaded here -->
                         </div>
                     </div>
                     <div id="nhomEmpty" style="display: none;" class="text-center py-4 text-muted">
@@ -280,6 +281,7 @@
             </div>
         </div>
     </div>
+    -->
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
@@ -293,7 +295,7 @@
                     <p>Bạn có chắc chắn muốn xóa điểm nhóm <strong id="deleteName"></strong>?</p>
                     <div class="alert alert-warning">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Lưu ý:</strong> Các nhóm thuộc điểm nhóm này sẽ được chuyển về trạng thái "Chưa phân công".
+                        <strong>Lưu ý:</strong> Hành động này sẽ xóa điểm nhóm khỏi hệ thống.
                     </div>
                     <p class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Hành động này không thể hoàn tác!</p>
                 </div>
@@ -325,6 +327,8 @@
             document.querySelector('input[name="toDate"]').value = '';
         }
 
+        // COMMENTED OUT: Group-related JavaScript functions disabled
+        /*
         // Add event listeners for nhom buttons
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.nhom-btn').forEach(button => {
@@ -419,6 +423,7 @@
                 container.appendChild(col);
             });
         }
+        */
     </script>
     
     <style>
@@ -443,6 +448,7 @@
             margin-right: 0;
         }
         
+        /* COMMENTED OUT: Group-related styles disabled
         .nhom-card {
             transition: all 0.2s ease-in-out;
             border: 1px solid #dee2e6;
@@ -472,6 +478,7 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        */
     </style>
 </body>
 </html>

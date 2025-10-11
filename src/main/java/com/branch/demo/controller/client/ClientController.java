@@ -33,7 +33,6 @@ import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.List;
 import java.math.BigDecimal;
 
 @Controller
@@ -41,7 +40,7 @@ public class ClientController {
 
     @Autowired
     private AdminService adminService;
-    
+
     @Autowired
     private com.branch.demo.service.LienHeService lienHeService;
 
@@ -99,6 +98,42 @@ public class ClientController {
             model.addAttribute("stats", java.util.Collections.emptyMap());
         }
 
+        // Get recent events (last 7 days)
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime sevenDaysAgo = now.minusDays(7);
+            
+            System.out.println("=== DEBUG RECENT EVENTS ===");
+            System.out.println("Current time: " + now);
+            System.out.println("7 days ago: " + sevenDaysAgo);
+            
+            java.util.List<SuKien> recentEvents = suKienRepository.findRecentEvents(
+                    sevenDaysAgo, now, PageRequest.of(0, 4)); // Giảm từ 6 xuống 4 để gọn hơn
+            
+            System.out.println("Found " + recentEvents.size() + " recent events");
+            for (SuKien event : recentEvents) {
+                System.out.println("Event: " + event.getTenSuKien() + " - Date: " + event.getNgayDienRa() + " - Deleted: " + event.isDeleted());
+            }
+            
+            // Fallback: nếu không có sự kiện trong 7 ngày, thử lấy tất cả sự kiện gần nhất
+            if (recentEvents.isEmpty()) {
+                System.out.println("No events in 7 days, trying to get all recent events...");
+                recentEvents = suKienRepository.findRecentEventsByDate(
+                        PageRequest.of(0, 4));
+                System.out.println("Found " + recentEvents.size() + " total recent events");
+                for (SuKien event : recentEvents) {
+                    System.out.println("All Event: " + event.getTenSuKien() + " - Date: " + event.getNgayDienRa() + " - Deleted: " + event.isDeleted());
+                }
+            }
+            
+            model.addAttribute("recentEvents", recentEvents);
+        } catch (Exception e) {
+            System.out.println("Error loading recent events: " + e.getMessage());
+            e.printStackTrace();
+            // Handle gracefully if events service fails
+            model.addAttribute("recentEvents", java.util.Collections.emptyList());
+        }
+
         return "index";
     }
 
@@ -116,13 +151,15 @@ public class ClientController {
         model.addAttribute("lienHe", new com.branch.demo.domain.LienHe());
         return "client/contact";
     }
-    
+
     @org.springframework.web.bind.annotation.PostMapping("/contact")
-    public String submitContact(@org.springframework.web.bind.annotation.ModelAttribute com.branch.demo.domain.LienHe lienHe,
-                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+    public String submitContact(
+            @org.springframework.web.bind.annotation.ModelAttribute com.branch.demo.domain.LienHe lienHe,
+            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         try {
             lienHeService.guiLienHe(lienHe);
-            redirectAttributes.addFlashAttribute("successMessage", "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi gửi liên hệ. Vui lòng thử lại.");
         }
@@ -263,7 +300,7 @@ public class ClientController {
                 // Load nhân sự members
                 java.util.List<NhanSu> members = nhanSuRepository.findByBanNganh(banNganh);
                 banNganh.setDanhSachNhanSu(members);
-                
+
                 // Count tin huu in this ban nganh
                 long tinHuuCount = tinHuuRepository.countByBanNganh(banNganh);
                 tinHuuCountMap.put(banNganh.getId(), tinHuuCount);
@@ -294,20 +331,23 @@ public class ClientController {
                     com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
 
             com.branch.demo.domain.ChapSu chapSuChinh = null;
+            java.util.List<com.branch.demo.domain.ChapSu> phuTaQuanNhiem = new java.util.ArrayList<>();
             java.util.List<com.branch.demo.domain.ChapSu> banChapSu = new java.util.ArrayList<>();
 
             for (com.branch.demo.domain.ChapSu cs : allChapSu) {
                 if (cs.getChucVu() != null) {
-                    // Find main leader (Mục sư or Truyền đạo)
-                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.QUAN_NHIEM ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM) {
+                    // Find main leader (Quản nhiệm)
+                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.QUAN_NHIEM) {
                         if (chapSuChinh == null) {
                             chapSuChinh = cs;
                         }
                     }
+                    // Find Phụ tá quản nhiệm
+                    else if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM) {
+                        phuTaQuanNhiem.add(cs);
+                    }
                     // Find all other Chấp sự members
-                    if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM ||
-                        cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_1 ||
+                    else if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_1 ||
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_2 ||
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_1 ||
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_2 ||
@@ -316,6 +356,9 @@ public class ClientController {
                     }
                 }
             }
+
+            // Sort phụ tá by name
+            phuTaQuanNhiem.sort((a, b) -> a.getHoTen().compareToIgnoreCase(b.getHoTen()));
 
             // Sort ban chấp sự by chức vụ priority
             banChapSu.sort((a, b) -> {
@@ -328,7 +371,7 @@ public class ClientController {
             // Get all active NhanSu
             java.util.List<NhanSu> allNhanSu = nhanSuRepository.findByTrangThai(
                     NhanSu.TrangThaiNhanSu.HOAT_DONG);
-            
+
             // Sort by name
             allNhanSu.sort((a, b) -> a.getHoTen().compareToIgnoreCase(b.getHoTen()));
 
@@ -342,10 +385,9 @@ public class ClientController {
                     if (ns.getChucVu() == NhanSu.ChucVu.DAC_TRACH ||
                             ns.getChucVu() == NhanSu.ChucVu.THU_KY_1 ||
                             ns.getChucVu() == NhanSu.ChucVu.THU_KY_2 ||
-                            ns.getChucVu() == NhanSu.ChucVu.THU_QUY_1 || 
+                            ns.getChucVu() == NhanSu.ChucVu.THU_QUY_1 ||
                             ns.getChucVu() == NhanSu.ChucVu.THU_QUY_2 ||
-                            ns.getChucVu() == NhanSu.ChucVu.UY_VIEN
-                            ) {
+                            ns.getChucVu() == NhanSu.ChucVu.UY_VIEN) {
                         lanhDaoNhanSu.add(ns);
                     } else {
                         nhanSuKhac.add(ns);
@@ -383,9 +425,10 @@ public class ClientController {
             // Add all data to model
             // Chấp sự data
             model.addAttribute("chapSuChinh", chapSuChinh);
+            model.addAttribute("phuTaQuanNhiem", phuTaQuanNhiem);
             model.addAttribute("banChapSu", banChapSu);
             model.addAttribute("totalChapSu", allChapSu.size());
-            
+
             // Nhân sự data
             model.addAttribute("lanhDaoNhanSu", lanhDaoNhanSu);
             model.addAttribute("nhanSuKhac", nhanSuKhac);
@@ -399,6 +442,7 @@ public class ClientController {
             e.printStackTrace();
             // Set default values on error
             model.addAttribute("chapSuChinh", null);
+            model.addAttribute("phuTaQuanNhiem", java.util.Collections.emptyList());
             model.addAttribute("banChapSu", java.util.Collections.emptyList());
             model.addAttribute("totalChapSu", 0);
             model.addAttribute("lanhDaoNhanSu", java.util.Collections.emptyList());
@@ -423,10 +467,12 @@ public class ClientController {
                 return 3;
             case THU_KY_2:
                 return 4;
-            case THU_QUY_2:
+            case THU_QUY_1:
                 return 5;
-            case UY_VIEN:
+            case THU_QUY_2:
                 return 6;
+            case UY_VIEN:
+                return 7;
             default:
                 return 999;
         }
@@ -517,20 +563,15 @@ public class ClientController {
             System.out.println("Start of month: " + startOfMonth);
             System.out.println("End of month: " + endOfMonth);
 
-            // Debug: Check total records in each table
+            // Tổng bài viết
+            long totalBaiViet = 0;
             try {
-                long totalBaiViet = baiVietRepository.count();
-                long totalTaiChinhGiaoDich = taiChinhGiaoDichRepository.count();
-                long totalDiemNhomAll = diemNhomRepository.count();
-                long totalTinHuuAll = tinHuuRepository.count();
-
-                System.out.println("Total records - BaiViet: " + totalBaiViet +
-                        ", TaiChinhGiaoDich: " + totalTaiChinhGiaoDich +
-                        ", DiemNhom: " + totalDiemNhomAll +
-                        ", TinHuu: " + totalTinHuuAll);
+                totalBaiViet = baiVietRepository.count();
+                System.out.println("Total bai viet: " + totalBaiViet);
             } catch (Exception e) {
-                System.out.println("Error checking total records: " + e.getMessage());
+                System.out.println("Error counting bai viet: " + e.getMessage());
             }
+            model.addAttribute("totalBaiViet", totalBaiViet);
 
             // Tổng tín hữu
             long totalTinHuu = 0;
@@ -562,31 +603,6 @@ public class ClientController {
             }
             model.addAttribute("totalSuKienThangNay", totalSuKienThangNay);
 
-            // Dâng hiến tháng này (chỉ tính loại thu)
-            BigDecimal dangHienThangNay = BigDecimal.ZERO;
-            try {
-                dangHienThangNay = taiChinhGiaoDichRepository.sumByLoaiGiaoDichAndNgayGiaoDichBetween(
-                        TaiChinhGiaoDich.LoaiGiaoDich.THU, startOfMonth.toLocalDate(), endOfMonth.toLocalDate());
-                if (dangHienThangNay == null) {
-                    dangHienThangNay = BigDecimal.ZERO;
-                }
-                System.out.println("Dang hien thang nay: " + dangHienThangNay);
-            } catch (Exception e) {
-                System.out.println("Error calculating dang hien: " + e.getMessage());
-                // Fallback: tính tổng tất cả giao dịch thu
-                try {
-                    dangHienThangNay = taiChinhGiaoDichRepository.getTongTienByLoai(TaiChinhGiaoDich.LoaiGiaoDich.THU);
-                    if (dangHienThangNay == null) {
-                        dangHienThangNay = BigDecimal.ZERO;
-                    }
-                    System.out.println("Fallback total thu: " + dangHienThangNay);
-                } catch (Exception e2) {
-                    System.out.println("Error in fallback dang hien: " + e2.getMessage());
-                    dangHienThangNay = BigDecimal.ZERO;
-                }
-            }
-            model.addAttribute("dangHienThangNay", dangHienThangNay);
-
             // Tổng điểm nhóm
             long totalDiemNhom = 0;
             try {
@@ -615,7 +631,7 @@ public class ClientController {
             // Set default values on error
             model.addAttribute("totalTinHuu", 0L);
             model.addAttribute("totalSuKienThangNay", 0L);
-            model.addAttribute("dangHienThangNay", BigDecimal.ZERO);
+            model.addAttribute("totalBaiViet", 0L);
             model.addAttribute("totalDiemNhom", 0L);
             model.addAttribute("recentEvents", java.util.Collections.emptyList());
             return "client/management";
@@ -636,12 +652,12 @@ public class ClientController {
             long totalTinHuu = tinHuuRepository.count();
             long totalNam = tinHuuRepository.countByGioiTinh("Nam");
             long totalNu = tinHuuRepository.countByGioiTinh("Nữ");
-            
+
             // Thống kê theo trạng thái
             long tinHuuHoatDong = tinHuuRepository.countByTrangThaiString("HOAT_DONG");
             long tinHuuTamNghi = tinHuuRepository.countByTrangThaiString("TAM_NGHI");
             long tinHuuChuyenDi = tinHuuRepository.countByTrangThaiString("CHUYEN_DI");
-            
+
             // Thống kê theo nhóm
             long tinHuuCoPhanNhom = totalTinHuu - tinHuuRepository.findByNhomIsNullAndDeletedAtIsNull().size();
             long tinHuuChuaPhanNhom = tinHuuRepository.findByNhomIsNullAndDeletedAtIsNull().size();

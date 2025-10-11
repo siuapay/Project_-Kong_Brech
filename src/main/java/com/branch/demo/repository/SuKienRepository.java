@@ -74,6 +74,14 @@ public interface SuKienRepository extends JpaRepository<SuKien, Long> {
            "ORDER BY sk.ngayDienRa DESC")
     List<SuKien> findRecentEventsByDate(org.springframework.data.domain.Pageable pageable);
     
+    // Tìm sự kiện trong khoảng thời gian (7 ngày gần nhất)
+    @Query("SELECT sk FROM SuKien sk WHERE sk.deleted = false AND " +
+           "sk.ngayDienRa BETWEEN :startDate AND :endDate " +
+           "ORDER BY sk.ngayDienRa DESC")
+    List<SuKien> findRecentEvents(@Param("startDate") java.time.LocalDateTime startDate, 
+                                  @Param("endDate") java.time.LocalDateTime endDate,
+                                  org.springframework.data.domain.Pageable pageable);
+    
     // Tìm sự kiện theo tháng
     @Query("SELECT sk FROM SuKien sk WHERE sk.deleted = false AND " +
            "YEAR(sk.ngayDienRa) = :year AND " +

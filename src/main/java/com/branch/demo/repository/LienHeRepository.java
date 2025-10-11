@@ -82,6 +82,10 @@ public interface LienHeRepository extends JpaRepository<LienHe, Long> {
     @Query("SELECT COUNT(lh) FROM LienHe lh WHERE lh.trangThai = 'CHO_ADMIN_XU_LY' AND lh.coViPham = true")
     long countLienHeChoAdminXuLy();
     
+    // Đếm theo danh sách trạng thái
+    @Query("SELECT COUNT(lh) FROM LienHe lh WHERE lh.trangThai IN :trangThaiList")
+    long countByTrangThaiIn(@Param("trangThaiList") List<TrangThaiLienHe> trangThaiList);
+    
     // Tìm với phân trang
     Page<LienHe> findByHoTenContainingIgnoreCaseOrEmailContainingIgnoreCaseOrChuDeContainingIgnoreCase(
         String hoTen, String email, String chuDe, Pageable pageable);

@@ -9,6 +9,7 @@ import com.branch.demo.dto.ChapSuDTO;
 import com.branch.demo.dto.SuKienDTO;
 import com.branch.demo.repository.BaiVietRepository;
 import com.branch.demo.repository.BanNganhRepository;
+import com.branch.demo.repository.ChapSuRepository;
 import com.branch.demo.repository.LoaiSuKienRepository;
 import com.branch.demo.repository.NhanSuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class AdminController {
     @Autowired
     private NhanSuRepository nhanSuRepository;
 
+    @Autowired
+    private ChapSuRepository chapSuRepository;
+
     @GetMapping
     public String adminDashboard(Model model) {
         model.addAttribute("title", "Dashboard");
@@ -49,6 +53,14 @@ public class AdminController {
         model.addAttribute("activeMenu", "dashboard");
         model.addAttribute("stats", adminService.getDashboardStats());
         return "admin/dashboard";
+    }
+
+    @GetMapping("/nhan-su-chap-su")
+    public String nhanSuChapSuSelection(Model model) {
+        model.addAttribute("title", "Nhân Sự & Chấp Sự");
+        model.addAttribute("pageTitle", "Chọn Danh Sách Quản Lý");
+        model.addAttribute("activeMenu", "nhan-su-chap-su");
+        return "admin/nhan-su-chap-su/index";
     }
 
     @GetMapping("/tin-huu")
@@ -2203,6 +2215,56 @@ public class AdminController {
                     map.put("avatarUrl", chapSu.getAvatarUrl());
                     map.put("trangThai", chapSu.getTrangThai().name());
                     map.put("diemNhomTen", chapSu.getDiemNhom() != null ? chapSu.getDiemNhom().getTenDiemNhom() : null);
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    // ==================== API ENDPOINTS FOR DIEM NHOM ====================
+    
+    /**
+     * API endpoint to get NhanSu list by DiemNhom ID
+     */
+    @GetMapping("/api/diem-nhom/{diemNhomId}/nhan-su")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getNhanSuByDiemNhom(@PathVariable Long diemNhomId) {
+        return nhanSuRepository.findWithAdvancedFilters(null, null, null, diemNhomId, null, null, 
+                org.springframework.data.domain.Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(nhanSu -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", nhanSu.getId());
+                    map.put("hoTen", nhanSu.getHoTen());
+                    map.put("chucVu", nhanSu.getChucVu() != null ? nhanSu.getChucVu().getDisplayName() : "");
+                    map.put("email", nhanSu.getEmail());
+                    map.put("soDienThoai", nhanSu.getDienThoai());
+                    map.put("avatarUrl", nhanSu.getAvatarUrl());
+                    map.put("trangThai", nhanSu.getTrangThai().name());
+                    return map;
+                })
+                .collect(java.util.stream.Collectors.toList());
+    }
+    
+    /**
+     * API endpoint to get ChapSu list by DiemNhom ID
+     */
+    @GetMapping("/api/diem-nhom/{diemNhomId}/chap-su")
+    @ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getChapSuByDiemNhom(@PathVariable Long diemNhomId) {
+        return chapSuRepository.findWithAdvancedFilters(null, null, null, diemNhomId, null, null, 
+                org.springframework.data.domain.Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(chapSu -> {
+                    java.util.Map<String, Object> map = new java.util.HashMap<>();
+                    map.put("id", chapSu.getId());
+                    map.put("hoTen", chapSu.getHoTen());
+                    map.put("chucVu", chapSu.getChucVu() != null ? chapSu.getChucVu().getDisplayName() : "");
+                    map.put("email", chapSu.getEmail());
+                    map.put("soDienThoai", chapSu.getDienThoai());
+                    map.put("avatarUrl", chapSu.getAvatarUrl());
+                    map.put("trangThai", chapSu.getTrangThai().name());
                     return map;
                 })
                 .collect(java.util.stream.Collectors.toList());
