@@ -5,7 +5,7 @@
   <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="modern-admin-page">
   <!-- Sidebar -->
   <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -19,93 +19,182 @@
       <!-- Flash Messages -->
       <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-      <!-- Page Header -->
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-          <h2 class="text-primary">
-            <i class="fas fa-map-marker-alt me-2"></i>
-            <span th:text="${diemNhom.id != null ? 'Chỉnh Sửa Điểm Nhóm' : 'Thêm Điểm Nhóm Mới'}">Thêm Điểm Nhóm</span>
-          </h2>
-          <p class="text-muted mb-0">Nhập thông tin chi tiết của điểm nhóm</p>
+      <!-- Modern Page Header -->
+      <div class="modern-page-header">
+        <div class="header-content">
+          <div class="header-info">
+            <div class="header-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="header-text">
+              <h1 class="header-title" th:text="${diemNhom.id != null ? 'Chỉnh Sửa Điểm Nhóm' : 'Thêm Điểm Nhóm Mới'}">Thêm Điểm Nhóm Mới</h1>
+              <p class="header-subtitle">Nhập thông tin chi tiết của điểm nhóm để quản lý hiệu quả</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <a th:href="@{/admin/diem-nhom}" class="btn-modern btn-modern-outline">
+              <i class="fas fa-arrow-left me-2"></i>Quay Lại
+            </a>
+          </div>
         </div>
-        <a th:href="@{/admin/diem-nhom}" class="btn btn-secondary">
-          <i class="fas fa-arrow-left me-2"></i>Quay Lại
-        </a>
       </div>
 
-      <!-- Form -->
-      <div class="row">
+      <!-- Modern Form -->
+      <div class="row g-4">
         <div class="col-lg-8">
-          <div class="card shadow border-0">
-            <div class="card-header bg-light">
-              <h5 class="mb-0">
-                <i class="fas fa-info-circle me-2"></i>Thông Tin Điểm Nhóm
-              </h5>
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Thông Tin Điểm Nhóm</h5>
+                  <p>Điền đầy đủ thông tin để tạo điểm nhóm</p>
+                </div>
+              </div>
             </div>
-            <div class="card-body">
+            <div class="card-content">
               <form th:action="@{/admin/diem-nhom/save}" method="post" th:object="${diemNhom}">
                 <input type="hidden" th:field="*{id}" />
 
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label for="tenDiemNhom" class="form-label">Tên Điểm Nhóm <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="tenDiemNhom" th:field="*{tenDiemNhom}"
-                      placeholder="Nhập tên điểm nhóm" required />
+                <!-- Form Divider -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">Thông tin cơ bản</div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-8">
+                      <div class="modern-form-group">
+                        <label for="tenDiemNhom" class="modern-form-label">
+                          <i class="fas fa-map-marker-alt me-2"></i>
+                          Tên Điểm Nhóm <span class="required-star">*</span>
+                        </label>
+                        <input type="text" class="modern-form-control" id="tenDiemNhom" th:field="*{tenDiemNhom}"
+                          placeholder="Nhập tên điểm nhóm" required />
+                        <div class="form-feedback">
+                          Vui lòng nhập tên điểm nhóm.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="modern-form-group">
+                        <label for="trangThai" class="modern-form-label">
+                          <i class="fas fa-toggle-on me-2"></i>
+                          Trạng Thái <span class="required-star">*</span>
+                        </label>
+                        <select class="modern-form-select" id="trangThai" th:field="*{trangThai}" required>
+                          <option value="HOAT_DONG">Hoạt động</option>
+                          <option value="CHUAN_BI">Chuẩn bị</option>
+                          <option value="TAM_NGHI">Tạm nghỉ</option>
+                          <option value="DONG_CUA">Đóng cửa</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
-                  <div class="col-md-6">
-                    <label for="banNganh" class="form-label">Ban Ngành</label>
-                    <div id="banNganhDropdown"></div>
-                    <input type="hidden" id="selectedBanNganh" name="selectedBanNganh">
-                    <div class="form-text">Chọn các ban ngành quản lý điểm nhóm này (có thể chọn nhiều)</div>
-                    <div id="selectedBanNganhList" class="mt-2"></div>
-                  </div>
-
-                  <div class="col-12">
-                    <label for="diaChi" class="form-label">Địa Chỉ <span class="text-danger">*</span></label>
-                    <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"
-                      placeholder="Nhập địa chỉ chi tiết của điểm nhóm" required></textarea>
-                  </div>
-
-
-
-                  <div class="col-md-4">
-                    <label for="trangThai" class="form-label">Trạng Thái <span class="text-danger">*</span></label>
-                    <select class="form-select" id="trangThai" th:field="*{trangThai}" required>
-                      <option value="HOAT_DONG">Hoạt động</option>
-                      <option value="CHUAN_BI">Chuẩn bị</option>
-                      <option value="TAM_NGHI">Tạm nghỉ</option>
-                      <option value="DONG_CUA">Đóng cửa</option>
-                    </select>
-                  </div>
-
-                  <div class="col-12">
-                    <label for="moTa" class="form-label">Mô Tả</label>
-                    <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3"
-                      placeholder="Mô tả về điểm nhóm, đặc điểm, ghi chú..."></textarea>
+                  <div class="row g-4 mt-2">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="diaChi" class="modern-form-label">
+                          <i class="fas fa-home me-2"></i>
+                          Địa Chỉ <span class="required-star">*</span>
+                        </label>
+                        <textarea class="modern-form-textarea" id="diaChi" th:field="*{diaChi}" rows="3"
+                          placeholder="Nhập địa chỉ chi tiết của điểm nhóm" required></textarea>
+                        <div class="form-hint">Địa chỉ đầy đủ giúp dễ dàng tìm kiếm và liên lạc</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <hr class="my-4" />
+                <!-- Form Divider -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-sitemap me-2"></i>Phân công ban ngành
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
 
-                <div class="d-flex gap-2">
-                  <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save me-2"></i>
-                    <span th:text="${diemNhom.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Lưu</span>
-                  </button>
-                  <a th:href="@{/admin/diem-nhom}" class="btn btn-outline-secondary">
-                    <i class="fas fa-times me-2"></i>Hủy
-                  </a>
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="banNganh" class="modern-form-label">
+                          <i class="fas fa-users me-2"></i>
+                          Ban Ngành
+                        </label>
+                        <div id="banNganhDropdown"></div>
+                        <input type="hidden" id="selectedBanNganh" name="selectedBanNganh">
+                        <div class="form-hint">Chọn các ban ngành quản lý điểm nhóm này (có thể chọn nhiều)</div>
+                        <div id="selectedBanNganhList" class="selected-items-list"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Divider -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-sticky-note me-2"></i>Thông tin bổ sung
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="moTa" class="modern-form-label">
+                          <i class="fas fa-align-left me-2"></i>
+                          Mô Tả
+                        </label>
+                        <textarea class="modern-form-textarea" id="moTa" th:field="*{moTa}" rows="4"
+                          placeholder="Mô tả về điểm nhóm, đặc điểm, ghi chú..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modern Form Actions -->
+                <div class="form-actions">
+                  <div class="actions-container">
+                    <a th:href="@{/admin/diem-nhom}" class="btn-cancel">
+                      <i class="fas fa-times me-2"></i>Hủy Bỏ
+                    </a>
+                    <button type="submit" class="btn-submit">
+                      <i class="fas fa-save me-2"></i>
+                      <span th:text="${diemNhom.id != null ? 'Cập Nhật' : 'Lưu Điểm Nhóm'}">Lưu Điểm Nhóm</span>
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
           </div>
         </div>
 
+        <!-- Modern Sidebar Info -->
         <div class="col-lg-4">
-          <!-- Help Card -->
-          <div class="card shadow border-0">
-            <div class="card-header bg-info text-white">
+          <!-- Guidelines Card -->
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Hướng Dẫn</h5>
+                  <p>Thông tin cần thiết khi tạo điểm nhóm</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
               <h6 class="mb-0">
                 <i class="fas fa-lightbulb me-2"></i>Hướng Dẫn
               </h6>
@@ -410,6 +499,327 @@
     .required::after {
       content: " *";
       color: #dc3545;
+    }
+
+    /* Modern Admin Page Styles */
+    .modern-admin-page {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+
+    /* Modern Page Header */
+    .modern-page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .header-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .header-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* Modern Buttons */
+    .btn-modern {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-modern-outline {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-modern-outline:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Modern Cards */
+    .modern-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .card-title h5 {
+      margin: 0;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .card-title p {
+      margin: 0.25rem 0 0 0;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .card-content {
+      padding: 2rem;
+    }
+
+    /* Form Dividers */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      margin: 2rem 0;
+      gap: 1rem;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+    }
+
+    .divider-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    /* Modern Form Controls */
+    .modern-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .modern-form-label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .required-star {
+      color: #e53e3e;
+      margin-left: 0.25rem;
+    }
+
+    .modern-form-control,
+    .modern-form-select,
+    .modern-form-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .modern-form-control:focus,
+    .modern-form-select:focus,
+    .modern-form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .modern-form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-hint {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-top: 0.25rem;
+    }
+
+    .form-feedback {
+      font-size: 0.85rem;
+      color: #e53e3e;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .modern-form-control:invalid + .form-feedback {
+      display: block;
+    }
+
+    /* Selected Items List */
+    .selected-items-list {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .selected-item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .selected-item .remove-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .actions-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .btn-cancel {
+      padding: 0.75rem 1.5rem;
+      background: #f7fafc;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-cancel:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+      color: #2d3748;
+      transform: translateY(-1px);
+    }
+
+    .btn-submit {
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .actions-container {
+        flex-direction: column;
+      }
     }
   </style>
 </body>

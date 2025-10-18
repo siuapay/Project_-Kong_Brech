@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/admin-layout :: head}">
 
 </head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -17,153 +17,160 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-chart-line me-2"></i>Dashboard Tài Chính
-                    </h2>
-                    <p class="text-muted mb-0">Tổng quan tình hình tài chính của tổ chức</p>
-                </div>
-                <div class="btn-group">
-                    <a th:href="@{/admin/tai-chinh/thong-ke/so-sanh}" class="btn btn-outline-primary">
-                        <i class="fas fa-balance-scale me-1"></i>So Sánh Năm
-                    </a>
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar me-1"></i>Xem Theo Năm
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li th:each="year : ${availableYears}">
-                                <a class="dropdown-item" th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year})}" 
-                                   th:text="'Năm ' + ${year}">Năm 2024</a>
-                            </li>
-                        </ul>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Dashboard Tài Chính</h1>
+                            <p class="header-subtitle">Tổng quan tình hình tài chính của tổ chức</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/tai-chinh/thong-ke/so-sanh}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-balance-scale me-2"></i>So Sánh Năm
+                        </a>
+                        <div class="dropdown">
+                            <button class="btn-modern btn-modern-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-calendar me-2"></i>Xem Theo Năm
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li th:each="year : ${availableYears}">
+                                    <a class="dropdown-item" th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year})}" 
+                                       th:text="'Năm ' + ${year}">Năm 2024</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Summary Cards -->
-            <div class="row g-4 mb-4">
-                <!-- Current Year Summary -->
-                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
-                    <div class="card shadow border-0 h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-lg rounded-circle bg-primary d-flex align-items-center justify-content-center me-3">
-                                    <i class="fas fa-calendar-alt fa-2x text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-muted mb-1">Năm Hiện Tại</h6>
-                                    <h4 class="mb-0" th:text="${currentYearData.nam}">2024</h4>
-                                    <small class="text-muted">Đang hoạt động</small>
-                                </div>
-                            </div>
-                        </div>
+            <!-- Modern Summary Cards -->
+            <div class="stats-grid" th:if="${currentYearData}">
+                <!-- Current Year -->
+                <div class="stat-card primary">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Năm Hiện Tại</div>
+                        <div class="stat-value" th:text="${currentYearData.nam}">2025</div>
+                        <div class="stat-desc">Đang hoạt động</div>
+                    </div>
+                    <div class="stat-trend">
+                        <i class="fas fa-calendar-check"></i>
                     </div>
                 </div>
 
                 <!-- Total Income -->
-                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
-                    <div class="card shadow border-0 h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-lg rounded-circle bg-success d-flex align-items-center justify-content-center me-3">
-                                    <i class="fas fa-arrow-up fa-2x text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-muted mb-1">Tổng Thu</h6>
-                                    <h4 class="mb-0 text-success" th:text="${#numbers.formatDecimal(currentYearData.tongThu, 0, 'COMMA', 0, 'POINT')}">0</h4>
-                                    <small class="text-muted">VNĐ</small>
-                                </div>
-                            </div>
-                        </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Tổng Thu</div>
+                        <div class="stat-value" th:text="${#numbers.formatDecimal(currentYearData.tongThu, 0, 'COMMA', 0, 'POINT')}">23,600,000</div>
+                        <div class="stat-desc">VNĐ</div>
+                    </div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-trending-up"></i>
                     </div>
                 </div>
 
                 <!-- Total Expense -->
-                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
-                    <div class="card shadow border-0 h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-lg rounded-circle bg-danger d-flex align-items-center justify-content-center me-3">
-                                    <i class="fas fa-arrow-down fa-2x text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-muted mb-1">Tổng Chi</h6>
-                                    <h4 class="mb-0 text-danger" th:text="${#numbers.formatDecimal(currentYearData.tongChi, 0, 'COMMA', 0, 'POINT')}">0</h4>
-                                    <small class="text-muted">VNĐ</small>
-                                </div>
-                            </div>
-                        </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Tổng Chi</div>
+                        <div class="stat-value" th:text="${#numbers.formatDecimal(currentYearData.tongChi, 0, 'COMMA', 0, 'POINT')}">3,500,000</div>
+                        <div class="stat-desc">VNĐ</div>
+                    </div>
+                    <div class="stat-trend down">
+                        <i class="fas fa-trending-down"></i>
                     </div>
                 </div>
 
                 <!-- Balance -->
-                <div class="col-lg-3 col-md-6" th:if="${currentYearData}">
-                    <div class="card shadow border-0 h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="avatar-lg rounded-circle d-flex align-items-center justify-content-center me-3"
-                                     th:class="${currentYearData.soDu >= 0} ? 'bg-info' : 'bg-warning'">
-                                    <i class="fas fa-balance-scale fa-2x text-white"></i>
-                                </div>
-                                <div>
-                                    <h6 class="text-muted mb-1">Số Dư</h6>
-                                    <h4 class="mb-0" 
-                                        th:class="${currentYearData.soDu >= 0} ? 'text-info' : 'text-warning'"
-                                        th:text="${#numbers.formatDecimal(currentYearData.soDu, 0, 'COMMA', 0, 'POINT')}">0</h4>
-                                    <small class="text-muted" th:text="${currentYearData.trangThaiTaiChinh}">Trạng thái</small>
-                                </div>
-                            </div>
-                        </div>
+                <div class="stat-card" th:class="${currentYearData.soDu >= 0} ? 'info' : 'warning'">
+                    <div class="stat-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Số Dư</div>
+                        <div class="stat-value" th:text="${#numbers.formatDecimal(currentYearData.soDu, 0, 'COMMA', 0, 'POINT')}">20,100,000</div>
+                        <div class="stat-desc" th:text="${currentYearData.soDu >= 0} ? 'Lãi' : 'Lỗ'">Lãi</div>
+                    </div>
+                    <div class="stat-trend" th:class="${currentYearData.soDu >= 0} ? 'up' : 'down'">
+                        <i th:class="${currentYearData.soDu >= 0} ? 'fas fa-chart-line' : 'fas fa-exclamation-triangle'"></i>
                     </div>
                 </div>
             </div>
 
-            <div class="row g-4">
-                <!-- Recent Years Chart -->
-                <div class="col-lg-8">
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-chart-bar me-2"></i>Tình Hình Tài Chính Các Năm Gần Đây
-                            </h5>
+            <!-- Dashboard Content Grid -->
+            <div class="dashboard-grid">
+                <!-- Chart Section -->
+                <div class="chart-section">
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Biểu Đồ Tài Chính</h5>
+                                    <p>Tình hình tài chính các năm gần đây</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <canvas id="yearlyChart" height="300"></canvas>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="yearlyChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Stats -->
-                <div class="col-lg-4">
-                    <div class="card shadow border-0 h-100">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0">
-                                <i class="fas fa-info-circle me-1"></i>Thống Kê Nhanh
-                            </h6>
+                <!-- Quick Stats Sidebar -->
+                <div class="stats-sidebar">
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thống Kê Nhanh</h5>
+                                    <p>Thông tin tổng quan</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3" th:if="${thongKeTongQuan}">
-                                <div class="col-12" th:each="stat : ${thongKeTongQuan}">
-                                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
-                                        <div>
-                                            <h6 class="mb-0">Tổng Số Năm</h6>
-                                            <small class="text-muted">Có dữ liệu</small>
-                                        </div>
-                                        <h4 class="mb-0 text-primary" th:text="${stat[0]}">0</h4>
+                        <div class="card-content">
+                            <!-- Quick Stats -->
+                            <div class="quick-stats" th:if="${thongKeTongQuan}">
+                                <div class="quick-stat-item" th:each="stat : ${thongKeTongQuan}">
+                                    <div class="quick-stat-icon">
+                                        <i class="fas fa-database"></i>
+                                    </div>
+                                    <div class="quick-stat-content">
+                                        <div class="quick-stat-label">Tổng Số Năm</div>
+                                        <div class="quick-stat-value" th:text="${stat[0]}">0</div>
+                                        <div class="quick-stat-desc">Có dữ liệu</div>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Available Years -->
-                            <div class="mt-4">
-                                <h6 class="text-muted mb-3">Các Năm Có Dữ Liệu</h6>
-                                <div class="d-flex flex-wrap gap-2">
+                            <div class="years-section">
+                                <h6 class="section-title">Các Năm Có Dữ Liệu</h6>
+                                <div class="year-tags">
                                     <a th:each="year : ${availableYears}" 
                                        th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year})}"
-                                       class="btn btn-sm btn-outline-primary" th:text="${year}">2024</a>
+                                       class="year-tag" th:text="${year}">2025</a>
                                 </div>
                             </div>
                         </div>
@@ -171,61 +178,60 @@
                 </div>
             </div>
 
-            <!-- Recent Years Summary -->
-            <div class="row mt-4" th:if="${recentYears}">
-                <div class="col-12">
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-history me-2"></i>Tổng Kết Các Năm Gần Đây
-                            </h5>
-                        </div>
-                        <div class="card-body p-0">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Năm</th>
-                                            <th>Tổng Thu</th>
-                                            <th>Tổng Chi</th>
-                                            <th>Số Dư</th>
-                                            <th>Trạng Thái</th>
-                                            <th>Thao Tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="year : ${recentYears}" class="align-middle">
-                                            <td>
-                                                <h6 class="mb-0" th:text="${year.nam}">2024</h6>
-                                            </td>
-                                            <td>
-                                                <span class="text-success fw-bold" 
-                                                      th:text="${#numbers.formatDecimal(year.tongThu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-danger fw-bold" 
-                                                      th:text="${#numbers.formatDecimal(year.tongChi, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
-                                            </td>
-                                            <td>
-                                                <span class="fw-bold" 
-                                                      th:class="${year.soDu >= 0} ? 'text-info' : 'text-warning'"
-                                                      th:text="${#numbers.formatDecimal(year.soDu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
-                                            </td>
-                                            <td>
-                                                <span class="badge" 
-                                                      th:class="${year.soDu > 0} ? 'bg-success' : (${year.soDu < 0} ? 'bg-danger' : 'bg-warning')"
-                                                      th:text="${year.trangThaiTaiChinh}">Trạng thái</span>
-                                            </td>
-                                            <td>
-                                                <a th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year.nam})}" 
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye me-1"></i>Chi Tiết
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+            <!-- Recent Years Summary Table -->
+            <div class="summary-section" th:if="${recentYears}">
+                <div class="modern-card">
+                    <div class="card-header">
+                        <div class="header-left">
+                            <div class="card-icon">
+                                <i class="fas fa-history"></i>
                             </div>
+                            <div class="card-title">
+                                <h5>Tổng Kết Các Năm</h5>
+                                <p>Dữ liệu tài chính các năm gần đây</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content p-0">
+                        <div class="table-container">
+                            <table class="modern-table">
+                                <thead>
+                                    <tr>
+                                        <th class="th-year">Năm</th>
+                                        <th class="th-income">Tổng Thu</th>
+                                        <th class="th-expense">Tổng Chi</th>
+                                        <th class="th-balance">Số Dư</th>
+                                        <th class="th-actions">Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="year : ${recentYears}" class="table-row">
+                                        <td class="td-year">
+                                            <div class="year-badge" th:text="${year.nam}">2025</div>
+                                        </td>
+                                        <td class="td-income">
+                                            <div class="amount-value income" 
+                                                 th:text="${#numbers.formatDecimal(year.tongThu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">23,600,000 VNĐ</div>
+                                        </td>
+                                        <td class="td-expense">
+                                            <div class="amount-value expense" 
+                                                 th:text="${#numbers.formatDecimal(year.tongChi, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">3,500,000 VNĐ</div>
+                                        </td>
+                                        <td class="td-balance">
+                                            <div class="amount-value" 
+                                                 th:class="${year.soDu >= 0} ? 'balance-positive' : 'balance-negative'"
+                                                 th:style="${year.soDu >= 0} ? 'background: linear-gradient(135deg, #bee3f8 0%, #63b3ed 100%); color: #138be1ff; border: 1px solid #63b3ed; font-weight: 700; padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center;' : 'background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); color: #c53030; border: 1px solid #fc8181; font-weight: 700; padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center;'"
+                                                 th:text="${#numbers.formatDecimal(year.soDu, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">20,100,000 VNĐ</div>
+                                        </td>
+                                        <td class="td-actions">
+                                            <a th:href="@{/admin/tai-chinh/thong-ke/nam/{nam}(nam=${year.nam})}" 
+                                               class="action-btn view-btn" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -234,8 +240,625 @@
     </main>
 
     <!-- Scripts -->
-       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <!-- Modern Dashboard Styles (Fixed) -->
+    <style>
+        /* Modern Admin Page */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-modern-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem; /* Giảm padding để cân đối hơn */
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex; /* FIX: Thêm flex để layout ngang */
+            align-items: center; /* Căn giữa theo chiều dọc */
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card.primary::before {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card.success::before {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+        }
+
+        .stat-card.danger::before {
+            background: linear-gradient(90deg, #f56565, #e53e3e);
+        }
+
+        .stat-card.info::before {
+            background: linear-gradient(90deg, #4299e1, #3182ce);
+        }
+
+        .stat-card.warning::before {
+            background: linear-gradient(90deg, #ed8936, #dd6b20);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 1rem; /* FIX: Margin right thay vì bottom */
+            flex-shrink: 0; /* Không co lại */
+            margin-bottom: 0; /* Xóa margin bottom cũ */
+        }
+
+        .stat-card.primary .stat-icon {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stat-card.success .stat-icon {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .stat-card.danger .stat-icon {
+            background: linear-gradient(135deg, #f56565, #e53e3e);
+        }
+
+        .stat-card.info .stat-icon {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+        }
+
+        .stat-card.warning .stat-icon {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+
+        .stat-content {
+            flex: 1; /* Giữ nguyên, nhưng giờ parent là flex */
+            margin: 0; /* Xóa margin cũ */
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.125rem;
+        }
+
+        .stat-desc {
+            font-size: 0.875rem;
+            color: #a0aec0;
+            font-weight: 500; /* Tăng weight cho "Lãi"/"Lỗ" nổi bật hơn */
+        }
+
+        .stat-trend {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .stat-trend.up {
+            background: rgba(72, 187, 120, 0.1);
+            color: #38a169;
+        }
+
+        .stat-trend.down {
+            background: rgba(245, 101, 101, 0.1);
+            color: #e53e3e;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-section {
+            min-width: 0;
+        }
+
+        .stats-sidebar {
+            min-width: 0;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            margin-bottom: 2rem;
+        }
+
+        .quick-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .quick-stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .quick-stat-content {
+            flex: 1;
+        }
+
+        .quick-stat-label {
+            font-size: 0.875rem;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-stat-desc {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+
+        /* Years Section */
+        .years-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+        }
+
+        .year-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .year-tag {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .year-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            margin-top: 2rem;
+        }
+
+        /* Modern Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .modern-table thead th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+
+        .modern-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: middle;
+        }
+
+        .table-row:hover {
+            background: #f8f9fa;
+        }
+
+        /* Table Cell Styles */
+        .th-year, .td-year { width: 20%; }
+        .th-income, .td-income { width: 25%; }
+        .th-expense, .td-expense { width: 25%; }
+        .th-balance, .td-balance { width: 25%; }
+        .th-actions, .td-actions { width: 5%; }
+
+        .year-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .amount-value {
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .amount-value.income {
+            color: #2f855a;
+            background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%);
+            border: 1px solid #68d391;
+        }
+
+        .amount-value.expense {
+            color: #c53030;
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+            border: 1px solid #fc8181;
+        }
+
+        .amount-value.balance-positive {
+            color: #2f855a;
+            background: linear-gradient(135deg, #bee3f8 0%, #63b3ed 100%);
+            border: 1px solid #63b3ed;
+        }
+
+        .amount-value.balance-negative {
+            color: #c53030;
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+            border: 1px solid #fc8181;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .status-badge.danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .status-badge.warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn.view-btn {
+            background: #ebf8ff;
+            color: #3182ce;
+        }
+
+        .action-btn.view-btn:hover {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 991px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .stats-sidebar {
+                order: 2;
+            }
+            
+            .chart-section {
+                order: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+            }
+
+            .header-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .header-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+            }
+
+            .btn-modern {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.25rem; /* Giảm padding trên mobile */
+                flex-direction: column; /* Stack dọc trên mobile nhỏ */
+                text-align: center;
+            }
+
+            .stat-icon {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.75rem; /* Giảm size chữ trên mobile */
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+
+            .year-tags {
+                justify-content: center;
+            }
+        }
+    </style>
    
     
     <script>
@@ -250,19 +873,15 @@
             fetch('/admin/tai-chinh/api/thong-ke/dashboard')
                 .then(response => response.json())
                 .then(data => {
-                    console.log('Dashboard API Response:', data);
-                    
                     if (data.success) {
                         createYearlyChart(data.recentYears);
                         updateSummaryCards(data);
                     } else {
-                        console.error('Dashboard API Error:', data.error);
                         // Fallback to Thymeleaf data
                         createYearlyChartFallback();
                     }
                 })
                 .catch(error => {
-                    console.error('Error loading dashboard data:', error);
                     // Fallback to Thymeleaf data
                     createYearlyChartFallback();
                 });
@@ -276,8 +895,6 @@
             const thuData = recentYearsData.map(year => year.tongThu);
             const chiData = recentYearsData.map(year => year.tongChi);
             const soDuData = recentYearsData.map(year => year.soDu);
-            
-            console.log('Chart data:', { years, thuData, chiData, soDuData });
             
             // Destroy existing chart if exists
             if (yearlyChart) {
@@ -456,7 +1073,6 @@
         
         // Update summary cards (optional)
         function updateSummaryCards(data) {
-            console.log('Summary data:', data);
             // You can update summary cards here if needed
             // For now, we'll keep the server-side rendered cards
         }

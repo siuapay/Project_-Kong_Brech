@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,56 +15,70 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-exchange-alt me-2"></i>Quản Lý Giao Dịch Tài Chính
-                    </h2>
-                    <p class="text-muted mb-0">Quản lý các giao dịch thu chi của tổ chức</p>
-                </div>
-                <div class="btn-group">
-                    <a th:href="@{/admin/tai-chinh/giao-dich/add}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Thêm Giao Dịch Mới
-                    </a>
-                    <button type="button" class="btn btn-success" onclick="exportToExcel()">
-                        <i class="fas fa-file-excel me-2"></i>Xuất Excel
-                    </button>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Quản Lý Giao Dịch</h1>
+                            <p class="header-subtitle">Quản lý các giao dịch thu chi của tổ chức</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/tai-chinh/giao-dich/add}" class="btn-modern btn-modern-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm Giao Dịch
+                        </a>
+                        <button type="button" class="btn-modern btn-modern-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Xuất Excel
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Advanced Search & Filter -->
-            <div class="card shadow border-0 mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">
-                        <i class="fas fa-filter me-2"></i>Tìm Kiếm Nâng Cao & Bộ Lọc
-                        <button class="btn btn-sm btn-outline-secondary ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
-                            <i class="fas fa-chevron-down"></i>
-                        </button>
-                    </h6>
+            <!-- Modern Search & Filters -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="card-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="card-title">
+                            <h5>Tìm Kiếm & Bộ Lọc</h5>
+                            <p>Tìm kiếm và lọc danh sách giao dịch</p>
+                        </div>
+                    </div>
+                    <button class="btn-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters" 
+                            aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Nâng cao</span>
+                    </button>
                 </div>
-                <div class="card-body">
+                <div class="card-content">
                     <form method="get" th:action="@{/admin/tai-chinh/giao-dich}" id="filterForm">
                         <!-- Basic Search -->
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input type="text" class="form-control" name="search" 
-                                           th:value="${search}" placeholder="Tìm kiếm theo nội dung...">
+                        <div class="search-row">
+                            <div class="search-input-group">
+                                <div class="input-icon">
+                                    <i class="fas fa-search"></i>
                                 </div>
+                                <input type="text" class="form-input" name="search" th:value="${search}" 
+                                       placeholder="Tìm kiếm theo nội dung..." id="searchInput">
+                                <button type="button" class="clear-input-btn" onclick="clearSearchInput()"
+                                        th:style="${search != null and !#strings.isEmpty(search)} ? 'display: block;' : 'display: none;'"
+                                        title="Xóa từ khóa tìm kiếm">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                            <div class="col-md-2">
-                                <select class="form-select" name="loai">
+                            <div class="search-filters">
+                                <select class="form-select-modern" name="loai">
                                     <option value="">Tất cả loại</option>
                                     <option value="THU" th:selected="${loai == 'THU'}">Thu</option>
                                     <option value="CHI" th:selected="${loai == 'CHI'}">Chi</option>
                                 </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select" name="nam">
+                                <select class="form-select-modern" name="nam">
                                     <option value="">Tất cả năm</option>
                                     <option th:each="year : ${availableYears}" 
                                             th:value="${year}" 
@@ -72,59 +86,66 @@
                                             th:selected="${nam == year}">2024</option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Tìm kiếm
-                                    </button>
-                                    <a th:href="@{/admin/tai-chinh/giao-dich}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
-                                    </a>
-                                </div>
+                            <div class="search-actions">
+                                <button type="submit" class="btn-modern btn-modern-primary">
+                                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                                </button>
+                                <a th:href="@{/admin/tai-chinh/giao-dich}" class="btn-modern btn-modern-outline">
+                                    <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                                </a>
                             </div>
                         </div>
 
                         <!-- Advanced Filters -->
                         <div class="collapse" id="advancedFilters">
-                            <hr>
-                            <div class="row g-3">
-                                <div class="col-md-3">
-                                    <label class="form-label">Danh Mục</label>
-                                    <select class="form-select" name="danhMucId">
-                                        <option value="">Tất cả danh mục</option>
-                                        <option th:each="dm : ${danhMucList}" 
-                                                th:value="${dm.id}" 
-                                                th:text="${dm.tenDanhMuc + ' (' + dm.loai.displayName + ')'}"
-                                                th:selected="${danhMucId == dm.id}">Danh mục</option>
-                                    </select>
+                            <div class="advanced-filters">
+                                <div class="filter-grid">
+                                    <div class="filter-item">
+                                        <label class="filter-label">Danh Mục</label>
+                                        <select class="form-select-modern" name="danhMucId">
+                                            <option value="">Tất cả danh mục</option>
+                                            <option th:each="dm : ${danhMucList}" 
+                                                    th:value="${dm.id}" 
+                                                    th:text="${dm.tenDanhMuc + ' (' + dm.loai.displayName + ')'}"
+                                                    th:selected="${danhMucId == dm.id}">Danh mục</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">Người Phụ Trách</label>
+                                        <select class="form-select-modern" name="nguoiPhuTrachId">
+                                            <option value="">Tất cả người</option>
+                                            <option th:each="ns : ${nhanSuList}" 
+                                                    th:value="${ns.id}" 
+                                                    th:text="${ns.hoTen}"
+                                                    th:selected="${nguoiPhuTrachId == ns.id}">Người phụ trách</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">Từ Ngày</label>
+                                        <input type="date" class="form-input-modern" name="tuNgay" th:value="${tuNgay}">
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">Đến Ngày</label>
+                                        <input type="date" class="form-input-modern" name="denNgay" th:value="${denNgay}">
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">Số Tiền Tối Thiểu</label>
+                                        <input type="number" class="form-input-modern" name="soTienMin" 
+                                               th:value="${soTienMin}" placeholder="0" min="0" step="1000">
+                                    </div>
+                                    <div class="filter-item">
+                                        <label class="filter-label">Số Tiền Tối Đa</label>
+                                        <input type="number" class="form-input-modern" name="soTienMax" 
+                                               th:value="${soTienMax}" placeholder="Không giới hạn" min="0" step="1000">
+                                    </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Người Phụ Trách</label>
-                                    <select class="form-select" name="nguoiPhuTrachId">
-                                        <option value="">Tất cả người</option>
-                                        <option th:each="ns : ${nhanSuList}" 
-                                                th:value="${ns.id}" 
-                                                th:text="${ns.hoTen}"
-                                                th:selected="${nguoiPhuTrachId == ns.id}">Người phụ trách</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Từ Ngày</label>
-                                    <input type="date" class="form-control" name="tuNgay" th:value="${tuNgay}">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Đến Ngày</label>
-                                    <input type="date" class="form-control" name="denNgay" th:value="${denNgay}">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Số Tiền Tối Thiểu</label>
-                                    <input type="number" class="form-control" name="soTienMin" 
-                                           th:value="${soTienMin}" placeholder="0" min="0" step="1000">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label">Số Tiền Tối Đa</label>
-                                    <input type="number" class="form-control" name="soTienMax" 
-                                           th:value="${soTienMax}" placeholder="Không giới hạn" min="0" step="1000">
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn-modern btn-modern-success">
+                                        <i class="fas fa-filter me-1"></i>Áp dụng bộ lọc
+                                    </button>
+                                    <button type="button" class="btn-modern btn-modern-outline" onclick="clearAdvancedFilters()">
+                                        <i class="fas fa-eraser me-1"></i>Xóa bộ lọc nâng cao
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -132,91 +153,94 @@
                 </div>
             </div>
 
-            <!-- Transactions List -->
-            <div class="card shadow border-0">
-                <div class="card-header bg-light border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>Danh Sách Giao Dịch
-                            <span class="badge bg-primary ms-2" th:text="${giaoDichPage.totalElements}">0</span>
-                        </h5>
-                        <small class="text-muted">
-                            Trang <span th:text="${giaoDichPage.number + 1}">1</span> 
-                            / <span th:text="${giaoDichPage.totalPages}">1</span>
-                        </small>
+            <!-- Modern Table -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="card-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="card-title">
+                            <h5>Danh Sách Giao Dịch</h5>
+                            <p>Tổng cộng <span class="count-badge" th:text="${giaoDichPage.totalElements}">0</span> giao dịch</p>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                <div class="card-content p-0">
+                    <div class="table-container">
+                        <table class="modern-table">
+                            <thead>
                                 <tr>
-                                    <th width="5%">#</th>
-                                    <th width="12%">Thời Gian</th>
-                                    <th width="8%">Loại</th>
-                                    <th width="12%">Số Tiền</th>
-                                    <th width="25%">Nội Dung</th>
-                                    <th width="15%">Danh Mục</th>
-                                    <th width="15%">Người Phụ Trách</th>
-                                    <th width="8%">Thao Tác</th>
+                                    <th class="th-id">STT</th>
+                                    <th class="th-time">Thời Gian</th>
+                                    <th class="th-type">Loại</th>
+                                    <th class="th-amount">Số Tiền</th>
+                                    <th class="th-category">Danh Mục</th>
+                                    <th class="th-person">Người Phụ Trách</th>
+                                    <th class="th-actions">Thao Tác</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:if="${giaoDichPage.content.empty}">
-                                    <td colspan="8" class="text-center py-4 text-muted">
-                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                        Không có giao dịch nào được tìm thấy
+                                <tr th:if="${giaoDichPage.content.empty}" class="empty-row">
+                                    <td colspan="7" class="empty-state">
+                                        <div class="empty-content">
+                                            <div class="empty-icon">
+                                                <i class="fas fa-exchange-alt"></i>
+                                            </div>
+                                            <h5 class="empty-title">Không có giao dịch nào</h5>
+                                            <p class="empty-text">Chưa có giao dịch nào được thêm vào hệ thống.</p>
+                                            <a th:href="@{/admin/tai-chinh/giao-dich/add}" class="btn-modern btn-modern-primary">
+                                                <i class="fas fa-plus me-2"></i>Thêm Giao Dịch Đầu Tiên
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
-                                <tr th:each="giaoDich, iterStat : ${giaoDichPage.content}" class="align-middle">
-                                    <td>
-                                        <span class="fw-bold text-primary" 
-                                              th:text="${giaoDichPage.number * giaoDichPage.size + iterStat.index + 1}">1</span>
+                                <tr th:each="giaoDich, iterStat : ${giaoDichPage.content}" class="table-row">
+                                    <td class="td-id">
+                                        <span class="id-badge" th:text="${giaoDichPage.number * giaoDichPage.size + iterStat.index + 1}"></span>
                                     </td>
-                                    <td>
-                                        <div>
-                                            <div class="fw-bold" th:text="${#temporals.format(giaoDich.thoiGian, 'dd/MM/yyyy')}">01/01/2024</div>
-                                            <small class="text-muted" th:text="${#temporals.format(giaoDich.thoiGian, 'HH:mm')}">10:00</small>
+                                    <td class="td-time">
+                                        <div class="time-info">
+                                            <div class="time-date" th:text="${#temporals.format(giaoDich.thoiGian, 'dd/MM/yyyy')}">01/01/2024</div>
+                                            <div class="time-hour" th:text="${#temporals.format(giaoDich.thoiGian, 'HH:mm')}">10:00</div>
                                         </div>
                                     </td>
-                                    <td>
-                                        <span th:if="${giaoDich.loai == 'THU'}" class="badge bg-success">
-                                            <i class="fas fa-arrow-up me-1"></i>Thu
+                                    <td class="td-type">
+                                        <span th:if="${giaoDich.loai == 'THU'}" class="type-badge income">
+                                            <i class="fas fa-arrow-up"></i>Thu
                                         </span>
-                                        <span th:if="${giaoDich.loai == 'CHI'}" class="badge bg-danger">
-                                            <i class="fas fa-arrow-down me-1"></i>Chi
+                                        <span th:if="${giaoDich.loai == 'CHI'}" class="type-badge expense">
+                                            <i class="fas fa-arrow-down"></i>Chi
                                         </span>
                                     </td>
-                                    <td>
-                                        <div class="fw-bold" 
-                                             th:class="${giaoDich.loai == 'THU'} ? 'text-success' : 'text-danger'"
+                                    <td class="td-amount">
+                                        <div class="amount-value" 
+                                             th:class="${giaoDich.loai == 'THU'} ? 'income' : 'expense'"
+                                             th:style="${giaoDich.loai == 'THU'} ? 'background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%); color: #2f855a; border: 2px solid #68d391; font-weight: 700; padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center;' : 'background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%); color: #c53030; border: 2px solid #fc8181; font-weight: 700; padding: 0.5rem 1rem; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center;'"
                                              th:text="${giaoDich.soTienFormatted + ' VNĐ'}">1,000,000 VNĐ</div>
                                     </td>
-                                    <td>
-                                        <div th:text="${#strings.abbreviate(giaoDich.noiDung, 50)}">Nội dung giao dịch</div>
-                                    </td>
-                                    <td>
-                                        <div th:if="${giaoDich.tenDanhMuc}">
-                                            <div class="fw-bold" th:text="${giaoDich.tenDanhMuc}">Tên danh mục</div>
-                                            <small class="text-muted" th:text="${giaoDich.loaiDanhMuc}">Loại</small>
+                                    <td class="td-category">
+                                        <div th:if="${giaoDich.tenDanhMuc}" class="category-info">
+                                            <div class="category-name" th:text="${giaoDich.tenDanhMuc}">Tên danh mục</div>
+                                            <div class="category-type" th:text="${giaoDich.loaiDanhMuc}">Loại</div>
                                         </div>
-                                        <span th:unless="${giaoDich.tenDanhMuc}" class="text-muted fst-italic">Chưa phân loại</span>
+                                        <span th:unless="${giaoDich.tenDanhMuc}" class="no-data">Chưa phân loại</span>
                                     </td>
-                                    <td>
-                                        <span th:if="${giaoDich.tenNguoiPhuTrach}" th:text="${giaoDich.tenNguoiPhuTrach}">Người phụ trách</span>
-                                        <span th:unless="${giaoDich.tenNguoiPhuTrach}" class="text-muted fst-italic">Chưa xác định</span>
+                                    <td class="td-person">
+                                        <span th:if="${giaoDich.tenNguoiPhuTrach}" class="person-name" th:text="${giaoDich.tenNguoiPhuTrach}">Người phụ trách</span>
+                                        <span th:unless="${giaoDich.tenNguoiPhuTrach}" class="no-data">Chưa xác định</span>
                                     </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
+                                    <td class="td-actions">
+                                        <div class="action-buttons">
                                             <a th:href="@{/admin/tai-chinh/giao-dich/view/{id}(id=${giaoDich.id})}" 
-                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                               class="action-btn view-btn" title="Xem chi tiết">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a th:href="@{/admin/tai-chinh/giao-dich/edit/{id}(id=${giaoDich.id})}" 
-                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
+                                               class="action-btn edit-btn" title="Chỉnh sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            <button type="button" class="action-btn delete-btn" 
                                                     title="Xóa giao dịch"
                                                     th:data-id="${giaoDich.id}"
                                                     th:data-content="${giaoDich.noiDung}"
@@ -232,30 +256,25 @@
                     </div>
                 </div>
 
-                <!-- Pagination -->
-                <div class="card-footer bg-light border-0" th:if="${giaoDichPage.totalPages > 1}">
-                    <nav>
+                    <!-- Pagination -->
+                    <nav th:if="${giaoDichPage.totalPages > 1}" class="card-footer">
                         <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item" th:classappend="${giaoDichPage.first} ? 'disabled'">
+                            <li class="page-item" th:class="${giaoDichPage.first} ? 'disabled'">
                                 <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${giaoDichPage.number - 1}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}">
                                     <i class="fas fa-chevron-left"></i>
                                 </a>
                             </li>
-                            
-                            <li th:each="pageNum : ${#numbers.sequence(0, giaoDichPage.totalPages - 1)}"
-                                class="page-item" th:classappend="${pageNum == giaoDichPage.number} ? 'active'">
-                                <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${pageNum}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}"
-                                   th:text="${pageNum + 1}">1</a>
+                            <li class="page-item" th:each="i : ${#numbers.sequence(0, giaoDichPage.totalPages - 1)}"
+                                th:class="${i == giaoDichPage.number} ? 'active'">
+                                <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${i}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}" th:text="${i + 1}">1</a>
                             </li>
-                            
-                            <li class="page-item" th:classappend="${giaoDichPage.last} ? 'disabled'">
+                            <li class="page-item" th:class="${giaoDichPage.last} ? 'disabled'">
                                 <a class="page-link" th:href="@{/admin/tai-chinh/giao-dich(page=${giaoDichPage.number + 1}, search=${search}, loai=${loai}, danhMucId=${danhMucId}, nguoiPhuTrachId=${nguoiPhuTrachId}, tuNgay=${tuNgay}, denNgay=${denNgay}, soTienMin=${soTienMin}, soTienMax=${soTienMax}, nam=${nam})}">
                                     <i class="fas fa-chevron-right"></i>
                                 </a>
                             </li>
                         </ul>
                     </nav>
-                </div>
             </div>
         </div>
     </main>
@@ -296,6 +315,580 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <!-- Modern Admin Page Styles -->
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-modern-primary {
+            background: rgba(255, 255, 255, 0.9);
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .btn-modern-success {
+            background: rgba(255, 255, 255, 0.9);
+            color: #48bb78;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+            color: #48bb78;
+            text-decoration: none;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Count Badge */
+        .count-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Search Styles */
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #718096;
+            z-index: 2;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .clear-input-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .clear-input-btn:hover {
+            color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Button Toggle */
+        .btn-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            color: #4a5568;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        /* Advanced Filters */
+        .advanced-filters {
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .form-select-modern,
+        .form-input-modern {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select-modern:focus,
+        .form-input-modern:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Table Styles */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .modern-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .modern-table thead th {
+            background: #f8f9fa;
+            color: #495057;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem;
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+
+        .modern-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid #f1f3f4;
+            vertical-align: middle;
+        }
+
+        .table-row:hover {
+            background: #f8f9fa;
+        }
+
+        /* Table Cell Styles */
+        .th-id, .td-id { width: 8%; }
+        .th-time, .td-time { width: 15%; }
+        .th-type, .td-type { width: 12%; }
+        .th-amount, .td-amount { width: 18%; }
+        .th-category, .td-category { width: 20%; }
+        .th-person, .td-person { width: 17%; }
+        .th-actions, .td-actions { width: 10%; }
+
+        .td-id .id-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .time-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .time-date {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .time-hour {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        /* Type Badges */
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .type-badge.income {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .type-badge.expense {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .type-badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Amount Values - Enhanced with Higher Specificity */
+        .modern-table .td-amount .amount-value {
+            font-weight: 700 !important;
+            font-size: 1.1rem !important;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px !important;
+            display: inline-block !important;
+            min-width: 120px !important;
+            text-align: center !important;
+        }
+
+        .modern-table .td-amount .amount-value.income {
+            color: #2f855a !important;
+            background: linear-gradient(135deg, #c6f6d5 0%, #9ae6b4 100%) !important;
+            border: 1px solid #68d391 !important;
+        }
+
+        .modern-table .td-amount .amount-value.expense {
+            color: #c53030 !important;
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%) !important;
+            border: 1px solid #fc8181 !important;
+        }
+
+        /* Backup CSS with even higher specificity */
+        .modern-table tbody tr td.td-amount div.amount-value.income {
+            background-color: #c6f6d5 !important;
+            color: #2f855a !important;
+            border: 2px solid #68d391 !important;
+        }
+
+        .modern-table tbody tr td.td-amount div.amount-value.expense {
+            background-color: #fed7d7 !important;
+            color: #c53030 !important;
+            border: 2px solid #fc8181 !important;
+        }
+
+        .content-text {
+            color: #2d3748;
+            line-height: 1.4;
+        }
+
+        .category-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .category-type {
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .person-name {
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        .no-data {
+            color: #a0aec0;
+            font-style: italic;
+            font-size: 0.875rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-btn.view-btn {
+            background: #ebf8ff;
+            color: #3182ce;
+        }
+
+        .action-btn.view-btn:hover {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .action-btn.edit-btn {
+            background: #fef5e7;
+            color: #d69e2e;
+        }
+
+        .action-btn.edit-btn:hover {
+            background: #faf089;
+            color: #b7791f;
+        }
+
+        .action-btn.delete-btn {
+            background: #fed7d7;
+            color: #e53e3e;
+        }
+
+        .action-btn.delete-btn:hover {
+            background: #feb2b2;
+            color: #c53030;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .empty-content .empty-icon {
+            font-size: 3rem;
+            color: #cbd5e0;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .search-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-filters {
+                flex-direction: column;
+            }
+
+            .search-actions {
+                flex-direction: column;
+            }
+
+            .modern-table {
+                font-size: 0.875rem;
+            }
+
+            .modern-table thead th,
+            .modern-table tbody td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
     <script>
         function confirmDelete(id, content, amount) {
             document.getElementById('deleteContent').textContent = content;
@@ -340,6 +933,42 @@
                 exportBtn.innerHTML = originalText;
                 exportBtn.disabled = false;
             }, 2000);
+        }
+
+        // Clear search input function
+        function clearSearchInput() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.querySelector('.clear-input-btn');
+            
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            searchInput.focus();
+        }
+
+        // Show/hide clear button based on input content
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.querySelector('.clear-input-btn');
+            
+            if (searchInput && clearBtn) {
+                searchInput.addEventListener('input', function() {
+                    if (this.value.length > 0) {
+                        clearBtn.style.display = 'block';
+                    } else {
+                        clearBtn.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // Clear advanced filters function
+        function clearAdvancedFilters() {
+            document.querySelector('select[name="danhMucId"]').value = '';
+            document.querySelector('select[name="nguoiPhuTrachId"]').value = '';
+            document.querySelector('input[name="tuNgay"]').value = '';
+            document.querySelector('input[name="denNgay"]').value = '';
+            document.querySelector('input[name="soTienMin"]').value = '';
+            document.querySelector('input[name="soTienMax"]').value = '';
         }
     </script>
 </body>

@@ -44,7 +44,7 @@ public interface SuKienRepository extends JpaRepository<SuKien, Long> {
     List<SuKien> findByTrangThaiAndDeletedFalse(SuKien.TrangThaiSuKien trangThai);
     
     // Advanced search with multiple conditions - Dynamic ordering via Pageable
-    @Query("SELECT sk FROM SuKien sk LEFT JOIN sk.loaiSuKien lsk WHERE sk.deleted = false AND " +
+    @Query("SELECT sk FROM SuKien sk LEFT JOIN sk.loaiSuKien lsk WHERE sk IS NOT NULL AND sk.deleted = false AND " +
            "(:search IS NULL OR :search = '' OR " +
            " LOWER(sk.tenSuKien) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            " LOWER(sk.moTa) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
@@ -118,4 +118,17 @@ public interface SuKienRepository extends JpaRepository<SuKien, Long> {
            " LOWER(sk.tenSuKien) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            " LOWER(sk.moTa) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<SuKien> findDeletedWithSearch(@Param("search") String search, Pageable pageable);
+    
+    // Find deleted events with search and date filter
+    @Query("SELECT sk FROM SuKien sk WHERE sk.deleted = true AND " +
+           "(:search IS NULL OR :search = '' OR " +
+           " LOWER(sk.tenSuKien) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           " LOWER(sk.moTa) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           "(:fromDate IS NULL OR CAST(sk.deletedAt AS DATE) >= :fromDate) AND " +
+           "(:toDate IS NULL OR CAST(sk.deletedAt AS DATE) <= :toDate)")
+    Page<SuKien> findDeletedWithSearchAndDateFilter(
+        @Param("search") String search,
+        @Param("fromDate") LocalDate fromDate,
+        @Param("toDate") LocalDate toDate,
+        Pageable pageable);
 }

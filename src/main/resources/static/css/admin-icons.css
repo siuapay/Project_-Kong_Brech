@@ -1,0 +1,34 @@
+/* Admin Icons Fallback CSS */
+.fas, .fa {
+    font-family: "Font Awesome 6 Free", "Font Awesome 5 Free", "FontAwesome", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+/* Fallback for common icons if FontAwesome fails to load */
+.fas.fa-calendar-edit:before { content: "📅"; }
+.fas.fa-image:before { content: "🖼️"; }
+.fas.fa-calendar-alt:before { content: "📅"; }
+.fas.fa-tag:before { content: "🏷️"; }
+.fas.fa-calendar-check:before { content: "✅"; }
+.fas.fa-info-circle:before { content: "ℹ️"; }
+.fas.fa-map-marker-alt:before { content: "📍"; }
+.fas.fa-align-left:before { content: "📝"; }
+.fas.fa-users:before { content: "👥"; }
+.fas.fa-users-check:before { content: "✅"; }
+.fas.fa-sticky-note:before { content: "📝"; }
+.fas.fa-lightbulb:before { content: "💡"; }
+.fas.fa-chart-line:before { content: "📊"; }
+.fas.fa-save:before { content: "💾"; }
+.fas.fa-times:before { content: "❌"; }
+.fas.fa-arrow-left:before { content: "⬅️"; }
+
+/* Ensure icons are visible */
+.card-icon i, .section-icon i, .modern-form-label i {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

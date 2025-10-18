@@ -59,6 +59,17 @@ public interface LienHeRepository extends JpaRepository<LienHe, Long> {
            "ORDER BY lh.ngayBaoCao DESC")
     Page<LienHe> findLienHeChoAdminXuLy(Pageable pageable);
     
+    // Method with search support for vi-pham tab
+    @Query("SELECT lh FROM LienHe lh WHERE " +
+           "lh.trangThai = 'CHO_ADMIN_XU_LY' AND lh.coViPham = true AND " +
+           "(:search IS NULL OR :search = '' OR " +
+           " LOWER(lh.hoTen) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           " LOWER(lh.email) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           " LOWER(lh.chuDe) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
+           " LOWER(lh.noiDung) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+           "ORDER BY lh.ngayBaoCao DESC")
+    Page<LienHe> findLienHeChoAdminXuLyWithSearch(@Param("search") String search, Pageable pageable);
+    
     // Backward compatibility - không phân trang (cho các method khác)
     @Query("SELECT lh FROM LienHe lh WHERE " +
            "lh.trangThai = 'CHUA_XU_LY' " +

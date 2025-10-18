@@ -1,43 +1,97 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/client-layout :: head}"></head>
-  <body>
+  <body class="diem-nhom-page">
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
     <!-- Page Header -->
-    <section class="py-5 bg-primary-custom text-white">
-      <div class="container">
+    <section class="hero-section py-5 text-white position-relative overflow-hidden">
+      <div class="hero-bg"></div>
+      <div class="container position-relative">
         <div class="row">
-          <div class="col-lg-8 mx-auto text-center">
+          <div class="col-lg-10 mx-auto text-center">
+            <div class="hero-icon mb-4">
+              <i class="fas fa-map-marker-alt fa-3x"></i>
+            </div>
             <h1 class="display-4 fw-bold mb-3">Danh Sách Điểm Nhóm</h1>
-            <p class="lead">
-              Thông tin và thống kê các điểm nhóm trong chi hội
+            <p class="lead mb-4">
+              Thông tin và thống kê các điểm nhóm trong chi hội năm <span th:text="${#dates.year(#dates.createNow())}">2024</span>
             </p>
+            <div class="hero-stats d-flex justify-content-center gap-4 flex-wrap">
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(totalDiemNhom)}">0</div>
+                <div class="stat-label">Tổng Điểm Nhóm</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(diemDangHoatDong)}">0</div>
+                <div class="stat-label">Đang Hoạt Động</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact((totalDiemNhom ?: 0) - (diemDangHoatDong ?: 0))}">0</div>
+                <div class="stat-label">Tạm Ngưng</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Statistics Section -->
-    <section class="py-4 bg-light">
+    <section class="py-5">
       <div class="container">
-        <div class="row">
-          <div class="col-lg-6 col-md-6 mb-3">
-            <div class="card bg-primary text-white h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-map-marker-alt fa-3x mb-3"></i>
-                <h3 class="mb-2" th:text="${totalDiemNhom}">0</h3>
-                <p class="mb-0">Tổng Điểm Nhóm</p>
+        <!-- Section Header -->
+        <div class="section-header text-center mb-5">
+          <h2 class="section-title">Thống Kê Chi Tiết</h2>
+          <p class="section-subtitle">Phân tích và thống kê về các điểm nhóm</p>
+        </div>
+
+        <!-- Main Statistics Cards -->
+        <div class="row g-4 mb-5">
+          <div class="col-lg-4 col-md-6">
+            <div class="modern-stats-card stats-primary">
+              <div class="stats-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(totalDiemNhom)}">0</h3>
+                <p class="stats-label">Tổng Điểm Nhóm</p>
+                <div class="stats-trend">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Tất cả điểm nhóm</span>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-lg-6 col-md-6 mb-3">
-            <div class="card bg-success text-white h-100">
-              <div class="card-body text-center">
-                <i class="fas fa-check-circle fa-3x mb-3"></i>
-                <h3 class="mb-2" th:text="${diemDangHoatDong}">0</h3>
-                <p class="mb-0">Đang Hoạt Động</p>
+          
+          <div class="col-lg-4 col-md-6">
+            <div class="modern-stats-card stats-success">
+              <div class="stats-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(diemDangHoatDong)}">0</h3>
+                <p class="stats-label">Đang Hoạt Động</p>
+                <div class="stats-progress">
+                  <div class="progress-bar" th:style="'width: ' + ${totalDiemNhom > 0 ? (diemDangHoatDong * 100.0 / totalDiemNhom) : 0} + '%'"></div>
+                </div>
+                <div class="stats-percentage" th:text="${totalDiemNhom > 0 ? #numbers.formatDecimal((diemDangHoatDong * 100.0 / totalDiemNhom), 1, 1) + '%' : '0%'}">0%</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-lg-4 col-md-6">
+            <div class="modern-stats-card stats-warning">
+              <div class="stats-icon">
+                <i class="fas fa-pause-circle"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact((totalDiemNhom ?: 0) - (diemDangHoatDong ?: 0))}">0</h3>
+                <p class="stats-label">Tạm Ngưng</p>
+                <div class="stats-trend">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span>Cần xem xét</span>
+                </div>
               </div>
             </div>
           </div>
@@ -46,17 +100,18 @@
     </section>
 
     <!-- Điểm Nhóm List -->
-    <section class="py-5">
+    <section class="py-5 bg-light">
       <div class="container">
         <div class="row">
           <div class="col-12">
-            <div class="card">
-              <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                  <i class="fas fa-map-marker-alt me-2"></i>Danh Sách Điểm Nhóm
-                </h5>
-              </div>
-              <div class="card-body">
+            <!-- Section Header -->
+            <div class="section-header text-center mb-5">
+              <h2 class="section-title">Danh Sách Điểm Nhóm</h2>
+              <p class="section-subtitle">Thông tin chi tiết về các điểm nhóm trong cộng đồng</p>
+            </div>
+            
+            <div class="locations-container">
+              <div class="locations-content">
                 <div th:if="${diemNhomList != null and !diemNhomList.empty}">
                   <div class="row">
                     <div class="col-lg-6 mb-4" th:each="diemNhom : ${diemNhomList}">
@@ -138,13 +193,13 @@
                           </div>
 
                           <!-- Số nhóm -->
-                          <div class="mb-3">
+                          <!-- <div class="mb-3">
                             <small class="text-muted d-block">
                               <i class="fas fa-layer-group me-2 text-primary"></i>
                               <strong>Số nhóm:</strong>
                             </small>
                             <span class="fw-bold text-info" th:text="${diemNhom.danhSachNhom.size()} + ' nhóm'">3 nhóm</span>
-                          </div>
+                          </div> -->
 
                           <!-- Mô tả -->
                           <div th:if="${diemNhom.moTa}" class="mb-3">
@@ -161,9 +216,11 @@
                 </div>
                 
                 <!-- Empty State -->
-                <div th:if="${diemNhomList == null or diemNhomList.empty}" class="text-center py-5">
-                  <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
-                  <h5 class="text-muted">Chưa có điểm nhóm nào</h5>
+                <div th:if="${diemNhomList == null or diemNhomList.empty}" class="empty-state text-center py-5">
+                  <div class="empty-icon mb-3">
+                    <i class="fas fa-map-marker-alt fa-4x text-muted"></i>
+                  </div>
+                  <h4 class="text-muted">Chưa có điểm nhóm nào</h4>
                   <p class="text-muted">Hiện tại chưa có điểm nhóm nào được tạo trong hệ thống.</p>
                 </div>
               </div>
@@ -267,91 +324,369 @@
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
 
     <style>
-      .card:hover {
-        transform: translateY(-2px);
-        transition: transform 0.2s;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      /* Scoped styles for diem-nhom-list page only */
+      
+      /* Hero Section */
+      .diem-nhom-page .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
       }
       
-      .badge {
-        font-size: 0.75rem;
+      .diem-nhom-page .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
       }
       
-      .card-title {
+      .diem-nhom-page .hero-icon {
+        background: rgba(255,255,255,0.2);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      
+      .diem-nhom-page .hero-stats {
+        margin-top: 2rem;
+      }
+      
+      .diem-nhom-page .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        min-width: 120px;
+      }
+      
+      .diem-nhom-page .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+      }
+      
+      .diem-nhom-page .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+      
+      /* Section Headers */
+      .diem-nhom-page .section-header {
+        margin-bottom: 3rem;
+      }
+      
+      .diem-nhom-page .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+      
+      .diem-nhom-page .section-subtitle {
         font-size: 1.1rem;
+        color: #718096;
+        margin: 0;
       }
       
-      .text-primary {
-        color: var(--primary-color) !important;
-      }
-      
-      .bg-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-      }
-      
-      .bg-info {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
-      }
-      
-      .bg-warning {
-        background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
-      }
-      
-      /* Dropdown styling */
-      .dropdown-menu {
+      /* Modern Stats Cards */
+      .diem-nhom-page .modern-stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         border: none;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-radius: 8px;
-        padding: 8px 0;
-        max-height: 200px;
-        overflow-y: auto;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
       }
       
-      .dropdown-item-text {
-        padding: 6px 16px;
-        font-size: 0.875rem;
-        white-space: nowrap;
+      .diem-nhom-page .modern-stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
       }
       
-      .dropdown-item-text:hover {
-        background-color: #f8f9fa;
+      .diem-nhom-page .modern-stats-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
       }
       
-      .dropdown-header {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6c757d;
-        padding: 4px 16px;
+      .diem-nhom-page .stats-primary {
+        --card-color: #667eea;
+        --card-color-light: #764ba2;
       }
       
-      /* Badge styling */
-      .badge {
-        font-size: 0.7rem;
+      .diem-nhom-page .stats-success {
+        --card-color: #28a745;
+        --card-color-light: #20c997;
+      }
+      
+      .diem-nhom-page .stats-warning {
+        --card-color: #ffc107;
+        --card-color-light: #fd7e14;
+      }
+      
+      .diem-nhom-page .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        background: linear-gradient(135deg, var(--card-color), var(--card-color-light));
+        margin-bottom: 1.5rem;
+      }
+      
+      .diem-nhom-page .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+      
+      .diem-nhom-page .stats-label {
+        font-size: 1rem;
+        color: #718096;
+        margin-bottom: 1rem;
+      }
+      
+      .diem-nhom-page .stats-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--card-color);
         font-weight: 500;
       }
       
-      /* Button styling */
-      .btn-outline-secondary {
-        border-color: #dee2e6;
-        color: #6c757d;
+      .diem-nhom-page .stats-progress {
+        width: 100%;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+      }
+      
+      .diem-nhom-page .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+      
+      .diem-nhom-page .stats-percentage {
+        font-size: 0.85rem;
+        color: var(--card-color);
+        font-weight: 600;
+      }
+      
+      /* Locations Container */
+      .diem-nhom-page .locations-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        padding: 2rem;
+      }
+      
+      /* Enhanced Card Styling - Only for location cards */
+      .diem-nhom-page .locations-content .card {
+        border-radius: 16px;
+        border: none;
+        transition: all 0.3s ease;
+      }
+      
+      .diem-nhom-page .locations-content .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      }
+      
+      .diem-nhom-page .locations-content .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 16px 16px 0 0 !important;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.5rem;
+      }
+      
+      .diem-nhom-page .locations-content .card-body {
+        padding: 1.5rem;
+      }
+      
+      /* Badge Enhancements - Only for location cards */
+      .diem-nhom-page .locations-content .badge {
         font-size: 0.75rem;
-        padding: 2px 6px;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
       }
       
-      .btn-outline-secondary:hover {
+      .diem-nhom-page .locations-content .badge.bg-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+      }
+      
+      .diem-nhom-page .locations-content .badge.bg-secondary {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%) !important;
+      }
+      
+      .diem-nhom-page .locations-content .badge.bg-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+      }
+      
+      /* Text Enhancements - Only for location cards */
+      .diem-nhom-page .locations-content .text-primary {
+        color: #667eea !important;
+      }
+      
+      /* Icon Styling - Only for location cards */
+      .diem-nhom-page .locations-content .fas {
+        color: #667eea;
+      }
+      
+      /* Dropdown Enhancements - Fix the hover issue */
+      .diem-nhom-page .dropdown {
+        position: relative;
+      }
+      
+      .diem-nhom-page .dropdown-menu {
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        padding: 0.5rem 0;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1050;
+        position: absolute;
+      }
+      
+      .diem-nhom-page .dropdown-item-text {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        transition: background-color 0.2s ease;
+        display: block;
+        width: 100%;
+        white-space: nowrap;
+      }
+      
+      .diem-nhom-page .dropdown-item-text:hover {
         background-color: #f8f9fa;
-        border-color: #adb5bd;
-        color: #495057;
       }
       
-      /* Ellipsis button */
-      .btn .fas.fa-ellipsis-h {
-        font-size: 12px;
+      .diem-nhom-page .dropdown-header {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #667eea;
+        padding: 0.5rem 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
       
-      /* Compact layout */
-      .d-flex.align-items-center .badge {
-        margin-bottom: 0;
+      /* Button Enhancements - Fix hover state */
+      .diem-nhom-page .btn-outline-secondary {
+        border-color: #e2e8f0;
+        color: #718096;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .diem-nhom-page .btn-outline-secondary:hover {
+        background-color: #667eea;
+        border-color: #667eea;
+        color: white;
+        transform: translateY(-1px);
+      }
+      
+      /* Ensure dropdown stays visible on hover */
+      .diem-nhom-page .dropdown:hover .dropdown-menu {
+        display: block;
+      }
+      
+      /* Empty State */
+      .diem-nhom-page .empty-state {
+        padding: 3rem 1rem;
+      }
+      
+      .diem-nhom-page .empty-icon {
+        opacity: 0.5;
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .diem-nhom-page .hero-section {
+          min-height: 300px;
+          padding: 3rem 0;
+        }
+        
+        .diem-nhom-page .section-title {
+          font-size: 2rem;
+        }
+        
+        .diem-nhom-page .hero-stats {
+          gap: 1rem !important;
+        }
+        
+        .diem-nhom-page .stat-item {
+          min-width: 100px;
+          padding: 0.75rem;
+        }
+        
+        .diem-nhom-page .stat-number {
+          font-size: 1.5rem;
+        }
+        
+        .diem-nhom-page .modern-stats-card {
+          padding: 1.5rem;
+        }
+        
+        .diem-nhom-page .locations-container {
+          padding: 1.5rem;
+        }
+        
+        .diem-nhom-page .locations-content .card-header, 
+        .diem-nhom-page .locations-content .card-body {
+          padding: 1.25rem;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .diem-nhom-page .hero-stats {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .diem-nhom-page .stat-item {
+          width: 100%;
+          max-width: 200px;
+        }
+        
+        .diem-nhom-page .locations-container {
+          padding: 1rem;
+        }
+        
+        .diem-nhom-page .locations-content .card-header, 
+        .diem-nhom-page .locations-content .card-body {
+          padding: 1rem;
+        }
       }
     </style>
   </body>

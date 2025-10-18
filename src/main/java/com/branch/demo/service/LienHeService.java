@@ -114,6 +114,12 @@ public class LienHeService {
         Pageable pageable = PageRequest.of(page, size);
         return lienHeRepository.findLienHeChoAdminXuLy(pageable);
     }
+    
+    // Phân trang cho ADMIN với search
+    public Page<LienHe> getLienHeChoAdminXuLyWithSearch(String search, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return lienHeRepository.findLienHeChoAdminXuLyWithSearch(search, pageable);
+    }
 
     public List<LienHe> getLienHeChoAdminXuLy() {
         try {

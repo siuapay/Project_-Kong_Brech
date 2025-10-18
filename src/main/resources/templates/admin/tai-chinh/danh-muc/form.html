@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,194 +15,695 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-folder-plus me-2" th:if="${!isEdit}"></i>
-                        <i class="fas fa-edit me-2" th:if="${isEdit}"></i>
-                        <span th:text="${isEdit} ? 'Sửa Danh Mục Tài Chính' : 'Thêm Danh Mục Tài Chính'">Thêm Danh Mục</span>
-                    </h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a th:href="@{/admin/tai-chinh/danh-muc}">Danh Mục Tài Chính</a></li>
-                            <li class="breadcrumb-item active" th:text="${isEdit} ? 'Sửa' : 'Thêm'">Thêm</li>
-                        </ol>
-                    </nav>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title" th:text="${danhMucDTO.id != null ? 'Chỉnh Sửa Danh Mục Tài Chính' : 'Thêm Danh Mục Tài Chính Mới'}">Thêm Danh Mục Tài Chính Mới</h1>
+                            <p class="header-subtitle">Tạo và quản lý danh mục thu chi cho giao dịch tài chính</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
                 </div>
-                <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                </a>
             </div>
 
-            <!-- Form -->
-            <div class="row justify-content-center">
-                <div class="col-lg-8">
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Danh Mục
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <form th:action="@{/admin/tai-chinh/danh-muc/save}" method="post" th:object="${danhMucDTO}">
-                                <input type="hidden" th:field="*{id}" />
-                                
-                                <div class="row g-3">
-                                    <!-- Tên Danh Mục -->
-                                    <div class="col-md-8">
-                                        <label for="tenDanhMuc" class="form-label">
-                                            <i class="fas fa-tag me-1"></i>Tên Danh Mục 
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="tenDanhMuc" 
-                                               th:field="*{tenDanhMuc}" 
-                                               th:classappend="${#fields.hasErrors('tenDanhMuc')} ? 'is-invalid'"
-                                               placeholder="Nhập tên danh mục..." maxlength="255" required>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('tenDanhMuc')}" 
-                                             th:errors="*{tenDanhMuc}">Lỗi tên danh mục</div>
-                                        <div class="form-text">Tên danh mục phải duy nhất trong hệ thống</div>
+            <!-- Modern Form -->
+            <form th:action="@{/admin/tai-chinh/danh-muc/save}" method="post" th:object="${danhMucDTO}" id="danhMucForm">
+                <input type="hidden" th:field="*{id}">
+                
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="modern-card">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <div class="card-icon">
+                                        <i class="fas fa-folder-open"></i>
                                     </div>
-
-                                    <!-- Loại Danh Mục -->
-                                    <div class="col-md-4">
-                                        <label for="loai" class="form-label">
-                                            <i class="fas fa-exchange-alt me-1"></i>Loại Danh Mục 
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-select" id="loai" th:field="*{loai}" 
-                                                th:classappend="${#fields.hasErrors('loai')} ? 'is-invalid'" required>
-                                            <option value="">Chọn loại...</option>
-                                            <option th:each="loaiValue : ${loaiDanhMucValues}" 
-                                                    th:value="${loaiValue.name()}" 
-                                                    th:text="${loaiValue.displayName}"
-                                                    th:selected="${danhMucDTO.loai == loaiValue.name()}">
-                                                Loại
-                                            </option>
-                                        </select>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('loai')}" 
-                                             th:errors="*{loai}">Lỗi loại danh mục</div>
-                                    </div>
-
-                                    <!-- Mô Tả -->
-                                    <div class="col-12">
-                                        <label for="moTa" class="form-label">
-                                            <i class="fas fa-align-left me-1"></i>Mô Tả
-                                        </label>
-                                        <textarea class="form-control" id="moTa" rows="4" 
-                                                  th:field="*{moTa}" 
-                                                  th:classappend="${#fields.hasErrors('moTa')} ? 'is-invalid'"
-                                                  placeholder="Nhập mô tả cho danh mục..." maxlength="1000"></textarea>
-                                        <div class="invalid-feedback" th:if="${#fields.hasErrors('moTa')}" 
-                                             th:errors="*{moTa}">Lỗi mô tả</div>
-                                        <div class="form-text">Tối đa 1000 ký tự</div>
+                                    <div class="card-title">
+                                        <h5>Thông Tin Danh Mục Tài Chính</h5>
+                                        <p>Điền đầy đủ thông tin để tạo danh mục thu chi</p>
                                     </div>
                                 </div>
-
-                                <!-- Preview Section -->
-                                <div class="mt-4">
-                                    <h6 class="text-muted mb-3">
-                                        <i class="fas fa-eye me-1"></i>Xem Trước
-                                    </h6>
-                                    <div class="card bg-light">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                                     id="previewIcon">
-                                                    <i class="fas fa-folder text-white"></i>
+                            </div>
+                            <div class="card-content">
+                                
+                                <!-- Basic Information Section -->
+                                <div class="form-section">
+                                    <div class="row g-4">
+                                        <div class="col-md-8">
+                                            <div class="modern-form-group">
+                                                <label for="tenDanhMuc" class="modern-form-label">
+                                                    <i class="fas fa-tag me-2"></i>
+                                                    Tên danh mục <span class="required-star">*</span>
+                                                </label>
+                                                <input type="text" class="modern-form-control" id="tenDanhMuc" th:field="*{tenDanhMuc}" 
+                                                       required maxlength="255" onkeyup="updatePreview()" 
+                                                       placeholder="Nhập tên danh mục tài chính...">
+                                                <div class="form-feedback" th:if="${#fields.hasErrors('tenDanhMuc')}" th:errors="*{tenDanhMuc}">
+                                                    Vui lòng nhập tên danh mục.
                                                 </div>
-                                                <div>
-                                                    <h6 class="mb-0" id="previewName">Tên danh mục sẽ hiển thị ở đây</h6>
-                                                    <small class="text-muted" id="previewType">Loại danh mục</small>
-                                                </div>
-                                                <div class="ms-auto">
-                                                    <span class="badge" id="previewBadge">Loại</span>
+                                                <div class="form-hint">Tên danh mục phải duy nhất trong hệ thống</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="modern-form-group">
+                                                <label for="loai" class="modern-form-label">
+                                                    <i class="fas fa-exchange-alt me-2"></i>
+                                                    Loại danh mục <span class="required-star">*</span>
+                                                </label>
+                                                <select class="modern-form-select" id="loai" th:field="*{loai}" required onchange="updatePreview()">
+                                                    <option value="">Chọn loại...</option>
+                                                    <option th:each="loaiValue : ${loaiDanhMucValues}" 
+                                                            th:value="${loaiValue.name()}" 
+                                                            th:text="${loaiValue.displayName}"
+                                                            th:selected="${danhMucDTO.loai == loaiValue.name()}">
+                                                        Loại
+                                                    </option>
+                                                </select>
+                                                <div class="form-feedback" th:if="${#fields.hasErrors('loai')}" th:errors="*{loai}">
+                                                    Vui lòng chọn loại danh mục.
                                                 </div>
                                             </div>
-                                            <div class="mt-2" id="previewDescription" style="display: none;">
-                                                <small class="text-muted" id="previewDescText"></small>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-12">
+                                            <div class="modern-form-group">
+                                                <label for="moTa" class="modern-form-label">
+                                                    <i class="fas fa-align-left me-2"></i>
+                                                    Mô tả
+                                                </label>
+                                                <textarea class="modern-form-textarea" id="moTa" rows="4" th:field="*{moTa}"
+                                                          maxlength="1000" placeholder="Mô tả về danh mục tài chính này..." onkeyup="updatePreview()"></textarea>
+                                                <div class="form-feedback" th:if="${#fields.hasErrors('moTa')}" th:errors="*{moTa}">
+                                                    Mô tả không hợp lệ.
+                                                </div>
+                                                <div class="form-hint">Tối đa 1000 ký tự</div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Action Buttons -->
-                                <div class="d-flex justify-content-between mt-4">
-                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-1"></i>Hủy
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-1"></i>
-                                        <span th:text="${isEdit} ? 'Cập Nhật' : 'Lưu'">Lưu</span>
-                                    </button>
+                                <!-- Modern Form Actions -->
+                                <div class="form-actions">
+                                    <div class="actions-container">
+                                        <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn-cancel">
+                                            <i class="fas fa-times me-2"></i>Hủy Bỏ
+                                        </a>
+                                        <button type="submit" class="btn-submit">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${danhMucDTO.id != null ? 'Cập Nhật' : 'Lưu Danh Mục'}">Lưu Danh Mục</span>
+                                        </button>
+                                    </div>
                                 </div>
-                            </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modern Sidebar -->
+                    <div class="col-lg-4">
+                        <!-- Quick Actions -->
+                        <div class="modern-card">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <div class="card-icon">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div class="card-title">
+                                        <h5>Thao Tác Nhanh</h5>
+                                        <p>Các hành động liên quan</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="quick-actions">
+                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="quick-action-btn">
+                                        <i class="fas fa-list me-2"></i>Danh Sách
+                                    </a>
+                                    <a th:if="${danhMucDTO.id != null}" 
+                                       th:href="@{/admin/tai-chinh/danh-muc/view/{id}(id=${danhMucDTO.id})}" 
+                                       class="quick-action-btn">
+                                        <i class="fas fa-eye me-2"></i>Xem Chi Tiết
+                                    </a>
+                                    <a th:href="@{/admin/tai-chinh/giao-dich}" class="quick-action-btn">
+                                        <i class="fas fa-exchange-alt me-2"></i>Quản Lý Giao Dịch
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Information (only show when editing) -->
+                        <div th:if="${danhMucDTO.id != null}" class="modern-card">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <div class="card-icon">
+                                        <i class="fas fa-info-circle"></i>
+                                    </div>
+                                    <div class="card-title">
+                                        <h5>Thông Tin Hệ Thống</h5>
+                                        <p>Chi tiết về bản ghi</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="stats-grid">
+                                    <div class="stat-item">
+                                        <div class="stat-value" th:text="${danhMucDTO.id}">-</div>
+                                        <div class="stat-label">ID Danh Mục</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value" th:text="${danhMucDTO.soLuongGiaoDich ?: 0}">0</div>
+                                        <div class="stat-label">Số Giao Dịch</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">
+                                            <span th:if="${danhMucDTO.createdAt}"
+                                                  th:text="${#temporals.format(danhMucDTO.createdAt, 'dd/MM/yyyy')}">-</span>
+                                            <span th:unless="${danhMucDTO.createdAt}">Chưa lưu</span>
+                                        </div>
+                                        <div class="stat-label">Ngày Tạo</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value">
+                                            <span th:if="${danhMucDTO.updatedAt}"
+                                                  th:text="${#temporals.format(danhMucDTO.updatedAt, 'dd/MM/yyyy')}">-</span>
+                                            <span th:unless="${danhMucDTO.updatedAt}">Chưa cập nhật</span>
+                                        </div>
+                                        <div class="stat-label">Cập Nhật Cuối</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview Card -->
+                        <div class="modern-card">
+                            <div class="card-header">
+                                <div class="header-left">
+                                    <div class="card-icon">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div class="card-title">
+                                        <h5>Xem Trước</h5>
+                                        <p>Preview danh mục tài chính</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="preview-container">
+                                    <div class="financial-preview-card">
+                                        <div class="financial-icon" id="previewIcon">
+                                            <i class="fas fa-folder"></i>
+                                        </div>
+                                        <div class="financial-info">
+                                            <h6 class="financial-name" id="previewName">Tên danh mục</h6>
+                                            <span class="financial-badge" id="previewBadge">Loại</span>
+                                        </div>
+                                    </div>
+                                    <div class="financial-description" id="previewDescription" style="display: none;">
+                                        <small class="text-muted" id="previewDescText"></small>
+                                    </div>
+                                </div>
+                                <div class="form-hint mt-3">Preview sẽ cập nhật tự động khi bạn thay đổi thông tin</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </main>
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tenDanhMucInput = document.getElementById('tenDanhMuc');
-            const loaiSelect = document.getElementById('loai');
-            const moTaTextarea = document.getElementById('moTa');
+        // Update preview function
+        function updatePreview() {
+            const name = document.getElementById('tenDanhMuc').value || 'Tên danh mục';
+            const loai = document.getElementById('loai').value;
+            const moTa = document.getElementById('moTa').value;
             
             const previewName = document.getElementById('previewName');
-            const previewType = document.getElementById('previewType');
             const previewBadge = document.getElementById('previewBadge');
             const previewIcon = document.getElementById('previewIcon');
             const previewDescription = document.getElementById('previewDescription');
             const previewDescText = document.getElementById('previewDescText');
 
-            function updatePreview() {
-                const name = tenDanhMucInput.value || 'Tên danh mục sẽ hiển thị ở đây';
-                const loai = loaiSelect.value;
-                const moTa = moTaTextarea.value;
+            // Update name
+            previewName.textContent = name;
 
-                previewName.textContent = name;
-
-                if (loai === 'THU') {
-                    previewType.textContent = 'Danh mục Thu';
-                    previewBadge.textContent = 'Thu';
-                    previewBadge.className = 'badge bg-success';
-                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-success';
-                    previewIcon.innerHTML = '<i class="fas fa-arrow-up text-white"></i>';
-                } else if (loai === 'CHI') {
-                    previewType.textContent = 'Danh mục Chi';
-                    previewBadge.textContent = 'Chi';
-                    previewBadge.className = 'badge bg-danger';
-                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-danger';
-                    previewIcon.innerHTML = '<i class="fas fa-arrow-down text-white"></i>';
-                } else {
-                    previewType.textContent = 'Loại danh mục';
-                    previewBadge.textContent = 'Loại';
-                    previewBadge.className = 'badge bg-secondary';
-                    previewIcon.className = 'avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3 bg-secondary';
-                    previewIcon.innerHTML = '<i class="fas fa-folder text-white"></i>';
-                }
-
-                if (moTa.trim()) {
-                    previewDescText.textContent = moTa;
-                    previewDescription.style.display = 'block';
-                } else {
-                    previewDescription.style.display = 'none';
-                }
+            // Update icon and badge based on type
+            if (loai === 'THU') {
+                previewIcon.className = 'financial-icon income';
+                previewIcon.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                previewBadge.textContent = 'Thu Nhập';
+                previewBadge.className = 'financial-badge income';
+            } else if (loai === 'CHI') {
+                previewIcon.className = 'financial-icon expense';
+                previewIcon.innerHTML = '<i class="fas fa-arrow-down"></i>';
+                previewBadge.textContent = 'Chi Phí';
+                previewBadge.className = 'financial-badge expense';
+            } else {
+                previewIcon.className = 'financial-icon';
+                previewIcon.innerHTML = '<i class="fas fa-folder"></i>';
+                previewBadge.textContent = 'Loại';
+                previewBadge.className = 'financial-badge';
             }
 
-            // Event listeners
-            tenDanhMucInput.addEventListener('input', updatePreview);
-            loaiSelect.addEventListener('change', updatePreview);
-            moTaTextarea.addEventListener('input', updatePreview);
+            // Update description
+            if (moTa.trim()) {
+                previewDescText.textContent = moTa;
+                previewDescription.style.display = 'block';
+            } else {
+                previewDescription.style.display = 'none';
+            }
+        }
 
-            // Initial preview update
+        // Initialize preview on page load
+        document.addEventListener('DOMContentLoaded', function() {
             updatePreview();
         });
     </script>
+
+    <!-- Modern Form Page Styles -->
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        /* Modern Form Controls */
+        .modern-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .modern-form-label {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .required-star {
+            color: #e53e3e;
+            margin-left: 0.25rem;
+        }
+
+        .modern-form-control,
+        .modern-form-select,
+        .modern-form-textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .modern-form-control:focus,
+        .modern-form-select:focus,
+        .modern-form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modern-form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-feedback {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .form-hint {
+            color: #718096;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .actions-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            padding: 0.875rem 2rem;
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+            text-decoration: none;
+        }
+
+        .btn-submit {
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Sidebar Styles */
+        .preview-container {
+            text-align: center;
+            padding: 2rem;
+            background: #f7fafc;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .financial-preview-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .financial-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        .financial-icon.income {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .financial-icon.expense {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .financial-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .financial-name {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .financial-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .financial-badge.income {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .financial-badge.expense {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .financial-description {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quick-action-btn {
+            padding: 0.875rem 1rem;
+            background: #f7fafc;
+            color: #4a5568;
+            text-decoration: none;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .quick-action-btn:hover {
+            background: #edf2f7;
+            color: #2d3748;
+            text-decoration: none;
+            transform: translateX(4px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .actions-container {
+                flex-direction: column;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .financial-preview-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .financial-info {
+                text-align: center;
+            }
+        }
+    </style>
 </body>
 </html>

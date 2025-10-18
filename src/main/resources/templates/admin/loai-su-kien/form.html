@@ -1,519 +1,1219 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
-    <!-- Sidebar -->
-    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Navigation -->
-        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+<head th:replace="~{fragments/admin-layout :: head}">
+  <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+</head>
 
-        <!-- Content -->
-        <div class="container-fluid py-4">
-            <!-- Flash Messages -->
-            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+<body class="modern-admin-page">
+  <!-- Sidebar -->
+  <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-tags me-2"></i>
-                        <span th:text="${loaiSuKien.id != null ? 'Chỉnh Sửa Loại Sự Kiện' : 'Thêm Loại Sự Kiện Mới'}">Thêm Loại Sự Kiện</span>
-                    </h2>
-                    <p class="text-muted mb-0">Nhập thông tin chi tiết của loại sự kiện</p>
-                </div>
-                <a th:href="@{/admin/loai-su-kien}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                </a>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation -->
+    <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+    <!-- Content -->
+    <div class="container-fluid py-4">
+      <!-- Flash Messages -->
+      <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+      <!-- Modern Page Header -->
+      <div class="modern-page-header">
+        <div class="header-content">
+          <div class="header-info">
+            <div class="header-icon">
+              <i class="fas fa-tags"></i>
             </div>
-
-            <!-- Form -->
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Loại Sự Kiện
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <form th:action="@{/admin/loai-su-kien/save}" method="post" th:object="${loaiSuKien}">
-                                <input type="hidden" th:field="*{id}">
-                                
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label for="tenLoai" class="form-label">Tên Loại <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="tenLoai" th:field="*{tenLoai}" 
-                                               placeholder="Nhập tên loại sự kiện" required>
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="moTa" class="form-label">Mô Tả</label>
-                                        <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3"
-                                                  placeholder="Mô tả về loại sự kiện này..."></textarea>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="mauSac" class="form-label">Màu Sắc</label>
-                                        <div class="input-group">
-                                            <input type="color" class="form-control form-control-color" id="mauSac" 
-                                                   th:field="*{mauSac}" title="Chọn màu sắc">
-                                            <input type="text" class="form-control" id="mauSacText" 
-                                                   th:value="*{mauSac}" placeholder="#6c757d" pattern="^#[0-9A-Fa-f]{6}$">
-                                        </div>
-                                        <div class="form-text">Chọn màu sắc đại diện cho loại sự kiện</div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="icon" class="form-label">Icon</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">
-                                                <i id="iconPreview" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'"></i>
-                                            </span>
-                                            <input type="text" class="form-control" id="icon" th:field="*{icon}" 
-                                                   placeholder="fas fa-tag" readonly>
-                                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
-                                                <i class="fas fa-search"></i>
-                                            </button>
-                                        </div>
-                                        <div class="form-text">
-                                            Click nút tìm kiếm để chọn icon hoặc nhập trực tiếp
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="kichHoat" class="form-label">Trạng Thái</label>
-                                        <select class="form-select" id="kichHoat" th:field="*{kichHoat}">
-                                            <option th:value="true">Kích hoạt</option>
-                                            <option th:value="false">Tạm dừng</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <!-- Preview -->
-                                <div class="mt-4 p-3 bg-light rounded">
-                                    <h6 class="mb-2">Xem trước:</h6>
-                                    <div id="preview" class="d-flex align-items-center">
-                                        <span class="badge me-2" id="previewBadge" 
-                                              th:style="'background-color: ' + (${loaiSuKien.mauSac} ?: '#6c757d')">
-                                            <i id="previewIcon" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'" class="me-1"></i>
-                                            <span id="previewText" th:text="${loaiSuKien.tenLoai} ?: 'Tên loại sự kiện'">Tên loại sự kiện</span>
-                                        </span>
-                                        <small class="text-muted" id="previewDesc" th:text="${loaiSuKien.moTa} ?: 'Mô tả loại sự kiện'">Mô tả loại sự kiện</small>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
-                                    <a th:href="@{/admin/loai-su-kien}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-2"></i>Hủy Bỏ
-                                    </a>
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>
-                                        <span th:text="${loaiSuKien.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Thêm Mới</span>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Info -->
-                <div class="col-lg-4">
-                    <!-- Help Card -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Hướng Dẫn</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="help-item mb-3">
-                                <h6 class="text-primary"><i class="fas fa-tag me-2"></i>Tên Loại</h6>
-                                <p class="small text-muted mb-0">Đặt tên rõ ràng, dễ hiểu. Ví dụ: "Lễ hội tôn giáo", "Hoạt động từ thiện"</p>
-                            </div>
-                            <div class="help-item mb-3">
-                                <h6 class="text-success"><i class="fas fa-palette me-2"></i>Màu Sắc</h6>
-                                <p class="small text-muted mb-0">Chọn màu phù hợp để dễ phân biệt các loại sự kiện</p>
-                            </div>
-                            <div class="help-item mb-3">
-                                <h6 class="text-warning"><i class="fas fa-icons me-2"></i>Icon</h6>
-                                <p class="small text-muted mb-0">Sử dụng icon FontAwesome để tăng tính trực quan</p>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- Color Suggestions -->
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light border-0">
-                            <h6 class="mb-0"><i class="fas fa-palette me-2"></i>Gợi Ý Màu Sắc</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-2">
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#dc3545" title="Đỏ - Lễ hội, sự kiện quan trọng">
-                                        <div class="color-box bg-danger"></div>
-                                        <small>Đỏ</small>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#28a745" title="Xanh lá - Từ thiện, môi trường">
-                                        <div class="color-box bg-success"></div>
-                                        <small>Xanh lá</small>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#007bff" title="Xanh dương - Sinh hoạt thường kỳ">
-                                        <div class="color-box bg-primary"></div>
-                                        <small>Xanh dương</small>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#ffc107" title="Vàng - Sự kiện đặc biệt">
-                                        <div class="color-box bg-warning"></div>
-                                        <small>Vàng</small>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#6f42c1" title="Tím - Văn hóa, nghệ thuật">
-                                        <div class="color-box" style="background-color: #6f42c1;"></div>
-                                        <small>Tím</small>
-                                    </div>
-                                </div>
-                                <div class="col-4">
-                                    <div class="color-suggestion" data-color="#6c757d" title="Xám - Khác">
-                                        <div class="color-box bg-secondary"></div>
-                                        <small>Xám</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="header-text">
+              <h1 class="header-title" th:text="${loaiSuKien.id != null ? 'Chỉnh Sửa Loại Sự Kiện' : 'Thêm Loại Sự Kiện Mới'}">Thêm Loại Sự Kiện Mới</h1>
+              <p class="header-subtitle">Nhập thông tin chi tiết của loại sự kiện</p>
             </div>
+          </div>
+          <div class="header-actions">
+            <a th:href="@{/admin/loai-su-kien}" class="btn-modern btn-modern-outline">
+              <i class="fas fa-arrow-left me-2"></i>Quay Lại
+            </a>
+          </div>
         </div>
-    </main>
+      </div>
 
-    <!-- Icon Picker Modal -->
-    <div class="modal fade" id="iconPickerModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chọn Icon</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <!-- Modern Form -->
+      <div class="form-grid-container">
+        <div class="form-main-content">
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-tags"></i>
                 </div>
-                <div class="modal-body">
-                    <div class="row g-2" id="iconGrid">
-                        <!-- Icons will be populated by JavaScript -->
-                    </div>
+                <div class="card-title">
+                  <h5>Thông Tin Loại Sự Kiện</h5>
+                  <p>Điền đầy đủ thông tin để tạo loại sự kiện</p>
                 </div>
+              </div>
             </div>
+            <div class="card-content">
+              <form th:action="@{/admin/loai-su-kien/save}" th:object="${loaiSuKien}" method="post" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}" />
+
+                <!-- Form Divider -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="tenLoai" class="modern-form-label">
+                          <i class="fas fa-tag me-2"></i>
+                          Tên Loại <span class="required-star">*</span>
+                        </label>
+                        <input type="text" class="modern-form-control" id="tenLoai" th:field="*{tenLoai}" required
+                          placeholder="Nhập tên loại sự kiện" />
+                        <div class="form-feedback">
+                          Vui lòng nhập tên loại sự kiện.
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="moTa" class="modern-form-label">
+                          <i class="fas fa-align-left me-2"></i>
+                          Mô Tả
+                        </label>
+                        <textarea class="modern-form-textarea" id="moTa" rows="4" th:field="*{moTa}"
+                          placeholder="Mô tả về loại sự kiện này..."></textarea>
+                        <div class="form-hint">Tối đa 500 ký tự</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Appearance Information -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-palette me-2"></i>Giao diện
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="mauSac" class="modern-form-label">
+                          <i class="fas fa-palette me-2"></i>
+                          Màu Sắc
+                        </label>
+                        <div class="color-input-group">
+                          <input type="color" class="color-picker" id="mauSac" th:field="*{mauSac}" title="Chọn màu sắc">
+                          <input type="text" class="modern-form-control color-text" id="mauSacText" 
+                                 th:value="*{mauSac}" placeholder="#6c757d" pattern="^#[0-9A-Fa-f]{6}$">
+                        </div>
+                        <div class="form-hint">Chọn màu sắc đại diện cho loại sự kiện</div>
+                      </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="icon" class="modern-form-label">
+                          <i class="fas fa-icons me-2"></i>
+                          Icon
+                        </label>
+                        <div class="icon-input-group">
+                          <div class="icon-preview">
+                            <i id="iconPreview" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'"></i>
+                          </div>
+                          <input type="text" class="modern-form-control" id="icon" th:field="*{icon}" 
+                                 placeholder="fas fa-tag" readonly>
+                          <button type="button" class="icon-picker-btn" data-bs-toggle="modal" data-bs-target="#iconPickerModal">
+                            <i class="fas fa-search"></i>
+                          </button>
+                        </div>
+                        <div class="form-hint">Click nút tìm kiếm để chọn icon</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Status Information -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-toggle-on me-2"></i>Trạng thái
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="kichHoat" class="modern-form-label">
+                          <i class="fas fa-power-off me-2"></i>
+                          Trạng Thái
+                        </label>
+                        <select class="modern-form-select" id="kichHoat" th:field="*{kichHoat}">
+                          <option th:value="true" th:selected="*{kichHoat == true}">Kích hoạt</option>
+                          <option th:value="false" th:selected="*{kichHoat == false}">Tạm dừng</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Preview -->
+                <div class="mt-4 p-3 bg-light rounded">
+                  <h6 class="mb-2">Xem trước:</h6>
+                  <div id="preview" class="d-flex align-items-center">
+                    <span class="badge me-2" id="previewBadge" 
+                          th:style="'background-color: ' + (${loaiSuKien.mauSac} ?: '#6c757d')">
+                      <i id="previewIcon" th:class="${loaiSuKien.icon} ?: 'fas fa-tag'" class="me-1"></i>
+                      <span id="previewText" th:text="${loaiSuKien.tenLoai} ?: 'Tên loại sự kiện'">Tên loại sự kiện</span>
+                    </span>
+                    <small class="text-muted" id="previewDesc" th:text="${loaiSuKien.moTa} ?: 'Mô tả loại sự kiện'">Mô tả loại sự kiện</small>
+                  </div>
+                </div>
+
+                <!-- Modern Form Actions -->
+                <div class="form-actions">
+                  <div class="actions-container">
+                    <a th:href="@{/admin/loai-su-kien}" class="btn-cancel">
+                      <i class="fas fa-times me-2"></i>Hủy Bỏ
+                    </a>
+                    <button type="submit" class="btn-submit">
+                      <i class="fas fa-save me-2"></i>
+                      <span th:text="${loaiSuKien.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Thêm Mới</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
+
+        <!-- Modern Sidebar Info -->
+        <div class="form-sidebar">
+          <!-- Guidelines Card -->
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Hướng Dẫn</h5>
+                  <p>Thông tin cần thiết khi tạo loại sự kiện</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="guideline-section">
+                <h4>Thông tin bắt buộc</h4>
+                <div class="requirement-list">
+                  <div class="requirement-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Tên loại sự kiện</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="guideline-section">
+                <h4>Lưu ý quan trọng</h4>
+                <div class="note-list">
+                  <div class="note-item">
+                    <i class="fas fa-tag"></i>
+                    <span>Tên nên rõ ràng, dễ hiểu</span>
+                  </div>
+                  <div class="note-item">
+                    <i class="fas fa-palette"></i>
+                    <span>Màu sắc giúp phân biệt loại sự kiện</span>
+                  </div>
+                  <div class="note-item">
+                    <i class="fas fa-icons"></i>
+                    <span>Icon tăng tính trực quan</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="warning-box">
+                <div class="warning-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="warning-content">
+                  <strong>Chú ý:</strong> Loại sự kiện sẽ được sử dụng cho tất cả sự kiện trong hệ thống.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color Suggestions Card -->
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-palette"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Gợi Ý Màu Sắc</h5>
+                  <p>Chọn màu phù hợp cho loại sự kiện</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="color-suggestions-grid">
+                <div class="color-suggestion" data-color="#dc3545" title="Đỏ - Lễ hội, sự kiện quan trọng">
+                  <div class="color-box" style="background-color: #dc3545;"></div>
+                  <small>Đỏ</small>
+                </div>
+                <div class="color-suggestion" data-color="#28a745" title="Xanh lá - Từ thiện, môi trường">
+                  <div class="color-box" style="background-color: #28a745;"></div>
+                  <small>Xanh lá</small>
+                </div>
+                <div class="color-suggestion" data-color="#007bff" title="Xanh dương - Sinh hoạt thường kỳ">
+                  <div class="color-box" style="background-color: #007bff;"></div>
+                  <small>Xanh dương</small>
+                </div>
+                <div class="color-suggestion" data-color="#ffc107" title="Vàng - Sự kiện đặc biệt">
+                  <div class="color-box" style="background-color: #ffc107;"></div>
+                  <small>Vàng</small>
+                </div>
+                <div class="color-suggestion" data-color="#6f42c1" title="Tím - Văn hóa, nghệ thuật">
+                  <div class="color-box" style="background-color: #6f42c1;"></div>
+                  <small>Tím</small>
+                </div>
+                <div class="color-suggestion" data-color="#6c757d" title="Xám - Khác">
+                  <div class="color-box" style="background-color: #6c757d;"></div>
+                  <small>Xám</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Card (if editing) -->
+          <div class="modern-card" th:if="${loaiSuKien.id != null}">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Thông Tin Hệ Thống</h5>
+                  <p>Chi tiết về bản ghi</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-value" th:text="${loaiSuKien.id}">-</div>
+                  <div class="stat-label">ID Loại</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">
+                    <span th:if="${loaiSuKien.createdAt}"
+                      th:text="${#temporals.format(loaiSuKien.createdAt, 'dd/MM/yyyy')}">-</span>
+                    <span th:unless="${loaiSuKien.createdAt}">-</span>
+                  </div>
+                  <div class="stat-label">Ngày Tạo</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <!-- Scripts -->
-    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
-    <script>
-        // Popular icons for events
-        const popularIcons = [
-            { class: 'fas fa-calendar', name: 'Lịch' },
-            { class: 'fas fa-calendar-alt', name: 'Lịch Alt' },
-            { class: 'fas fa-calendar-week', name: 'Lịch Tuần' },
-            { class: 'fas fa-calendar-day', name: 'Lịch Ngày' },
-            { class: 'fas fa-church', name: 'Nhà Thờ' },
-            { class: 'fas fa-cross', name: 'Thánh Giá' },
-            { class: 'fas fa-pray', name: 'Cầu Nguyện' },
-            { class: 'fas fa-heart', name: 'Trái Tim' },
-            { class: 'fas fa-hands-helping', name: 'Giúp Đỡ' },
-            { class: 'fas fa-hand-holding-heart', name: 'Trao Yêu Thương' },
-            { class: 'fas fa-users', name: 'Nhóm Người' },
-            { class: 'fas fa-user-friends', name: 'Bạn Bè' },
-            { class: 'fas fa-people-carry', name: 'Hợp Tác' },
-            { class: 'fas fa-star', name: 'Ngôi Sao' },
-            { class: 'fas fa-award', name: 'Giải Thưởng' },
-            { class: 'fas fa-trophy', name: 'Cúp' },
-            { class: 'fas fa-gift', name: 'Quà Tặng' },
-            { class: 'fas fa-birthday-cake', name: 'Bánh Sinh Nhật' },
-            { class: 'fas fa-music', name: 'Âm Nhạc' },
-            { class: 'fas fa-microphone', name: 'Micro' },
-            { class: 'fas fa-guitar', name: 'Guitar' },
-            { class: 'fas fa-book', name: 'Sách' },
-            { class: 'fas fa-graduation-cap', name: 'Tốt Nghiệp' },
-            { class: 'fas fa-chalkboard-teacher', name: 'Giảng Dạy' },
-            { class: 'fas fa-seedling', name: 'Cây Non' },
-            { class: 'fas fa-leaf', name: 'Lá Cây' },
-            { class: 'fas fa-tree', name: 'Cây' },
-            { class: 'fas fa-globe', name: 'Địa Cầu' },
-            { class: 'fas fa-home', name: 'Nhà' },
-            { class: 'fas fa-building', name: 'Tòa Nhà' },
-            { class: 'fas fa-map-marker-alt', name: 'Vị Trí' },
-            { class: 'fas fa-utensils', name: 'Đồ Ăn' },
-            { class: 'fas fa-coffee', name: 'Cà Phê' },
-            { class: 'fas fa-wine-glass', name: 'Ly Rượu' },
-            { class: 'fas fa-camera', name: 'Máy Ảnh' },
-            { class: 'fas fa-video', name: 'Video' },
-            { class: 'fas fa-film', name: 'Phim' },
-            { class: 'fas fa-gamepad', name: 'Game' },
-            { class: 'fas fa-puzzle-piece', name: 'Ghép Hình' },
-            { class: 'fas fa-running', name: 'Chạy Bộ' },
-            { class: 'fas fa-bicycle', name: 'Xe Đạp' },
-            { class: 'fas fa-swimmer', name: 'Bơi Lội' },
-            { class: 'fas fa-dumbbell', name: 'Tập Gym' },
-            { class: 'fas fa-fire', name: 'Lửa' },
-            { class: 'fas fa-sun', name: 'Mặt Trời' },
-            { class: 'fas fa-moon', name: 'Mặt Trăng' },
-            { class: 'fas fa-cloud', name: 'Mây' },
-            { class: 'fas fa-rainbow', name: 'Cầu Vồng' },
-            { class: 'fas fa-tag', name: 'Thẻ' },
-            { class: 'fas fa-tags', name: 'Nhiều Thẻ' },
-            { class: 'fas fa-flag', name: 'Cờ' },
-            { class: 'fas fa-bell', name: 'Chuông' },
-            { class: 'fas fa-bullhorn', name: 'Loa' },
-            { class: 'fas fa-envelope', name: 'Thư' },
-            { class: 'fas fa-phone', name: 'Điện Thoại' },
-            { class: 'fas fa-mobile-alt', name: 'Di Động' },
-            { class: 'fas fa-laptop', name: 'Laptop' },
-            { class: 'fas fa-desktop', name: 'Máy Tính' },
-            { class: 'fas fa-tv', name: 'TV' },
-            { class: 'fas fa-lightbulb', name: 'Bóng Đèn' },
-            { class: 'fas fa-rocket', name: 'Tên Lửa' },
-            { class: 'fas fa-plane', name: 'Máy Bay' },
-            { class: 'fas fa-car', name: 'Ô Tô' },
-            { class: 'fas fa-bus', name: 'Xe Buýt' },
-            { class: 'fas fa-train', name: 'Tàu Hỏa' },
-            { class: 'fas fa-ship', name: 'Tàu Thủy' },
-            { class: 'fas fa-anchor', name: 'Neo' },
-            { class: 'fas fa-compass', name: 'La Bàn' },
-            { class: 'fas fa-map', name: 'Bản Đồ' },
-            { class: 'fas fa-clock', name: 'Đồng Hồ' },
-            { class: 'fas fa-hourglass', name: 'Đồng Hồ Cát' },
-            { class: 'fas fa-stopwatch', name: 'Bấm Giờ' },
-            { class: 'fas fa-history', name: 'Lịch Sử' },
-            { class: 'fas fa-sync', name: 'Đồng Bộ' },
-            { class: 'fas fa-redo', name: 'Làm Lại' },
-            { class: 'fas fa-undo', name: 'Hoàn Tác' },
-            { class: 'fas fa-plus', name: 'Cộng' },
-            { class: 'fas fa-minus', name: 'Trừ' },
-            { class: 'fas fa-times', name: 'Nhân' },
-            { class: 'fas fa-divide', name: 'Chia' },
-            { class: 'fas fa-equals', name: 'Bằng' },
-            { class: 'fas fa-percent', name: 'Phần Trăm' },
-            { class: 'fas fa-dollar-sign', name: 'Đô La' },
-            { class: 'fas fa-euro-sign', name: 'Euro' },
-            { class: 'fas fa-yen-sign', name: 'Yên' },
-            { class: 'fas fa-pound-sign', name: 'Bảng Anh' },
-            { class: 'fas fa-coins', name: 'Tiền Xu' },
-            { class: 'fas fa-wallet', name: 'Ví' },
-            { class: 'fas fa-credit-card', name: 'Thẻ Tín Dụng' },
-            { class: 'fas fa-shopping-cart', name: 'Giỏ Hàng' },
-            { class: 'fas fa-store', name: 'Cửa Hàng' },
-            { class: 'fas fa-warehouse', name: 'Kho' },
-            { class: 'fas fa-truck', name: 'Xe Tải' },
-            { class: 'fas fa-box', name: 'Hộp' },
-            { class: 'fas fa-archive', name: 'Lưu Trữ' },
-            { class: 'fas fa-folder', name: 'Thư Mục' },
-            { class: 'fas fa-file', name: 'Tệp' },
-            { class: 'fas fa-clipboard', name: 'Clipboard' },
-            { class: 'fas fa-pen', name: 'Bút' },
-            { class: 'fas fa-pencil-alt', name: 'Bút Chì' },
-            { class: 'fas fa-marker', name: 'Bút Dạ' },
-            { class: 'fas fa-highlighter', name: 'Bút Dạ Quang' },
-            { class: 'fas fa-eraser', name: 'Tẩy' },
-            { class: 'fas fa-ruler', name: 'Thước' },
-            { class: 'fas fa-scissors', name: 'Kéo' },
-            { class: 'fas fa-paperclip', name: 'Kẹp Giấy' },
-            { class: 'fas fa-thumbtack', name: 'Ghim' },
-            { class: 'fas fa-magnet', name: 'Nam Châm' },
-            { class: 'fas fa-key', name: 'Chìa Khóa' },
-            { class: 'fas fa-lock', name: 'Khóa' },
-            { class: 'fas fa-unlock', name: 'Mở Khóa' },
-            { class: 'fas fa-shield-alt', name: 'Khiên' },
-            { class: 'fas fa-eye', name: 'Mắt' },
-            { class: 'fas fa-eye-slash', name: 'Che Mắt' },
-            { class: 'fas fa-search', name: 'Tìm Kiếm' },
-            { class: 'fas fa-search-plus', name: 'Phóng To' },
-            { class: 'fas fa-search-minus', name: 'Thu Nhỏ' },
-            { class: 'fas fa-filter', name: 'Lọc' },
-            { class: 'fas fa-sort', name: 'Sắp Xếp' },
-            { class: 'fas fa-list', name: 'Danh Sách' },
-            { class: 'fas fa-th', name: 'Lưới' },
-            { class: 'fas fa-th-list', name: 'Danh Sách Lưới' },
-            { class: 'fas fa-bars', name: 'Menu' },
-            { class: 'fas fa-ellipsis-h', name: 'Ba Chấm Ngang' },
-            { class: 'fas fa-ellipsis-v', name: 'Ba Chấm Dọc' }
-        ];
+  <!-- Icon Picker Modal -->
+  <div class="modal fade" id="iconPickerModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Chọn Icon</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-2" id="iconGrid">
+            <!-- Icons will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const mauSacInput = document.getElementById('mauSac');
-            const mauSacTextInput = document.getElementById('mauSacText');
-            const iconInput = document.getElementById('icon');
-            const tenLoaiInput = document.getElementById('tenLoai');
-            const moTaInput = document.getElementById('moTa');
-            
-            // Populate icon grid
-            populateIconGrid();
-            
-            // Sync color inputs
-            mauSacInput.addEventListener('input', function() {
-                mauSacTextInput.value = this.value;
-                updatePreview();
-            });
-            
-            mauSacTextInput.addEventListener('input', function() {
-                if (this.value.match(/^#[0-9A-Fa-f]{6}$/)) {
-                    mauSacInput.value = this.value;
-                    updatePreview();
-                }
-            });
-            
-            // Update icon preview
-            iconInput.addEventListener('input', function() {
-                document.getElementById('iconPreview').className = this.value || 'fas fa-tag';
-                updatePreview();
-            });
-            
-            // Make icon input editable
-            iconInput.addEventListener('click', function() {
-                this.removeAttribute('readonly');
-            });
-            
-            iconInput.addEventListener('blur', function() {
-                this.setAttribute('readonly', 'readonly');
-            });
-            
-            // Update text preview
-            tenLoaiInput.addEventListener('input', updatePreview);
-            moTaInput.addEventListener('input', updatePreview);
-            
-            // Color suggestions
-            document.querySelectorAll('.color-suggestion').forEach(suggestion => {
-                suggestion.addEventListener('click', function() {
-                    const color = this.dataset.color;
-                    mauSacInput.value = color;
-                    mauSacTextInput.value = color;
-                    updatePreview();
-                });
-            });
-            
-            // Form validation
-            document.querySelector('form').addEventListener('submit', function(e) {
-                const tenLoai = tenLoaiInput.value.trim();
-                
-                if (!tenLoai) {
-                    e.preventDefault();
-                    alert('Vui lòng nhập tên loại sự kiện!');
-                    tenLoaiInput.focus();
-                    return;
-                }
-                
-                // Clean up empty fields
-                if (moTaInput.value.trim() === '') moTaInput.value = '';
-                if (mauSacTextInput.value.trim() === '') mauSacTextInput.value = '';
-                if (iconInput.value.trim() === '') iconInput.value = '';
-            });
+  <!-- Scripts -->
+  <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+  <script>
+    // Popular icons for events
+    const popularIcons = [
+      { class: 'fas fa-calendar', name: 'Lịch' },
+      { class: 'fas fa-calendar-alt', name: 'Lịch Alt' },
+      { class: 'fas fa-calendar-week', name: 'Lịch Tuần' },
+      { class: 'fas fa-calendar-day', name: 'Lịch Ngày' },
+      { class: 'fas fa-church', name: 'Nhà Thờ' },
+      { class: 'fas fa-cross', name: 'Thánh Giá' },
+      { class: 'fas fa-pray', name: 'Cầu Nguyện' },
+      { class: 'fas fa-heart', name: 'Trái Tim' },
+      { class: 'fas fa-hands-helping', name: 'Giúp Đỡ' },
+      { class: 'fas fa-hand-holding-heart', name: 'Trao Yêu Thương' },
+      { class: 'fas fa-users', name: 'Nhóm Người' },
+      { class: 'fas fa-user-friends', name: 'Bạn Bè' },
+      { class: 'fas fa-people-carry', name: 'Hợp Tác' },
+      { class: 'fas fa-star', name: 'Ngôi Sao' },
+      { class: 'fas fa-award', name: 'Giải Thưởng' },
+      { class: 'fas fa-trophy', name: 'Cúp' },
+      { class: 'fas fa-gift', name: 'Quà Tặng' },
+      { class: 'fas fa-birthday-cake', name: 'Bánh Sinh Nhật' },
+      { class: 'fas fa-music', name: 'Âm Nhạc' },
+      { class: 'fas fa-microphone', name: 'Micro' },
+      { class: 'fas fa-guitar', name: 'Guitar' },
+      { class: 'fas fa-book', name: 'Sách' },
+      { class: 'fas fa-graduation-cap', name: 'Tốt Nghiệp' },
+      { class: 'fas fa-chalkboard-teacher', name: 'Giảng Dạy' },
+      { class: 'fas fa-seedling', name: 'Cây Non' },
+      { class: 'fas fa-leaf', name: 'Lá Cây' },
+      { class: 'fas fa-tree', name: 'Cây' },
+      { class: 'fas fa-globe', name: 'Địa Cầu' },
+      { class: 'fas fa-home', name: 'Nhà' },
+      { class: 'fas fa-building', name: 'Tòa Nhà' },
+      { class: 'fas fa-map-marker-alt', name: 'Vị Trí' },
+      { class: 'fas fa-utensils', name: 'Đồ Ăn' },
+      { class: 'fas fa-coffee', name: 'Cà Phê' },
+      { class: 'fas fa-wine-glass', name: 'Ly Rượu' },
+      { class: 'fas fa-camera', name: 'Máy Ảnh' },
+      { class: 'fas fa-video', name: 'Video' },
+      { class: 'fas fa-film', name: 'Phim' },
+      { class: 'fas fa-gamepad', name: 'Game' },
+      { class: 'fas fa-puzzle-piece', name: 'Ghép Hình' },
+      { class: 'fas fa-running', name: 'Chạy Bộ' },
+      { class: 'fas fa-bicycle', name: 'Xe Đạp' },
+      { class: 'fas fa-swimmer', name: 'Bơi Lội' },
+      { class: 'fas fa-dumbbell', name: 'Tập Gym' },
+      { class: 'fas fa-fire', name: 'Lửa' },
+      { class: 'fas fa-sun', name: 'Mặt Trời' },
+      { class: 'fas fa-moon', name: 'Mặt Trăng' },
+      { class: 'fas fa-cloud', name: 'Mây' },
+      { class: 'fas fa-rainbow', name: 'Cầu Vồng' },
+      { class: 'fas fa-tag', name: 'Thẻ' },
+      { class: 'fas fa-tags', name: 'Nhiều Thẻ' },
+      { class: 'fas fa-flag', name: 'Cờ' },
+      { class: 'fas fa-bell', name: 'Chuông' },
+      { class: 'fas fa-bullhorn', name: 'Loa' },
+      { class: 'fas fa-envelope', name: 'Thư' },
+      { class: 'fas fa-phone', name: 'Điện Thoại' },
+      { class: 'fas fa-mobile-alt', name: 'Di Động' },
+      { class: 'fas fa-laptop', name: 'Laptop' },
+      { class: 'fas fa-desktop', name: 'Máy Tính' },
+      { class: 'fas fa-tv', name: 'TV' },
+      { class: 'fas fa-lightbulb', name: 'Bóng Đèn' },
+      { class: 'fas fa-rocket', name: 'Tên Lửa' },
+      { class: 'fas fa-plane', name: 'Máy Bay' },
+      { class: 'fas fa-car', name: 'Ô Tô' },
+      { class: 'fas fa-bus', name: 'Xe Buýt' },
+      { class: 'fas fa-train', name: 'Tàu Hỏa' },
+      { class: 'fas fa-ship', name: 'Tàu Thủy' },
+      { class: 'fas fa-anchor', name: 'Neo' },
+      { class: 'fas fa-compass', name: 'La Bàn' },
+      { class: 'fas fa-map', name: 'Bản Đồ' },
+      { class: 'fas fa-clock', name: 'Đồng Hồ' },
+      { class: 'fas fa-hourglass', name: 'Đồng Hồ Cát' },
+      { class: 'fas fa-stopwatch', name: 'Bấm Giờ' },
+      { class: 'fas fa-history', name: 'Lịch Sử' },
+      { class: 'fas fa-sync', name: 'Đồng Bộ' },
+      { class: 'fas fa-redo', name: 'Làm Lại' },
+      { class: 'fas fa-undo', name: 'Hoàn Tác' },
+      { class: 'fas fa-plus', name: 'Cộng' },
+      { class: 'fas fa-minus', name: 'Trừ' },
+      { class: 'fas fa-times', name: 'Nhân' },
+      { class: 'fas fa-divide', name: 'Chia' },
+      { class: 'fas fa-equals', name: 'Bằng' },
+      { class: 'fas fa-percent', name: 'Phần Trăm' },
+      { class: 'fas fa-dollar-sign', name: 'Đô La' },
+      { class: 'fas fa-euro-sign', name: 'Euro' },
+      { class: 'fas fa-yen-sign', name: 'Yên' },
+      { class: 'fas fa-pound-sign', name: 'Bảng Anh' },
+      { class: 'fas fa-coins', name: 'Tiền Xu' },
+      { class: 'fas fa-wallet', name: 'Ví' },
+      { class: 'fas fa-credit-card', name: 'Thẻ Tín Dụng' },
+      { class: 'fas fa-shopping-cart', name: 'Giỏ Hàng' },
+      { class: 'fas fa-store', name: 'Cửa Hàng' },
+      { class: 'fas fa-warehouse', name: 'Kho' },
+      { class: 'fas fa-truck', name: 'Xe Tải' },
+      { class: 'fas fa-box', name: 'Hộp' },
+      { class: 'fas fa-archive', name: 'Lưu Trữ' },
+      { class: 'fas fa-folder', name: 'Thư Mục' },
+      { class: 'fas fa-file', name: 'Tệp' },
+      { class: 'fas fa-clipboard', name: 'Clipboard' },
+      { class: 'fas fa-pen', name: 'Bút' },
+      { class: 'fas fa-pencil-alt', name: 'Bút Chì' },
+      { class: 'fas fa-marker', name: 'Bút Dạ' },
+      { class: 'fas fa-highlighter', name: 'Bút Dạ Quang' },
+      { class: 'fas fa-eraser', name: 'Tẩy' },
+      { class: 'fas fa-ruler', name: 'Thước' },
+      { class: 'fas fa-scissors', name: 'Kéo' },
+      { class: 'fas fa-paperclip', name: 'Kẹp Giấy' },
+      { class: 'fas fa-thumbtack', name: 'Ghim' },
+      { class: 'fas fa-magnet', name: 'Nam Châm' },
+      { class: 'fas fa-key', name: 'Chìa Khóa' },
+      { class: 'fas fa-lock', name: 'Khóa' },
+      { class: 'fas fa-unlock', name: 'Mở Khóa' },
+      { class: 'fas fa-shield-alt', name: 'Khiên' },
+      { class: 'fas fa-eye', name: 'Mắt' },
+      { class: 'fas fa-eye-slash', name: 'Che Mắt' },
+      { class: 'fas fa-search', name: 'Tìm Kiếm' },
+      { class: 'fas fa-search-plus', name: 'Phóng To' },
+      { class: 'fas fa-search-minus', name: 'Thu Nhỏ' },
+      { class: 'fas fa-filter', name: 'Lọc' },
+      { class: 'fas fa-sort', name: 'Sắp Xếp' },
+      { class: 'fas fa-list', name: 'Danh Sách' },
+      { class: 'fas fa-th', name: 'Lưới' },
+      { class: 'fas fa-th-list', name: 'Danh Sách Lưới' },
+      { class: 'fas fa-bars', name: 'Menu' },
+      { class: 'fas fa-ellipsis-h', name: 'Ba Chấm Ngang' },
+      { class: 'fas fa-ellipsis-v', name: 'Ba Chấm Dọc' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const mauSacInput = document.getElementById('mauSac');
+      const mauSacTextInput = document.getElementById('mauSacText');
+      const iconInput = document.getElementById('icon');
+      const tenLoaiInput = document.getElementById('tenLoai');
+      const moTaInput = document.getElementById('moTa');
+      
+      // Populate icon grid
+      populateIconGrid();
+      
+      // Sync color inputs
+      mauSacInput.addEventListener('input', function() {
+        mauSacTextInput.value = this.value;
+        updatePreview();
+      });
+      
+      mauSacTextInput.addEventListener('input', function() {
+        if (this.value.match(/^#[0-9A-Fa-f]{6}$/)) {
+          mauSacInput.value = this.value;
+          updatePreview();
+        }
+      });
+      
+      // Update icon preview
+      iconInput.addEventListener('input', function() {
+        document.getElementById('iconPreview').className = this.value || 'fas fa-tag';
+        updatePreview();
+      });
+      
+      // Make icon input editable
+      iconInput.addEventListener('click', function() {
+        this.removeAttribute('readonly');
+      });
+      
+      iconInput.addEventListener('blur', function() {
+        this.setAttribute('readonly', 'readonly');
+      });
+      
+      // Update text preview
+      tenLoaiInput.addEventListener('input', updatePreview);
+      moTaInput.addEventListener('input', updatePreview);
+      
+      // Color suggestions
+      document.querySelectorAll('.color-suggestion').forEach(suggestion => {
+        suggestion.addEventListener('click', function() {
+          const color = this.dataset.color;
+          mauSacInput.value = color;
+          mauSacTextInput.value = color;
+          updatePreview();
+        });
+      });
+      
+      // Form validation
+      document.querySelector('form').addEventListener('submit', function(e) {
+        const tenLoai = tenLoaiInput.value.trim();
+        
+        if (!tenLoai) {
+          e.preventDefault();
+          alert('Vui lòng nhập tên loại sự kiện!');
+          tenLoaiInput.focus();
+          return;
+        }
+        
+        // Clean up empty fields
+        if (moTaInput.value.trim() === '') moTaInput.value = '';
+        if (mauSacTextInput.value.trim() === '') mauSacTextInput.value = '';
+        if (iconInput.value.trim() === '') iconInput.value = '';
+      });
+    });
+    
+    function populateIconGrid() {
+      const iconGrid = document.getElementById('iconGrid');
+      iconGrid.innerHTML = '';
+      
+      popularIcons.forEach(icon => {
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'col-2 mb-2';
+        iconDiv.innerHTML = `
+          <div class="icon-option text-center p-2 border rounded cursor-pointer" 
+               data-icon="${icon.class}" title="${icon.name}">
+              <i class="${icon.class} fa-lg mb-1"></i>
+              <div class="small text-muted">${icon.name}</div>
+          </div>
+        `;
+        
+        iconDiv.addEventListener('click', function() {
+          selectIcon(icon.class);
         });
         
-        function populateIconGrid() {
-            const iconGrid = document.getElementById('iconGrid');
-            iconGrid.innerHTML = '';
-            
-            popularIcons.forEach(icon => {
-                const iconDiv = document.createElement('div');
-                iconDiv.className = 'col-2 mb-2';
-                iconDiv.innerHTML = `
-                    <div class="icon-option text-center p-2 border rounded cursor-pointer" 
-                         data-icon="${icon.class}" title="${icon.name}">
-                        <i class="${icon.class} fa-lg mb-1"></i>
-                        <div class="small text-muted">${icon.name}</div>
-                    </div>
-                `;
-                
-                iconDiv.addEventListener('click', function() {
-                    selectIcon(icon.class);
-                });
-                
-                iconGrid.appendChild(iconDiv);
-            });
-        }
-        
-        function selectIcon(iconClass) {
-            document.getElementById('icon').value = iconClass;
-            document.getElementById('iconPreview').className = iconClass;
-            updatePreview();
-            
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
-            modal.hide();
-        }
-        
-        function updatePreview() {
-            const mauSacInput = document.getElementById('mauSac');
-            const iconInput = document.getElementById('icon');
-            const tenLoaiInput = document.getElementById('tenLoai');
-            const moTaInput = document.getElementById('moTa');
-            
-            const previewBadge = document.getElementById('previewBadge');
-            const previewIcon = document.getElementById('previewIcon');
-            const previewText = document.getElementById('previewText');
-            const previewDesc = document.getElementById('previewDesc');
-            
-            previewBadge.style.backgroundColor = mauSacInput.value || '#6c757d';
-            previewIcon.className = (iconInput.value || 'fas fa-tag') + ' me-1';
-            previewText.textContent = tenLoaiInput.value || 'Tên loại sự kiện';
-            previewDesc.textContent = moTaInput.value || 'Mô tả loại sự kiện';
-        }
-    </script>
+        iconGrid.appendChild(iconDiv);
+      });
+    }
     
-    <style>
-        .color-box {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-            margin-bottom: 5px;
-        }
-        
-        .color-suggestion {
-            text-align: center;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        
-        .color-suggestion:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .help-item h6 {
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .form-control-color {
-            width: 60px;
-            height: 38px;
-            padding: 0.375rem 0.5rem;
-        }
-        
-        #preview {
-            min-height: 40px;
-        }
-        
-        .icon-option {
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .icon-option:hover {
-            background-color: #f8f9fa;
-            border-color: #007bff !important;
-            transform: translateY(-2px);
-        }
-        
-        .cursor-pointer {
-            cursor: pointer;
-        }
-    </style>
+    function selectIcon(iconClass) {
+      document.getElementById('icon').value = iconClass;
+      document.getElementById('iconPreview').className = iconClass;
+      updatePreview();
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('iconPickerModal'));
+      modal.hide();
+    }
+    
+    function updatePreview() {
+      const mauSacInput = document.getElementById('mauSac');
+      const iconInput = document.getElementById('icon');
+      const tenLoaiInput = document.getElementById('tenLoai');
+      const moTaInput = document.getElementById('moTa');
+      
+      const previewBadge = document.getElementById('previewBadge');
+      const previewIcon = document.getElementById('previewIcon');
+      const previewText = document.getElementById('previewText');
+      const previewDesc = document.getElementById('previewDesc');
+      
+      previewBadge.style.backgroundColor = mauSacInput.value || '#6c757d';
+      previewIcon.className = (iconInput.value || 'fas fa-tag') + ' me-1';
+      previewText.textContent = tenLoaiInput.value || 'Tên loại sự kiện';
+      previewDesc.textContent = moTaInput.value || 'Mô tả loại sự kiện';
+    }
+  </script>
+  
+  <style>
+    .color-box {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      border: 1px solid #dee2e6;
+      margin-bottom: 5px;
+    }
+    
+    .color-suggestion {
+      text-align: center;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+    
+    .color-suggestion:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .help-item h6 {
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+    
+    .form-control-color {
+      width: 60px;
+      height: 38px;
+      padding: 0.375rem 0.5rem;
+    }
+    
+    #preview {
+      min-height: 40px;
+    }
+    
+    .icon-option {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .icon-option:hover {
+      background-color: #f8f9fa;
+      border-color: #007bff !important;
+      transform: translateY(-2px);
+    }
+    
+    .cursor-pointer {
+      cursor: pointer;
+    }
+    
+    /* CSS Grid Layout for Form */
+    .form-grid-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    .form-main-content {
+      min-width: 0; /* Prevent grid overflow */
+    }
+
+    .form-sidebar {
+      min-width: 0; /* Prevent grid overflow */
+    }
+
+    /* Responsive Grid Layout */
+    @media (max-width: 991px) {
+      .form-grid-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .form-sidebar {
+        order: 2;
+      }
+      
+      .form-main-content {
+        order: 1;
+      }
+    }
+  </style>
+
+  <!-- Modern Form Page Styles -->
+  <style>
+    /* Modern Admin Page Styles */
+    .modern-admin-page {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+      min-height: 100vh;
+    }
+
+    /* Modern Page Header */
+    .modern-page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .header-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .header-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* Modern Buttons */
+    .btn-modern {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-modern-outline {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-modern-outline:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Modern Cards */
+    .modern-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .card-title h5 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .card-title p {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.875rem;
+      color: #718096;
+    }
+
+    .card-content {
+      padding: 2rem;
+    }
+
+    /* Form Sections */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      margin: 2rem 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    }
+
+    .divider-text {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      font-size: 0.95rem;
+      text-transform: none;
+      letter-spacing: normal;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .divider-text:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    /* Modern Form Controls */
+    .modern-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .modern-form-label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .required-star {
+      color: #e53e3e;
+      margin-left: 0.25rem;
+    }
+
+    .modern-form-control,
+    .modern-form-select,
+    .modern-form-textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .modern-form-control:focus,
+    .modern-form-select:focus,
+    .modern-form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .modern-form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-feedback {
+      color: #e53e3e;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .form-hint {
+      color: #718096;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Color Input Group */
+    .color-input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .color-picker {
+      width: 60px;
+      height: 45px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .color-text {
+      flex: 1;
+    }
+
+    /* Icon Input Group */
+    .icon-input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .icon-preview {
+      width: 45px;
+      height: 45px;
+      background: #f7fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      color: #4a5568;
+    }
+
+    .icon-picker-btn {
+      width: 45px;
+      height: 45px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .icon-picker-btn:hover {
+      background: #5a67d8;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .actions-container {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      padding: 0.875rem 2rem;
+      background: #f7fafc;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: #edf2f7;
+      color: #2d3748;
+      text-decoration: none;
+    }
+
+    .btn-submit {
+      padding: 0.875rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    /* Sidebar Styles */
+    .guideline-section {
+      margin-bottom: 2rem;
+    }
+
+    .guideline-section h4 {
+      color: #2d3748;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .requirement-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .requirement-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #22543d;
+      font-size: 0.875rem;
+    }
+
+    .requirement-item i {
+      color: #38a169;
+    }
+
+    .note-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .note-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #4a5568;
+      font-size: 0.875rem;
+    }
+
+    .note-item i {
+      color: #667eea;
+      width: 16px;
+    }
+
+    .warning-box {
+      background: #fef5e7;
+      border: 1px solid #f6ad55;
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .warning-icon {
+      color: #dd6b20;
+      font-size: 1.1rem;
+    }
+
+    .warning-content {
+      color: #744210;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    /* Color Suggestions */
+    .color-suggestions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .color-suggestion {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .color-suggestion:hover {
+      background: #f7fafc;
+      border-color: #e2e8f0;
+    }
+
+    .color-suggestion .color-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .color-suggestion small {
+      font-size: 0.75rem;
+      color: #4a5568;
+      font-weight: 500;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: #f7fafc;
+      border-radius: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* CSS Grid Layout for Form */
+    .form-grid-container {
+      display: grid !important;
+      grid-template-columns: 2fr 1fr !important;
+      gap: 2rem !important;
+      align-items: start !important;
+    }
+
+    .form-main-content {
+      min-width: 0; /* Prevent grid overflow */
+    }
+
+    .form-sidebar {
+      min-width: 0; /* Prevent grid overflow */
+    }
+
+    /* Responsive Grid Layout */
+    @media (max-width: 991px) {
+      .form-grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+      }
+      
+      .form-sidebar {
+        order: 2;
+      }
+      
+      .form-main-content {
+        order: 1;
+      }
+    }
+    
+    @media (max-width: 767px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .header-actions {
+        justify-content: center;
+      }
+
+      .color-input-group,
+      .icon-input-group {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .actions-container {
+        flex-direction: column;
+      }
+    }
+  </style>
 </body>
 </html>

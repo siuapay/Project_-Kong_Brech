@@ -83,8 +83,9 @@
                                                         <span class="badge bg-primary ms-2" th:text="${lienHe.loaiLienHe.displayName}">Loại</span>
                                                     </h6>
                                                     <p class="card-text">
-                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
-                                                        (<span th:text="${lienHe.email}">email</span>)
+                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span><br>
+                                                        <strong>Email:</strong> <span th:text="${lienHe.email}">email</span><br>
+                                                        <strong>SĐT:</strong> <span th:text="${lienHe.dienThoai} ?: 'Chưa cung cấp'">Số điện thoại</span>
                                                     </p>
                                                     <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
                                                     <small class="text-muted">
@@ -143,8 +144,9 @@
                                                         <span class="badge bg-info ms-2">Đang xử lý</span>
                                                     </h6>
                                                     <p class="card-text">
-                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
-                                                        (<span th:text="${lienHe.email}">email</span>)
+                                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span><br>
+                                                        <strong>Email:</strong> <span th:text="${lienHe.email}">email</span><br>
+                                                        <strong>SĐT:</strong> <span th:text="${lienHe.dienThoai} ?: 'Chưa cung cấp'">Số điện thoại</span>
                                                     </p>
                                                     <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
                                                     
@@ -227,8 +229,9 @@
                                                 <span th:if="${lienHe.trangThai.name() == 'CHO_ADMIN_XU_LY'}" class="badge bg-warning ms-2">Chờ Admin xử lý</span>
                                             </h6>
                                             <p class="card-text">
-                                                <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
-                                                (<span th:text="${lienHe.email}">email</span>)
+                                                <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span><br>
+                                                <strong>Email:</strong> <span th:text="${lienHe.email}">email</span><br>
+                                                <strong>SĐT:</strong> <span th:text="${lienHe.dienThoai} ?: 'Chưa cung cấp'">Số điện thoại</span>
                                             </p>
                                             <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
                                             <!-- Hiển thị thông tin theo trạng thái -->
@@ -300,8 +303,9 @@
                                         <span class="badge bg-warning ms-2">Chờ Admin xử lý</span>
                                     </h6>
                                     <p class="card-text">
-                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span> 
-                                        (<span th:text="${lienHe.email}">email</span>)
+                                        <strong>Từ:</strong> <span th:text="${lienHe.hoTen}">Họ tên</span><br>
+                                        <strong>Email:</strong> <span th:text="${lienHe.email}">email</span><br>
+                                        <strong>SĐT:</strong> <span th:text="${lienHe.dienThoai} ?: 'Chưa cung cấp'">Số điện thoại</span>
                                     </p>
                                     <p class="card-text" th:text="${lienHe.noiDung}">Nội dung</p>
                                     

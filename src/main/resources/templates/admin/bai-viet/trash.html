@@ -1,331 +1,649 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Navigation -->
-        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
 
-        <!-- Content -->
-        <div class="container-fluid py-4">
-            <!-- Flash Messages -->
-            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-danger">
-                        <i class="fas fa-trash me-2"></i>Thùng Rác Bài Viết
-                    </h2>
-                    <p class="text-muted mb-0">Quản lý các bài viết đã bị xóa - có thể khôi phục hoặc xóa vĩnh viễn</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-danger" onclick="confirmEmptyTrash()" 
-                            th:disabled="${baiVietPage.totalElements == 0}">
-                        <i class="fas fa-trash-alt me-2"></i>Làm Trống Thùng Rác
-                    </button>
-                    <a th:href="@{/admin/bai-viet}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                    </a>
-                </div>
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-trash-restore"></i>
+              </div>
+              <div class="header-text">
+                <h1 class="header-title">Thùng Rác Bài Viết</h1>
+                <p class="header-subtitle">
+                  Quản lý các bài viết đã bị xóa - có thể khôi phục hoặc xóa vĩnh viễn
+                </p>
+              </div>
             </div>
-
-            <!-- Search & Filter -->
-            <div class="card shadow border-0 mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-search me-2"></i>Tìm Kiếm Trong Thùng Rác</h6>
-                </div>
-                <div class="card-body">
-                    <form method="get" th:action="@{/admin/bai-viet/trash}" id="searchForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
-                                    </span>
-                                    <input type="text" class="form-control" name="search" 
-                                           th:value="${search}" placeholder="Tìm kiếm theo tiêu đề, tác giả...">
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <input type="date" class="form-control" name="fromDate" 
-                                       th:value="${fromDate}" placeholder="Từ ngày">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="date" class="form-control" name="toDate" 
-                                       th:value="${toDate}" placeholder="Đến ngày">
-                            </div>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-12">
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Tìm kiếm
-                                    </button>
-                                    <a th:href="@{/admin/bai-viet/trash}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-1"></i>Xóa bộ lọc
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn-modern btn-modern-outline"
+                onclick="confirmEmptyTrash()"
+                th:disabled="${baiVietPage.totalElements == 0}"
+              >
+                <i class="fas fa-trash-alt me-2"></i>Dọn Thùng Rác
+              </button>
+              <a
+                th:href="@{/admin/bai-viet}"
+                class="btn-modern btn-modern-outline"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
             </div>
-
-            <!-- Trash List -->
-            <div class="card shadow border-0">
-                <div class="card-header bg-light border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>Bài Viết Đã Xóa
-                            <span class="badge bg-danger ms-2" th:text="${baiVietPage.totalElements}">0</span>
-                        </h5>
-                        <small class="text-muted">
-                            Trang <span th:text="${baiVietPage.number + 1}">1</span> 
-                            / <span th:text="${baiVietPage.totalPages}">1</span>
-                        </small>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="5%">#</th>
-                                    <th width="8%">Ảnh</th>
-                                    <th width="25%">Tiêu Đề</th>
-                                    <th width="15%">Tác Giả</th>
-                                    <th width="12%">Danh Mục</th>
-                                    <th width="10%">Trạng Thái</th>
-                                    <th width="12%">Ngày Xóa</th>
-                                    <th width="13%">Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${baiVietPage.content.empty}">
-                                    <td colspan="8" class="text-center py-5 text-muted">
-                                        <i class="fas fa-trash fa-3x mb-3 d-block"></i>
-                                        <h5>Thùng rác trống</h5>
-                                        <p>Không có bài viết nào trong thùng rác</p>
-                                    </td>
-                                </tr>
-                                <tr th:each="baiViet, iterStat : ${baiVietPage.content}" class="align-middle">
-                                    <td>
-                                        <span class="fw-bold text-danger" 
-                                              th:text="${baiVietPage.number * baiVietPage.size + iterStat.index + 1}">1</span>
-                                    </td>
-                                    <td>
-                                        <div th:if="${baiViet.anhDaiDien != null}">
-                                            <img th:src="${baiViet.anhDaiDien}" class="rounded opacity-50" 
-                                                 style="width: 60px; height: 60px; object-fit: cover;" th:alt="${baiViet.tieuDe}">
-                                        </div>
-                                        <div th:unless="${baiViet.anhDaiDien != null}" class="text-center">
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center opacity-50" 
-                                                 style="width: 60px; height: 60px;">
-                                                <i class="fas fa-image text-muted"></i>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <h6 class="mb-1 text-decoration-line-through text-muted" 
-                                                th:text="${#strings.abbreviate(baiViet.tieuDe, 50)}">Tiêu đề bài viết</h6>
-                                            <small class="text-muted" th:if="${baiViet.tomTat}" 
-                                                   th:text="${#strings.abbreviate(baiViet.tomTat, 80)}">Tóm tắt</small>
-                                            <div class="mt-1">
-                                                <span th:if="${baiViet.noiBat}" class="badge bg-warning text-dark me-1 opacity-75">
-                                                    <i class="fas fa-star"></i> Nổi bật
-                                                </span>
-                                                <span th:if="${baiViet.choPhepBinhLuan}" class="badge bg-info opacity-75">
-                                                    <i class="fas fa-comments"></i> Bình luận
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="text-muted">
-                                            <span th:text="${baiViet.tacGia}">Tác giả</span>
-                                            <br><small th:text="${baiViet.loaiTacGia.displayName}">Loại tác giả</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span th:if="${baiViet.danhMuc != null}" 
-                                              class="badge opacity-75" 
-                                              th:style="${baiViet.danhMuc.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} : 'background-color: #6c757d'"
-                                              th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
-                                        <span th:unless="${baiViet.danhMuc != null}" class="text-muted">Chưa phân loại</span>
-                                    </td>
-                                    <td>
-                                        <span th:if="${baiViet.trangThai.name() == 'DA_XUAT_BAN'}" class="badge bg-secondary">
-                                            <i class="fas fa-check-circle me-1"></i>Đã xuất bản
-                                        </span>
-                                        <span th:if="${baiViet.trangThai.name() == 'CHO_DUYET'}" class="badge bg-secondary">
-                                            <i class="fas fa-clock me-1"></i>Chờ duyệt
-                                        </span>
-                                        <span th:if="${baiViet.trangThai.name() == 'NHAP'}" class="badge bg-secondary">
-                                            <i class="fas fa-edit me-1"></i>Nháp
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="text-danger" th:text="${#temporals.format(baiViet.deletedAt, 'dd/MM/yyyy')}">01/01/2024</span>
-                                        <br><small class="text-muted" th:text="${#temporals.format(baiViet.deletedAt, 'HH:mm')}">10:00</small>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <button type="button" class="btn btn-sm btn-success" 
-                                                    title="Khôi phục bài viết"
-                                                    th:data-id="${baiViet.id}"
-                                                    th:data-title="${baiViet.tieuDe}"
-                                                    onclick="confirmRestore(this.dataset.id, this.dataset.title)">
-                                                <i class="fas fa-undo"></i>
-                                            </button>
-                                            <button type="button" class="btn btn-sm btn-danger" 
-                                                    title="Xóa vĩnh viễn"
-                                                    th:data-id="${baiViet.id}"
-                                                    th:data-title="${baiViet.tieuDe}"
-                                                    onclick="confirmPermanentDelete(this.dataset.id, this.dataset.title)">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="card-footer bg-light border-0" th:if="${baiVietPage.totalPages > 1}">
-                    <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item" th:classappend="${baiVietPage.first} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/bai-viet/trash(page=${baiVietPage.number - 1}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                            
-                            <li th:each="pageNum : ${#numbers.sequence(0, baiVietPage.totalPages - 1)}"
-                                class="page-item" th:classappend="${pageNum == baiVietPage.number} ? 'active'">
-                                <a class="page-link" th:href="@{/admin/bai-viet/trash(page=${pageNum}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
-                                   th:text="${pageNum + 1}">1</a>
-                            </li>
-                            
-                            <li class="page-item" th:classappend="${baiVietPage.last} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/bai-viet/trash(page=${baiVietPage.number + 1}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <!-- Modern Search & Filters -->
+        <div class="modern-card">
+          <div class="card-header">
+            <div class="header-left">
+              <div class="card-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <div class="card-title">
+                <h5>Tìm Kiếm Bài Viết Đã Xóa</h5>
+                <p>Tìm kiếm trong thùng rác</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <form method="get" th:action="@{/admin/bai-viet/trash}" id="filterForm">
+              <!-- Basic Search -->
+              <div class="search-row">
+                <div class="search-input-group">
+                  <div class="input-icon">
+                    <i class="fas fa-search"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="form-input"
+                    name="search"
+                    th:value="${search}"
+                    placeholder="Tìm kiếm theo tiêu đề, tác giả..."
+                    id="searchInput"
+                  />
+                  <button
+                    type="button"
+                    class="clear-input-btn"
+                    onclick="clearSearchInput()"
+                    th:style="${search != null and !#strings.isEmpty(search)} ? 'display: block;' : 'display: none;'"
+                    title="Xóa từ khóa tìm kiếm"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="search-actions">
+                  <button type="submit" class="btn-modern btn-modern-primary">
+                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                  </button>
+                </div>
+              </div>
+
+              <!-- Active Filters Display -->
+              <div class="active-filters" 
+                   th:if="${search != null and !#strings.isEmpty(search)} or ${fromDate != null} or ${toDate != null}">
+                  <div class="filters-label">
+                      <i class="fas fa-filter me-2"></i>Bộ lọc đang áp dụng:
+                  </div>
+                  <div class="filter-tags">
+                      <!-- Search Filter Tag -->
+                      <div class="filter-tag" th:if="${search != null and !#strings.isEmpty(search)}">
+                          <span class="filter-tag-label">Tìm kiếm:</span>
+                          <span class="filter-tag-value" th:text="${search}"></span>
+                          <a th:href="@{/admin/bai-viet/trash(fromDate=${fromDate}, toDate=${toDate})}"
+                             class="filter-tag-remove" title="Xóa bộ lọc tìm kiếm">
+                              <i class="fas fa-times"></i>
+                          </a>
+                      </div>
+                      <!-- Date Filter Tags -->
+                      <div class="filter-tag" th:if="${fromDate != null}">
+                          <span class="filter-tag-label">Từ ngày:</span>
+                          <span class="filter-tag-value" th:text="${fromDate}"></span>
+                          <a th:href="@{/admin/bai-viet/trash(search=${search}, toDate=${toDate})}"
+                             class="filter-tag-remove" title="Xóa bộ lọc từ ngày">
+                              <i class="fas fa-times"></i>
+                          </a>
+                      </div>
+                      <div class="filter-tag" th:if="${toDate != null}">
+                          <span class="filter-tag-label">Đến ngày:</span>
+                          <span class="filter-tag-value" th:text="${toDate}"></span>
+                          <a th:href="@{/admin/bai-viet/trash(search=${search}, fromDate=${fromDate})}"
+                             class="filter-tag-remove" title="Xóa bộ lọc đến ngày">
+                              <i class="fas fa-times"></i>
+                          </a>
+                      </div>
+                  </div>
+              </div>
+
+              <!-- Advanced Filters -->
+              <div class="advanced-filters">
+                <div class="filter-row">
+                  <div class="filter-group">
+                    <label class="filter-label">Từ ngày xóa</label>
+                    <input type="date" class="form-select" name="fromDate" th:value="${fromDate}">
+                  </div>
+                  <div class="filter-group">
+                    <label class="filter-label">Đến ngày xóa</label>
+                    <input type="date" class="form-select" name="toDate" th:value="${toDate}">
+                  </div>
+                </div>
+                <div class="filter-actions">
+                  <button type="submit" class="btn-modern btn-modern-primary">
+                    <i class="fas fa-filter me-1"></i>Áp dụng
+                  </button>
+                  <a
+                    th:href="@{/admin/bai-viet/trash}"
+                    class="btn-modern btn-modern-outline"
+                  >
+                    <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                  </a>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Deleted Articles List -->
+        <div class="modern-card">
+          <div class="card-header">
+            <div class="header-left">
+              <div class="card-icon">
+                <i class="fas fa-trash-restore"></i>
+              </div>
+              <div class="card-title">
+                <h5>Bài Viết Đã Xóa</h5>
+                <p>
+                  Tổng cộng
+                  <span class="total-count" th:text="${baiVietPage.totalElements}">0</span> bài viết trong thùng rác
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <!-- Empty State -->
+            <div th:if="${baiVietPage.content.empty}" class="empty-state">
+              <div class="empty-icon">
+                <i class="fas fa-trash-alt"></i>
+              </div>
+              <h3>Thùng rác trống</h3>
+              <p>
+                Không có bài viết nào trong thùng rác
+              </p>
+              <a
+                th:href="@{/admin/bai-viet}"
+                class="btn-modern btn-modern-primary"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh Sách
+              </a>
+            </div>
+
+            <!-- Deleted Articles Grid -->
+            <div th:unless="${baiVietPage.content.empty}" class="items-grid">
+              <div th:each="baiViet : ${baiVietPage.content}" class="item-card deleted-item">
+                <div class="item-avatar">
+                  <img
+                    th:if="${baiViet.anhDaiDien}"
+                    th:src="${baiViet.anhDaiDien}"
+                    alt="Article Image"
+                    class="deleted-image"
+                  />
+                  <div
+                    th:unless="${baiViet.anhDaiDien}"
+                    class="avatar-placeholder deleted-placeholder"
+                  >
+                    <i class="fas fa-newspaper"></i>
+                  </div>
+
+                </div>
+                <div class="item-info">
+                  <div class="item-header">
+                    <h4
+                      class="item-name deleted-title"
+                      th:text="${#strings.abbreviate(baiViet.tieuDe, 60)}"
+                    >
+                      Tiêu Đề Bài Viết
+                    </h4>
+                    <div class="item-status">
+                      <span class="status-badge deleted">Đã xóa</span>
+                    </div>
+                  </div>
+                  <div class="item-details">
+                    <div class="detail-row" th:if="${baiViet.tacGia}">
+                      <span class="detail-label">Tác giả:</span>
+                      <span class="deleted-text" th:text="${baiViet.tacGia}">Tác giả</span>
+                    </div>
+                    <div class="detail-row" th:if="${baiViet.danhMuc}">
+                      <span class="detail-label">Danh mục:</span>
+                      <span class="category-badge deleted-badge"
+                            th:style="${baiViet.danhMuc.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} + '; color: white; opacity: 0.7;' : 'background-color: #6c757d; color: white; opacity: 0.7;'">
+                        <i th:if="${baiViet.danhMuc.icon != null}" 
+                           th:class="'fas fa-' + ${baiViet.danhMuc.icon} + ' me-1'"></i>
+                        <i th:unless="${baiViet.danhMuc.icon != null}" class="fas fa-folder me-1"></i>
+                        <span th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                      </span>
+                    </div>
+                    <div class="detail-row" th:if="${baiViet.luotXem != null}">
+                      <span class="detail-label">Lượt xem:</span>
+                      <span class="deleted-text" th:text="${baiViet.luotXem}">0</span>
+                    </div>
+                    <div class="detail-row" th:if="${baiViet.deletedAt}">
+                      <span class="detail-label">Ngày xóa:</span>
+                      <span
+                        class="deleted-date"
+                        th:text="${#temporals.format(baiViet.deletedAt, 'dd/MM/yyyy HH:mm')}"
+                        >01/01/2024 10:00</span
+                      >
+                    </div>
+                    <div class="detail-row" th:if="${baiViet.tomTat}">
+                      <span class="detail-label">Tóm tắt:</span>
+                      <span
+                        th:text="${#strings.abbreviate(baiViet.tomTat, 100)}"
+                        class="text-muted deleted-text"
+                        >Tóm tắt bài viết</span
+                      >
+                    </div>
+                    <div class="detail-row" th:if="${baiViet.noiBat}">
+                      <span class="detail-label">Đặc biệt:</span>
+                      <span class="badge bg-warning text-dark deleted-badge">
+                        <i class="fas fa-star me-1"></i>Nổi bật
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <button
+                    type="button"
+                    class="action-btn restore"
+                    th:data-id="${baiViet.id}"
+                    th:data-title="${baiViet.tieuDe}"
+                    onclick="confirmRestore(this.dataset.id, this.dataset.title)"
+                    title="Khôi phục bài viết"
+                  >
+                    <i class="fas fa-undo"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="action-btn delete-permanent"
+                    th:data-id="${baiViet.id}"
+                    th:data-title="${baiViet.tieuDe}"
+                    onclick="confirmPermanentDelete(this.dataset.id, this.dataset.title)"
+                    title="Xóa vĩnh viễn"
+                  >
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${baiVietPage.totalPages > 1}" class="modern-pagination">
+          <nav>
+            <ul class="pagination justify-content-center">
+              <li
+                class="page-item"
+                th:classappend="${baiVietPage.first} ? 'disabled'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/bai-viet/trash(page=${baiVietPage.number - 1}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                >
+                  <i class="fas fa-chevron-left"></i>
+                </a>
+              </li>
+
+              <li
+                th:each="pageNum : ${#numbers.sequence(0, baiVietPage.totalPages - 1)}"
+                class="page-item"
+                th:classappend="${pageNum == baiVietPage.number} ? 'active'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/bai-viet/trash(page=${pageNum}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                  th:text="${pageNum + 1}"
+                  >1</a
+                >
+              </li>
+
+              <li
+                class="page-item"
+                th:classappend="${baiVietPage.last} ? 'disabled'"
+              >
+                <a
+                  class="page-link"
+                  th:href="@{/admin/bai-viet/trash(page=${baiVietPage.number + 1}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                >
+                  <i class="fas fa-chevron-right"></i>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
     </main>
 
     <!-- Restore Confirmation Modal -->
     <div class="modal fade" id="restoreModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác Nhận Khôi Phục</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn khôi phục bài viết <strong id="restoreTitle"></strong>?</p>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Bài viết sẽ được khôi phục về trạng thái ban đầu và có thể chỉnh sửa bình thường.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="restoreForm" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-undo me-1"></i>Khôi Phục
-                        </button>
-                    </form>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xác Nhận Khôi Phục</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Bạn có chắc chắn muốn khôi phục bài viết
+              <strong id="restoreTitle"></strong>?
+            </p>
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              Bài viết sẽ được khôi phục về trạng thái ban đầu và có thể chỉnh sửa bình thường.
             </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <form id="restoreForm" method="post" class="d-inline">
+              <button type="submit" class="btn btn-success">
+                <i class="fas fa-undo me-1"></i>Khôi Phục
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Permanent Delete Confirmation Modal -->
     <div class="modal fade" id="permanentDeleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">Xác Nhận Xóa Vĩnh Viễn</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa vĩnh viễn bài viết <strong id="permanentDeleteTitle"></strong>?</p>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>CẢNH BÁO:</strong> Hành động này không thể hoàn tác! Bài viết sẽ bị xóa hoàn toàn khỏi hệ thống.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="permanentDeleteForm" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash-alt me-1"></i>Xóa Vĩnh Viễn
-                        </button>
-                    </form>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Xác Nhận Xóa Vĩnh Viễn</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Bạn có chắc chắn muốn xóa vĩnh viễn bài viết
+              <strong id="permanentDeleteTitle"></strong>?
+            </p>
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>CẢNH BÁO:</strong> Hành động này không thể hoàn tác! Bài viết sẽ bị xóa hoàn toàn khỏi hệ thống.
             </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <form id="permanentDeleteForm" method="post" class="d-inline">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt me-1"></i>Xóa Vĩnh Viễn
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Empty Trash Confirmation Modal -->
     <div class="modal fade" id="emptyTrashModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title text-danger">Xác Nhận Làm Trống Thùng Rác</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa vĩnh viễn <strong>TẤT CẢ</strong> bài viết trong thùng rác?</p>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>CẢNH BÁO:</strong> Hành động này sẽ xóa vĩnh viễn tất cả bài viết trong thùng rác và không thể hoàn tác!
-                    </div>
-                    <p class="text-muted">Số bài viết sẽ bị xóa: <strong th:text="${baiVietPage.totalElements}">0</strong></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form action="/admin/bai-viet/empty-trash" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash-alt me-1"></i>Làm Trống Thùng Rác
-                        </button>
-                    </form>
-                </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Xác Nhận Dọn Thùng Rác</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Bạn có chắc chắn muốn xóa vĩnh viễn <strong>TẤT CẢ</strong> bài viết trong thùng rác?
+            </p>
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>CẢNH BÁO:</strong> Hành động này sẽ xóa vĩnh viễn tất cả bài viết trong thùng rác và không thể hoàn tác!
             </div>
+            <p class="text-muted">Số bài viết sẽ bị xóa: <strong th:text="${baiVietPage.totalElements}">0</strong></p>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Hủy
+            </button>
+            <form action="/admin/bai-viet/empty-trash" method="post" class="d-inline">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt me-1"></i>Dọn Thùng Rác
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
     <script>
-        function confirmRestore(id, title) {
-            document.getElementById('restoreTitle').textContent = title;
-            document.getElementById('restoreForm').action = '/admin/bai-viet/restore/' + id;
-            new bootstrap.Modal(document.getElementById('restoreModal')).show();
+      function confirmRestore(id, title) {
+        document.getElementById("restoreTitle").textContent = title;
+        document.getElementById("restoreForm").action =
+          "/admin/bai-viet/restore/" + id;
+        new bootstrap.Modal(document.getElementById("restoreModal")).show();
+      }
+
+      function confirmPermanentDelete(id, title) {
+        document.getElementById("permanentDeleteTitle").textContent = title;
+        document.getElementById("permanentDeleteForm").action =
+          "/admin/bai-viet/permanent-delete/" + id;
+        new bootstrap.Modal(document.getElementById("permanentDeleteModal")).show();
+      }
+
+      function confirmEmptyTrash() {
+        new bootstrap.Modal(document.getElementById("emptyTrashModal")).show();
+      }
+
+      function clearSearchInput() {
+        document.getElementById("searchInput").value = "";
+        document.querySelector(".clear-input-btn").style.display = "none";
+      }
+
+      // Show/hide clear button based on input
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.querySelector(".clear-input-btn");
+
+        if (searchInput) {
+          searchInput.addEventListener("input", function () {
+            clearBtn.style.display = this.value ? "block" : "none";
+          });
         }
-        
-        function confirmPermanentDelete(id, title) {
-            document.getElementById('permanentDeleteTitle').textContent = title;
-            document.getElementById('permanentDeleteForm').action = '/admin/bai-viet/permanent-delete/' + id;
-            new bootstrap.Modal(document.getElementById('permanentDeleteModal')).show();
-        }
-        
-        function confirmEmptyTrash() {
-            new bootstrap.Modal(document.getElementById('emptyTrashModal')).show();
-        }
+      });
     </script>
-</body>
+
+    <style>
+      /* Deleted Item Styling */
+      .deleted-item {
+        opacity: 0.8;
+        border: 2px dashed #dc3545;
+        background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+      }
+
+      .deleted-image {
+        filter: grayscale(50%) opacity(0.7);
+      }
+
+      .deleted-placeholder {
+        background: #f8d7da;
+        color: #721c24;
+        opacity: 0.7;
+      }
+
+
+
+      .deleted-title {
+        text-decoration: line-through;
+        color: #6c757d;
+      }
+
+      .deleted-text {
+        color: #6c757d;
+        opacity: 0.8;
+      }
+
+      .deleted-date {
+        color: #dc3545;
+        font-weight: 600;
+      }
+
+      .deleted-badge {
+        opacity: 0.7;
+        filter: grayscale(20%);
+      }
+
+      /* Status badge for deleted items */
+      .status-badge.deleted {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      /* Action buttons for trash */
+      .action-btn.restore {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+      }
+
+      .action-btn.restore:hover {
+        background: linear-gradient(135deg, #218838, #1e7e34);
+        transform: translateY(-2px);
+      }
+
+      .action-btn.delete-permanent {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+      }
+
+      .action-btn.delete-permanent:hover {
+        background: linear-gradient(135deg, #c82333, #a71e2a);
+        transform: translateY(-2px);
+      }
+
+      /* Total Count Styling for trash */
+      .total-count {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        display: inline-block;
+        min-width: 2rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        margin: 0 0.25rem;
+      }
+
+      /* Enhanced Category Badge for deleted items */
+      .category-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+      }
+
+      .category-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .category-badge i {
+        font-size: 0.75rem;
+      }
+
+      /* Improve detail rows spacing */
+      .detail-row {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .detail-label {
+        font-weight: 600;
+        color: #6c757d;
+        min-width: 80px;
+        font-size: 0.8rem;
+      }
+
+      /* Status badge improvements */
+      .status-badge {
+        font-weight: 600;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .modern-page-header{
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      }
+
+      .card-icon{
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+      }
+
+      /* Special badge for featured articles */
+      .badge.bg-warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14) !important;
+        color: white !important;
+        font-weight: 600;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        font-size: 0.7rem;
+      }
+    </style>
+  </body>
 </html>

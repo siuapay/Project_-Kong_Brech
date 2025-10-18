@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,71 +15,211 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-newspaper me-2"></i>Chi Tiết Bài Viết
-                    </h2>
-                    <p class="text-muted mb-0">Xem thông tin chi tiết và nội dung bài viết</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="btn btn-warning">
-                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa
-                    </a>
-                    <a th:href="@{/news/{slug}(slug=${baiViet.slug})}" class="btn btn-info" target="_blank">
-                        <i class="fas fa-external-link-alt me-2"></i>Xem Công Khai
-                    </a>
-                    <a th:href="@{/admin/bai-viet}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                    </a>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Chi Tiết Bài Viết</h1>
+                            <p class="header-subtitle">Xem thông tin chi tiết và nội dung bài viết</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                        </a>
+                        <a th:href="@{/news/{slug}(slug=${baiViet.slug})}" class="btn-modern btn-modern-outline" target="_blank">
+                            <i class="fas fa-external-link-alt me-2"></i>Xem Công Khai
+                        </a>
+                        <a th:href="@{/admin/bai-viet}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Main Content -->
+            <div class="row g-4">
+                <!-- Main Article Card -->
+                <div class="col-lg-4">
+                    <div class="modern-card">
+                        <div class="card-content">
+                            <!-- Article Header Section -->
+                            <div class="article-header-section">
+                                <div class="article-featured-image">
+                                    <img th:if="${baiViet.anhDaiDien != null}" 
+                                         th:src="${baiViet.anhDaiDien}" 
+                                         alt="Featured Image" 
+                                         class="featured-image" />
+                                    <div th:unless="${baiViet.anhDaiDien != null}" class="no-image-placeholder">
+                                        <i class="fas fa-image"></i>
+                                        <span>Không có ảnh đại diện</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Article Info -->
+                            <div class="article-info">
+                                <h2 class="article-title" th:text="${baiViet.tieuDe}">Tiêu đề bài viết</h2>
+                                <p class="article-author">
+                                    <span th:text="${baiViet.tacGia}">Tác giả</span>
+                                    <small class="text-muted" th:text="'(' + ${baiViet.loaiTacGia.displayName} + ')'"></small>
+                                </p>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div class="status-section">
+                                <div th:switch="${baiViet.trangThai?.name()}">
+                                    <div th:case="'DA_XUAT_BAN'" class="status-badge active">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Đã Xuất Bản</span>
+                                    </div>
+                                    <div th:case="'CHO_DUYET'" class="status-badge pending">
+                                        <i class="fas fa-clock"></i>
+                                        <span>Chờ Duyệt</span>
+                                    </div>
+                                    <div th:case="'NHAP'" class="status-badge inactive">
+                                        <i class="fas fa-edit"></i>
+                                        <span>Nháp</span>
+                                    </div>
+                                    <div th:case="'TU_CHOI'" class="status-badge rejected">
+                                        <i class="fas fa-times-circle"></i>
+                                        <span>Từ Chối</span>
+                                    </div>
+                                    <div th:case="*" class="status-badge inactive">
+                                        <span>Không xác định</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Article Meta -->
+                            <div class="article-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-eye"></i>
+                                    <span th:text="${baiViet.luotXem} + ' lượt xem'">0 lượt xem</span>
+                                </div>
+                                <div th:if="${baiViet.danhMuc != null}" class="meta-item">
+                                    <i class="fas fa-folder"></i>
+                                    <span th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                                </div>
+                                <div th:if="${baiViet.noiBat}" class="meta-item featured">
+                                    <i class="fas fa-star"></i>
+                                    <span>Nổi bật</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modern Quick Actions -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thao Tác Nhanh</h5>
+                                    <p>Các hành động có thể thực hiện</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="action-item edit">
+                                <div class="action-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Chỉnh Sửa</span>
+                                    <span class="action-desc">Cập nhật nội dung</span>
+                                </div>
+                            </a>
+
+                            <a th:href="@{/news/{slug}(slug=${baiViet.slug})}" class="action-item view" target="_blank">
+                                <div class="action-icon">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Xem Công Khai</span>
+                                    <span class="action-desc">Mở trang công khai</span>
+                                </div>
+                            </a>
+
+                            <button type="button" class="action-item delete"
+                                    th:data-id="${baiViet.id}"
+                                    th:data-title="${baiViet.tieuDe}"
+                                    onclick="confirmSoftDelete(this.dataset.id, this.dataset.title)">
+                                <div class="action-icon">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Chuyển Vào Thùng Rác</span>
+                                    <span class="action-desc">Xóa tạm thời</span>
+                                </div>
+                            </button>
+
+                            <div class="actions-divider"></div>
+
+                            <a th:href="@{/admin/bai-viet}" class="action-item secondary">
+                                <div class="action-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Danh Sách</span>
+                                    <span class="action-desc">Xem tất cả bài viết</span>
+                                </div>
+                            </a>
+
+                            <a th:href="@{/admin/bai-viet/new}" class="action-item primary">
+                                <div class="action-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Thêm Mới</span>
+                                    <span class="action-desc">Tạo bài viết mới</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Information -->
                 <div class="col-lg-8">
-                    <!-- Article Header -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-body">
-                            <h1 class="display-6 fw-bold mb-3" th:text="${baiViet.tieuDe}">Tiêu đề bài viết</h1>
-                            
-                            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
-                                <span class="badge fs-6" 
-                                      th:if="${baiViet.danhMuc != null}"
-                                      th:style="${baiViet.danhMuc.mauSac != null} ? 'background-color: ' + ${baiViet.danhMuc.mauSac} : 'background-color: #007bff'"
-                                      th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
-                                
-                                <span class="badge"
-                                      th:classappend="${baiViet.trangThai.name() == 'DA_XUAT_BAN'} ? 'bg-success' : 
-                                                     (${baiViet.trangThai.name() == 'NHAP'} ? 'bg-secondary' : 'bg-warning')"
-                                      th:text="${baiViet.trangThai.displayName}">
-                                </span>
-                                
-                                <span th:if="${baiViet.noiBat}" class="badge bg-warning text-dark">
-                                    <i class="fas fa-star"></i> Nổi bật
-                                </span>
+                    <!-- Article Summary -->
+                    <div th:if="${baiViet.tomTat != null}" class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Tóm Tắt</h5>
+                                    <p>Nội dung tóm tắt của bài viết</p>
+                                </div>
                             </div>
-
-                            <!-- Featured Image -->
-                            <div th:if="${baiViet.anhDaiDien != null}" class="mb-4">
-                                <img th:src="${baiViet.anhDaiDien}" class="img-fluid rounded" th:alt="${baiViet.tieuDe}">
-                            </div>
-
-                            <!-- Article Summary -->
-                            <div th:if="${baiViet.tomTat != null}" class="alert alert-info">
-                                <h5><i class="fas fa-info-circle me-2"></i>Tóm tắt</h5>
-                                <p class="mb-0" th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
+                        </div>
+                        <div class="card-content">
+                            <div class="summary-content">
+                                <p th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Article Content -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-file-text me-2"></i>Nội dung bài viết</h5>
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-file-text"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Nội Dung Bài Viết</h5>
+                                    <p>Toàn bộ nội dung chi tiết</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <div class="article-content">
                                 <!-- Use rich content if available, otherwise fallback to regular content -->
                                 <div th:if="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)}" 
@@ -93,28 +233,44 @@
                         </div>
                     </div>
 
-                    <!-- Image Gallery (only show if not using rich content) -->
-                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachHinhAnh.empty}" class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-images me-2"></i>Hình ảnh liên quan</h5>
+                    <!-- Image Gallery -->
+                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachHinhAnh.empty}" class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Hình Ảnh Liên Quan</h5>
+                                    <p>Thư viện ảnh của bài viết</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div th:each="image : ${baiViet.danhSachHinhAnh}" class="col-md-4 mb-3">
-                                    <img th:src="${image}" class="img-fluid rounded" th:alt="${baiViet.tieuDe}" style="height: 200px; object-fit: cover;">
+                        <div class="card-content">
+                            <div class="row g-3">
+                                <div th:each="image : ${baiViet.danhSachHinhAnh}" class="col-md-4">
+                                    <img th:src="${image}" class="img-fluid rounded gallery-image" th:alt="${baiViet.tieuDe}">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Video Gallery (only show if not using rich content) -->
-                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachVideo.empty}" class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-video me-2"></i>Video liên quan</h5>
+                    <!-- Video Gallery -->
+                    <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and !baiViet.danhSachVideo.empty}" class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-video"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Video Liên Quan</h5>
+                                    <p>Thư viện video của bài viết</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <div th:each="video : ${baiViet.danhSachVideo}" class="mb-3">
-                                <video controls class="rounded w-100">
+                                <video controls class="rounded w-100 video-player">
                                     <source th:src="${video}" type="video/mp4">
                                     Trình duyệt của bạn không hỗ trợ video.
                                 </video>
@@ -122,153 +278,191 @@
                         </div>
                     </div>
 
-                    <!-- SEO Keywords -->
-                    <div th:if="${baiViet.metaKeywords != null}" class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Từ khóa SEO</h5>
+                    <!-- Article Details -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Chi Tiết</h5>
+                                    <p>Metadata và thông tin bổ sung</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div th:each="tag : ${#strings.listSplit(baiViet.metaKeywords, ',')}" class="d-inline-block">
-                                <span class="badge bg-light text-dark me-2 mb-2" th:text="${#strings.trim(tag)}">Tag</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="col-lg-4">
-                    <!-- Article Meta -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Thông tin bài viết</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-item mb-3">
-                                <label class="info-label">Tác giả</label>
-                                <div class="info-value">
-                                    <span th:text="${baiViet.tacGia}">Tác giả</span>
-                                    <br><small class="text-muted" th:text="${baiViet.loaiTacGia.displayName}">Loại tác giả</small>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Trạng thái</label>
-                                <div class="info-value">
-                                    <span class="badge"
-                                          th:classappend="${baiViet.trangThai.name() == 'DA_XUAT_BAN'} ? 'bg-success' : 
-                                                         (${baiViet.trangThai.name() == 'NHAP'} ? 'bg-secondary' : 'bg-warning')"
-                                          th:text="${baiViet.trangThai.displayName}">
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Danh mục</label>
-                                <div class="info-value">
-                                    <span th:if="${baiViet.danhMuc != null}" th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
-                                    <span th:unless="${baiViet.danhMuc != null}" class="text-muted">Chưa phân loại</span>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Lượt xem</label>
-                                <div class="info-value">
-                                    <i class="fas fa-eye text-muted me-1"></i>
-                                    <span th:text="${baiViet.luotXem}">0</span>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Ngày tạo</label>
-                                <div class="info-value">
-                                    <i class="fas fa-calendar-plus text-success me-1"></i>
-                                    <span th:text="${#temporals.format(baiViet.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
-                                </div>
-                            </div>
-                            <div th:if="${baiViet.ngayXuatBan != null}" class="info-item mb-3">
-                                <label class="info-label">Ngày xuất bản</label>
-                                <div class="info-value">
-                                    <i class="fas fa-calendar-check text-primary me-1"></i>
-                                    <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Cập nhật cuối</label>
-                                <div class="info-value">
-                                    <i class="fas fa-edit text-warning me-1"></i>
-                                    <span th:text="${#temporals.format(baiViet.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
-                                </div>
-                            </div>
-                            <div class="info-item mb-3">
-                                <label class="info-label">Slug</label>
-                                <div class="info-value">
-                                    <code th:text="${baiViet.slug}">slug-bai-viet</code>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <label class="info-label">Tùy chọn</label>
-                                <div class="info-value">
-                                    <div th:if="${baiViet.noiBat}" class="mb-1">
-                                        <span class="badge bg-warning text-dark">
-                                            <i class="fas fa-star"></i> Nổi bật
-                                        </span>
+                        <div class="card-content">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Tác Giả</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-user-edit text-primary me-2"></i>
+                                            <span th:text="${baiViet.tacGia}">Tác giả</span>
+                                            <small class="text-muted" th:text="'(' + ${baiViet.loaiTacGia.displayName} + ')'"></small>
+                                        </div>
                                     </div>
-                                    <div th:if="${baiViet.choPhepBinhLuan}">
-                                        <span class="badge bg-info">
-                                            <i class="fas fa-comments"></i> Cho phép bình luận
-                                        </span>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Danh Mục</label>
+                                        <div class="info-value">
+                                            <span th:if="${baiViet.danhMuc != null}">
+                                                <i class="fas fa-folder text-primary me-2"></i>
+                                                <span th:text="${baiViet.danhMuc.tenDanhMuc}"></span>
+                                            </span>
+                                            <span th:unless="${baiViet.danhMuc != null}" class="text-muted">Chưa phân loại</span>
+                                        </div>
                                     </div>
-                                    <div th:unless="${baiViet.noiBat or baiViet.choPhepBinhLuan}" class="text-muted">
-                                        Không có tùy chọn đặc biệt
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Ngày Tạo</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-calendar-plus text-success me-2"></i>
+                                            <span th:text="${#temporals.format(baiViet.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Ngày Xuất Bản</label>
+                                        <div class="info-value">
+                                            <span th:if="${baiViet.ngayXuatBan != null}">
+                                                <i class="fas fa-calendar-check text-primary me-2"></i>
+                                                <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                                            </span>
+                                            <span th:unless="${baiViet.ngayXuatBan != null}" class="text-muted">Chưa xuất bản</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Lượt Xem</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-eye text-info me-2"></i>
+                                            <span th:text="${baiViet.luotXem}">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Slug</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-link text-secondary me-2"></i>
+                                            <code th:text="${baiViet.slug}">slug-bai-viet</code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Tùy Chọn</label>
+                                        <div class="info-value">
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <span th:if="${baiViet.noiBat}" class="badge bg-warning text-dark">
+                                                    <i class="fas fa-star me-1"></i>Nổi bật
+                                                </span>
+                                                <span th:if="${baiViet.choPhepBinhLuan}" class="badge bg-info">
+                                                    <i class="fas fa-comments me-1"></i>Cho phép bình luận
+                                                </span>
+                                                <span th:unless="${baiViet.noiBat or baiViet.choPhepBinhLuan}" class="text-muted">
+                                                    Không có tùy chọn đặc biệt
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- SEO Info -->
-                    <div th:if="${baiViet.metaTitle != null or baiViet.metaDescription != null}" class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0"><i class="fas fa-search me-2"></i>Thông tin SEO</h5>
-                        </div>
-                        <div class="card-body">
-                            <div th:if="${baiViet.metaTitle != null}" class="info-item mb-3">
-                                <label class="info-label">Meta Title</label>
-                                <div class="info-value">
-                                    <p class="mb-0" th:text="${baiViet.metaTitle}"></p>
+                    <!-- SEO Information -->
+                    <div th:if="${baiViet.metaTitle != null or baiViet.metaDescription != null or baiViet.metaKeywords != null}" class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin SEO</h5>
+                                    <p>Tối ưu hóa công cụ tìm kiếm</p>
                                 </div>
                             </div>
-                            <div th:if="${baiViet.metaDescription != null}" class="info-item">
-                                <label class="info-label">Meta Description</label>
-                                <div class="info-value">
-                                    <p class="mb-0" th:text="${baiViet.metaDescription}"></p>
+                        </div>
+                        <div class="card-content">
+                            <div class="row g-4">
+                                <div th:if="${baiViet.metaTitle != null}" class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Meta Title</label>
+                                        <div class="info-value">
+                                            <div class="seo-preview-title" th:text="${baiViet.metaTitle}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${baiViet.metaDescription != null}" class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Meta Description</label>
+                                        <div class="info-value">
+                                            <div class="seo-preview-desc" th:text="${baiViet.metaDescription}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${baiViet.metaKeywords != null}" class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Từ Khóa SEO</label>
+                                        <div class="info-value">
+                                            <div class="keywords-container">
+                                                <span th:each="tag : ${#strings.listSplit(baiViet.metaKeywords, ',')}" 
+                                                      class="keyword-tag" th:text="${#strings.trim(tag)}">Tag</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-gradient-primary text-white">
-                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
+                    <!-- System Information -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Hệ Thống</h5>
+                                    <p>Chi tiết về bản ghi</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{/admin/bai-viet/edit/{id}(id=${baiViet.id})}" class="btn btn-warning">
-                                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa
-                                </a>
-                                <a th:href="@{/news/{slug}(slug=${baiViet.slug})}" class="btn btn-info" target="_blank">
-                                    <i class="fas fa-external-link-alt me-2"></i>Xem Công Khai
-                                </a>
-                                <button type="button" class="btn btn-warning" 
-                                        th:data-id="${baiViet.id}"
-                                        th:data-title="${baiViet.tieuDe}"
-                                        onclick="confirmSoftDelete(this.dataset.id, this.dataset.title)">
-                                    <i class="fas fa-trash me-2"></i>Chuyển Vào Thùng Rác
-                                </button>
-                                <hr>
-                                <a th:href="@{/admin/bai-viet}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-list me-2"></i>Danh Sách
-                                </a>
-                                <a th:href="@{/admin/bai-viet/new}" class="btn btn-outline-primary">
-                                    <i class="fas fa-plus me-2"></i>Thêm Mới
-                                </a>
+                        <div class="card-content">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">ID Bài Viết</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-primary fs-6" th:text="'#' + ${baiViet.id}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Ngày Tạo</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-calendar-plus text-success me-1"></i>
+                                            <span th:text="${#temporals.format(baiViet.createdAt, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Cập Nhật Cuối</label>
+                                        <div class="info-value">
+                                            <i class="fas fa-edit text-warning me-1"></i>
+                                            <span th:text="${#temporals.format(baiViet.updatedAt, 'dd/MM/yyyy')}"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -313,5 +507,460 @@
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
     </script>
+
+    <!-- Modern View Page Styles -->
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Article Header Section */
+        .article-header-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .article-featured-image {
+            position: relative;
+            display: inline-block;
+        }
+
+        .featured-image {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .no-image-placeholder {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+        }
+
+        .no-image-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Article Info */
+        .article-info {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .article-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .article-author {
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* Status Badge */
+        .status-section {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .status-badge.active {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-badge.pending {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .status-badge.rejected {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        /* Article Meta */
+        .article-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .meta-item.featured {
+            color: #ffc107;
+        }
+
+        .meta-item i {
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Action Items */
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .action-item:hover {
+            background: #f8f9fa;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-item.edit:hover {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .action-item.view:hover {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+        }
+
+        .action-item.delete:hover {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .action-item.primary:hover {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+        }
+
+        .action-item.secondary:hover {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: #f8f9fa;
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-title {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .actions-divider {
+            height: 1px;
+            background: #dee2e6;
+            margin: 1rem 0;
+        }
+
+        /* Info Items */
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        /* Article Content */
+        .article-content {
+            line-height: 1.8;
+            color: #2c3e50;
+        }
+
+        .article-content h1, .article-content h2, .article-content h3,
+        .article-content h4, .article-content h5, .article-content h6 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .article-content p {
+            margin-bottom: 1rem;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        /* Gallery Images */
+        .gallery-image {
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* Video Player */
+        .video-player {
+            max-height: 400px;
+        }
+
+        /* Summary Content */
+        .summary-content {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-style: italic;
+            color: #495057;
+        }
+
+        /* SEO Preview */
+        .seo-preview-title {
+            color: #1a0dab;
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .seo-preview-desc {
+            color: #545454;
+            font-size: 0.875rem;
+            line-height: 1.4;
+        }
+
+        /* Keywords */
+        .keywords-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .keyword-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .article-title {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
 </body>
 </html>

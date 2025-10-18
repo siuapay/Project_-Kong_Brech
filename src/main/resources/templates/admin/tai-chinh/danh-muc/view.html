@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,156 +15,272 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-eye me-2"></i>Chi Tiết Danh Mục Tài Chính
-                    </h2>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a th:href="@{/admin}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a th:href="@{/admin/tai-chinh/danh-muc}">Danh Mục Tài Chính</a></li>
-                            <li class="breadcrumb-item active">Chi Tiết</li>
-                        </ol>
-                    </nav>
-                </div>
-                <div class="btn-group">
-                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
-                        <i class="fas fa-arrow-left me-1"></i>Quay Lại
-                    </a>
-                    <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMucDTO.id})}" class="btn btn-warning">
-                        <i class="fas fa-edit me-1"></i>Chỉnh Sửa
-                    </a>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Chi Tiết Danh Mục Tài Chính</h1>
+                            <p class="header-subtitle">Xem thông tin chi tiết và thống kê danh mục tài chính</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMucDTO.id})}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                        </a>
+                        <a th:href="@{/admin/tai-chinh/giao-dich(danhMucId=${danhMucDTO.id})}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-exchange-alt me-2"></i>Xem Giao Dịch
+                        </a>
+                        <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Main Info -->
-                <div class="col-lg-8">
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Danh Mục
-                            </h5>
+            <div class="row g-4">
+                <!-- Main Category Card -->
+                <div class="col-lg-4">
+                    <div class="modern-card">
+                        <div class="card-content">
+                            <!-- Financial Category Icon Section -->
+                            <div class="category-icon-section">
+                                <div class="category-icon-wrapper">
+                                    <div class="category-main-icon financial-category-main-icon" 
+                                         th:class="${danhMucDTO.loai == 'THU'} ? 'income-main-icon' : 'expense-main-icon'">
+                                        <i th:class="${danhMucDTO.loai == 'THU'} ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                    </div>
+                                    <div class="icon-border"></div>
+                                </div>
+                            </div>
+
+                            <!-- Category Info -->
+                            <div class="category-info">
+                                <h2 class="category-name" th:text="${danhMucDTO.tenDanhMuc}">Tên Danh Mục</h2>
+                                <p class="category-type">
+                                    <span th:if="${danhMucDTO.loai == 'THU'}" class="type-badge income">
+                                        <i class="fas fa-arrow-up me-1"></i>Danh Mục Thu Nhập
+                                    </span>
+                                    <span th:if="${danhMucDTO.loai == 'CHI'}" class="type-badge expense">
+                                        <i class="fas fa-arrow-down me-1"></i>Danh Mục Chi Phí
+                                    </span>
+                                </p>
+                            </div>
+
+                            <!-- Category Stats -->
+                            <div class="category-stats">
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number" id="transaction-count">0</span>
+                                        <span class="stat-label">Giao dịch</span>
+                                    </div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-hashtag"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number" th:text="${danhMucDTO.id}">1</span>
+                                        <span class="stat-label">ID</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                    </div>
+
+                    <!-- Modern Quick Actions -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thao Tác Nhanh</h5>
+                                    <p>Các hành động có thể thực hiện</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMucDTO.id})}" class="action-item edit">
+                                <div class="action-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Chỉnh Sửa</span>
+                                    <span class="action-desc">Cập nhật thông tin danh mục</span>
+                                </div>
+                            </a>
+
+                            <a th:href="@{/admin/tai-chinh/giao-dich(danhMucId=${danhMucDTO.id})}" class="action-item view">
+                                <div class="action-icon">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Xem Giao Dịch</span>
+                                    <span class="action-desc">Danh sách giao dịch trong danh mục</span>
+                                </div>
+                            </a>
+
+                            <button type="button" class="action-item delete"
+                                    th:data-id="${danhMucDTO.id}"
+                                    th:data-name="${danhMucDTO.tenDanhMuc}"
+                                    onclick="confirmDelete(this.dataset.id, this.dataset.name)">
+                                <div class="action-icon">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Xóa Danh Mục</span>
+                                    <span class="action-desc">Xóa khỏi hệ thống</span>
+                                </div>
+                            </button>
+
+                            <div class="actions-divider"></div>
+
+                            <a th:href="@{/admin/tai-chinh/danh-muc}" class="action-item secondary">
+                                <div class="action-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Danh Sách</span>
+                                    <span class="action-desc">Xem tất cả danh mục</span>
+                                </div>
+                            </a>
+
+                            <a th:href="@{/admin/tai-chinh/danh-muc/add}" class="action-item primary">
+                                <div class="action-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Thêm Mới</span>
+                                    <span class="action-desc">Tạo danh mục mới</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>        
+                
+                <!-- Detailed Information -->
+                <div class="col-lg-8">
+                    <!-- Basic Information -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Cơ Bản</h5>
+                                    <p>Chi tiết về thông tin danh mục tài chính</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
                             <div class="row g-4">
-                                <!-- Category Display -->
-                                <div class="col-12">
-                                    <div class="d-flex align-items-center p-3 bg-light rounded">
-                                        <div class="avatar-lg rounded-circle d-flex align-items-center justify-content-center me-4"
-                                             th:class="${danhMucDTO.loai == 'THU'} ? 'bg-success' : 'bg-danger'">
-                                            <i th:class="${danhMucDTO.loai == 'THU'} ? 'fas fa-arrow-up fa-2x text-white' : 'fas fa-arrow-down fa-2x text-white'"></i>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Tên Danh Mục</label>
+                                        <div class="info-value" th:text="${danhMucDTO.tenDanhMuc}">-</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Loại Danh Mục</label>
+                                        <div class="info-value">
+                                            <span th:if="${danhMucDTO.loai == 'THU'}" class="financial-type-badge income">
+                                                <i class="fas fa-arrow-up me-1"></i>Thu Nhập
+                                            </span>
+                                            <span th:if="${danhMucDTO.loai == 'CHI'}" class="financial-type-badge expense">
+                                                <i class="fas fa-arrow-down me-1"></i>Chi Phí
+                                            </span>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <h3 class="mb-1" th:text="${danhMucDTO.tenDanhMuc}">Tên Danh Mục</h3>
-                                            <div class="d-flex align-items-center gap-3">
-                                                <span th:if="${danhMucDTO.loai == 'THU'}" class="badge bg-success fs-6">
-                                                    <i class="fas fa-arrow-up me-1"></i>Danh Mục Thu
-                                                </span>
-                                                <span th:if="${danhMucDTO.loai == 'CHI'}" class="badge bg-danger fs-6">
-                                                    <i class="fas fa-arrow-down me-1"></i>Danh Mục Chi
-                                                </span>
-                                                <small class="text-muted">ID: <span th:text="${danhMucDTO.id}">1</span></small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">ID Danh Mục</label>
+                                        <div class="info-value">
+                                            <span class="id-badge" th:text="'#' + ${danhMucDTO.id}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="info-item">
+                                        <label class="info-label">Số Giao Dịch</label>
+                                        <div class="info-value">
+                                            <span class="transaction-count-badge" id="transaction-count-display">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="info-item">
+                                        <label class="info-label">Mô Tả</label>
+                                        <div class="info-value">
+                                            <div class="description-box">
+                                                <i class="fas fa-file-text text-info me-2"></i>
+                                                <span th:if="${danhMucDTO.moTa}" th:text="${danhMucDTO.moTa}" style="white-space: pre-line;"></span>
+                                                <span th:unless="${danhMucDTO.moTa}" class="text-muted">Chưa có mô tả</span>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <!-- Description -->
-                                <div class="col-12" th:if="${danhMucDTO.moTa}">
-                                    <label class="form-label fw-bold">
-                                        <i class="fas fa-align-left me-1"></i>Mô Tả
-                                    </label>
-                                    <div class="p-3 bg-light rounded">
-                                        <p class="mb-0" th:text="${danhMucDTO.moTa}">Mô tả danh mục</p>
+                    <!-- System Information -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Hệ Thống</h5>
+                                    <p>Chi tiết về bản ghi</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">ID Danh Mục</label>
+                                        <div class="info-value">
+                                            <span class="badge bg-primary fs-6" th:text="'#' + ${danhMucDTO.id}"></span>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- No Description -->
-                                <div class="col-12" th:unless="${danhMucDTO.moTa}">
-                                    <div class="text-center py-4 text-muted">
-                                        <i class="fas fa-file-alt fa-2x mb-2 d-block"></i>
-                                        <p class="mb-0">Danh mục này chưa có mô tả</p>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Ngày Tạo</label>
+                                        <div class="info-value">
+                                            <span th:if="${danhMucDTO.createdAt}">
+                                                <i class="fas fa-calendar-plus text-success me-1"></i>
+                                                <span th:text="${#temporals.format(danhMucDTO.createdAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${danhMucDTO.createdAt}" class="text-muted">-</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Info -->
-                <div class="col-lg-4">
-                    <!-- Status Card -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0">
-                                <i class="fas fa-chart-bar me-1"></i>Trạng Thái Sử Dụng
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center">
-                                <div th:if="${danhMucDTO.dangSuDung}" class="mb-3">
-                                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-2"></i>
-                                    <h6 class="text-warning">Đang Được Sử Dụng</h6>
-                                    <p class="text-muted small mb-0">Danh mục này đang được sử dụng trong các giao dịch và không thể xóa.</p>
+                                <div class="col-md-4">
+                                    <div class="info-item text-center">
+                                        <label class="info-label">Cập Nhật Cuối</label>
+                                        <div class="info-value">
+                                            <span th:if="${danhMucDTO.updatedAt}">
+                                                <i class="fas fa-edit text-warning me-1"></i>
+                                                <span th:text="${#temporals.format(danhMucDTO.updatedAt, 'dd/MM/yyyy')}"></span>
+                                            </span>
+                                            <span th:unless="${danhMucDTO.updatedAt}" class="text-muted">-</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div th:unless="${danhMucDTO.dangSuDung}" class="mb-3">
-                                    <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
-                                    <h6 class="text-success">Chưa Sử Dụng</h6>
-                                    <p class="text-muted small mb-0">Danh mục này chưa được sử dụng trong giao dịch nào.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metadata Card -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0">
-                                <i class="fas fa-info me-1"></i>Thông Tin Hệ Thống
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-12">
-                                    <label class="form-label text-muted small">Ngày Tạo</label>
-                                    <div class="fw-bold" th:text="${#temporals.format(danhMucDTO.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
-                                </div>
-                                <div class="col-12" th:if="${danhMucDTO.updatedAt}">
-                                    <label class="form-label text-muted small">Cập Nhật Lần Cuối</label>
-                                    <div class="fw-bold" th:text="${#temporals.format(danhMucDTO.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Actions Card -->
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0">
-                                <i class="fas fa-cogs me-1"></i>Thao Tác
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMucDTO.id})}" 
-                                   class="btn btn-warning">
-                                    <i class="fas fa-edit me-1"></i>Chỉnh Sửa
-                                </a>
-                                <button type="button" class="btn btn-danger" 
-                                        th:disabled="${danhMucDTO.dangSuDung}"
-                                        th:data-id="${danhMucDTO.id}"
-                                        th:data-name="${danhMucDTO.tenDanhMuc}"
-                                        onclick="confirmDelete(this.dataset.id, this.dataset.name)">
-                                    <i class="fas fa-trash me-1"></i>
-                                    <span th:text="${danhMucDTO.dangSuDung} ? 'Không Thể Xóa' : 'Xóa Danh Mục'">Xóa</span>
-                                </button>
-                                <a th:href="@{/admin/tai-chinh/giao-dich(danhMucId=${danhMucDTO.id})}" 
-                                   class="btn btn-info">
-                                    <i class="fas fa-list me-1"></i>Xem Giao Dịch
-                                </a>
                             </div>
                         </div>
                     </div>
@@ -173,6 +289,9 @@
         </div>
     </main>
 
+        </div>
+    </main>  
+    
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
         <div class="modal-dialog">
@@ -182,22 +301,18 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center mb-3">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
-                    </div>
-                    <p class="text-center">Bạn có chắc chắn muốn xóa danh mục <strong id="deleteName"></strong>?</p>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Danh mục sẽ bị xóa vĩnh viễn khỏi hệ thống.
+                    <p>Bạn có chắc chắn muốn xóa danh mục <strong id="deleteName"></strong>?</p>
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Hành động này sẽ xóa vĩnh viễn danh mục khỏi hệ thống và không thể hoàn tác!
+                        Nếu danh mục đang được sử dụng trong giao dịch, bạn sẽ không thể xóa.
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Hủy
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <form id="deleteForm" method="post" class="d-inline">
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-1"></i>Xác Nhận Xóa
+                            <i class="fas fa-trash me-1"></i>Xóa
                         </button>
                     </form>
                 </div>
@@ -213,6 +328,452 @@
             document.getElementById('deleteForm').action = '/admin/tai-chinh/danh-muc/delete/' + id;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
+
+        // Load transaction count (placeholder for now)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set transaction count to 0 for now
+            document.getElementById('transaction-count').textContent = '0';
+            document.getElementById('transaction-count-display').textContent = '0';
+        });
     </script>
+
+    <!-- Modern View Page Styles -->
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Financial Category Icon Section */
+        .category-icon-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .category-icon-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .financial-category-main-icon {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 4px solid #f8f9fa;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .income-main-icon {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .expense-main-icon {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .icon-border {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: padding-box;
+            z-index: -1;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Category Info */
+        .category-info {
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .category-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .category-type {
+            margin: 0;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .type-badge.income {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .type-badge.expense {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        /* Category Stats */
+        .category-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+            padding: 1.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Action Items */
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .action-item:hover {
+            background: #f8f9fa;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-item.edit:hover {
+            background: rgba(255, 193, 7, 0.1);
+            color: #ffc107;
+        }
+
+        .action-item.view:hover {
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+        }
+
+        .action-item.delete:hover {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .action-item.primary:hover {
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+        }
+
+        .action-item.secondary:hover {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+        }
+
+        .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            background: #f8f9fa;
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-title {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            display: block;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .actions-divider {
+            height: 1px;
+            background: #dee2e6;
+            margin: 1rem 0;
+        }
+
+        /* Info Items */
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        /* Financial Specific Badges */
+        .financial-type-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .financial-type-badge.income {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .financial-type-badge.expense {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .id-badge {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .transaction-count-badge {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .description-box {
+            background: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-style: italic;
+            color: #495057;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .category-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .stat-item {
+                justify-content: center;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -19,14 +19,15 @@ public interface ChapSuRepository extends JpaRepository<ChapSu, Long> {
     // Tìm theo tên
     List<ChapSu> findByHoTenContainingIgnoreCase(String hoTen);
     
-    // Tìm theo tên hoặc chức vụ với pagination
-    Page<ChapSu> findByHoTenContainingIgnoreCaseOrChucVuContainingIgnoreCase(String hoTen, String chucVu, Pageable pageable);
+    // Tìm theo tên hoặc chức vụ với pagination - SỬA: Chỉ tìm theo tên để tránh lỗi enum
+    @Query("SELECT cs FROM ChapSu cs WHERE " +
+           "LOWER(cs.hoTen) LIKE LOWER(CONCAT('%', :search, '%'))")
+    Page<ChapSu> findByHoTenContainingIgnoreCaseOrChucVuContainingIgnoreCase(@Param("search") String hoTen, @Param("chucVu") String chucVu, Pageable pageable);
     
-    // Advanced filters với pagination
+    // Advanced filters với pagination - SỬA: Bỏ tìm kiếm theo chức vụ để tránh lỗi enum
     @Query("SELECT cs FROM ChapSu cs WHERE " +
            "(:search IS NULL OR :search = '' OR " +
-           " LOWER(cs.hoTen) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-           " LOWER(CAST(cs.chucVu AS string)) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
+           " LOWER(cs.hoTen) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
            "(:trangThai IS NULL OR cs.trangThai = :trangThai) AND " +
            "(:banNganhId IS NULL OR cs.banNganh.id = :banNganhId) AND " +
            "(:diemNhomId IS NULL OR cs.diemNhom.id = :diemNhomId) AND " +

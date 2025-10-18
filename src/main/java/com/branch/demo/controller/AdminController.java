@@ -551,9 +551,11 @@ public class AdminController {
     public String saveBanNganh(@ModelAttribute com.branch.demo.domain.BanNganh banNganh,
             @RequestParam(required = false) String phoBanNhanSuIds,
             @RequestParam(required = false) String phoBanChapSuIds,
+            @RequestParam(required = false) String thuQuyNhanSuIds,
+            @RequestParam(required = false) String thuQuyChapSuIds,
             RedirectAttributes redirectAttributes) {
         try {
-            adminService.saveBanNganhWithManagement(banNganh, phoBanNhanSuIds, phoBanChapSuIds);
+            adminService.saveBanNganhWithManagement(banNganh, phoBanNhanSuIds, phoBanChapSuIds, thuQuyNhanSuIds, thuQuyChapSuIds);
             redirectAttributes.addFlashAttribute("success", "Ban ngành đã được lưu thành công!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
@@ -1138,17 +1140,19 @@ public class AdminController {
     @GetMapping("/su-kien/deleted")
     public String deletedSuKienList(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "") String search,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
             Model model) {
 
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, 10);
-
-        Page<com.branch.demo.domain.SuKien> suKienPage = adminService.getDeletedSuKienPage(page, search);
+        Page<com.branch.demo.domain.SuKien> deletedSuKienPage = adminService.getDeletedSuKienPage(page, search, fromDate, toDate);
 
         model.addAttribute("title", "Thùng Rác Sự Kiện");
         model.addAttribute("pageTitle", "Thùng Rác Sự Kiện");
         model.addAttribute("activeMenu", "su-kien");
-        model.addAttribute("suKienPage", suKienPage);
+        model.addAttribute("deletedSuKienPage", deletedSuKienPage);
         model.addAttribute("search", search);
+        model.addAttribute("fromDate", fromDate);
+        model.addAttribute("toDate", toDate);
 
         return "admin/su-kien/deleted";
     }
@@ -1174,6 +1178,17 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi xóa vĩnh viễn sự kiện: " + e.getMessage());
         }
 
+        return "redirect:/admin/su-kien/deleted";
+    }
+
+    @PostMapping("/su-kien/empty-trash")
+    public String emptySuKienTrash(RedirectAttributes redirectAttributes) {
+        try {
+            adminService.emptyDeletedSuKienTrash();
+            redirectAttributes.addFlashAttribute("success", "Đã dọn sạch thùng rác sự kiện!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi dọn thùng rác: " + e.getMessage());
+        }
         return "redirect:/admin/su-kien/deleted";
     }
 
@@ -1520,9 +1535,9 @@ public class AdminController {
         model.addAttribute("suKienCountMap", suKienCountMap);
         model.addAttribute("currentPage", page);
         model.addAttribute("search", search);
+        model.addAttribute("activeMenu", "su-kien");
         model.addAttribute("totalPages", loaiSuKienPage.getTotalPages());
         model.addAttribute("totalElements", loaiSuKienPage.getTotalElements());
-        model.addAttribute("activeMenu", "loai-su-kien");
         model.addAttribute("title", "Quản Lý Loại Sự Kiện");
         model.addAttribute("pageTitle", "Quản Lý Loại Sự Kiện");
 
@@ -1534,6 +1549,7 @@ public class AdminController {
         model.addAttribute("loaiSuKien", new com.branch.demo.domain.LoaiSuKien());
         model.addAttribute("activeMenu", "loai-su-kien");
         model.addAttribute("title", "Thêm Loại Sự Kiện");
+        model.addAttribute("activeMenu", "su-kien");
         model.addAttribute("pageTitle", "Thêm Loại Sự Kiện Mới");
         return "admin/loai-su-kien/form";
     }
@@ -1545,6 +1561,7 @@ public class AdminController {
             model.addAttribute("loaiSuKien", loaiSuKien);
             model.addAttribute("activeMenu", "loai-su-kien");
             model.addAttribute("title", "Chỉnh Sửa Loại Sự Kiện");
+            model.addAttribute("activeMenu", "su-kien");
             model.addAttribute("pageTitle", "Chỉnh Sửa Loại Sự Kiện");
             return "admin/loai-su-kien/form";
         } catch (Exception e) {

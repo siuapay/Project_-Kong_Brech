@@ -1,237 +1,1022 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <div th:replace="~{fragments/admin-layout :: head}"></div>
-</head>
-<body>
-    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
-    
-    <div class="main-content">
-        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
-        
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div th:replace="~{fragments/admin-layout :: messages}"></div>
-                
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="text-danger">
-                            <i class="fas fa-trash me-2"></i>Thùng Rác Sự Kiện
-                        </h2>
-                        <p class="text-muted mb-0">Các sự kiện đã bị xóa mềm</p>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body class="modern-admin-page">
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-trash-restore"></i>
+              </div>
+              <div class="header-text">
+                <h1 class="header-title">Thùng Rác Sự Kiện</h1>
+                <p class="header-subtitle">
+                  Quản lý các sự kiện đã bị xóa và khôi phục khi cần thiết
+                </p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <button
+                type="button"
+                class="btn-modern btn-modern-outline"
+                onclick="confirmEmptyTrash()"
+                th:if="${deletedSuKienPage != null and not #lists.isEmpty(deletedSuKienPage.content)}"
+              >
+                <i class="fas fa-trash-alt me-2"></i>Dọn Thùng Rác
+              </button>
+              <a href="/admin/su-kien" class="btn-modern btn-modern-outline">
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modern Search & Filters -->
+        <div class="modern-card">
+          <div class="card-header">
+            <div class="header-left">
+              <div class="card-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <div class="card-title">
+                <h5>Tìm Kiếm Sự Kiện Đã Xóa</h5>
+                <p>Tìm kiếm trong thùng rác</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-content">
+            <form
+              method="get"
+              th:action="@{/admin/su-kien/deleted}"
+              id="searchForm"
+            >
+              <!-- Basic Search -->
+              <div class="search-row">
+                <div class="search-input-group">
+                  <div class="input-icon">
+                    <i class="fas fa-search"></i>
+                  </div>
+                  <input
+                    type="text"
+                    class="form-input"
+                    name="search"
+                    th:value="${search}"
+                    placeholder="Tìm kiếm theo tên sự kiện..."
+                    id="searchInput"
+                  />
+                  <button
+                    type="button"
+                    class="clear-input-btn"
+                    onclick="clearSearchInput()"
+                    th:style="${search != null and !#strings.isEmpty(search)} ? 'display: block;' : 'display: none;'"
+                    title="Xóa từ khóa tìm kiếm"
+                  >
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="search-actions">
+                  <button type="submit" class="btn-modern btn-modern-primary">
+                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                  </button>
+                  <a
+                    th:href="@{/admin/su-kien/deleted}"
+                    class="clear-search-btn"
+                  >
+                    <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                  </a>
+                </div>
+              </div>
+
+              <!-- Date Range Filter -->
+              <div class="date-filter-row">
+                <div class="filter-item">
+                  <label class="filter-label">Từ ngày xóa</label>
+                  <input
+                    type="date"
+                    class="form-input-modern"
+                    name="fromDate"
+                    th:value="${fromDate}"
+                  />
+                </div>
+                <div class="filter-item">
+                  <label class="filter-label">Đến ngày xóa</label>
+                  <input
+                    type="date"
+                    class="form-input-modern"
+                    name="toDate"
+                    th:value="${toDate}"
+                  />
+                </div>
+                <div class="filter-actions">
+                  <button type="submit" class="btn-modern btn-modern-success">
+                    <i class="fas fa-filter me-1"></i>Lọc theo ngày
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Modern Table -->
+        <div class="modern-card">
+          <div class="card-header">
+            <div class="header-left">
+              <div class="card-icon">
+                <i class="fas fa-trash-restore"></i>
+              </div>
+              <div class="card-title">
+                <h5>Sự Kiện Đã Xóa</h5>
+                <p>
+                  Tổng cộng
+                  <span
+                    class="count-badge"
+                    th:text="${deletedSuKienPage != null ? deletedSuKienPage.totalElements : 0}"
+                    >0</span
+                  >
+                  sự kiện trong thùng rác
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="card-content p-0">
+            <div class="table-container">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th class="th-id">STT</th>
+                    <th class="th-name">Tên Sự Kiện</th>
+                    <th class="th-category">Loại</th>
+                    <th class="th-date">Ngày Diễn Ra</th>
+                    <th class="th-deleted">Ngày Xóa</th>
+                    <th class="th-actions">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    th:each="suKien, iterStat : ${deletedSuKienPage != null ? deletedSuKienPage.content : {}}"
+                    class="table-row deleted-row"
+                  >
+                    <td class="td-id">
+                      <span
+                        class="id-badge deleted"
+                        th:text="${deletedSuKienPage != null ? (deletedSuKienPage.number * deletedSuKienPage.size + iterStat.index + 1) : (iterStat.index + 1)}"
+                      ></span>
+                    </td>
+                    <td class="td-name">
+                      <div class="name-info">
+                        <div class="name-icon">
+                          <img
+                            th:if="${suKien.hinhAnhUrl}"
+                            th:src="${suKien.hinhAnhUrl}"
+                            alt="Event Image"
+                            class="avatar-img deleted-img"
+                          />
+                          <div
+                            th:unless="${suKien.hinhAnhUrl}"
+                            class="default-avatar deleted-avatar"
+                          >
+                            <i class="fas fa-calendar-alt"></i>
+                          </div>
+                        </div>
+                        <div class="name-details">
+                          <div
+                            class="name-title deleted-title"
+                            th:text="${suKien.tenSuKien}"
+                          ></div>
+                          <div
+                            class="name-desc"
+                            th:if="${suKien.moTa}"
+                            th:text="${#strings.abbreviate(suKien.moTa, 50)}"
+                          ></div>
+                          <div class="name-desc" th:unless="${suKien.moTa}">
+                            Chưa có mô tả
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="td-category">
+                      <span
+                        th:if="${suKien.loaiSuKien}"
+                        class="category-badge deleted-badge"
+                        th:text="${suKien.loaiSuKien.tenLoai}"
+                      ></span>
+                      <span th:unless="${suKien.loaiSuKien}" class="no-data"
+                        >Chưa xác định</span
+                      >
+                    </td>
+                    <td class="td-date">
+                      <div th:if="${suKien.ngayDienRa}" class="date-info">
+                        <div
+                          class="date-day"
+                          th:text="${#temporals.format(suKien.ngayDienRa, 'dd/MM/yyyy')}"
+                        ></div>
+                        <div
+                          class="date-time"
+                          th:text="${#temporals.format(suKien.ngayDienRa, 'HH:mm')}"
+                        ></div>
+                      </div>
+                      <span th:unless="${suKien.ngayDienRa}" class="no-data"
+                        >Chưa xác định</span
+                      >
+                    </td>
+                    <td class="td-deleted">
+                      <div th:if="${suKien.deletedAt}" class="deleted-info">
+                        <div
+                          class="deleted-day"
+                          th:text="${#temporals.format(suKien.deletedAt, 'dd/MM/yyyy')}"
+                        ></div>
+                        <div
+                          class="deleted-time"
+                          th:text="${#temporals.format(suKien.deletedAt, 'HH:mm')}"
+                        ></div>
+                      </div>
+                      <span th:unless="${suKien.deletedAt}" class="no-data"
+                        >Không rõ</span
+                      >
+                    </td>
+                    <td class="td-actions">
+                      <div class="action-buttons">
+                        <button
+                          type="button"
+                          class="action-btn restore-btn"
+                          title="Khôi phục sự kiện"
+                          th:data-id="${suKien.id}"
+                          th:data-name="${suKien.tenSuKien}"
+                          onclick="confirmRestore(this.dataset.id, this.dataset.name)"
+                        >
+                          <i class="fas fa-undo"></i>
+                        </button>
+                        <button
+                          type="button"
+                          class="action-btn delete-btn"
+                          title="Xóa vĩnh viễn"
+                          th:data-id="${suKien.id}"
+                          th:data-name="${suKien.tenSuKien}"
+                          onclick="confirmPermanentDelete(this.dataset.id, this.dataset.name)"
+                        >
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr
+                    th:if="${deletedSuKienPage == null or #lists.isEmpty(deletedSuKienPage.content)}"
+                    class="empty-row"
+                  >
+                    <td colspan="6" class="empty-state">
+                      <div class="empty-content">
+                        <div class="empty-icon">
+                          <i class="fas fa-trash-restore"></i>
+                        </div>
+                        <h5 class="empty-title">Thùng rác trống</h5>
+                        <p class="empty-text">
+                          Không có sự kiện nào trong thùng rác.
+                        </p>
+                        <a
+                          th:href="@{/admin/su-kien}"
+                          class="btn-modern btn-modern-primary"
+                        >
+                          <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh
+                          Sách
                         </a>
-                    </div>
-                </div>
-
-                <!-- Search -->
-                <div class="card shadow border-0 mb-4">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0"><i class="fas fa-search me-2"></i>Tìm Kiếm</h6>
-                    </div>
-                    <div class="card-body">
-                        <form th:action="@{/admin/su-kien/deleted}" method="get">
-                            <div class="row g-3">
-                                <div class="col-md-8">
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                        <input type="text" class="form-control" name="search" th:value="${search}" 
-                                               placeholder="Tìm kiếm theo tên sự kiện...">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-search me-1"></i>Tìm kiếm
-                                        </button>
-                                        <a th:href="@{/admin/su-kien/deleted}" class="btn btn-outline-secondary">
-                                            <i class="fas fa-times me-1"></i>Xóa bộ lọc
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Deleted Events List -->
-                <div class="card shadow border-0">
-                    <div class="card-header bg-white">
-                        <h6 class="m-0 font-weight-bold text-danger">
-                            <i class="fas fa-trash me-2"></i>Danh Sách Sự Kiện Đã Xóa
-                            <span class="badge bg-danger ms-2" th:text="${suKienPage.totalElements}">0</span>
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        <div th:if="${suKienPage.content.empty}" class="text-center py-4">
-                            <i class="fas fa-trash-alt fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Thùng rác trống</h5>
-                            <p class="text-muted">Không có sự kiện nào trong thùng rác</p>
-                            <a th:href="@{/admin/su-kien}" class="btn btn-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Quay Lại Danh Sách
-                            </a>
-                        </div>
-                        
-                        <div th:unless="${suKienPage.content.empty}" class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="ps-3">ID</th>
-                                        <th>Tên Sự Kiện</th>
-                                        <th>Loại</th>
-                                        <th>Ngày Diễn Ra</th>
-                                        <th>Ngày Xóa</th>
-                                        <th class="text-center">Thao Tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="suKien : ${suKienPage.content}">
-                                        <td class="ps-3" th:text="${suKien.id}">1</td>
-                                        <td>
-                                            <div class="fw-bold text-muted" th:text="${suKien.tenSuKien}">Tên sự kiện</div>
-                                            <small class="text-muted" th:text="${#strings.abbreviate(suKien.moTa, 50)}">Mô tả ngắn</small>
-                                        </td>
-                                        <td>
-                                            <span th:if="${suKien.loaiSuKien}" 
-                                                  class="badge bg-secondary"
-                                                  th:text="${suKien.loaiSuKien.tenLoai}">
-                                            </span>
-                                            <span th:unless="${suKien.loaiSuKien}" class="badge bg-light text-dark">Không xác định</span>
-                                        </td>
-                                        <td>
-                                            <div th:if="${suKien.ngayDienRa}">
-                                                <div th:text="${suKien.ngayDienRa.toLocalDate()}"></div>
-                                                <small class="text-muted" th:text="${suKien.ngayDienRa.toLocalTime()}"></small>
-                                            </div>
-                                            <span th:unless="${suKien.ngayDienRa}" class="text-muted">Chưa xác định</span>
-                                        </td>
-                                        <td>
-                                            <div th:if="${suKien.deletedAt}">
-                                                <div th:text="${suKien.deletedAt.toLocalDate()}"></div>
-                                                <small class="text-muted" th:text="${suKien.deletedAt.toLocalTime()}"></small>
-                                            </div>
-                                            <span th:unless="${suKien.deletedAt}" class="text-muted">Không có</span>
-                                        </td>
-                                        <td class="text-center">
-                                            <div class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-outline-success" 
-                                                        th:data-id="${suKien.id}"
-                                                        th:data-name="${suKien.tenSuKien}"
-                                                        onclick="confirmRestore(this.dataset.id, this.dataset.name)"
-                                                        title="Khôi phục">
-                                                    <i class="fas fa-undo"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                        th:data-id="${suKien.id}"
-                                                        th:data-name="${suKien.tenSuKien}"
-                                                        onclick="confirmHardDelete(this.dataset.id, this.dataset.name)"
-                                                        title="Xóa vĩnh viễn">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <!-- Pagination -->
-                        <div th:if="${suKienPage.totalPages > 1}" class="d-flex justify-content-between align-items-center mt-4">
-                            <div>
-                                <span class="text-muted">
-                                    Hiển thị <span th:text="${suKienPage.numberOfElements}">10</span> 
-                                    trong tổng số <span th:text="${suKienPage.totalElements}">100</span> sự kiện đã xóa
-                                </span>
-                            </div>
-                            <nav>
-                                <ul class="pagination pagination-sm mb-0">
-                                    <li class="page-item" th:classappend="${suKienPage.first} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/su-kien/deleted(page=${suKienPage.number - 1}, search=${search})}">
-                                            <i class="fas fa-chevron-left"></i>
-                                        </a>
-                                    </li>
-                                    
-                                    <li th:each="pageNum : ${#numbers.sequence(0, suKienPage.totalPages - 1)}" 
-                                        class="page-item" th:classappend="${pageNum == suKienPage.number} ? 'active'">
-                                        <a class="page-link" 
-                                           th:href="@{/admin/su-kien/deleted(page=${pageNum}, search=${search})}"
-                                           th:text="${pageNum + 1}">1</a>
-                                    </li>
-                                    
-                                    <li class="page-item" th:classappend="${suKienPage.last} ? 'disabled'">
-                                        <a class="page-link" th:href="@{/admin/su-kien/deleted(page=${suKienPage.number + 1}, search=${search})}">
-                                            <i class="fas fa-chevron-right"></i>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-        </div>
-    </div>
 
-    <!-- Restore Confirmation Modal -->
-    <div class="modal fade" id="restoreModal" tabindex="-1">
+            <!-- Pagination -->
+            <nav
+              th:if="${deletedSuKienPage != null and deletedSuKienPage.totalPages > 1}"
+            >
+              <ul class="pagination justify-content-center">
+                <li
+                  class="page-item"
+                  th:classappend="${deletedSuKienPage != null and deletedSuKienPage.first} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/su-kien/deleted(page=${deletedSuKienPage != null ? (deletedSuKienPage.number - 1) : 0}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                  >
+                    Trước
+                  </a>
+                </li>
+                <li
+                  th:each="i : ${#numbers.sequence(0, deletedSuKienPage != null ? (deletedSuKienPage.totalPages - 1) : 0)}"
+                  class="page-item"
+                  th:classappend="${deletedSuKienPage != null and i == deletedSuKienPage.number} ? 'active'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/su-kien/deleted(page=${i}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                    th:text="${i + 1}"
+                  ></a>
+                </li>
+                <li
+                  class="page-item"
+                  th:classappend="${deletedSuKienPage != null and deletedSuKienPage.last} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/admin/su-kien/deleted(page=${deletedSuKienPage != null ? (deletedSuKienPage.number + 1) : 0}, search=${search}, fromDate=${fromDate}, toDate=${toDate})}"
+                  >
+                    Sau
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      <!-- Restore Confirmation Modal -->
+      <div class="modal fade" id="restoreModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác Nhận Khôi Phục</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn khôi phục sự kiện <strong id="restoreItemName"></strong>?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="restoreForm" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-success">Khôi Phục</button>
-                    </form>
-                </div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Xác nhận khôi phục</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
             </div>
+            <div class="modal-body">
+              <p>
+                Bạn có chắc chắn muốn khôi phục sự kiện
+                <strong id="restoreItemName"></strong>?
+              </p>
+              <p class="text-info">
+                <i class="fas fa-info-circle me-1"></i>Sự kiện sẽ được đưa trở
+                lại danh sách chính.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <form id="restoreForm" method="post" style="display: inline">
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-undo me-1"></i>Khôi phục
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- Hard Delete Confirmation Modal -->
-    <div class="modal fade" id="hardDeleteModal" tabindex="-1">
+      <!-- Permanent Delete Confirmation Modal -->
+      <div class="modal fade" id="permanentDeleteModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác Nhận Xóa Vĩnh Viễn</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa vĩnh viễn sự kiện <strong id="hardDeleteItemName"></strong>?</p>
-                    <p class="text-danger"><strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="hardDeleteForm" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger">Xóa Vĩnh Viễn</button>
-                    </form>
-                </div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Xác nhận xóa vĩnh viễn</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
             </div>
+            <div class="modal-body">
+              <p>
+                Bạn có chắc chắn muốn xóa vĩnh viễn sự kiện
+                <strong id="permanentDeleteItemName"></strong>?
+              </p>
+              <p class="text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác!
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <form
+                id="permanentDeleteForm"
+                method="post"
+                style="display: inline"
+              >
+                <button type="submit" class="btn btn-danger">
+                  <i class="fas fa-trash-alt me-1"></i>Xóa vĩnh viễn
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+
+      <!-- Empty Trash Confirmation Modal -->
+      <div class="modal fade" id="emptyTrashModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Xác nhận dọn thùng rác</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                Bạn có chắc chắn muốn xóa vĩnh viễn tất cả sự kiện trong thùng
+                rác?
+              </p>
+              <p class="text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>Cảnh báo:</strong> Tất cả sự kiện sẽ bị xóa vĩnh viễn và
+                không thể khôi phục!
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Hủy
+              </button>
+              <form
+                action="/admin/su-kien/empty-trash"
+                method="post"
+                style="display: inline"
+              >
+                <button type="submit" class="btn btn-danger">
+                  <i class="fas fa-trash-alt me-1"></i>Dọn thùng rác
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
 
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <!-- Modern Deleted Page Styles -->
+    <style>
+      /* Modern Admin Page Styles */
+      .modern-admin-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      /* Modern Page Header */
+      .modern-page-header {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(229, 62, 62, 0.3);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* Modern Buttons */
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-modern-outline {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-modern-outline:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-modern-success {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      }
+
+      .btn-modern-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.6);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Modern Cards */
+      .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .card-title h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .card-title p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.875rem;
+        color: #718096;
+      }
+
+      .card-content {
+        padding: 2rem;
+      }
+
+      /* Search Components */
+      .search-row {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .search-input-group {
+        flex: 1;
+        position: relative;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0aec0;
+        z-index: 2;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #e53e3e;
+        box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+      }
+
+      .clear-input-btn {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #e2e8f0;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #718096;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .clear-input-btn:hover {
+        background: #cbd5e0;
+        color: #4a5568;
+      }
+
+      .search-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      /* Date Filter */
+      .date-filter-row {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .filter-item {
+        flex: 1;
+      }
+
+      .filter-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .form-input-modern {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-input-modern:focus {
+        outline: none;
+        border-color: #e53e3e;
+        box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+      }
+
+      .filter-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      /* Modern Table */
+      .table-container {
+        overflow-x: auto;
+      }
+
+      .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .modern-table thead th {
+        background: #f8f9fa;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: #6c757d;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .modern-table tbody td {
+        padding: 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+      }
+
+      .table-row {
+        transition: all 0.3s ease;
+      }
+
+      .table-row:hover {
+        background: #fef5e7;
+      }
+
+      .deleted-row {
+        opacity: 0.8;
+      }
+
+      /* Deleted Item Styles */
+      .id-badge.deleted {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.75rem;
+      }
+
+      .name-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .name-icon .avatar-img.deleted-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        object-fit: cover;
+        filter: grayscale(50%);
+      }
+
+      .name-icon .default-avatar.deleted-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0.8;
+      }
+
+      .name-title.deleted-title {
+        font-weight: 600;
+        color: #e53e3e;
+        margin-bottom: 0.25rem;
+        text-decoration: line-through;
+      }
+
+      .name-desc {
+        font-size: 0.75rem;
+        color: #718096;
+      }
+
+      .category-badge.deleted-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        background: #fed7d7;
+        color: #c53030;
+      }
+
+      .date-info .date-day,
+      .deleted-info .deleted-day {
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .date-info .date-time,
+      .deleted-info .deleted-time {
+        font-size: 0.75rem;
+        color: #718096;
+      }
+
+      .deleted-info .deleted-day {
+        color: #e53e3e;
+      }
+
+      .no-data {
+        color: #a0aec0;
+        font-style: italic;
+        font-size: 0.875rem;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+      }
+
+      .action-btn.restore-btn {
+        background: #c6f6d5;
+        color: #22543d;
+      }
+
+      .action-btn.restore-btn:hover {
+        background: #9ae6b4;
+        color: #1a202c;
+      }
+
+      .action-btn.delete-btn {
+        background: #fed7d7;
+        color: #e53e3e;
+      }
+
+      .action-btn.delete-btn:hover {
+        background: #feb2b2;
+        color: #c53030;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+      }
+
+      .empty-content .empty-icon {
+        font-size: 4rem;
+        color: #cbd5e0;
+        margin-bottom: 1rem;
+      }
+
+      .empty-title {
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+      }
+
+      .empty-text {
+        color: #718096;
+        margin-bottom: 1.5rem;
+      }
+
+      .count-badge {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.75rem;
+      }
+
+      /* Clear Search Button */
+      .clear-search-btn {
+        padding: 0.75rem 1.5rem;
+        background: #f7fafc;
+        color: #4a5568;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .clear-search-btn:hover {
+        background: #edf2f7;
+        color: #2d3748;
+        text-decoration: none;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .header-actions {
+          justify-content: center;
+        }
+
+        .search-row {
+          flex-direction: column;
+        }
+
+        .date-filter-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-actions {
+          justify-content: center;
+        }
+      }
+    </style>
+
     <script>
-        function confirmRestore(id, name) {
-            document.getElementById('restoreItemName').textContent = name;
-            document.getElementById('restoreForm').action = '/admin/su-kien/' + id + '/restore';
-            new bootstrap.Modal(document.getElementById('restoreModal')).show();
-        }
-        
-        function confirmHardDelete(id, name) {
-            document.getElementById('hardDeleteItemName').textContent = name;
-            document.getElementById('hardDeleteForm').action = '/admin/su-kien/' + id + '/hard-delete';
-            new bootstrap.Modal(document.getElementById('hardDeleteModal')).show();
-        }
+      function confirmRestore(id, name) {
+        document.getElementById("restoreItemName").textContent = name;
+        document.getElementById("restoreForm").action =
+          "/admin/su-kien/" + id + "/restore";
+        new bootstrap.Modal(document.getElementById("restoreModal")).show();
+      }
+
+      function confirmPermanentDelete(id, name) {
+        document.getElementById("permanentDeleteItemName").textContent = name;
+        document.getElementById("permanentDeleteForm").action =
+          "/admin/su-kien/" + id + "/hard-delete";
+        new bootstrap.Modal(
+          document.getElementById("permanentDeleteModal")
+        ).show();
+      }
+
+      function confirmEmptyTrash() {
+        new bootstrap.Modal(document.getElementById("emptyTrashModal")).show();
+      }
+
+      function clearSearchInput() {
+        document.getElementById("searchInput").value = "";
+        document.querySelector(".clear-input-btn").style.display = "none";
+      }
+
+      // Show/hide clear button based on input
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.querySelector(".clear-input-btn");
+
+        searchInput.addEventListener("input", function () {
+          clearBtn.style.display = this.value ? "block" : "none";
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

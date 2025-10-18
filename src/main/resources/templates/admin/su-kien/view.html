@@ -1,263 +1,879 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <div th:replace="~{fragments/admin-layout :: head}"></div>
-</head>
-<body>
-    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
-    
-    <div class="main-content">
-        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
-        
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div th:replace="~{fragments/admin-layout :: messages}"></div>
-                
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="text-primary py-4">
-                            <i class="fas fa-calendar-alt me-2"></i>Chi Tiết Sự Kiện
-                        </h2>
-                        <p class="text-muted mb-0">Xem thông tin chi tiết của sự kiện</p>
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body class="modern-admin-page">
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="header-text">
+                <h1 class="header-title">Chi Tiết Sự Kiện</h1>
+                <p class="header-subtitle">Thông tin chi tiết và đầy đủ của sự kiện</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <a
+                th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}"
+                class="btn-modern btn-modern-outline"
+              >
+                <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+              </a>
+              <a th:href="@{/admin/su-kien}" class="btn-modern btn-modern-outline">
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Main Profile Card -->
+          <div class="col-lg-4">
+            <div class="modern-card">
+              <div class="card-content">
+                <!-- Modern Image Section -->
+                <div class="image-section">
+                  <div class="image-wrapper">
+                    <img th:if="${suKien.hinhAnhUrl}" 
+                         th:src="${suKien.hinhAnhUrl}"
+                         alt="Event Image" class="event-image" />
+                    <div th:unless="${suKien.hinhAnhUrl}" class="default-image">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span>Chưa có hình ảnh</span>
                     </div>
-                    <div class="btn-group gap-2">
-                        <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                        </a>
-                        <a th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}" class="btn btn-primary">
-                            <i class="fas fa-edit me-2"></i>Chỉnh Sửa
-                        </a>
-                    </div>
+                    <div class="image-border"></div>
+                  </div>
                 </div>
 
-                <div class="row">
-                    <!-- Main Info -->
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fas fa-calendar-alt me-2"></i>
-                                    <span th:text="${suKien.tenSuKien}">Tên Sự Kiện</span>
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <!-- Event Image -->
-                                <div th:if="${suKien.hinhAnhUrl}" class="text-center mb-4">
-                                    <img th:src="${suKien.hinhAnhUrl}" alt="Event Image" 
-                                         class="img-fluid rounded shadow" style="max-height: 400px;">
-                                </div>
-                                
-                                <!-- Event Details -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Loại sự kiện:</label>
-                                        <div>
-                                            <span th:if="${suKien.loaiSuKien}" 
-                                                  class="badge fs-6" 
-                                                  th:style="'background-color: ' + ${suKien.loaiSuKien.mauSac ?: '#6c757d'}"
-                                                  th:text="${suKien.loaiSuKien.tenLoai}">
-                                            </span>
-                                            <span th:unless="${suKien.loaiSuKien}" class="badge bg-light text-dark fs-6">Không xác định</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Trạng thái:</label>
-                                        <div>
-                                            <span th:switch="${suKien.trangThai?.name()}">
-                                                <span th:case="'DANG_CHUAN_BI'" class="badge bg-warning fs-6">Đang chuẩn bị</span>
-                                                <span th:case="'DANG_DIEN_RA'" class="badge bg-success fs-6">Đang diễn ra</span>
-                                                <span th:case="'DA_KET_THUC'" class="badge bg-secondary fs-6">Đã kết thúc</span>
-                                                <span th:case="'DA_HUY'" class="badge bg-danger fs-6">Đã hủy</span>
-                                                <span th:case="*" class="badge bg-light text-dark fs-6">Không xác định</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Ngày diễn ra:</label>
-                                        <div th:if="${suKien.ngayDienRa}">
-                                            <i class="fas fa-calendar me-2 text-primary"></i>
-                                            <span th:text="${#temporals.format(suKien.ngayDienRa, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
-                                        </div>
-                                        <div th:unless="${suKien.ngayDienRa}" class="text-muted">
-                                            <i class="fas fa-calendar-times me-2"></i>Chưa xác định
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label fw-bold">Địa điểm:</label>
-                                        <div th:if="${suKien.diaDiem}">
-                                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                                            <span th:text="${suKien.diaDiem}">Địa điểm</span>
-                                        </div>
-                                        <div th:unless="${suKien.diaDiem}" class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-2"></i>Chưa xác định
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3" th:if="${suKien.soLuongThamGiaDuKien != null}">
-                                        <label class="form-label fw-bold">Số lượng dự kiến:</label>
-                                        <div>
-                                            <i class="fas fa-users me-2 text-info"></i>
-                                            <span th:text="${suKien.soLuongThamGiaDuKien}">0</span> người
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3" th:if="${suKien.soLuongThamGiaThucTe != null}">
-                                        <label class="form-label fw-bold">Số lượng thực tế:</label>
-                                        <div>
-                                            <i class="fas fa-user-check me-2 text-success"></i>
-                                            <span th:text="${suKien.soLuongThamGiaThucTe}">0</span> người
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Description -->
-                                <div th:if="${suKien.moTa}" class="mb-4">
-                                    <label class="form-label fw-bold">Mô tả:</label>
-                                    <div class="bg-light p-3 rounded">
-                                        <p class="mb-0" th:text="${suKien.moTa}">Mô tả sự kiện</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Content -->
-                                <div th:if="${suKien.noiDung}" class="mb-4">
-                                    <label class="form-label fw-bold">Nội dung chi tiết:</label>
-                                    <div class="bg-light p-3 rounded">
-                                        <div th:utext="${#strings.replace(suKien.noiDung, '\\n', '<br>')}">Nội dung chi tiết</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Notes -->
-                                <div th:if="${suKien.ghiChu}" class="mb-4">
-                                    <label class="form-label fw-bold">Ghi chú:</label>
-                                    <div class="bg-warning bg-opacity-10 p-3 rounded border-start border-warning border-4">
-                                        <p class="mb-0" th:text="${suKien.ghiChu}">Ghi chú</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Side Info -->
-                    <div class="col-lg-4">
-                        <!-- Quick Actions -->
-                        <div class="card mb-3">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fas fa-cogs me-2"></i>Thao Tác
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <a th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}" class="btn btn-primary">
-                                        <i class="fas fa-edit me-2"></i>Chỉnh sửa sự kiện
-                                    </a>
-                                    <button type="button" class="btn btn-danger" 
-                                            th:data-id="${suKien.id}"
-                                            th:data-name="${suKien.tenSuKien}"
-                                            onclick="confirmDelete(this.dataset.id, this.dataset.name)"
-                                            data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                        <i class="fas fa-trash me-2"></i>Xóa sự kiện
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Event Stats -->
-                        <div class="card mb-3" th:if="${suKien.soLuongThamGiaDuKien != null or suKien.soLuongThamGiaThucTe != null}">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-success">
-                                    <i class="fas fa-chart-bar me-2"></i>Thống Kê Tham Gia
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div th:if="${suKien.soLuongThamGiaDuKien != null}" class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Dự kiến:</span>
-                                        <strong th:text="${suKien.soLuongThamGiaDuKien}">0</strong>
-                                    </div>
-                                </div>
-                                <div th:if="${suKien.soLuongThamGiaThucTe != null}" class="mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <span>Thực tế:</span>
-                                        <strong th:text="${suKien.soLuongThamGiaThucTe}">0</strong>
-                                    </div>
-                                </div>
-                                <div th:if="${suKien.soLuongThamGiaDuKien != null and suKien.soLuongThamGiaThucTe != null}">
-                                    <hr>
-                                    <div class="d-flex justify-content-between">
-                                        <span>Tỷ lệ tham gia:</span>
-                                        <strong>
-                                            <span th:text="${suKien.soLuongThamGiaDuKien > 0 ? #numbers.formatDecimal(suKien.soLuongThamGiaThucTe * 100.0 / suKien.soLuongThamGiaDuKien, 1, 1) : '0'}">0</span>%
-                                        </strong>
-                                    </div>
-                                    <div class="progress mt-2">
-                                        <div class="progress-bar" role="progressbar" 
-                                             th:style="'width: ' + (${suKien.soLuongThamGiaDuKien > 0 ? suKien.soLuongThamGiaThucTe * 100.0 / suKien.soLuongThamGiaDuKien : 0}) + '%'"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- System Info -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-info">
-                                    <i class="fas fa-info-circle me-2"></i>Thông Tin Hệ Thống
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-2">
-                                    <small class="text-muted">ID:</small>
-                                    <div th:text="${suKien.id}">1</div>
-                                </div>
-                                <div class="mb-2" th:if="${suKien.createdAt}">
-                                    <small class="text-muted">Ngày tạo:</small>
-                                    <div th:text="${#temporals.format(suKien.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
-                                </div>
-                                <div class="mb-2" th:if="${suKien.updatedAt}">
-                                    <small class="text-muted">Cập nhật lần cuối:</small>
-                                    <div th:text="${#temporals.format(suKien.updatedAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Name & Basic Info -->
+                <div class="event-info">
+                  <h2 class="event-name" th:text="${suKien.tenSuKien}">Tên Sự Kiện</h2>
+                  <p class="event-type">
+                    <span th:if="${suKien.loaiSuKien}" th:text="${suKien.loaiSuKien.tenLoai}"></span>
+                    <span th:unless="${suKien.loaiSuKien}">Chưa phân loại</span>
+                  </p>
                 </div>
+
+                <!-- Status Badge -->
+                <div class="status-section">
+                  <div th:switch="${suKien.trangThai?.name()}">
+                    <div th:case="'DANG_CHUAN_BI'" class="status-badge preparing">
+                      <i class="fas fa-clock"></i>
+                      <span>Đang Chuẩn Bị</span>
+                    </div>
+                    <div th:case="'DANG_DIEN_RA'" class="status-badge active">
+                      <i class="fas fa-play-circle"></i>
+                      <span>Đang Diễn Ra</span>
+                    </div>
+                    <div th:case="'DA_KET_THUC'" class="status-badge closed">
+                      <i class="fas fa-check-circle"></i>
+                      <span>Đã Kết Thúc</span>
+                    </div>
+                    <div th:case="'DA_HUY'" class="status-badge cancelled">
+                      <i class="fas fa-times-circle"></i>
+                      <span>Đã Hủy</span>
+                    </div>
+                    <div th:case="*" class="status-badge inactive">
+                      <span>Không xác định</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Info -->
+                <div class="quick-info">
+                  <div th:if="${suKien.ngayDienRa}" class="info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div>
+                      <div class="info-label">Ngày diễn ra</div>
+                      <div class="info-value" th:text="${#temporals.format(suKien.ngayDienRa, 'dd/MM/yyyy HH:mm')}"></div>
+                    </div>
+                  </div>
+                  <div th:if="${suKien.diaDiem}" class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                      <div class="info-label">Địa điểm</div>
+                      <div class="info-value" th:text="${suKien.diaDiem}"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <!-- Modern Quick Actions -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-bolt"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thao Tác Nhanh</h5>
+                    <p>Các hành động có thể thực hiện</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <a
+                  th:href="@{/admin/su-kien/{id}/edit(id=${suKien.id})}"
+                  class="action-item edit"
+                >
+                  <div class="action-icon">
+                    <i class="fas fa-edit"></i>
+                  </div>
+                  <div class="action-text">
+                    <span class="action-title">Chỉnh Sửa</span>
+                    <span class="action-desc">Cập nhật thông tin</span>
+                  </div>
+                </a>
+
+                <button
+                  type="button"
+                  class="action-item delete"
+                  th:data-id="${suKien.id}"
+                  th:data-name="${suKien.tenSuKien}"
+                  onclick="confirmDelete(this.dataset.id, this.dataset.name)"
+                >
+                  <div class="action-icon">
+                    <i class="fas fa-trash"></i>
+                  </div>
+                  <div class="action-text">
+                    <span class="action-title">Xóa Sự Kiện</span>
+                    <span class="action-desc">Xóa khỏi hệ thống</span>
+                  </div>
+                </button>
+
+                <div class="actions-divider"></div>
+
+                <a th:href="@{/admin/su-kien}" class="action-item secondary">
+                  <div class="action-icon">
+                    <i class="fas fa-list"></i>
+                  </div>
+                  <div class="action-text">
+                    <span class="action-title">Danh Sách</span>
+                    <span class="action-desc">Xem tất cả sự kiện</span>
+                  </div>
+                </a>
+
+                <a th:href="@{/admin/su-kien/new}" class="action-item primary">
+                  <div class="action-icon">
+                    <i class="fas fa-plus"></i>
+                  </div>
+                  <div class="action-text">
+                    <span class="action-title">Thêm Mới</span>
+                    <span class="action-desc">Tạo sự kiện mới</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Information -->
+          <div class="col-lg-8">
+            <!-- Event Information -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Sự Kiện</h5>
+                    <p>Chi tiết về thông tin cơ bản của sự kiện</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Tên Sự Kiện</label>
+                      <div class="info-value" th:text="${suKien.tenSuKien}">-</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Loại Sự Kiện</label>
+                      <div class="info-value">
+                        <span th:if="${suKien.loaiSuKien}">
+                          <span class="category-badge" 
+                                th:style="'background-color: ' + ${suKien.loaiSuKien.mauSac ?: '#6c757d'}"
+                                th:text="${suKien.loaiSuKien.tenLoai}"></span>
+                        </span>
+                        <span th:unless="${suKien.loaiSuKien}" class="text-muted">Chưa phân loại</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Ngày Diễn Ra</label>
+                      <div class="info-value">
+                        <span th:if="${suKien.ngayDienRa}">
+                          <i class="fas fa-calendar-check me-1 text-success"></i>
+                          <span th:text="${#temporals.format(suKien.ngayDienRa, 'dd/MM/yyyy')}"></span>
+                          <br>
+                          <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            <span th:text="${#temporals.format(suKien.ngayDienRa, 'HH:mm')}"></span>
+                          </small>
+                        </span>
+                        <span th:unless="${suKien.ngayDienRa}" class="text-muted">Chưa xác định</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Trạng Thái</label>
+                      <div class="info-value">
+                        <span th:switch="${suKien.trangThai?.name()}">
+                          <span th:case="'DANG_CHUAN_BI'" class="badge bg-warning">
+                            <i class="fas fa-clock me-1"></i>Đang chuẩn bị
+                          </span>
+                          <span th:case="'DANG_DIEN_RA'" class="badge bg-success">
+                            <i class="fas fa-play-circle me-1"></i>Đang diễn ra
+                          </span>
+                          <span th:case="'DA_KET_THUC'" class="badge bg-secondary">
+                            <i class="fas fa-check-circle me-1"></i>Đã kết thúc
+                          </span>
+                          <span th:case="'DA_HUY'" class="badge bg-danger">
+                            <i class="fas fa-times-circle me-1"></i>Đã hủy
+                          </span>
+                          <span th:case="*" class="badge bg-light text-dark">Không xác định</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <label class="info-label">Địa Điểm</label>
+                      <div class="info-value">
+                        <span th:if="${suKien.diaDiem}">
+                          <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                          <span th:text="${suKien.diaDiem}"></span>
+                        </span>
+                        <span th:unless="${suKien.diaDiem}" class="text-muted">Chưa xác định</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="info-item">
+                      <label class="info-label">Mô Tả</label>
+                      <div class="info-value">
+                        <div class="note-box bg-light border-start border-4 border-primary p-3 rounded">
+                          <i class="fas fa-align-left text-primary me-2"></i>
+                          <span th:if="${suKien.moTa}" th:text="${suKien.moTa}" style="white-space: pre-line;"></span>
+                          <span th:unless="${suKien.moTa}" class="text-muted">Chưa có mô tả</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Additional Information -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Bổ Sung</h5>
+                    <p>Chi tiết về tổ chức và tham gia</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="row g-4">
+                  <div class="col-md-6">
+                    <div class="info-item">
+                      <label class="info-label">Số Lượng Tham Gia</label>
+                      <div class="info-value">
+                        <div th:if="${suKien.soLuongThamGiaDuKien != null or suKien.soLuongThamGiaThucTe != null}">
+                          <span th:if="${suKien.soLuongThamGiaDuKien}">
+                            <i class="fas fa-users text-info me-2"></i>
+                            Dự kiến: <span th:text="${suKien.soLuongThamGiaDuKien}"></span> người
+                          </span>
+                          <br th:if="${suKien.soLuongThamGiaDuKien != null and suKien.soLuongThamGiaThucTe != null}">
+                          <span th:if="${suKien.soLuongThamGiaThucTe}">
+                            <i class="fas fa-users-check text-success me-2"></i>
+                            Thực tế: <span th:text="${suKien.soLuongThamGiaThucTe}"></span> người
+                          </span>
+                        </div>
+                        <span th:unless="${suKien.soLuongThamGiaDuKien != null or suKien.soLuongThamGiaThucTe != null}" class="text-muted">Chưa xác định</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="info-item">
+                      <label class="info-label">Ghi Chú</label>
+                      <div class="info-value">
+                        <div class="note-box bg-light border-start border-4 border-info p-3 rounded">
+                          <i class="fas fa-sticky-note text-info me-2"></i>
+                          <span th:if="${suKien.ghiChu}" th:text="${suKien.ghiChu}"></span>
+                          <span th:unless="${suKien.ghiChu}" class="text-muted">Chưa có ghi chú</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-cog"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Hệ Thống</h5>
+                    <p>Chi tiết về bản ghi</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="row g-4">
+                  <div class="col-md-4">
+                    <div class="info-item text-center">
+                      <label class="info-label">ID Sự Kiện</label>
+                      <div class="info-value">
+                        <span class="badge bg-primary fs-6" th:text="'#' + ${suKien.id}"></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="info-item text-center">
+                      <label class="info-label">Ngày Tạo</label>
+                      <div class="info-value">
+                        <span th:if="${suKien.createdAt}">
+                          <i class="fas fa-calendar-plus text-success me-1"></i>
+                          <span th:text="${#temporals.format(suKien.createdAt, 'dd/MM/yyyy')}"></span>
+                        </span>
+                        <span th:unless="${suKien.createdAt}" class="text-muted">-</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="info-item text-center">
+                      <label class="info-label">Cập Nhật Cuối</label>
+                      <div class="info-value">
+                        <span th:if="${suKien.updatedAt}">
+                          <i class="fas fa-edit text-warning me-1"></i>
+                          <span th:text="${#temporals.format(suKien.updatedAt, 'dd/MM/yyyy')}"></span>
+                        </span>
+                        <span th:unless="${suKien.updatedAt}" class="text-muted">-</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-    </div>
+      </div>
+    </main>
 
     <!-- Delete Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác Nhận Xóa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa sự kiện <strong id="deleteItemName"></strong>?</p>
-                    <p class="text-danger"><small>Hành động này không thể hoàn tác!</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="deleteForm" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-danger">Xóa</button>
-                    </form>
-                </div>
-            </div>
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Xác Nhận Xóa</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              Bạn có chắc chắn muốn xóa sự kiện
+              <strong id="deleteName"></strong>?
+            </p>
+            <p class="text-danger">
+              <i class="fas fa-exclamation-triangle me-1"></i>Hành động này
+              không thể hoàn tác!
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              Hủy
+            </button>
+            <form id="deleteForm" method="post" class="d-inline">
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash me-1"></i>Xóa
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
+    <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script>
-        function confirmDelete(id, name) {
-            document.getElementById('deleteItemName').textContent = name;
-            document.getElementById('deleteForm').action = '/admin/su-kien/' + id + '/delete';
-        }
+      function confirmDelete(id, name) {
+        document.getElementById("deleteName").textContent = name;
+        document.getElementById("deleteForm").action = "/admin/su-kien/" + id + "/delete";
+        new bootstrap.Modal(document.getElementById("deleteModal")).show();
+      }
     </script>
-</body>
+
+    <!-- Modern View Page Styles -->
+    <style>
+      /* Modern Admin Page Styles */
+      .modern-admin-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      /* Image Section */
+      .image-section {
+        text-align: center;
+        margin: 2rem 0;
+      }
+
+      .image-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .event-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 16px;
+        object-fit: cover;
+        border: 4px solid #f8f9fa;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .default-image {
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #718096;
+        font-size: 3rem;
+        border: 4px solid #f8f9fa;
+      }
+
+      .default-image span {
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .image-border {
+        position: absolute;
+        top: -8px;
+        left: -8px;
+        right: -8px;
+        bottom: -8px;
+        border: 3px solid transparent;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-clip: padding-box;
+        z-index: -1;
+      }
+
+      /* Modern Page Header */
+      .modern-page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* Modern Buttons */
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-modern-outline {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-modern-outline:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Modern Cards */
+      .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .card-title h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .card-title p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.875rem;
+        color: #718096;
+      }
+
+      .card-content {
+        padding: 2rem;
+      }
+
+      /* Event Info */
+      .event-info {
+        text-align: center;
+        margin: 2rem 0;
+      }
+
+      .event-name {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+
+      .event-type {
+        color: #718096;
+        font-size: 1rem;
+        margin: 0;
+      }
+
+      /* Status Section */
+      .status-section {
+        text-align: center;
+        margin: 2rem 0;
+      }
+
+      .status-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .status-badge.active {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+      }
+
+      .status-badge.preparing {
+        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(237, 137, 54, 0.4);
+      }
+
+      .status-badge.closed {
+        background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(113, 128, 150, 0.4);
+      }
+
+      .status-badge.cancelled {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(245, 101, 101, 0.4);
+      }
+
+      .status-badge.inactive {
+        background: #e2e8f0;
+        color: #4a5568;
+      }
+
+      /* Quick Info */
+      .quick-info {
+        margin: 2rem 0;
+      }
+
+      .quick-info .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+      }
+
+      .quick-info .info-item i {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+      }
+
+      .quick-info .info-label {
+        font-size: 0.75rem;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.25rem;
+      }
+
+      .quick-info .info-value {
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      /* Action Items */
+      .action-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 0.75rem;
+        border: none;
+        width: 100%;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .action-item.edit {
+        background: #ebf8ff;
+        color: #3182ce;
+      }
+
+      .action-item.edit:hover {
+        background: #bee3f8;
+        color: #2c5aa0;
+        text-decoration: none;
+      }
+
+      .action-item.delete {
+        background: #fed7d7;
+        color: #e53e3e;
+      }
+
+      .action-item.delete:hover {
+        background: #feb2b2;
+        color: #c53030;
+      }
+
+      .action-item.secondary {
+        background: #f7fafc;
+        color: #4a5568;
+      }
+
+      .action-item.secondary:hover {
+        background: #edf2f7;
+        color: #2d3748;
+        text-decoration: none;
+      }
+
+      .action-item.primary {
+        background: #e6fffa;
+        color: #00a3c4;
+      }
+
+      .action-item.primary:hover {
+        background: #b2f5ea;
+        color: #007a9a;
+        text-decoration: none;
+      }
+
+      .action-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        background: rgba(255, 255, 255, 0.7);
+      }
+
+      .action-text {
+        flex: 1;
+      }
+
+      .action-title {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .action-desc {
+        display: block;
+        font-size: 0.75rem;
+        opacity: 0.8;
+      }
+
+      .actions-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 1rem 0;
+      }
+
+      /* Info Items */
+      .info-item {
+        margin-bottom: 1.5rem;
+      }
+
+      .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .info-value {
+        color: #2d3748;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      .category-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: white;
+      }
+
+      .note-box {
+        border-radius: 12px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .header-actions {
+          justify-content: center;
+        }
+
+        .event-image,
+        .default-image {
+          width: 150px;
+          height: 150px;
+        }
+
+        .event-name {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </body>
 </html>

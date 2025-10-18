@@ -1,308 +1,889 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}">
+  <head th:replace="~{fragments/admin-layout :: head}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Navigation -->
-        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
 
-        <!-- Content -->
-        <div class="container-fluid py-4">
-            <!-- Flash Messages -->
-            <div th:replace="~{fragments/admin-layout :: messages}"></div>
-            <div class="container-fluid">
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Modern Page Header -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div
+              class="card border-0 shadow-sm"
+              style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 20px;
+              "
+            >
+              <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center text-white">
+                    <div class="me-4">
+                      <div
+                        class="bg-white bg-opacity-20 rounded-circle p-3 d-flex align-items-center justify-content-center"
+                        style="width: 70px; height: 70px"
+                      >
+                        <i class="fas fa-chart-line fa-2x text-white"></i>
+                      </div>
+                    </div>
                     <div>
-                        <h1 class="h3 mb-0" th:text="${pageTitle}">So Sánh Tài Chính Theo Năm</h1>
-                        <p class="text-muted">So sánh thu chi giữa các năm</p>
+                      <h1 class="h2 mb-2 text-white fw-bold">
+                        So Sánh Tài Chính Theo Năm
+                      </h1>
+                      <p class="mb-0 text-white-50 fs-5">
+                        Phân tích và so sánh thu chi giữa các năm
+                      </p>
                     </div>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a th:href="@{/admin}">Trang chủ</a></li>
-                            <li class="breadcrumb-item"><a th:href="@{/admin/tai-chinh/thong-ke}">Thống kê</a></li>
-                            <li class="breadcrumb-item active">So sánh</li>
-                        </ol>
-                    </nav>
+                  </div>
+                  <div class="text-end">
+                    <a
+                      th:href="@{/admin/tai-chinh/thong-ke}"
+                      class="btn-modern btn-modern-outline"
+                    >
+                      <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                    </a>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                <!-- Filter Form -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-filter me-2"></i>Chọn Năm So Sánh
+        <!-- Modern Filter Form -->
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px">
+              <div class="card-header border-0 bg-transparent pt-4 px-4">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="bg-primary bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                    style="width: 45px; height: 45px"
+                  >
+                    <i class="fas fa-filter text-primary"></i>
+                  </div>
+                  <div>
+                    <h5 class="mb-1 fw-bold text-dark">Chọn Năm So Sánh</h5>
+                    <p class="mb-0 text-muted small">
+                      Lựa chọn hai năm để thực hiện so sánh tài chính
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <form
+                  th:action="@{/admin/tai-chinh/thong-ke/so-sanh}"
+                  method="get"
+                  class="row g-4"
+                >
+                  <div class="col-lg-4 col-md-6">
+                    <label
+                      for="nam1"
+                      class="form-label fw-semibold text-dark mb-2"
+                    >
+                      <i class="fas fa-calendar me-2 text-success"></i>Năm Thứ
+                      Nhất
+                    </label>
+                    <select
+                      class="form-select form-select-lg border-0 bg-light shadow-sm"
+                      id="nam1"
+                      name="nam1"
+                      required
+                      style="border-radius: 15px"
+                    >
+                      <option value="">Chọn năm đầu tiên...</option>
+                      <option
+                        th:each="year : ${availableYears}"
+                        th:value="${year}"
+                        th:text="${year}"
+                        th:selected="${year == nam1}"
+                      >
+                        2024
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-lg-4 col-md-6">
+                    <label
+                      for="nam2"
+                      class="form-label fw-semibold text-dark mb-2"
+                    >
+                      <i class="fas fa-calendar me-2 text-info"></i>Năm Thứ Hai
+                    </label>
+                    <select
+                      class="form-select form-select-lg border-0 bg-light shadow-sm"
+                      id="nam2"
+                      name="nam2"
+                      required
+                      style="border-radius: 15px"
+                    >
+                      <option value="">Chọn năm thứ hai...</option>
+                      <option
+                        th:each="year : ${availableYears}"
+                        th:value="${year}"
+                        th:text="${year}"
+                        th:selected="${year == nam2}"
+                      >
+                        2023
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-lg-4 col-12 d-flex align-items-end">
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-lg w-100 shadow-sm"
+                      style="border-radius: 15px"
+                    >
+                      <i class="fas fa-chart-line me-2"></i>Thực Hiện So Sánh
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modern Comparison Results -->
+        <div th:if="${nam1 != null and nam2 != null}">
+          <!-- Modern Summary Cards -->
+          <div class="row g-4 mb-4">
+            <!-- Year 1 Summary -->
+            <div class="col-lg-6">
+              <div
+                class="card border-0 shadow-sm h-100"
+                style="
+                  border-radius: 20px;
+                  background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+                "
+              >
+                <div class="card-body p-4 text-white">
+                  <div
+                    class="d-flex align-items-center justify-content-between mb-4"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="bg-white bg-opacity-20 rounded-circle p-3 me-3 d-flex align-items-center justify-content-center"
+                        style="width: 60px; height: 60px"
+                      >
+                        <i class="fas fa-calendar-alt fa-xl text-white"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-1 fw-bold">
+                          Năm <span th:text="${nam1}">2024</span>
+                        </h4>
+                        <p class="mb-0 text-white-50">
+                          Dữ liệu tài chính năm đầu
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i class="fas fa-arrow-up text-success fa-lg"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Thu Nhập</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam1?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
                         </h5>
+                      </div>
                     </div>
-                    <div class="card-body">
-                        <form th:action="@{/admin/tai-chinh/thong-ke/so-sanh}" method="get" class="row g-3">
-                            <div class="col-md-4">
-                                <label for="nam1" class="form-label">Năm thứ nhất</label>
-                                <select class="form-select" id="nam1" name="nam1" required>
-                                    <option value="">Chọn năm...</option>
-                                    <option th:each="year : ${availableYears}" 
-                                            th:value="${year}" 
-                                            th:text="${year}"
-                                            th:selected="${year == nam1}">2024</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="nam2" class="form-label">Năm thứ hai</label>
-                                <select class="form-select" id="nam2" name="nam2" required>
-                                    <option value="">Chọn năm...</option>
-                                    <option th:each="year : ${availableYears}" 
-                                            th:value="${year}" 
-                                            th:text="${year}"
-                                            th:selected="${year == nam2}">2023</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-chart-line me-2"></i>So Sánh
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Comparison Results -->
-                <div th:if="${nam1 != null and nam2 != null}" class="row">
-                    <!-- Summary Cards -->
-                    <div class="col-12 mb-4">
-                        <div class="row g-4">
-                            <!-- Year 1 Summary -->
-                            <div class="col-md-6">
-                                <div class="card border-primary">
-                                    <div class="card-header bg-primary text-white">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-calendar-alt me-2"></i>Năm <span th:text="${nam1}">2024</span>
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row text-center">
-                                            <div class="col-4">
-                                                <div class="border-end">
-                                                    <h6 class="text-success">Thu</h6>
-                                                    <h4 class="text-success" th:text="${#numbers.formatDecimal(thongKeNam1?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="border-end">
-                                                    <h6 class="text-danger">Chi</h6>
-                                                    <h4 class="text-danger" th:text="${#numbers.formatDecimal(thongKeNam1?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <h6>Số dư</h6>
-                                                <h4 th:class="${(thongKeNam1?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'" 
-                                                    th:text="${#numbers.formatDecimal(thongKeNam1?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Year 2 Summary -->
-                            <div class="col-md-6">
-                                <div class="card border-info">
-                                    <div class="card-header bg-info text-white">
-                                        <h5 class="mb-0">
-                                            <i class="fas fa-calendar-alt me-2"></i>Năm <span th:text="${nam2}">2023</span>
-                                        </h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row text-center">
-                                            <div class="col-4">
-                                                <div class="border-end">
-                                                    <h6 class="text-success">Thu</h6>
-                                                    <h4 class="text-success" th:text="${#numbers.formatDecimal(thongKeNam2?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <div class="border-end">
-                                                    <h6 class="text-danger">Chi</h6>
-                                                    <h4 class="text-danger" th:text="${#numbers.formatDecimal(thongKeNam2?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                                </div>
-                                            </div>
-                                            <div class="col-4">
-                                                <h6>Số dư</h6>
-                                                <h4 th:class="${(thongKeNam2?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'" 
-                                                    th:text="${#numbers.formatDecimal(thongKeNam2?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i class="fas fa-arrow-down text-danger fa-lg"></i>
                         </div>
+                        <h6 class="text-white-50 mb-1">Chi Phí</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam1?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
+                        </h5>
+                      </div>
                     </div>
-
-                    <!-- Comparison Chart -->
-                    <div class="col-12 mb-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-chart-bar me-2"></i>Biểu Đồ So Sánh
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="comparisonChart" width="400" height="200"></canvas>
-                            </div>
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i
+                            class="fas fa-balance-scale text-warning fa-lg"
+                          ></i>
                         </div>
+                        <h6 class="text-white-50 mb-1">Số Dư</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam1?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
+                        </h5>
+                      </div>
                     </div>
-
-                    <!-- Detailed Comparison Table -->
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-table me-2"></i>Bảng So Sánh Chi Tiết
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Chỉ tiêu</th>
-                                                <th class="text-center">Năm <span th:text="${nam1}">2024</span></th>
-                                                <th class="text-center">Năm <span th:text="${nam2}">2023</span></th>
-                                                <th class="text-center">Chênh lệch</th>
-                                                <th class="text-center">% Thay đổi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><strong>Tổng Thu</strong></td>
-                                                <td class="text-end text-success" th:text="${#numbers.formatDecimal(thongKeNam1?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end text-success" th:text="${#numbers.formatDecimal(thongKeNam2?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end" th:text="${#numbers.formatDecimal((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end">
-                                                    <span th:if="${(thongKeNam2?.tongThu ?: 0) > 0}"
-                                                          th:class="${((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0)) >= 0} ? 'text-success' : 'text-danger'"
-                                                          th:text="${#numbers.formatDecimal(((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0)) / (thongKeNam2?.tongThu ?: 1) * 100, 1, 2)} + '%'">0%</span>
-                                                    <span th:unless="${(thongKeNam2?.tongThu ?: 0) > 0}">N/A</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>Tổng Chi</strong></td>
-                                                <td class="text-end text-danger" th:text="${#numbers.formatDecimal(thongKeNam1?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end text-danger" th:text="${#numbers.formatDecimal(thongKeNam2?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end" th:text="${#numbers.formatDecimal((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end">
-                                                    <span th:if="${(thongKeNam2?.tongChi ?: 0) > 0}"
-                                                          th:class="${((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0)) >= 0} ? 'text-danger' : 'text-success'"
-                                                          th:text="${#numbers.formatDecimal(((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0)) / (thongKeNam2?.tongChi ?: 1) * 100, 1, 2)} + '%'">0%</span>
-                                                    <span th:unless="${(thongKeNam2?.tongChi ?: 0) > 0}">N/A</span>
-                                                </td>
-                                            </tr>
-                                            <tr class="table-warning">
-                                                <td><strong>Số Dư</strong></td>
-                                                <td class="text-end" th:class="${(thongKeNam1?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'" 
-                                                    th:text="${#numbers.formatDecimal(thongKeNam1?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end" th:class="${(thongKeNam2?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'" 
-                                                    th:text="${#numbers.formatDecimal(thongKeNam2?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end" th:text="${#numbers.formatDecimal((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</td>
-                                                <td class="text-end">
-                                                    <span th:if="${(thongKeNam2?.soDu ?: 0) != 0}"
-                                                          th:class="${((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0)) >= 0} ? 'text-success' : 'text-danger'"
-                                                          th:text="${#numbers.formatDecimal(((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0)) / (thongKeNam2?.soDu ?: 1) * 100, 1, 2)} + '%'">0%</span>
-                                                    <span th:unless="${(thongKeNam2?.soDu ?: 0) != 0}">N/A</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                  </div>
                 </div>
-
-                <!-- No Data Message -->
-                <div th:if="${nam1 == null or nam2 == null}" class="text-center py-5">
-                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">Chọn hai năm để bắt đầu so sánh</h5>
-                    <p class="text-muted">Sử dụng form bên trên để chọn các năm muốn so sánh</p>
-                </div>
+              </div>
             </div>
 
-            <!-- Chart Script -->
-            <script th:if="${nam1 != null and nam2 != null}">
-                const ctx = document.getElementById('comparisonChart').getContext('2d');
-                const chart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Thu', 'Chi', 'Số dư'],
-                        datasets: [{
-                            label: 'Năm ' + /*[[${nam1}]]*/ '2024',
-                            data: [
-                                /*[[${thongKeNam1?.tongThu ?: 0}]]*/ 0,
-                                /*[[${thongKeNam1?.tongChi ?: 0}]]*/ 0,
-                                /*[[${thongKeNam1?.soDu ?: 0}]]*/ 0
-                            ],
-                            backgroundColor: [
-                                'rgba(40, 167, 69, 0.8)',
-                                'rgba(220, 53, 69, 0.8)',
-                                'rgba(0, 123, 255, 0.8)'
-                            ],
-                            borderColor: [
-                                'rgba(40, 167, 69, 1)',
-                                'rgba(220, 53, 69, 1)',
-                                'rgba(0, 123, 255, 1)'
-                            ],
-                            borderWidth: 1
-                        }, {
-                            label: 'Năm ' + /*[[${nam2}]]*/ '2023',
-                            data: [
-                                /*[[${thongKeNam2?.tongThu ?: 0}]]*/ 0,
-                                /*[[${thongKeNam2?.tongChi ?: 0}]]*/ 0,
-                                /*[[${thongKeNam2?.soDu ?: 0}]]*/ 0
-                            ],
-                            backgroundColor: [
-                                'rgba(40, 167, 69, 0.5)',
-                                'rgba(220, 53, 69, 0.5)',
-                                'rgba(23, 162, 184, 0.5)'
-                            ],
-                            borderColor: [
-                                'rgba(40, 167, 69, 1)',
-                                'rgba(220, 53, 69, 1)',
-                                'rgba(23, 162, 184, 1)'
-                            ],
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            title: {
-                                display: true,
-                                text: 'So sánh tài chính năm ' + /*[[${nam1}]]*/ '2024' + ' và ' + /*[[${nam2}]]*/ '2023'
-                            },
-                            legend: {
-                                position: 'top',
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: function(value) {
-                                        return new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ';
-                                    }
-                                }
-                            }
-                        },
-                        interaction: {
-                            intersect: false,
-                        }
-                    }
-                });
-            </script>
+            <!-- Year 2 Summary -->
+            <div class="col-lg-6">
+              <div
+                class="card border-0 shadow-sm h-100"
+                style="
+                  border-radius: 20px;
+                  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+                "
+              >
+                <div class="card-body p-4 text-white">
+                  <div
+                    class="d-flex align-items-center justify-content-between mb-4"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="bg-white bg-opacity-20 rounded-circle p-3 me-3 d-flex align-items-center justify-content-center"
+                        style="width: 60px; height: 60px"
+                      >
+                        <i class="fas fa-calendar-alt fa-xl text-white"></i>
+                      </div>
+                      <div>
+                        <h4 class="mb-1 fw-bold">
+                          Năm <span th:text="${nam2}">2023</span>
+                        </h4>
+                        <p class="mb-0 text-white-50">
+                          Dữ liệu tài chính năm thứ hai
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i class="fas fa-arrow-up text-success fa-lg"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Thu Nhập</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam2?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
+                        </h5>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i class="fas fa-arrow-down text-danger fa-lg"></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Chi Phí</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam2?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
+                        </h5>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div
+                        class="text-center p-3 bg-white bg-opacity-10 rounded-3"
+                      >
+                        <div class="mb-2">
+                          <i
+                            class="fas fa-balance-scale text-warning fa-lg"
+                          ></i>
+                        </div>
+                        <h6 class="text-white-50 mb-1">Số Dư</h6>
+                        <h5
+                          class="mb-0 fw-bold"
+                          th:text="${#numbers.formatDecimal(thongKeNam2?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                        >
+                          0 VNĐ
+                        </h5>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Comparison Chart -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm" style="border-radius: 20px">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="bg-success bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                        style="width: 45px; height: 45px"
+                      >
+                        <i class="fas fa-chart-bar text-success"></i>
+                      </div>
+                      <div>
+                        <h5 class="mb-1 fw-bold text-dark">Biểu Đồ So Sánh</h5>
+                        <p class="mb-0 text-muted small">
+                          Trực quan hóa dữ liệu so sánh giữa hai năm
+                        </p>
+                      </div>
+                    </div>
+                    <div class="dropdown">
+                      <button
+                        class="btn btn-light btn-sm rounded-pill"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                      >
+                        <i class="fas fa-ellipsis-h"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a class="dropdown-item" href="#"
+                            ><i class="fas fa-download me-2"></i>Xuất PNG</a
+                          >
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="#"
+                            ><i class="fas fa-file-pdf me-2"></i>Xuất PDF</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas
+                    id="comparisonChart"
+                    width="400"
+                    height="200"
+                  ></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Detailed Comparison Table -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm" style="border-radius: 20px">
+                <div class="card-header border-0 bg-transparent pt-4 px-4">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div
+                        class="bg-warning bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                        style="width: 45px; height: 45px"
+                      >
+                        <i class="fas fa-table text-warning"></i>
+                      </div>
+                      <div>
+                        <h5 class="mb-1 fw-bold text-dark">
+                          Bảng So Sánh Chi Tiết
+                        </h5>
+                        <p class="mb-0 text-muted small">
+                          Phân tích chi tiết các chỉ số tài chính
+                        </p>
+                      </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-light btn-sm rounded-pill px-3">
+                        <i class="fas fa-download me-1"></i>Xuất
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead class="table-light">
+                        <tr>
+                          <th
+                            class="border-0 fw-semibold text-dark py-3"
+                            style="border-radius: 10px 0 0 10px"
+                          >
+                            <i class="fas fa-chart-pie me-2 text-primary"></i
+                            >Chỉ Tiêu
+                          </th>
+                          <th
+                            class="border-0 fw-semibold text-dark py-3 text-center"
+                          >
+                            <i class="fas fa-calendar me-2 text-success"></i>Năm
+                            <span th:text="${nam1}">2024</span>
+                          </th>
+                          <th
+                            class="border-0 fw-semibold text-dark py-3 text-center"
+                          >
+                            <i class="fas fa-calendar me-2 text-info"></i>Năm
+                            <span th:text="${nam2}">2023</span>
+                          </th>
+                          <th
+                            class="border-0 fw-semibold text-dark py-3 text-center"
+                          >
+                            <i class="fas fa-exchange-alt me-2 text-warning"></i
+                            >Chênh Lệch
+                          </th>
+                          <th
+                            class="border-0 fw-semibold text-dark py-3 text-center"
+                            style="border-radius: 0 10px 10px 0"
+                          >
+                            <i class="fas fa-percentage me-2 text-danger"></i>%
+                            Thay Đổi
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr class="border-0">
+                          <td class="py-3">
+                            <div class="d-flex align-items-center">
+                              <div
+                                class="bg-success bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px"
+                              >
+                                <i class="fas fa-arrow-up text-success"></i>
+                              </div>
+                              <span class="fw-bold text-dark"
+                                >Tổng Thu Nhập</span
+                              >
+                            </div>
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-success fs-6"
+                              th:text="${#numbers.formatDecimal(thongKeNam1?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-success fs-6"
+                              th:text="${#numbers.formatDecimal(thongKeNam2?.tongThu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-dark"
+                              th:text="${#numbers.formatDecimal((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              th:if="${(thongKeNam2?.tongThu ?: 0) > 0}"
+                              class="badge rounded-pill px-3 py-2 fw-semibold"
+                              th:class="${((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0)) >= 0} ? 'bg-success bg-opacity-15 text-success' : 'bg-danger bg-opacity-15 text-danger'"
+                              th:text="${#numbers.formatDecimal(((thongKeNam1?.tongThu ?: 0) - (thongKeNam2?.tongThu ?: 0)) / (thongKeNam2?.tongThu ?: 1) * 100, 1, 2)} + '%'"
+                              >0%</span
+                            >
+                            <span
+                              th:unless="${(thongKeNam2?.tongThu ?: 0) > 0}"
+                              class="badge bg-light text-dark rounded-pill px-3 py-2"
+                              >N/A</span
+                            >
+                          </td>
+                        </tr>
+                        <tr class="border-0">
+                          <td class="py-3">
+                            <div class="d-flex align-items-center">
+                              <div
+                                class="bg-danger bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px"
+                              >
+                                <i class="fas fa-arrow-down text-danger"></i>
+                              </div>
+                              <span class="fw-bold text-dark"
+                                >Tổng Chi Phí</span
+                              >
+                            </div>
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-danger fs-6"
+                              th:text="${#numbers.formatDecimal(thongKeNam1?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-danger fs-6"
+                              th:text="${#numbers.formatDecimal(thongKeNam2?.tongChi ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-dark"
+                              th:text="${#numbers.formatDecimal((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              th:if="${(thongKeNam2?.tongChi ?: 0) > 0}"
+                              class="badge rounded-pill px-3 py-2 fw-semibold"
+                              th:class="${((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0)) >= 0} ? 'bg-danger bg-opacity-15 text-danger' : 'bg-success bg-opacity-15 text-success'"
+                              th:text="${#numbers.formatDecimal(((thongKeNam1?.tongChi ?: 0) - (thongKeNam2?.tongChi ?: 0)) / (thongKeNam2?.tongChi ?: 1) * 100, 1, 2)} + '%'"
+                              >0%</span
+                            >
+                            <span
+                              th:unless="${(thongKeNam2?.tongChi ?: 0) > 0}"
+                              class="badge bg-light text-dark rounded-pill px-3 py-2"
+                              >N/A</span
+                            >
+                          </td>
+                        </tr>
+                        <tr class="border-0 bg-light bg-opacity-50">
+                          <td class="py-3">
+                            <div class="d-flex align-items-center">
+                              <div
+                                class="bg-primary bg-opacity-10 rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px"
+                              >
+                                <i
+                                  class="fas fa-balance-scale text-primary"
+                                ></i>
+                              </div>
+                              <span class="fw-bold text-dark"
+                                >Số Dư Cuối Năm</span
+                              >
+                            </div>
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold fs-6"
+                              th:class="${(thongKeNam1?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'"
+                              th:text="${#numbers.formatDecimal(thongKeNam1?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold fs-6"
+                              th:class="${(thongKeNam2?.soDu ?: 0) >= 0} ? 'text-success' : 'text-danger'"
+                              th:text="${#numbers.formatDecimal(thongKeNam2?.soDu ?: 0, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              class="fw-bold text-dark"
+                              th:text="${#numbers.formatDecimal((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0), 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"
+                              >0 VNĐ</span
+                            >
+                          </td>
+                          <td class="text-center py-3">
+                            <span
+                              th:if="${(thongKeNam2?.soDu ?: 0) != 0}"
+                              class="badge rounded-pill px-3 py-2 fw-semibold"
+                              th:class="${((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0)) >= 0} ? 'bg-success bg-opacity-15 text-success' : 'bg-danger bg-opacity-15 text-danger'"
+                              th:text="${#numbers.formatDecimal(((thongKeNam1?.soDu ?: 0) - (thongKeNam2?.soDu ?: 0)) / (thongKeNam2?.soDu ?: 1) * 100, 1, 2)} + '%'"
+                              >0%</span
+                            >
+                            <span
+                              th:unless="${(thongKeNam2?.soDu ?: 0) != 0}"
+                              class="badge bg-light text-dark rounded-pill px-3 py-2"
+                              >N/A</span
+                            >
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Modern No Data Message -->
+        <div th:if="${nam1 == null or nam2 == null}" class="row">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px">
+              <div class="card-body p-5 text-center">
+                <div class="mb-4">
+                  <div
+                    class="bg-primary bg-opacity-10 rounded-circle p-4 d-inline-flex align-items-center justify-content-center"
+                    style="width: 120px; height: 120px"
+                  >
+                    <i class="fas fa-chart-line fa-3x text-primary"></i>
+                  </div>
+                </div>
+                <h4 class="text-dark fw-bold mb-3">
+                  Chọn Hai Năm Để Bắt Đầu So Sánh
+                </h4>
+                <p class="text-muted fs-5 mb-4">
+                  Sử dụng form bên trên để chọn các năm muốn so sánh và xem phân
+                  tích chi tiết
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                  <div class="bg-light rounded-pill px-4 py-2">
+                    <i class="fas fa-calendar text-success me-2"></i>
+                    <span class="text-muted">Chọn năm đầu tiên</span>
+                  </div>
+                  <div class="bg-light rounded-pill px-4 py-2">
+                    <i class="fas fa-calendar text-info me-2"></i>
+                    <span class="text-muted">Chọn năm thứ hai</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Styles -->
+      <style>
+        /* Modern Button Styles */
+        .btn-modern {
+          display: inline-flex;
+          align-items: center;
+          padding: 12px 24px;
+          border-radius: 12px;
+          font-weight: 600;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          border: 2px solid transparent;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .btn-modern-outline {
+          background: rgba(255, 255, 255, 0.1);
+          color: white;
+          border-color: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(10px);
+        }
+
+        .btn-modern-outline:hover {
+          background: rgba(255, 255, 255, 0.2);
+          color: white;
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+          text-decoration: none;
+        }
+
+        /* Modern card hover effects */
+        .card {
+          transition: all 0.3s ease;
+        }
+
+        .card:hover {
+          transform: translateY(-2px);
+        }
+
+        /* Table row hover effect */
+        .table tbody tr {
+          transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+          background-color: rgba(0, 123, 255, 0.05) !important;
+          transform: scale(1.01);
+        }
+
+        /* Form styling */
+        .form-select:focus {
+          border-color: #80bdff;
+          box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Button hover effects */
+        .btn {
+          transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Badge hover effects */
+        .badge {
+          transition: all 0.2s ease;
+        }
+
+        .badge:hover {
+          transform: scale(1.05);
+        }
+
+        /* Dropdown styling */
+        .dropdown-menu {
+          border: none;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+          border-radius: 10px;
+        }
+
+        .dropdown-item:hover {
+          background-color: rgba(0, 123, 255, 0.1);
+          transform: translateX(5px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .card-body {
+            padding: 1rem !important;
+          }
+
+          .table-responsive {
+            font-size: 0.875rem;
+          }
+        }
+      </style>
+
+      <!-- Enhanced Chart Script -->
+      <script th:if="${nam1 != null and nam2 != null}">
+        const ctx = document.getElementById("comparisonChart").getContext("2d");
+        const chart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: ["Thu Nhập", "Chi Phí", "Số Dư"],
+            datasets: [
+              {
+                label: "Năm " + /*[[${nam1}]]*/ "2024",
+                data: [
+                  /*[[${thongKeNam1?.tongThu ?: 0}]]*/ 0,
+                  /*[[${thongKeNam1?.tongChi ?: 0}]]*/ 0,
+                  /*[[${thongKeNam1?.soDu ?: 0}]]*/ 0,
+                ],
+                backgroundColor: [
+                  "rgba(40, 167, 69, 0.8)",
+                  "rgba(220, 53, 69, 0.8)",
+                  "rgba(0, 123, 255, 0.8)",
+                ],
+                borderColor: [
+                  "rgba(40, 167, 69, 1)",
+                  "rgba(220, 53, 69, 1)",
+                  "rgba(0, 123, 255, 1)",
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+              },
+              {
+                label: "Năm " + /*[[${nam2}]]*/ "2023",
+                data: [
+                  /*[[${thongKeNam2?.tongThu ?: 0}]]*/ 0,
+                  /*[[${thongKeNam2?.tongChi ?: 0}]]*/ 0,
+                  /*[[${thongKeNam2?.soDu ?: 0}]]*/ 0,
+                ],
+                backgroundColor: [
+                  "rgba(40, 167, 69, 0.5)",
+                  "rgba(220, 53, 69, 0.5)",
+                  "rgba(23, 162, 184, 0.5)",
+                ],
+                borderColor: [
+                  "rgba(40, 167, 69, 1)",
+                  "rgba(220, 53, 69, 1)",
+                  "rgba(23, 162, 184, 1)",
+                ],
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "top",
+                labels: {
+                  usePointStyle: true,
+                  padding: 20,
+                  font: {
+                    size: 14,
+                    weight: "bold",
+                  },
+                },
+              },
+              tooltip: {
+                backgroundColor: "rgba(0, 0, 0, 0.8)",
+                titleColor: "#ffffff",
+                bodyColor: "#ffffff",
+                borderColor: "#ffffff",
+                borderWidth: 1,
+                cornerRadius: 10,
+                callbacks: {
+                  label: function (context) {
+                    return (
+                      context.dataset.label +
+                      ": " +
+                      new Intl.NumberFormat("vi-VN").format(context.parsed.y) +
+                      " VNĐ"
+                    );
+                  },
+                },
+              },
+            },
+            scales: {
+              x: {
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  font: {
+                    size: 12,
+                    weight: "bold",
+                  },
+                  color: "#6c757d",
+                },
+              },
+              y: {
+                beginAtZero: true,
+                grid: {
+                  color: "rgba(0, 0, 0, 0.1)",
+                  drawBorder: false,
+                },
+                ticks: {
+                  font: {
+                    size: 12,
+                  },
+                  color: "#6c757d",
+                  callback: function (value) {
+                    return (
+                      new Intl.NumberFormat("vi-VN", {
+                        notation: "compact",
+                        compactDisplay: "short",
+                      }).format(value) + " VNĐ"
+                    );
+                  },
+                },
+              },
+            },
+            interaction: {
+              intersect: false,
+              mode: "index",
+            },
+          },
+        });
+      </script>
     </main>
-</body>
+  </body>
 </html>

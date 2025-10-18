@@ -1,609 +1,1346 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
 <head th:replace="~{fragments/admin-layout :: head}">
-    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
+  <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
 </head>
-<body>
-    <!-- Sidebar -->
-    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Navigation -->
-        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+<body class="modern-admin-page">
+  <!-- Sidebar -->
+  <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
-        <!-- Content -->
-        <div class="container-fluid py-4">
-            <div class="container-fluid">
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="mb-0">
-                        <i class="fas fa-user-plus me-2"></i>
-                        <span th:text="${pageTitle}">Thêm Nhân Sự</span>
-                    </h2>
-                    <a href="/admin/nhan-su" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay lại
-                    </a>
-                </div>
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Navigation -->
+    <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
 
-                <!-- Form -->
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <form th:action="@{/admin/nhan-su/save}" method="post" th:object="${nhanSu}" enctype="multipart/form-data">
-                                    <input type="hidden" th:field="*{id}">
-                                    <input type="hidden" th:field="*{createdAt}">
-                                    <input type="hidden" th:field="*{avatarUrl}">
+    <!-- Content -->
+    <div class="container-fluid py-4">
+      <!-- Flash Messages -->
+      <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-                                    <!-- Avatar Upload Section -->
-                                    <div class="row mb-4">
-                                        <div class="col-12">
-                                            <h6 class="text-primary mb-3">
-                                                <i class="fas fa-user-circle me-2"></i>Ảnh Đại Diện
-                                            </h6>
-                                            <div class="d-flex align-items-start gap-3">
-                                                <!-- Current Avatar Preview -->
-                                                <div class="avatar-preview">
-                                                    <img 
-                                                        id="avatarPreview" 
-                                                        th:src="${nhanSu.avatarUrl != null ? nhanSu.avatarUrl : '/static/images/default-avatar.svg'}"
-                                                        alt="Avatar Preview"
-                                                        class="rounded-circle border"
-                                                        style="width: 120px; height: 120px; object-fit: cover;"
-                                                    />
-                                                </div>
-                                                
-                                                <!-- Upload Controls -->
-                                                <div class="flex-grow-1">
-                                                    <div class="mb-3">
-                                                        <label for="avatarFile" class="form-label">Chọn ảnh mới</label>
-                                                        <input 
-                                                            type="file" 
-                                                            class="form-control" 
-                                                            id="avatarFile" 
-                                                            name="avatarFile"
-                                                            accept="image/jpeg,image/jpg,image/png,image/gif"
-                                                            onchange="previewAvatar(this)"
-                                                        />
-                                                        <div class="form-text">
-                                                            <i class="fas fa-info-circle me-1"></i>
-                                                            Chấp nhận: JPG, JPEG, PNG, GIF. Tối đa 5MB.
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <!-- Upload Status -->
-                                                    <div id="uploadStatus" class="d-none">
-                                                        <div class="alert alert-info mb-0">
-                                                            <i class="fas fa-upload me-2"></i>
-                                                            Ảnh mới đã được chọn. Nhấn "Lưu" để cập nhật.
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="hoTen" class="form-label">Họ tên <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="hoTen" th:field="*{hoTen}" required>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="chucVu" class="form-label">Chức vụ</label>
-                                            <select class="form-select" id="chucVu" th:field="*{chucVu}">
-                                                <option value="">Chọn chức vụ</option>
-                                                <option th:each="cv : ${chucVuList}" 
-                                                        th:value="${cv}" 
-                                                        th:text="${cv.displayName}"
-                                                        th:selected="${nhanSu.chucVu == cv}">Chức vụ</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="banNganh" class="form-label">Ban ngành <span class="text-danger">*</span></label>
-                                            <div id="banNganhDropdown"></div>
-                                            <input type="hidden" id="banNganh" th:field="*{banNganh.id}" required>
-                                            <div class="invalid-feedback" id="banNganhError">Vui lòng chọn ban ngành</div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="diemNhom" class="form-label">Điểm nhóm</label>
-                                            <div id="diemNhomDropdown"></div>
-                                            <input type="hidden" id="diemNhom" th:field="*{diemNhom.id}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" th:field="*{email}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="dienThoai" class="form-label">Số điện thoại</label>
-                                            <input type="tel" class="form-control" id="dienThoai" th:field="*{dienThoai}" 
-                                                   pattern="[0-9]{10,11}" 
-                                                   minlength="10" 
-                                                   maxlength="11"
-                                                   title="Số điện thoại phải có 10-11 chữ số"
-                                                   placeholder="0123456789"
-                                                   oninput="validatePhoneNumber(this)">
-                                            <div class="invalid-feedback" id="phoneError">
-                                                Số điện thoại phải có 10-11 chữ số và chỉ chứa số
-                                            </div>
-                                            <div class="form-text">
-                                                <small class="text-muted">Nhập 10-11 chữ số (VD: 0123456789 hoặc 84123456789)</small>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="ngaySinh" class="form-label">Ngày sinh</label>
-                                            <input type="date" class="form-control" id="ngaySinh" th:field="*{ngaySinh}">
-                                            <div class="form-text">Ngày sinh không được vượt quá thời gian hiện tại</div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="ngayBatDauPhucVu" class="form-label">Ngày bắt đầu phục vụ</label>
-                                            <input type="date" class="form-control" id="ngayBatDauPhucVu" th:field="*{ngayBatDauPhucVu}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="nhiemKyBatDau" class="form-label">Nhiệm kỳ bắt đầu</label>
-                                            <input type="date" class="form-control" id="nhiemKyBatDau" th:field="*{nhiemKyBatDau}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="nhiemKyKetThuc" class="form-label">Nhiệm kỳ kết thúc</label>
-                                            <input type="date" class="form-control" id="nhiemKyKetThuc" th:field="*{nhiemKyKetThuc}">
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-12 mb-3">
-                                            <label for="trangThai" class="form-label">Trạng thái</label>
-                                            <select class="form-select" id="trangThai" th:field="*{trangThai}">
-                                                <option th:value="HOAT_DONG" th:selected="*{trangThai?.name() == 'HOAT_DONG'}">Hoạt động</option>
-                                                <option th:value="DANG_PHUC_VU" th:selected="*{trangThai?.name() == 'DANG_PHUC_VU'}">Đang phục vụ</option>
-                                                <option th:value="NGHI_VIEC" th:selected="*{trangThai?.name() == 'NGHI_VIEC'}">Nghỉ việc</option>
-                                                <option th:value="TAM_NGHI" th:selected="*{trangThai?.name() == 'TAM_NGHI'}">Tạm nghỉ</option>
-                                                <option th:value="CHUYEN_BAN" th:selected="*{trangThai?.name() == 'CHUYEN_BAN'}">Chuyển ban</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="diaChi" class="form-label">Địa chỉ</label>
-                                        <textarea class="form-control" id="diaChi" th:field="*{diaChi}" rows="2"></textarea>
-                                    </div>
-
-                                      <div class="mb-3">
-                                        <label for="moTaCongViec" class="form-label">Mô tả công việc</label>
-                                        <textarea class="form-control" id="moTaCongViec" th:field="*{moTaCongViec}"
-                                            rows="3" placeholder="Mô tả về công việc và trách nhiệm..."></textarea>
-                                        <div class="form-text">Tối đa 1000 ký tự</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="tieuSu" class="form-label">Tiểu sử</label>
-                                        <textarea class="form-control" id="tieuSu" th:field="*{tieuSu}" rows="4" 
-                                                  placeholder="Mô tả về quá trình học tập, công tác, phục vụ..."></textarea>
-                                        <div class="form-text">Tối đa 2000 ký tự</div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="ghiChu" class="form-label">Ghi chú</label>
-                                        <textarea class="form-control" id="ghiChu" th:field="*{ghiChu}" rows="3"></textarea>
-                                    </div>
-
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a href="/admin/nhan-su" class="btn btn-secondary">Hủy</a>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save me-2"></i>Lưu
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Hướng dẫn</h6>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled mb-0">
-                                    <li class="mb-2">
-                                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
-                                        Họ tên và ban ngành là trường bắt buộc
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Chọn ban ngành trước để lọc điểm nhóm
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Điểm nhóm sẽ được lọc theo ban ngành đã chọn
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Các trường khác là tùy chọn
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Modern Page Header -->
+      <div class="modern-page-header">
+        <div class="header-content">
+          <div class="header-info">
+            <div class="header-icon">
+              <i class="fas fa-user-plus"></i>
             </div>
+            <div class="header-text">
+              <h1 class="header-title" th:text="${nhanSu.id != null ? 'Chỉnh Sửa Nhân Sự' : 'Thêm Nhân Sự Mới'}">Thêm Nhân Sự Mới</h1>
+              <p class="header-subtitle">Nhập thông tin chi tiết của nhân sự để quản lý hiệu quả</p>
+            </div>
+          </div>
+          <div class="header-actions">
+            <a th:href="@{/admin/nhan-su}" class="btn-modern btn-modern-outline">
+              <i class="fas fa-arrow-left me-2"></i>Quay Lại
+            </a>
+          </div>
         </div>
-    </main>
- <div th:replace="~{fragments/admin-layout :: scripts}"></div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/static/js/searchable-dropdown.js"></script>
-    <script>
-        let banNganhDropdown;
-        let diemNhomDropdown;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Khởi tạo searchable dropdown cho ban ngành
-            banNganhDropdown = new SearchableDropdown('banNganhDropdown', {
-                placeholder: 'Chọn ban ngành...',
-                searchPlaceholder: 'Tìm kiếm ban ngành...',
-                displayField: 'tenBan',
-                valueField: 'id',
-                allowClear: true,
-                clearText: 'Không chọn ban ngành',
-                onSelect: function(item) {
-                    // Cập nhật hidden input
-                    document.getElementById('banNganh').value = item.id;
-                    // Clear error state
-                    const banNganhDropdownElement = document.getElementById('banNganhDropdown');
-                    banNganhDropdownElement.style.border = '';
-                    // Load điểm nhóm theo ban ngành được chọn (không có callback = clear selection)
-                    loadDiemNhomByBanNganh(item.id);
+      </div>
+
+      <!-- Modern Form -->
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-user-edit"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Thông Tin Nhân Sự</h5>
+                  <p>Điền đầy đủ thông tin để tạo hồ sơ nhân sự</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <form th:action="@{/admin/nhan-su/save}" th:object="${nhanSu}" method="post"
+                enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}" />
+                <input type="hidden" th:field="*{createdAt}" />
+                <input type="hidden" th:field="*{avatarUrl}" />
+
+                <!-- Modern Avatar Upload Section -->
+                <div class="avatar-upload-section">
+                  <div class="section-header">
+                    <div class="section-icon">
+                      <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="section-title">
+                      <h4>Ảnh Đại Diện</h4>
+                      <p>Tải lên ảnh đại diện cho nhân sự</p>
+                    </div>
+                  </div>
+                  
+                  <div class="avatar-upload-container">
+                    <!-- Avatar Preview -->
+                    <div class="avatar-preview-wrapper">
+                      <div class="avatar-preview-circle">
+                        <img id="avatarPreview"
+                          th:src="${nhanSu.avatarUrl != null ? nhanSu.avatarUrl : '/static/images/default-avatar.svg'}"
+                          alt="Avatar Preview" />
+                        <div class="avatar-overlay">
+                          <i class="fas fa-camera"></i>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Upload Controls -->
+                    <div class="avatar-upload-controls">
+                      <div class="upload-input-wrapper">
+                        <label for="avatarFile" class="upload-btn">
+                          <i class="fas fa-cloud-upload-alt me-2"></i>
+                          Chọn Ảnh Mới
+                        </label>
+                        <input type="file" class="d-none" id="avatarFile" name="avatarFile"
+                          accept="image/jpeg,image/jpg,image/png,image/gif" onchange="previewAvatar(this)" />
+                      </div>
+                      
+                      <div class="upload-info">
+                        <div class="info-item">
+                          <i class="fas fa-check-circle text-success me-2"></i>
+                          <span>JPG, JPEG, PNG, GIF</span>
+                        </div>
+                        <div class="info-item">
+                          <i class="fas fa-weight-hanging text-info me-2"></i>
+                          <span>Tối đa 5MB</span>
+                        </div>
+                      </div>
+
+                      <!-- Upload Status -->
+                      <div id="uploadStatus" class="upload-status d-none">
+                        <div class="status-message">
+                          <i class="fas fa-check-circle me-2"></i>
+                          Ảnh mới đã được chọn. Nhấn "Lưu" để cập nhật.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Divider -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">Thông tin cơ bản</div>
+                  <div class="divider-line"></div>
+                </div>
+                <!-- Basic Information -->
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-8">
+                      <div class="modern-form-group">
+                        <label for="hoTen" class="modern-form-label">
+                          <i class="fas fa-user me-2"></i>
+                          Họ và Tên <span class="required-star">*</span>
+                        </label>
+                        <input type="text" class="modern-form-control" id="hoTen" th:field="*{hoTen}" required
+                          placeholder="Nhập họ và tên đầy đủ" />
+                        <div class="form-feedback">
+                          Vui lòng nhập họ và tên.
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="modern-form-group">
+                        <label for="chucVu" class="modern-form-label">
+                          <i class="fas fa-user-tie me-2"></i>
+                          Chức Vụ
+                        </label>
+                        <select class="modern-form-select" id="chucVu" th:field="*{chucVu}">
+                          <option value="">Chọn chức vụ</option>
+                          <option th:each="cv : ${chucVuList}" 
+                                  th:value="${cv}" 
+                                  th:text="${cv.displayName}"
+                                  th:selected="${nhanSu.chucVu == cv}">Chức vụ</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="ngaySinh" class="modern-form-label">
+                          <i class="fas fa-birthday-cake me-2"></i>
+                          Ngày Sinh
+                        </label>
+                        <input type="date" class="modern-form-control" id="ngaySinh" th:field="*{ngaySinh}" />
+                        <div class="form-hint">Ngày sinh không được vượt quá thời gian hiện tại</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="ngayBatDauPhucVu" class="modern-form-label">
+                          <i class="fas fa-calendar-check me-2"></i>
+                          Ngày Bắt Đầu Phục Vụ
+                        </label>
+                        <input type="date" class="modern-form-control" id="ngayBatDauPhucVu" th:field="*{ngayBatDauPhucVu}" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Contact Information -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-address-book me-2"></i>Thông tin liên hệ
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="dienThoai" class="modern-form-label">
+                          <i class="fas fa-phone me-2"></i>
+                          Số Điện Thoại
+                        </label>
+                        <input type="tel" class="modern-form-control" id="dienThoai" th:field="*{dienThoai}" 
+                          pattern="[0-9]{10,11}" title="Số điện thoại phải có 10-11 chữ số" placeholder="0123456789" />
+                        <div class="form-hint">Chỉ nhập số, từ 10-11 chữ số</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="email" class="modern-form-label">
+                          <i class="fas fa-envelope me-2"></i>
+                          Email
+                        </label>
+                        <input type="email" class="modern-form-control" id="email" th:field="*{email}"
+                          placeholder="example@email.com" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="diaChi" class="modern-form-label">
+                          <i class="fas fa-map-marker-alt me-2"></i>
+                          Địa Chỉ
+                        </label>
+                        <textarea class="modern-form-textarea" id="diaChi" rows="3" th:field="*{diaChi}"
+                          placeholder="Nhập địa chỉ đầy đủ"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Organization Information -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-sitemap me-2"></i>Thông tin tổ chức
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="banNganh" class="modern-form-label">
+                          <i class="fas fa-sitemap me-2"></i>
+                          Ban Ngành
+                        </label>
+                        <div id="banNganhDropdown"></div>
+                        <input type="hidden" id="banNganh" th:field="*{banNganh.id}" required>
+                        <div class="form-hint">Chọn ban ngành mà nhân sự tham gia</div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="diemNhom" class="modern-form-label">
+                          <i class="fas fa-users me-2"></i>
+                          Điểm Nhóm
+                        </label>
+                        <div id="diemNhomDropdown"></div>
+                        <input type="hidden" id="diemNhom" th:field="*{diemNhom.id}">
+                        <div class="form-hint">Chọn điểm nhóm mà nhân sự tham gia</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="nhiemKyBatDau" class="modern-form-label">
+                          <i class="fas fa-calendar-alt me-2"></i>
+                          Nhiệm Kỳ Bắt Đầu
+                        </label>
+                        <input type="date" class="modern-form-control" id="nhiemKyBatDau" th:field="*{nhiemKyBatDau}" />
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="modern-form-group">
+                        <label for="nhiemKyKetThuc" class="modern-form-label">
+                          <i class="fas fa-calendar-times me-2"></i>
+                          Nhiệm Kỳ Kết Thúc
+                        </label>
+                        <input type="date" class="modern-form-control" id="nhiemKyKetThuc" th:field="*{nhiemKyKetThuc}" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-md-12">
+                      <div class="modern-form-group">
+                        <label for="trangThai" class="modern-form-label">
+                          <i class="fas fa-toggle-on me-2"></i>
+                          Trạng Thái
+                        </label>
+                        <select class="modern-form-select" id="trangThai" th:field="*{trangThai}">
+                          <option th:value="HOAT_DONG" th:selected="*{trangThai?.name() == 'HOAT_DONG'}">Hoạt động</option>
+                          <option th:value="DANG_PHUC_VU" th:selected="*{trangThai?.name() == 'DANG_PHUC_VU'}">Đang phục vụ</option>
+                          <option th:value="NGHI_VIEC" th:selected="*{trangThai?.name() == 'NGHI_VIEC'}">Nghỉ việc</option>
+                          <option th:value="TAM_NGHI" th:selected="*{trangThai?.name() == 'TAM_NGHI'}">Tạm nghỉ</option>
+                          <option th:value="CHUYEN_BAN" th:selected="*{trangThai?.name() == 'CHUYEN_BAN'}">Chuyển ban</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="form-divider">
+                  <div class="divider-line"></div>
+                  <div class="divider-text">
+                    <i class="fas fa-info-circle me-2"></i>Thông tin bổ sung
+                  </div>
+                  <div class="divider-line"></div>
+                </div>
+
+                <div class="form-section">
+                  <div class="row g-4">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="moTaCongViec" class="modern-form-label">
+                          <i class="fas fa-briefcase me-2"></i>
+                          Mô Tả Công Việc
+                        </label>
+                        <textarea class="modern-form-textarea" id="moTaCongViec" rows="3" th:field="*{moTaCongViec}"
+                          placeholder="Mô tả về công việc và trách nhiệm..."></textarea>
+                        <div class="form-hint">Tối đa 1000 ký tự</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="tieuSu" class="modern-form-label">
+                          <i class="fas fa-user-graduate me-2"></i>
+                          Tiểu Sử
+                        </label>
+                        <textarea class="modern-form-textarea" id="tieuSu" rows="4" th:field="*{tieuSu}"
+                          placeholder="Mô tả về quá trình học tập, công tác, phục vụ..."></textarea>
+                        <div class="form-hint">Tối đa 2000 ký tự</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row g-4 mt-2">
+                    <div class="col-12">
+                      <div class="modern-form-group">
+                        <label for="ghiChu" class="modern-form-label">
+                          <i class="fas fa-sticky-note me-2"></i>
+                          Ghi Chú
+                        </label>
+                        <textarea class="modern-form-textarea" id="ghiChu" rows="3" th:field="*{ghiChu}"
+                          placeholder="Ghi chú thêm về nhân sự..."></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Modern Form Actions -->
+                <div class="form-actions">
+                  <div class="actions-container">
+                    <a th:href="@{/admin/nhan-su}" class="btn-cancel">
+                      <i class="fas fa-times me-2"></i>Hủy Bỏ
+                    </a>
+                    <button type="submit" class="btn-submit">
+                      <i class="fas fa-save me-2"></i>
+                      <span th:text="${nhanSu.id != null ? 'Cập Nhật' : 'Lưu Nhân Sự'}">Lưu Nhân Sự</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modern Sidebar Info -->
+        <div class="col-lg-4">
+          <!-- Guidelines Card -->
+          <div class="modern-card">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Hướng Dẫn</h5>
+                  <p>Thông tin cần thiết khi tạo nhân sự</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="guideline-section">
+                <h4>Thông tin bắt buộc</h4>
+                <div class="requirement-list">
+                  <div class="requirement-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Họ và tên đầy đủ</span>
+                  </div>
+                 
+                </div>
+              </div>
+
+              <div class="guideline-section">
+                <h4>Lưu ý quan trọng</h4>
+                <div class="note-list">
+                  <div class="note-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Số điện thoại: 10-11 chữ số</span>
+                  </div>
+                  <div class="note-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email phải có định dạng hợp lệ</span>
+                  </div>
+                  <div class="note-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Ngày sinh không được vượt quá hiện tại</span>
+                  </div>
+                  <div class="note-item">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Chọn ban ngành trước để lọc điểm nhóm</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="warning-box">
+                <div class="warning-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="warning-content">
+                  <strong>Chú ý:</strong> Thông tin nhân sự sẽ được sử dụng cho các hoạt động quản lý của chi hội.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Card (if editing) -->
+          <div class="modern-card" th:if="${nhanSu.id != null}">
+            <div class="card-header">
+              <div class="header-left">
+                <div class="card-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-title">
+                  <h5>Thông Tin Hệ Thống</h5>
+                  <p>Chi tiết về bản ghi</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-content">
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <div class="stat-value" th:text="${nhanSu.id}">-</div>
+                  <div class="stat-label">ID Nhân Sự</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-value">
+                    <span th:if="${nhanSu.createdAt}"
+                      th:text="${#temporals.format(nhanSu.createdAt, 'dd/MM/yyyy')}">-</span>
+                    <span th:unless="${nhanSu.createdAt}">-</span>
+                  </div>
+                  <div class="stat-label">Ngày Tạo</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- Scripts -->
+  <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+  <script src="/static/js/searchable-dropdown.js"></script>
+  <script>
+    // Form validation
+    (function () {
+      "use strict";
+      window.addEventListener(
+        "load",
+        function () {
+          var forms = document.getElementsByClassName("needs-validation");
+          var validation = Array.prototype.filter.call(
+            forms,
+            function (form) {
+              form.addEventListener(
+                "submit",
+                function (event) {
+                  if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }
+                  form.classList.add("was-validated");
                 },
-                onClear: function() {
-                    // Clear hidden input
-                    document.getElementById('banNganh').value = '';
-                    // Load tất cả điểm nhóm khi không chọn ban ngành
-                    loadAllDiemNhom();
-                    // Clear điểm nhóm selection
-                    diemNhomDropdown.clear();
-                    document.getElementById('diemNhom').value = '';
-                }
-            });
-            
-            // Khởi tạo searchable dropdown cho điểm nhóm
-            diemNhomDropdown = new SearchableDropdown('diemNhomDropdown', {
-                placeholder: 'Chọn điểm nhóm...',
-                searchPlaceholder: 'Tìm kiếm điểm nhóm...',
-                displayField: 'tenDiemNhom',
-                valueField: 'id',
-                allowClear: true,
-                clearText: 'Không chọn điểm nhóm',
-                onSelect: function(item) {
-                    // Cập nhật hidden input
-                    document.getElementById('diemNhom').value = item.id;
-                },
-                onClear: function() {
-                    // Clear hidden input
-                    document.getElementById('diemNhom').value = '';
-                }
-            });
-            
-            // Load ban ngành
-            loadAllBanNganh();
-            
-            // Load tất cả điểm nhóm ban đầu
-            loadAllDiemNhom();
-            
-            // Set giá trị hiện tại nếu có (cho edit mode)
-            const currentBanNganhValue = document.getElementById('banNganh').value;
-            const currentDiemNhomValue = document.getElementById('diemNhom').value;
-            
-            console.log('Debug - Ban Nganh Value:', currentBanNganhValue);
-            console.log('Debug - Diem Nhom Value:', currentDiemNhomValue);
-            
-            if (currentBanNganhValue && currentDiemNhomValue) {
-                // Nếu có cả ban ngành và điểm nhóm (edit mode)
-                console.log('Debug - Edit mode: có cả ban ngành và điểm nhóm');
-                setTimeout(() => {
-                    banNganhDropdown.setValue(currentBanNganhValue);
-                    // Load điểm nhóm theo ban ngành trước
-                    loadDiemNhomByBanNganh(currentBanNganhValue, () => {
-                        // Sau khi load xong thì set giá trị điểm nhóm
-                        console.log('Debug - Setting diem nhom value:', currentDiemNhomValue);
-                        setTimeout(() => {
-                            diemNhomDropdown.setValue(currentDiemNhomValue);
-                        }, 200);
-                    });
-                }, 500);
-            } else if (currentBanNganhValue) {
-                // Chỉ có ban ngành
-                console.log('Debug - Chỉ có ban ngành');
-                setTimeout(() => {
-                    banNganhDropdown.setValue(currentBanNganhValue);
-                }, 500);
-            } else if (currentDiemNhomValue) {
-                // Chỉ có điểm nhóm (trường hợp hiếm)
-                console.log('Debug - Chỉ có điểm nhóm');
-                setTimeout(() => {
-                    diemNhomDropdown.setValue(currentDiemNhomValue);
-                }, 500);
-            } else {
-                console.log('Debug - Create mode: không có giá trị nào');
+                false
+              );
             }
-        });
-        
-        // Load tất cả ban ngành
-        function loadAllBanNganh() {
-            fetch('/admin/api/all-ban-nganh')
-                .then(response => response.json())
-                .then(data => {
-                    banNganhDropdown.setData(data);
-                })
-                .catch(error => {
-                    console.error('Error loading ban ngành:', error);
-                });
-        }
-        
-        // Load tất cả điểm nhóm
-        function loadAllDiemNhom() {
-            console.log('Debug - Loading all diem nhom...');
-            fetch('/admin/api/all-diem-nhom')
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Debug - All diem nhom loaded:', data);
-                    diemNhomDropdown.setData(data);
-                })
-                .catch(error => {
-                    console.error('Error loading điểm nhóm:', error);
-                });
-        }
-        
-        // Lọc điểm nhóm theo ban ngành
-        function loadDiemNhomByBanNganh(banNganhId, callback) {
-            console.log('Debug - Loading diem nhom by ban nganh:', banNganhId);
-            if (banNganhId) {
-                // Fetch điểm nhóm theo ban ngành
-                fetch('/admin/api/diem-nhom-by-ban-nganh/' + banNganhId)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Debug - Diem nhom by ban nganh loaded:', data);
-                        diemNhomDropdown.setData(data);
-                        
-                        // Chỉ clear khi không có callback (tức là user thay đổi, không phải edit mode)
-                        if (!callback) {
-                            diemNhomDropdown.clear();
-                            document.getElementById('diemNhom').value = '';
-                        }
-                        
-                        // Gọi callback nếu có
-                        if (callback && typeof callback === 'function') {
-                            callback();
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching điểm nhóm:', error);
-                    });
-            } else {
+          );
+        },
+        false
+      );
+    })();
+
+    let banNganhDropdown;
+    let diemNhomDropdown;
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Khởi tạo searchable dropdown cho ban ngành
+        banNganhDropdown = new SearchableDropdown('banNganhDropdown', {
+            placeholder: 'Chọn ban ngành...',
+            searchPlaceholder: 'Tìm kiếm ban ngành...',
+            displayField: 'tenBan',
+            valueField: 'id',
+            allowClear: true,
+            clearText: 'Không chọn ban ngành',
+            onSelect: function(item) {
+                // Cập nhật hidden input
+                document.getElementById('banNganh').value = item.id;
+                // Load điểm nhóm theo ban ngành được chọn (không có callback = clear selection)
+                loadDiemNhomByBanNganh(item.id);
+            },
+            onClear: function() {
+                // Clear hidden input
+                document.getElementById('banNganh').value = '';
                 // Load tất cả điểm nhóm khi không chọn ban ngành
                 loadAllDiemNhom();
-                if (!callback) {
-                    diemNhomDropdown.clear();
-                    document.getElementById('diemNhom').value = '';
-                }
-                
-                if (callback && typeof callback === 'function') {
-                    callback();
-                }
+                // Clear điểm nhóm selection
+                diemNhomDropdown.clear();
+                document.getElementById('diemNhom').value = '';
             }
-        }
-
-        // Avatar preview function
-        function previewAvatar(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                
-                // Validate file size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
-                    input.value = '';
-                    return;
-                }
-                
-                // Validate file type
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Định dạng file không được hỗ trợ. Vui lòng chọn file JPG, PNG hoặc GIF.');
-                    input.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('avatarPreview').src = e.target.result;
-                    document.getElementById('uploadStatus').classList.remove('d-none');
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // Validation functions
-        document.addEventListener('DOMContentLoaded', function() {
-            // Phone number validation
-            const phoneInput = document.getElementById('dienThoai');
-            
-            // Prevent non-numeric input
-            phoneInput.addEventListener('keypress', function(e) {
-                // Allow backspace, delete, tab, escape, enter
-                if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
-                    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                    (e.keyCode === 65 && e.ctrlKey === true) ||
-                    (e.keyCode === 67 && e.ctrlKey === true) ||
-                    (e.keyCode === 86 && e.ctrlKey === true) ||
-                    (e.keyCode === 88 && e.ctrlKey === true)) {
-                    return;
-                }
-                
-                // Ensure that it is a number and stop the keypress
-                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                    e.preventDefault();
-                }
-            });
-            
-            // Validate on paste
-            phoneInput.addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    validatePhoneNumber(this);
-                }, 10);
-            });
-            
-            // Format phone number display (optional)
-            phoneInput.addEventListener('blur', function() {
-                const value = this.value.trim();
-                if (value.length === 10 && value.startsWith('0')) {
-                    // Vietnamese mobile format: 0123 456 789
-                    this.value = value.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-                } else if (value.length === 11 && value.startsWith('84')) {
-                    // International format: 84 123 456 789
-                    this.value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
-                }
-            });
-            
-            // Remove formatting on focus for easier editing
-            phoneInput.addEventListener('focus', function() {
-                this.value = this.value.replace(/\s/g, '');
-            });
-
-            // Birth date validation
-            const birthDateInput = document.getElementById('ngaySinh');
-            const today = new Date().toISOString().split('T')[0];
-            birthDateInput.setAttribute('max', today);
-            
-            birthDateInput.addEventListener('change', function(e) {
-                const selectedDate = new Date(this.value);
-                const currentDate = new Date();
-                
-                if (selectedDate > currentDate) {
-                    alert('Ngày sinh không được vượt quá thời gian hiện tại!');
-                    this.value = '';
-                }
-            });
-
-            // Nhiệm kỳ validation
-            const nhiemKyBatDauInput = document.getElementById('nhiemKyBatDau');
-            const nhiemKyKetThucInput = document.getElementById('nhiemKyKetThuc');
-            
-            function validateNhiemKy() {
-                const batDau = nhiemKyBatDauInput.value;
-                const ketThuc = nhiemKyKetThucInput.value;
-                
-                if (batDau && ketThuc) {
-                    const batDauDate = new Date(batDau);
-                    const ketThucDate = new Date(ketThuc);
-                    
-                    if (batDauDate >= ketThucDate) {
-                        alert('Ngày kết thúc nhiệm kỳ phải sau ngày bắt đầu!');
-                        nhiemKyKetThucInput.value = '';
-                    }
-                }
-            }
-            
-            nhiemKyBatDauInput.addEventListener('change', validateNhiemKy);
-            nhiemKyKetThucInput.addEventListener('change', validateNhiemKy);
-
-            // Tiểu sử character limit
-            const tieuSuInput = document.getElementById('tieuSu');
-            tieuSuInput.addEventListener('input', function(e) {
-                if (this.value.length > 2000) {
-                    this.value = this.value.substring(0, 2000);
-                    alert('Tiểu sử không được vượt quá 2000 ký tự!');
-                }
-            });
-
-            // Form submission validation
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const phoneValue = phoneInput.value;
-                const birthDateValue = birthDateInput.value;
-                const banNganhValue = document.getElementById('banNganh').value;
-                
-                // Validate ban nganh (required)
-                if (!banNganhValue || banNganhValue.trim() === '') {
-                    e.preventDefault();
-                    alert('Vui lòng chọn ban ngành!');
-                    // Highlight the dropdown
-                    const banNganhDropdownElement = document.getElementById('banNganhDropdown');
-                    banNganhDropdownElement.style.border = '2px solid #dc3545';
-                    setTimeout(() => {
-                        banNganhDropdownElement.style.border = '';
-                    }, 3000);
-                    return;
-                }
-                
-                // Validate phone number
-                if (phoneValue && (phoneValue.length < 10 || phoneValue.length > 11 || !/^[0-9]+$/.test(phoneValue))) {
-                    e.preventDefault();
-                    alert('Số điện thoại không hợp lệ! Vui lòng nhập 10-11 chữ số.');
-                    phoneInput.focus();
-                    return;
-                }
-                
-                // Validate birth date
-                if (birthDateValue) {
-                    const selectedDate = new Date(birthDateValue);
-                    const currentDate = new Date();
-                    
-                    if (selectedDate > currentDate) {
-                        e.preventDefault();
-                        alert('Ngày sinh không được vượt quá thời gian hiện tại!');
-                        birthDateInput.focus();
-                        return;
-                    }
-                }
-            });
         });
         
-        // Phone number validation function
-        function validatePhoneNumber(input) {
-            const value = input.value;
-            const phoneRegex = /^[0-9]{10,11}$/;
-            const numbersOnlyRegex = /^[0-9]*$/;
-            
-            // Remove any non-numeric characters
-            const cleanValue = value.replace(/[^0-9]/g, '');
-            if (cleanValue !== value) {
-                input.value = cleanValue;
+        // Khởi tạo searchable dropdown cho điểm nhóm
+        diemNhomDropdown = new SearchableDropdown('diemNhomDropdown', {
+            placeholder: 'Chọn điểm nhóm...',
+            searchPlaceholder: 'Tìm kiếm điểm nhóm...',
+            displayField: 'tenDiemNhom',
+            valueField: 'id',
+            allowClear: true,
+            clearText: 'Không chọn điểm nhóm',
+            onSelect: function(item) {
+                // Cập nhật hidden input
+                document.getElementById('diemNhom').value = item.id;
+            },
+            onClear: function() {
+                // Clear hidden input
+                document.getElementById('diemNhom').value = '';
+            }
+        });
+        
+        // Load ban ngành
+        loadAllBanNganh();
+        
+        // Load tất cả điểm nhóm ban đầu
+        loadAllDiemNhom();
+        
+        // Set giá trị hiện tại nếu có (cho edit mode)
+        const currentBanNganhValue = document.getElementById('banNganh').value;
+        const currentDiemNhomValue = document.getElementById('diemNhom').value;
+        
+        if (currentBanNganhValue && currentDiemNhomValue) {
+            // Nếu có cả ban ngành và điểm nhóm (edit mode)
+            setTimeout(() => {
+                banNganhDropdown.setValue(currentBanNganhValue);
+                // Load điểm nhóm theo ban ngành trước
+                loadDiemNhomByBanNganh(currentBanNganhValue, () => {
+                    // Sau khi load xong thì set giá trị điểm nhóm
+                    setTimeout(() => {
+                        diemNhomDropdown.setValue(currentDiemNhomValue);
+                    }, 200);
+                });
+            }, 500);
+        } else if (currentBanNganhValue) {
+            // Chỉ có ban ngành
+            setTimeout(() => {
+                banNganhDropdown.setValue(currentBanNganhValue);
+            }, 500);
+        } else if (currentDiemNhomValue) {
+            // Chỉ có điểm nhóm (trường hợp hiếm)
+            setTimeout(() => {
+                diemNhomDropdown.setValue(currentDiemNhomValue);
+            }, 500);
+        }
+    });
+    
+    // Load tất cả ban ngành
+    function loadAllBanNganh() {
+        fetch('/admin/api/all-ban-nganh')
+            .then(response => response.json())
+            .then(data => {
+                banNganhDropdown.setData(data);
+            })
+            .catch(error => {
+                console.error('Error loading ban ngành:', error);
+            });
+    }
+    
+    // Load tất cả điểm nhóm
+    function loadAllDiemNhom() {
+        fetch('/admin/api/all-diem-nhom')
+            .then(response => response.json())
+            .then(data => {
+                diemNhomDropdown.setData(data);
+            })
+            .catch(error => {
+                console.error('Error loading điểm nhóm:', error);
+            });
+    }
+    
+    // Lọc điểm nhóm theo ban ngành
+    function loadDiemNhomByBanNganh(banNganhId, callback) {
+        if (banNganhId) {
+            // Fetch điểm nhóm theo ban ngành
+            fetch('/admin/api/diem-nhom-by-ban-nganh/' + banNganhId)
+                .then(response => response.json())
+                .then(data => {
+                    diemNhomDropdown.setData(data);
+                    
+                    // Chỉ clear khi không có callback (tức là user thay đổi, không phải edit mode)
+                    if (!callback) {
+                        diemNhomDropdown.clear();
+                        document.getElementById('diemNhom').value = '';
+                    }
+                    
+                    // Gọi callback nếu có
+                    if (callback && typeof callback === 'function') {
+                        callback();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching điểm nhóm:', error);
+                });
+        } else {
+            // Load tất cả điểm nhóm khi không chọn ban ngành
+            loadAllDiemNhom();
+            if (!callback) {
+                diemNhomDropdown.clear();
+                document.getElementById('diemNhom').value = '';
             }
             
-            // Validate length and format
-            const isValid = phoneRegex.test(cleanValue);
-            const isNumbersOnly = numbersOnlyRegex.test(cleanValue);
-            
-            if (cleanValue.length > 0 && (!isNumbersOnly || cleanValue.length < 10 || cleanValue.length > 11)) {
-                input.classList.add('is-invalid');
-                input.classList.remove('is-valid');
-                
-                // Update error message based on the issue
-                const errorDiv = document.getElementById('phoneError');
-                if (!isNumbersOnly) {
-                    errorDiv.textContent = 'Chỉ được nhập số';
-                } else if (cleanValue.length < 10) {
-                    errorDiv.textContent = 'Số điện thoại phải có ít nhất 10 chữ số';
-                } else if (cleanValue.length > 11) {
-                    errorDiv.textContent = 'Số điện thoại không được quá 11 chữ số';
-                }
-            } else if (cleanValue.length >= 10 && cleanValue.length <= 11) {
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-            } else {
-                input.classList.remove('is-invalid', 'is-valid');
+            if (callback && typeof callback === 'function') {
+                callback();
             }
         }
+    }
+
+    // Phone number validation
+    const phoneInput = document.getElementById("dienThoai");
+    phoneInput.addEventListener("input", function (e) {
+      // Chỉ cho phép nhập số
+      this.value = this.value.replace(/[^0-9]/g, "");
+
+      // Giới hạn độ dài 10-11 số
+      if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+      }
+
+      // Validation feedback
+      if (this.value.length > 0 && (this.value.length < 10 || this.value.length > 11)) {
+        this.setCustomValidity('Số điện thoại phải có 10-11 chữ số');
+      } else {
+        this.setCustomValidity('');
+      }
+    });
+
+    // Birth date validation
+    const birthDateInput = document.getElementById("ngaySinh");
+    const today = new Date().toISOString().split('T')[0];
+    birthDateInput.setAttribute('max', today);
+
+    birthDateInput.addEventListener("change", function (e) {
+      const selectedDate = new Date(this.value);
+      const currentDate = new Date();
+
+      if (selectedDate > currentDate) {
+        alert("Ngày sinh không thể lớn hơn ngày hiện tại!");
+        this.value = "";
+      }
+    });
+
+    // Nhiệm kỳ validation
+    const nhiemKyBatDauInput = document.getElementById('nhiemKyBatDau');
+    const nhiemKyKetThucInput = document.getElementById('nhiemKyKetThuc');
+    
+    function validateNhiemKy() {
+        const batDau = nhiemKyBatDauInput.value;
+        const ketThuc = nhiemKyKetThucInput.value;
+        
+        if (batDau && ketThuc) {
+            const batDauDate = new Date(batDau);
+            const ketThucDate = new Date(ketThuc);
+            
+            if (batDauDate >= ketThucDate) {
+                alert('Ngày kết thúc nhiệm kỳ phải sau ngày bắt đầu!');
+                nhiemKyKetThucInput.value = '';
+            }
+        }
+    }
+
+    nhiemKyBatDauInput.addEventListener('change', validateNhiemKy);
+    nhiemKyKetThucInput.addEventListener('change', validateNhiemKy);
+
+    // Avatar preview function
+    function previewAvatar(input) {
+      const file = input.files[0];
+      const preview = document.getElementById('avatarPreview');
+      const status = document.getElementById('uploadStatus');
+
+      if (file) {
+        // Validate file size (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+          input.value = '';
+          return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+          alert('Định dạng file không được hỗ trợ! Chỉ chấp nhận JPG, JPEG, PNG, GIF.');
+          input.value = '';
+          return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          status.classList.remove('d-none');
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // Reset to original avatar if no file selected
+        const originalSrc = preview.getAttribute('data-original') || '/static/images/default-avatar.svg';
+        preview.src = originalSrc;
+        status.classList.add('d-none');
+      }
+    }
+
+    // Store original avatar URL for reset
+    document.addEventListener('DOMContentLoaded', function () {
+      const preview = document.getElementById('avatarPreview');
+      preview.setAttribute('data-original', preview.src);
+    });
+
+    // Form validation and cleanup
+    document.querySelector('form').addEventListener('submit', function (e) {
+      const hoTen = document.getElementById('hoTen').value.trim();
+      const phoneValue = phoneInput.value;
+      const banNganhValue = document.getElementById('banNganh').value;
+
+      if (!hoTen) {
+        alert('Vui lòng nhập họ tên!');
+        e.preventDefault();
+        return;
+      }
+
+      if (!banNganhValue) {
+        alert('Vui lòng chọn ban ngành!');
+        e.preventDefault();
+        return;
+      }
+
+      // Validate phone number
+      if (phoneValue && (phoneValue.length < 10 || phoneValue.length > 11 || !/^[0-9]+$/.test(phoneValue))) {
+        e.preventDefault();
+        alert('Số điện thoại không hợp lệ! Vui lòng nhập 10-11 chữ số.');
+        phoneInput.focus();
+        return;
+      }
+
+      // Clean up empty fields to ensure they are submitted as empty (will be converted to null)
+      const fields = ['chucVu', 'email', 'dienThoai', 'diaChi', 'moTaCongViec', 'tieuSu', 'ghiChu'];
+      fields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field && field.value.trim() === '') {
+          field.value = '';
+        }
+      });
+    });
     </script>
 </body>
+</html>
+
+  <!-- Modern Form Styles -->
+  <style>
+    /* Modern Admin Page Styles */
+    .modern-admin-page {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+    }
+
+    /* Modern Page Header */
+    .modern-page-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      color: white;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-info {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .header-icon {
+      width: 70px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .header-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin: 0.5rem 0 0 0;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    /* Modern Buttons */
+    .btn-modern {
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-modern-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-modern-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      color: white;
+      text-decoration: none;
+    }
+
+    .btn-modern-outline {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-modern-outline:hover {
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Modern Cards */
+    .modern-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.5rem;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-icon {
+      width: 45px;
+      height: 45px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .card-title h5 {
+      margin: 0;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .card-title p {
+      margin: 0.25rem 0 0 0;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .card-content {
+      padding: 2rem;
+    }
+
+    /* Avatar Upload Section */
+    .avatar-upload-section {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 2px dashed #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .avatar-upload-section:hover {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+
+    .section-title h4 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .section-title p {
+      margin: 0.25rem 0 0 0;
+      color: #718096;
+      font-size: 0.9rem;
+    }
+
+    .avatar-upload-container {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .avatar-preview-wrapper {
+      flex-shrink: 0;
+    }
+
+    .avatar-preview-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid #e2e8f0;
+      transition: all 0.3s ease;
+    }
+
+    .avatar-preview-circle:hover {
+      border-color: #667eea;
+      transform: scale(1.05);
+    }
+
+    .avatar-preview-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .avatar-preview-circle:hover .avatar-overlay {
+      opacity: 1;
+    }
+
+    .avatar-upload-controls {
+      flex: 1;
+    }
+
+    .upload-input-wrapper {
+      margin-bottom: 1rem;
+    }
+
+    .upload-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+    }
+
+    .upload-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .upload-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.9rem;
+      color: #718096;
+    }
+
+    .upload-status {
+      padding: 1rem;
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      border-radius: 8px;
+    }
+
+    .status-message {
+      display: flex;
+      align-items: center;
+      color: #22543d;
+      font-weight: 500;
+    }
+
+    /* Form Dividers */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      margin: 2rem 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+    }
+
+    .divider-text {
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 25px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      font-size: 0.95rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Form Sections */
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    /* Modern Form Controls */
+    .modern-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .modern-form-label {
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .required-star {
+      color: #e53e3e;
+      margin-left: 0.25rem;
+    }
+
+    .modern-form-control,
+    .modern-form-select,
+    .modern-form-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .modern-form-control:focus,
+    .modern-form-select:focus,
+    .modern-form-textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .modern-form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-hint {
+      font-size: 0.85rem;
+      color: #718096;
+      margin-top: 0.25rem;
+    }
+
+    .form-feedback {
+      font-size: 0.85rem;
+      color: #e53e3e;
+      margin-top: 0.25rem;
+      display: none;
+    }
+
+    .modern-form-control:invalid + .form-feedback,
+    .modern-form-select:invalid + .form-feedback {
+      display: block;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .actions-container {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    .btn-cancel {
+      padding: 0.75rem 1.5rem;
+      background: #f7fafc;
+      color: #4a5568;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+      color: #2d3748;
+      text-decoration: none;
+    }
+
+    .btn-submit {
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Sidebar Styles */
+    .guideline-section {
+      margin-bottom: 2rem;
+    }
+
+    .guideline-section h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+
+    .requirement-list,
+    .note-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .requirement-item,
+    .note-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: #4a5568;
+    }
+
+    .requirement-item i {
+      color: #38a169;
+      font-size: 1rem;
+    }
+
+    .note-item i {
+      color: #3182ce;
+      font-size: 1rem;
+    }
+
+    .warning-box {
+      background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+      border: 1px solid #fc8181;
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+
+    .warning-icon {
+      color: #c53030;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .warning-content {
+      color: #742a2a;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+      background: #f7fafc;
+      border-radius: 10px;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .header-title {
+        font-size: 2rem;
+      }
+
+      .avatar-upload-container {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .actions-container {
+        flex-direction: column;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+
 </html>

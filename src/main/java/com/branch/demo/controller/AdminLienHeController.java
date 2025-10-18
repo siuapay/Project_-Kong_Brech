@@ -40,8 +40,12 @@ public class AdminLienHeController {
         
         try {
             if ("vi-pham".equals(tab)) {
-                // Tab vi phạm - chỉ hiển thị CHO_ADMIN_XU_LY
-                lienHePage = lienHeService.getLienHeChoAdminXuLy(page, pageSize);
+                // Tab vi phạm - chỉ hiển thị CHO_ADMIN_XU_LY với search
+                if (search != null && !search.trim().isEmpty()) {
+                    lienHePage = lienHeService.getLienHeChoAdminXuLyWithSearch(search, page, pageSize);
+                } else {
+                    lienHePage = lienHeService.getLienHeChoAdminXuLy(page, pageSize);
+                }
             } else {
                 // Tab tất cả - hiển thị CHUA_XU_LY, DANG_XU_LY, DA_XU_LY
                 lienHePage = lienHeService.getAllLienHeForAdmin(search, page, pageSize);

@@ -181,19 +181,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
     if (urlParams.has('success')) {
-        Toast.success('Thành công', urlParams.get('success'));
+        const successMsg = urlParams.get('success');
+        if (successMsg && successMsg !== 'true') {
+            Toast.success('Thành công', successMsg);
+        }
     }
     
-    if (urlParams.has('error')) {
-        Toast.error('Lỗi', urlParams.get('error'));
-    }
+    // Không xử lý error từ URL parameters nữa vì đã có template xử lý
+    // if (urlParams.has('error')) {
+    //     const errorMsg = urlParams.get('message') || 'Có lỗi xảy ra';
+    //     if (urlParams.get('error') === 'true') {
+    //         Toast.error('Lỗi', errorMsg);
+    //     }
+    // }
     
     if (urlParams.has('warning')) {
-        Toast.warning('Cảnh báo', urlParams.get('warning'));
+        const warningMsg = urlParams.get('warning');
+        if (warningMsg && warningMsg !== 'true') {
+            Toast.warning('Cảnh báo', warningMsg);
+        }
     }
     
     if (urlParams.has('info')) {
-        Toast.info('Thông tin', urlParams.get('info'));
+        const infoMsg = urlParams.get('info');
+        if (infoMsg && infoMsg !== 'true') {
+            Toast.info('Thông tin', infoMsg);
+        }
     }
 });
 

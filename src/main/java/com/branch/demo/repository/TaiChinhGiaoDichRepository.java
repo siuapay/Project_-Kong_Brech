@@ -176,7 +176,8 @@ public interface TaiChinhGiaoDichRepository extends JpaRepository<TaiChinhGiaoDi
     long countByNam(@Param("nam") Integer nam);
     
     // Đếm giao dịch theo danh mục
-    long countByDanhMucId(Long danhMucId);
+    @Query("SELECT COUNT(gd) FROM TaiChinhGiaoDich gd WHERE gd.danhMuc.id = :danhMucId")
+    long countByDanhMucId(@Param("danhMucId") Long danhMucId);
     
     // Tính tổng theo loại giao dịch và khoảng ngày
     @Query("SELECT COALESCE(SUM(gd.soTien), 0) FROM TaiChinhGiaoDich gd WHERE " +

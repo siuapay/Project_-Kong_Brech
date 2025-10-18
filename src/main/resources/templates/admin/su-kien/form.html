@@ -1,339 +1,1176 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <div th:replace="~{fragments/admin-layout :: head}"></div>
-    <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
-</head>
-<body>
-    <div th:replace="~{fragments/admin-layout :: sidebar}"></div>
-    
-    <div class="main-content">
-        <div th:replace="~{fragments/admin-layout :: topnav}"></div>
-        
-        <div class="content-wrapper">
-            <div class="container-fluid">
-                <div th:replace="~{fragments/admin-layout :: messages}"></div>
-                
-                <!-- Page Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 class="text-primary py-4">
-                            <i class="fas fa-calendar-alt me-2"></i>
-                            <span th:text="${suKien.id != null ? 'Chỉnh Sửa Sự Kiện' : 'Thêm Sự Kiện Mới'}">Thêm Sự Kiện Mới</span>
-                        </h2>
-                        <p class="text-muted mb-0">Nhập thông tin chi tiết của sự kiện</p>
-                    </div>
-                    <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                    </a>
-                </div>
+  <head th:replace="~{fragments/admin-layout :: head}">
+    <link href="/static/css/searchable-dropdown.css" rel="stylesheet" />
+  </head>
 
-                <div class="row">
-                    <!-- Form -->
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-primary">
-                                    <i class="fas fa-calendar-plus me-2"></i>
-                                    <span th:text="${suKien.id != null ? 'Chỉnh Sửa Sự Kiện' : 'Thêm Sự Kiện Mới'}">Thêm Sự Kiện Mới</span>
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <form th:action="@{/admin/su-kien/save}" th:object="${suKien}" method="post" enctype="multipart/form-data">
-                                    <input type="hidden" th:field="*{id}">
-                                    <input type="hidden" th:field="*{createdAt}">
-                                    <input type="hidden" th:field="*{updatedAt}">
-                                    <input type="hidden" th:field="*{hinhAnhUrl}">
-                                    
-                                    <div class="row">
-                                        <!-- Tên sự kiện -->
-                                        <div class="col-md-12 mb-3">
-                                            <label for="tenSuKien" class="form-label">Tên sự kiện <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" id="tenSuKien" th:field="*{tenSuKien}" required>
-                                        </div>
-                                        
-                                        <!-- Loại sự kiện và Trạng thái -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="loaiSuKienId" class="form-label">Loại sự kiện <span class="text-danger">*</span></label>
-                                            <div id="loaiSuKienDropdown"></div>
-                                            <input type="hidden" id="loaiSuKienId" th:field="*{loaiSuKienId}" required>
-                                            <div class="invalid-feedback" id="loaiSuKienError">Vui lòng chọn loại sự kiện</div>
-                                        </div>
-                                        
-                                        <div class="col-md-6 mb-3">
-                                            <label for="trangThai" class="form-label">Trạng thái <span class="text-danger">*</span></label>
-                                            <select class="form-select" id="trangThai" th:field="*{trangThai}" required>
-                                                <option value="">Chọn trạng thái</option>
-                                                <option value="DANG_CHUAN_BI">Đang chuẩn bị</option>
-                                                <option value="DANG_DIEN_RA">Đang diễn ra</option>
-                                                <option value="DA_KET_THUC">Đã kết thúc</option>
-                                                <option value="DA_HUY">Đã hủy</option>
-                                            </select>
-                                        </div>
-                                        
-                                        <!-- Ngày diễn ra -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="ngayDienRa" class="form-label">Ngày diễn ra <span class="text-danger">*</span></label>
-                                            <input type="datetime-local" class="form-control" id="ngayDienRa" th:field="*{ngayDienRa}" required>
-                                        </div>
-                                        
-                                        <!-- Địa điểm -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="diaDiem" class="form-label">Địa điểm</label>
-                                            <input type="text" class="form-control" id="diaDiem" th:field="*{diaDiem}" placeholder="Nhập địa điểm tổ chức">
-                                        </div>
-                                        
-                                        <!-- Số lượng tham gia dự kiến -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="soLuongThamGiaDuKien" class="form-label">Số lượng tham gia dự kiến</label>
-                                            <input type="number" class="form-control" id="soLuongThamGiaDuKien" th:field="*{soLuongThamGiaDuKien}" min="0">
-                                        </div>
-                                        
-                                        <!-- Số lượng tham gia thực tế -->
-                                        <div class="col-md-6 mb-3">
-                                            <label for="soLuongThamGiaThucTe" class="form-label">Số lượng tham gia thực tế</label>
-                                            <input type="number" class="form-control" id="soLuongThamGiaThucTe" th:field="*{soLuongThamGiaThucTe}" min="0">
-                                        </div>
-                                        
-                                        <!-- Mô tả -->
-                                        <div class="col-md-12 mb-3">
-                                            <label for="moTa" class="form-label">Mô tả</label>
-                                            <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="4" placeholder="Mô tả chi tiết về sự kiện"></textarea>
-                                        </div>
-                                        
-                                        <!-- Nội dung -->
-                                        <div class="col-md-12 mb-3">
-                                            <label for="noiDung" class="form-label">Nội dung chi tiết</label>
-                                            <textarea class="form-control" id="noiDung" th:field="*{noiDung}" rows="6" placeholder="Nội dung chi tiết của sự kiện"></textarea>
-                                        </div>
-                                        
-                                        <!-- Ghi chú -->
-                                        <div class="col-md-12 mb-3">
-                                            <label for="ghiChu" class="form-label">Ghi chú</label>
-                                            <textarea class="form-control" id="ghiChu" th:field="*{ghiChu}" rows="3" placeholder="Ghi chú thêm"></textarea>
-                                        </div>
-                                        
-                                        <!-- Hình ảnh -->
-                                        <div class="col-md-12 mb-3">
-                                            <label for="hinhAnhFile" class="form-label">Hình ảnh sự kiện</label>
-                                            <input type="file" class="form-control" id="hinhAnhFile" name="hinhAnhFile" 
-                                                   accept="image/*" onchange="previewImage(this)">
-                                            <div class="form-text">Chọn file hình ảnh (JPG, PNG, GIF). Tối đa 5MB.</div>
-                                            
-                                            <!-- Image Preview -->
-                                            <div class="mt-3" id="imagePreviewContainer">
-                                                <div th:if="${suKien.hinhAnhUrl}" class="current-image">
-                                                    <label class="form-label">Hình ảnh hiện tại:</label>
-                                                    <div>
-                                                        <img th:src="${suKien.hinhAnhUrl}" alt="Current Image" 
-                                                             class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                                    </div>
-                                                </div>
-                                                <div id="newImagePreview" class="d-none">
-                                                    <label class="form-label">Hình ảnh mới:</label>
-                                                    <div>
-                                                        <img id="previewImg" alt="Preview" 
-                                                             class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a th:href="@{/admin/su-kien}" class="btn btn-secondary">
-                                            <i class="fas fa-times me-2"></i>Hủy
-                                        </a>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save me-2"></i>
-                                            <span th:text="${suKien.id != null ? 'Cập nhật' : 'Thêm mới'}">Thêm mới</span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Guidelines -->
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-info">
-                                    <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-unstyled">
-                                    <li class="mb-2">
-                                        <i class="fas fa-exclamation-circle text-danger me-2"></i>
-                                        Tên sự kiện, loại, trạng thái và ngày diễn ra là bắt buộc
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Chọn loại sự kiện phù hợp để dễ quản lý
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Cập nhật trạng thái theo tiến độ thực hiện
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Hình ảnh giúp sự kiện thu hút hơn
-                                    </li>
-                                    <li class="mb-2">
-                                        <i class="fas fa-info-circle text-info me-2"></i>
-                                        Mô tả chi tiết giúp người tham gia hiểu rõ hơn
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <!-- Event Types Info -->
-                        <div class="card mt-3">
-                            <div class="card-header">
-                                <h6 class="m-0 font-weight-bold text-success">
-                                    <i class="fas fa-tags me-2"></i>Loại Sự Kiện
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div th:each="loaiSuKien : ${danhSachLoaiSuKien}" class="mb-2">
-                                    <span class="badge me-2" 
-                                          th:style="'background-color: ' + (${loaiSuKien.mauSac} ?: '#6c757d')">
-                                        <i th:if="${loaiSuKien.icon}" th:class="${loaiSuKien.icon} + ' me-1'"></i>
-                                        <span th:text="${loaiSuKien.tenLoai}">Loại sự kiện</span>
-                                    </span>
-                                    <small class="text-muted" th:text="${loaiSuKien.moTa}">Mô tả loại sự kiện</small>
-                                </div>
-                                <div th:if="${#lists.isEmpty(danhSachLoaiSuKien)}" class="text-muted text-center py-3">
-                                    <i class="fas fa-info-circle me-2"></i>
-                                    Chưa có loại sự kiện nào được định nghĩa
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <body class="modern-admin-page">
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-calendar-plus"></i>
+              </div>
+              <div class="header-text">
+                <h1
+                  class="header-title"
+                  th:text="${suKien.id != null ? 'Chỉnh Sửa Sự Kiện' : 'Thêm Sự Kiện Mới'}"
+                >
+                  Thêm Sự Kiện Mới
+                </h1>
+                <p class="header-subtitle">
+                  Nhập thông tin chi tiết của sự kiện để quản lý hiệu quả
+                </p>
+              </div>
             </div>
+            <div class="header-actions">
+              <a
+                th:href="@{/admin/su-kien}"
+                class="btn-modern btn-modern-outline"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
+            </div>
+          </div>
         </div>
-    </div>
 
+        <!-- Modern Form -->
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-calendar-edit"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Sự Kiện</h5>
+                    <p>Điền đầy đủ thông tin để tạo sự kiện</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <form
+                  th:action="@{/admin/su-kien/save}"
+                  th:object="${suKien}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="needs-validation"
+                  novalidate
+                >
+                  <input type="hidden" th:field="*{id}" />
+                  <input type="hidden" th:field="*{createdAt}" />
+                  <input type="hidden" th:field="*{hinhAnhUrl}" />
+
+                  <!-- Modern Image Upload Section -->
+                  <div class="image-upload-section">
+                    <div class="section-header">
+                      <div class="section-icon">
+                        <i class="fas fa-image"></i>
+                      </div>
+                      <div class="section-title">
+                        <h4>Hình Ảnh Sự Kiện</h4>
+                        <p>Tải lên hình ảnh đại diện cho sự kiện</p>
+                      </div>
+                    </div>
+
+                    <div class="image-upload-container">
+                      <!-- Image Preview -->
+                      <div class="image-preview-wrapper">
+                        <div class="image-preview-box">
+                          <img
+                            id="imagePreview"
+                            th:src="${suKien.hinhAnhUrl != null ? suKien.hinhAnhUrl : '/static/images/default-event.svg'}"
+                            alt="Event Image Preview"
+                          />
+                          <div class="image-overlay">
+                            <i class="fas fa-camera"></i>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Upload Controls -->
+                      <div class="image-upload-controls">
+                        <div class="upload-input-wrapper">
+                          <label for="imageFile" class="upload-btn">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>
+                            Chọn Hình Ảnh
+                          </label>
+                          <input
+                            type="file"
+                            class="d-none"
+                            id="imageFile"
+                            name="hinhAnhFile"
+                            accept="image/jpeg,image/jpg,image/png,image/gif"
+                            onchange="previewImage(this)"
+                          />
+                        </div>
+
+                        <div class="upload-info">
+                          <div class="info-item">
+                            <i
+                              class="fas fa-check-circle text-success me-2"
+                            ></i>
+                            <span>JPG, JPEG, PNG, GIF</span>
+                          </div>
+                          <div class="info-item">
+                            <i class="fas fa-weight-hanging text-info me-2"></i>
+                            <span>Tối đa 5MB</span>
+                          </div>
+                        </div>
+
+                        <!-- Upload Status -->
+                        <div id="uploadStatus" class="upload-status d-none">
+                          <div class="status-message">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Hình ảnh mới đã được chọn. Nhấn "Lưu" để cập nhật.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Form Divider -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                      <i class="fas fa-info-circle me-2"></i>Thông tin cơ bản
+                    </div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <!-- Basic Information -->
+                  <div class="form-section">
+                    <div class="row g-4">
+                      <div class="col-md-8">
+                        <div class="modern-form-group">
+                          <label for="tenSuKien" class="modern-form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Tên Sự Kiện <span class="required-star">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            class="modern-form-control"
+                            id="tenSuKien"
+                            th:field="*{tenSuKien}"
+                            required
+                            placeholder="Nhập tên sự kiện"
+                          />
+                          <div class="form-feedback">
+                            Vui lòng nhập tên sự kiện.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="modern-form-group">
+                          <label for="loaiSuKien" class="modern-form-label">
+                            <i class="fas fa-tag me-2"></i>
+                            Loại Sự Kiện <span class="required-star">*</span>
+                          </label>
+                          <div id="loaiSuKienDropdown"></div>
+                          <input
+                            type="hidden"
+                            id="loaiSuKien"
+                            th:field="*{loaiSuKienId}"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label for="ngayDienRa" class="modern-form-label">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Ngày Diễn Ra <span class="required-star">*</span>
+                          </label>
+                          <input
+                            type="datetime-local"
+                            class="modern-form-control"
+                            id="ngayDienRa"
+                            th:field="*{ngayDienRa}"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label for="trangThai" class="modern-form-label">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Trạng Thái
+                          </label>
+                          <select
+                            class="modern-form-select"
+                            id="trangThai"
+                            th:field="*{trangThai}"
+                          >
+                            <option
+                              th:value="DANG_CHUAN_BI"
+                              th:selected="*{trangThai?.name() == 'DANG_CHUAN_BI'}"
+                            >
+                              Đang chuẩn bị
+                            </option>
+                            <option
+                              th:value="DANG_DIEN_RA"
+                              th:selected="*{trangThai?.name() == 'DANG_DIEN_RA'}"
+                            >
+                              Đang diễn ra
+                            </option>
+                            <option
+                              th:value="DA_KET_THUC"
+                              th:selected="*{trangThai?.name() == 'DA_KET_THUC'}"
+                            >
+                              Đã kết thúc
+                            </option>
+                            <option
+                              th:value="DA_HUY"
+                              th:selected="*{trangThai?.name() == 'DA_HUY'}"
+                            >
+                              Đã hủy
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Location Information -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                      <i class="fas fa-map-marker-alt me-2"></i>Thông tin địa
+                      điểm
+                    </div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <div class="form-section">
+                    <div class="row g-4">
+                      <div class="col-12">
+                        <div class="modern-form-group">
+                          <label for="diaDiem" class="modern-form-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            Địa Điểm
+                          </label>
+                          <input
+                            type="text"
+                            class="modern-form-control"
+                            id="diaDiem"
+                            th:field="*{diaDiem}"
+                            placeholder="Nhập địa điểm tổ chức sự kiện"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                      <div class="col-12">
+                        <div class="modern-form-group">
+                          <label for="moTa" class="modern-form-label">
+                            <i class="fas fa-align-left me-2"></i>
+                            Mô Tả Sự Kiện
+                          </label>
+                          <textarea
+                            class="modern-form-textarea"
+                            id="moTa"
+                            rows="4"
+                            th:field="*{moTa}"
+                            placeholder="Mô tả chi tiết về sự kiện..."
+                          ></textarea>
+                          <div class="form-hint">Tối đa 1000 ký tự</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Additional Information -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                      <i class="fas fa-info-circle me-2"></i>Thông tin bổ sung
+                    </div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <div class="form-section">
+                    <div class="row g-4">
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label
+                            for="soLuongThamGiaDuKien"
+                            class="modern-form-label"
+                          >
+                            <i class="fas fa-users me-2"></i>
+                            Số Lượng Tham Gia Dự Kiến
+                          </label>
+                          <input
+                            type="number"
+                            class="modern-form-control"
+                            id="soLuongThamGiaDuKien"
+                            th:field="*{soLuongThamGiaDuKien}"
+                            min="0"
+                            placeholder="Số người dự kiến tham gia"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label
+                            for="soLuongThamGiaThucTe"
+                            class="modern-form-label"
+                          >
+                            <i class="fas fa-users-check me-2"></i>
+                            Số Lượng Tham Gia Thực Tế
+                          </label>
+                          <input
+                            type="number"
+                            class="modern-form-control"
+                            id="soLuongThamGiaThucTe"
+                            th:field="*{soLuongThamGiaThucTe}"
+                            min="0"
+                            placeholder="Số người thực tế tham gia"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                      <div class="col-12">
+                        <div class="modern-form-group">
+                          <label for="ghiChu" class="modern-form-label">
+                            <i class="fas fa-sticky-note me-2"></i>
+                            Ghi Chú
+                          </label>
+                          <textarea
+                            class="modern-form-textarea"
+                            id="ghiChu"
+                            rows="3"
+                            th:field="*{ghiChu}"
+                            placeholder="Ghi chú thêm về sự kiện..."
+                          ></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Modern Form Actions -->
+                  <div class="form-actions">
+                    <div class="actions-container">
+                      <a th:href="@{/admin/su-kien}" class="btn-cancel">
+                        <i class="fas fa-times me-2"></i>Hủy Bỏ
+                      </a>
+                      <button type="submit" class="btn-submit">
+                        <i class="fas fa-save me-2"></i>
+                        <span
+                          th:text="${suKien.id != null ? 'Cập Nhật' : 'Lưu Sự Kiện'}"
+                          >Lưu Sự Kiện</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Sidebar Info -->
+          <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-lightbulb"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Hướng Dẫn</h5>
+                    <p>Thông tin cần thiết khi tạo sự kiện</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="guideline-section">
+                  <h4>Thông tin bắt buộc</h4>
+                  <div class="requirement-list">
+                    <div class="requirement-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span>Tên sự kiện</span>
+                    </div>
+                    <div class="requirement-item">
+                      <i class="fas fa-check-circle"></i>
+                      <span>Ngày diễn ra</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="guideline-section">
+                  <h4>Lưu ý quan trọng</h4>
+                  <div class="note-list">
+                    <div class="note-item">
+                      <i class="fas fa-calendar-alt"></i>
+                      <span>Ngày diễn ra phải trong tương lai</span>
+                    </div>
+                    <div class="note-item">
+                      <i class="fas fa-image"></i>
+                      <span>Hình ảnh tối đa 5MB</span>
+                    </div>
+                    <div class="note-item">
+                      <i class="fas fa-map-marker-alt"></i>
+                      <span>Địa điểm nên rõ ràng, cụ thể</span>
+                    </div>
+                    <div class="note-item">
+                      <i class="fas fa-users"></i>
+                      <span>Số lượng tham gia giúp chuẩn bị tốt hơn</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="warning-box">
+                  <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div class="warning-content">
+                    <strong>Chú ý:</strong> Thông tin sự kiện sẽ được hiển thị
+                    công khai cho các thành viên.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Card (if editing) -->
+            <div class="modern-card" th:if="${suKien.id != null}">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Hệ Thống</h5>
+                    <p>Chi tiết về bản ghi</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="stats-grid">
+                  <div class="stat-item">
+                    <div class="stat-value" th:text="${suKien.id}">-</div>
+                    <div class="stat-label">ID Sự Kiện</div>
+                  </div>
+                  <div class="stat-item">
+                    <div class="stat-value">
+                      <span
+                        th:if="${suKien.createdAt}"
+                        th:text="${#temporals.format(suKien.createdAt, 'dd/MM/yyyy')}"
+                        >-</span
+                      >
+                      <span th:unless="${suKien.createdAt}">-</span>
+                    </div>
+                    <div class="stat-label">Ngày Tạo</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script src="/static/js/searchable-dropdown.js"></script>
     <script>
-        let loaiSuKienDropdown;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Khởi tạo searchable dropdown cho loại sự kiện
-            loaiSuKienDropdown = new SearchableDropdown('loaiSuKienDropdown', {
-                placeholder: 'Chọn loại sự kiện...',
-                searchPlaceholder: 'Tìm kiếm loại sự kiện...',
-                displayField: 'tenLoai',
-                valueField: 'id',
-                onSelect: function(item) {
-                    // Cập nhật hidden input
-                    document.getElementById('loaiSuKienId').value = item.id;
-                    // Clear error state
-                    const loaiSuKienDropdownElement = document.getElementById('loaiSuKienDropdown');
-                    loaiSuKienDropdownElement.style.border = '';
-                }
-            });
-            
-            // Load loại sự kiện
-            loadAllLoaiSuKien();
-            
-            // Set giá trị hiện tại nếu có (cho edit mode)
-            const currentLoaiSuKienValue = document.getElementById('loaiSuKienId').value;
-            
-            if (currentLoaiSuKienValue) {
-                setTimeout(() => {
-                    loaiSuKienDropdown.setValue(currentLoaiSuKienValue);
-                }, 500);
-            }
+      // Form validation
+      (function () {
+        "use strict";
+        window.addEventListener(
+          "load",
+          function () {
+            var forms = document.getElementsByClassName("needs-validation");
+            var validation = Array.prototype.filter.call(
+              forms,
+              function (form) {
+                form.addEventListener(
+                  "submit",
+                  function (event) {
+                    // Custom validation for loaiSuKien
+                    const loaiSuKienInput =
+                      document.getElementById("loaiSuKien");
+                    if (
+                      !loaiSuKienInput.value ||
+                      loaiSuKienInput.value.trim() === ""
+                    ) {
+                      event.preventDefault();
+                      event.stopPropagation();
+
+                      // Scroll to loaiSuKien field and highlight it
+                      const loaiSuKienDropdown =
+                        document.getElementById("loaiSuKienDropdown");
+                      loaiSuKienDropdown.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                      });
+
+                      // Add error styling
+                      loaiSuKienDropdown.style.border = "2px solid #e53e3e";
+                      loaiSuKienDropdown.style.borderRadius = "8px";
+
+                      // Remove error styling after 3 seconds
+                      setTimeout(() => {
+                        loaiSuKienDropdown.style.border = "";
+                        loaiSuKienDropdown.style.borderRadius = "";
+                      }, 3000);
+
+                      return false;
+                    }
+
+                    if (form.checkValidity() === false) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                    form.classList.add("was-validated");
+                  },
+                  false
+                );
+              }
+            );
+          },
+          false
+        );
+      })();
+
+      let loaiSuKienDropdown;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Khởi tạo searchable dropdown cho loại sự kiện
+        loaiSuKienDropdown = new SearchableDropdown("loaiSuKienDropdown", {
+          placeholder: "Chọn loại sự kiện...",
+          searchPlaceholder: "Tìm kiếm loại sự kiện...",
+          displayField: "tenLoai",
+          valueField: "id",
+          allowClear: true,
+          clearText: "Không chọn loại sự kiện",
+          onSelect: function (item) {
+            // Cập nhật hidden input
+            document.getElementById("loaiSuKien").value = item.id;
+          },
+          onClear: function () {
+            // Clear hidden input
+            document.getElementById("loaiSuKien").value = "";
+          },
         });
-        
-        // Load tất cả loại sự kiện
-        function loadAllLoaiSuKien() {
-            fetch('/admin/api/all-loai-su-kien')
-                .then(response => response.json())
-                .then(data => {
-                    loaiSuKienDropdown.setData(data);
-                })
-                .catch(error => {
-                    console.error('Error loading loại sự kiện:', error);
-                });
+
+        // Load loại sự kiện
+        loadAllLoaiSuKien();
+
+        // Set giá trị hiện tại nếu có (cho edit mode)
+        const currentLoaiSuKienValue =
+          document.getElementById("loaiSuKien").value;
+
+        if (currentLoaiSuKienValue) {
+          setTimeout(() => {
+            loaiSuKienDropdown.setValue(currentLoaiSuKienValue);
+          }, 500);
         }
-        
-        // Image preview function
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                
-                // Validate file size (5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Kích thước file quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
-                    input.value = '';
-                    return;
-                }
-                
-                // Validate file type
-                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-                if (!allowedTypes.includes(file.type)) {
-                    alert('Định dạng file không được hỗ trợ. Vui lòng chọn file JPG, PNG hoặc GIF.');
-                    input.value = '';
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('previewImg').src = e.target.result;
-                    document.getElementById('newImagePreview').classList.remove('d-none');
-                };
-                reader.readAsDataURL(file);
-            }
+      });
+
+      // Load tất cả loại sự kiện
+      function loadAllLoaiSuKien() {
+        fetch("/admin/api/all-loai-su-kien")
+          .then((response) => response.json())
+          .then((data) => {
+            loaiSuKienDropdown.setData(data);
+          })
+          .catch((error) => {
+            console.error("Error loading loại sự kiện:", error);
+          });
+      }
+
+      // Image preview
+      function previewImage(input) {
+        if (input.files && input.files[0]) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            document.getElementById("imagePreview").src = e.target.result;
+            document.getElementById("uploadStatus").classList.remove("d-none");
+          };
+          reader.readAsDataURL(input.files[0]);
         }
-        
-        // Form validation
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(e) {
-                const tenSuKien = document.getElementById('tenSuKien').value.trim();
-                const loaiSuKienId = document.getElementById('loaiSuKienId').value;
-                const trangThai = document.getElementById('trangThai').value;
-                const ngayDienRa = document.getElementById('ngayDienRa').value;
-                
-                if (!tenSuKien) {
-                    e.preventDefault();
-                    alert('Vui lòng nhập tên sự kiện!');
-                    document.getElementById('tenSuKien').focus();
-                    return;
-                }
-                
-                if (!loaiSuKienId || loaiSuKienId.trim() === '') {
-                    e.preventDefault();
-                    alert('Vui lòng chọn loại sự kiện!');
-                    // Highlight the dropdown
-                    const loaiSuKienDropdownElement = document.getElementById('loaiSuKienDropdown');
-                    loaiSuKienDropdownElement.style.border = '2px solid #dc3545';
-                    setTimeout(() => {
-                        loaiSuKienDropdownElement.style.border = '';
-                    }, 3000);
-                    return;
-                }
-                
-                if (!trangThai) {
-                    e.preventDefault();
-                    alert('Vui lòng chọn trạng thái!');
-                    document.getElementById('trangThai').focus();
-                    return;
-                }
-                
-                if (!ngayDienRa) {
-                    e.preventDefault();
-                    alert('Vui lòng chọn ngày diễn ra!');
-                    document.getElementById('ngayDienRa').focus();
-                    return;
-                }
-            });
-        });
+      }
+
+      // Date validation
+      const dateInput = document.getElementById("ngayDienRa");
+      const today = new Date();
+      const todayString = today.toISOString().slice(0, 16);
+      dateInput.setAttribute("min", todayString);
+
+      dateInput.addEventListener("change", function (e) {
+        const selectedDate = new Date(this.value);
+        const currentDate = new Date();
+
+        if (selectedDate < currentDate) {
+          alert("Ngày diễn ra không thể trong quá khứ!");
+          this.value = "";
+        }
+      });
+
+      // Number validation
+      const numberInput = document.getElementById("soLuongThamGiaDuKien");
+      numberInput.addEventListener("input", function (e) {
+        if (this.value < 0) {
+          this.value = 0;
+        }
+      });
     </script>
-</body>
+
+    <!-- Modern Form Page Styles -->
+    <style>
+      /* Modern Admin Page Styles */
+      .modern-admin-page {
+        background: linear-gradient(
+          135deg,
+          #f5f7fa 0%,
+          #c3cfe2 100%
+        ) !important;
+        min-height: 100vh;
+      }
+
+      /* Modern Page Header */
+      .modern-page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* Modern Buttons */
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-modern-outline {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-modern-outline:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Modern Cards */
+      .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .card-title h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .card-title p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.875rem;
+        color: #718096;
+      }
+
+      .card-content {
+        padding: 2rem;
+      }
+
+      /* Image Upload Section */
+      .image-upload-section {
+        background: #f8fafc;
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .section-title h4 {
+        margin: 0;
+        color: #2d3748;
+        font-weight: 700;
+      }
+
+      .section-title p {
+        margin: 0.25rem 0 0 0;
+        color: #718096;
+        font-size: 0.875rem;
+      }
+
+      .image-upload-container {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        justify-content: center;
+      }
+
+      .image-preview-wrapper {
+        position: relative;
+      }
+
+      .image-preview-box {
+        width: 150px;
+        height: 150px;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        border: 3px solid #e2e8f0;
+      }
+
+      .image-preview-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .image-preview-box:hover .image-overlay {
+        opacity: 1;
+      }
+
+      .image-upload-controls {
+        text-align: left;
+      }
+
+      .upload-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
+
+      .upload-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+      }
+
+      .upload-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.875rem;
+        color: #718096;
+      }
+
+      .upload-status {
+        background: #c6f6d5;
+        border: 1px solid #9ae6b4;
+        border-radius: 8px;
+        padding: 0.75rem;
+      }
+
+      .status-message {
+        color: #22543d;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+      }
+
+      /* Form Sections */
+      .form-divider {
+        display: flex;
+        align-items: center;
+        margin: 2rem 0;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+      }
+
+      .divider-text {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        color: white;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 25px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        font-size: 0.95rem;
+        text-transform: none;
+        letter-spacing: normal;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .divider-text:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .form-section {
+        margin-bottom: 2rem;
+      }
+
+      /* Modern Form Controls */
+      .modern-form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .modern-form-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .required-star {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+      }
+
+      .modern-form-control,
+      .modern-form-select,
+      .modern-form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .modern-form-control:focus,
+      .modern-form-select:focus,
+      .modern-form-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .modern-form-textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-feedback {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: none;
+      }
+
+      .form-hint {
+        color: #718096;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+      }
+
+      /* Form Actions */
+      .form-actions {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .actions-container {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .btn-cancel {
+        padding: 0.875rem 2rem;
+        background: #f7fafc;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      .btn-cancel:hover {
+        background: #edf2f7;
+        color: #2d3748;
+        text-decoration: none;
+      }
+
+      .btn-submit {
+        padding: 0.875rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+      }
+
+      /* Sidebar Styles */
+      .guideline-section {
+        margin-bottom: 2rem;
+      }
+
+      .guideline-section h4 {
+        color: #2d3748;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .requirement-list,
+      .note-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .requirement-item,
+      .note-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #4a5568;
+        font-size: 0.875rem;
+      }
+
+      .requirement-item i {
+        color: #38a169;
+      }
+
+      .note-item i {
+        color: #667eea;
+      }
+
+      .warning-box {
+        background: #fef5e7;
+        border: 1px solid #f6e05e;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 2rem;
+      }
+
+      .warning-icon {
+        color: #d69e2e;
+        font-size: 1.25rem;
+      }
+
+      .warning-content {
+        color: #744210;
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.75rem;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .header-actions {
+          justify-content: center;
+        }
+
+        .image-upload-container {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .actions-container {
+          flex-direction: column;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </body>
 </html>

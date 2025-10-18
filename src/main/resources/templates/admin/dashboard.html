@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-dashboard">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,164 +15,294 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Admin Header -->
-            <div class="admin-header text-center">
-                <h1><i class="fas fa-tachometer-alt me-2"></i>Dashboard Admin</h1>
-                <p class="mb-0">Chào mừng bạn đến với hệ thống quản lý Chi Hội Kong Brech</p>
-            </div>
-
-            <!-- Statistics Cards -->
-            <div class="row g-4 mb-4">
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-primary mb-3">
-                                <i class="fas fa-users fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-primary" th:text="${stats.totalTinHuu}">0</h3>
-                            <p class="card-text text-muted">Tin Hữu</p>
-                            <a th:href="@{/admin/tin-huu}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
-                        </div>
+            <!-- Modern Header -->
+            <div class="modern-header">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1 class="header-title">
+                            <i class="fas fa-tachometer-alt me-3"></i>
+                            Dashboard Admin
+                        </h1>
+                        <p class="header-subtitle">Chào mừng bạn đến với hệ thống quản lý Chi Hội Kong Brech</p>
                     </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-success mb-3">
-                                <i class="fas fa-layer-group fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-success" th:text="${stats.totalNhom}">0</h3>
-                            <p class="card-text text-muted">Nhóm</p>
-                            <a th:href="@{/admin/nhom}" class="btn btn-outline-success btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-info mb-3">
-                                <i class="fas fa-sitemap fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-info" th:text="${stats.totalBanNganh}">0</h3>
-                            <p class="card-text text-muted">Ban Ngành</p>
-                            <a th:href="@{/admin/ban-nganh}" class="btn btn-outline-info btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-warning mb-3">
-                                <i class="fas fa-user-tie fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-warning" th:text="${stats.totalNhanSu}">0</h3>
-                            <p class="card-text text-muted">Nhân Sự</p>
-                            <a th:href="@{/admin/nhan-su}" class="btn btn-outline-warning btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
+                    <div class="header-actions">
+                        <div class="current-time">
+                            <i class="fas fa-clock me-2"></i>
+                            <span id="currentTime"></span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Second Row -->
-            <div class="row g-4 mb-4">
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-danger mb-3">
-                                <i class="fas fa-calendar-alt fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-danger" th:text="${stats.totalSuKien}">0</h3>
-                            <p class="card-text text-muted">Sự Kiện</p>
-                            <a th:href="@{/admin/su-kien}" class="btn btn-outline-danger btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
+            <!-- Modern Statistics Cards -->
+            <div class="stats-grid">
+                <!-- Tin Hữu Card -->
+                <div class="stat-card users-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
                         </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalTinHuu}">0</h3>
+                            <p class="stat-label">Tin Hữu</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/tin-huu}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
 
-           <!--     <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-secondary mb-3">
-                                <i class="fas fa-bullhorn fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-secondary" th:text="${stats.totalThongBao}">0</h3>
-                            <p class="card-text text-muted">Thông Báo</p>
-                            <a th:href="@{/admin/thong-bao}" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
+                <!-- Nhóm Card -->
+                <div class="stat-card groups-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalNhom}">0</h3>
+                            <p class="stat-label">Nhóm</p>
                         </div>
                     </div>
-                </div>-->
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-dark mb-3">
-                                <i class="fas fa-dollar-sign fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-dark" th:text="${stats.totalTaiChinh}">0</h3>
-                            <p class="card-text text-muted">Tài Chính</p>
-                            <a th:href="@{/admin/tai-chinh}" class="btn btn-outline-dark btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
-                        </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/nhom}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="text-muted mb-3">
-                                <i class="fas fa-envelope fa-3x"></i>
-                            </div>
-                            <h3 class="card-title text-muted" th:text="${stats.totalLienHe}">0</h3>
-                            <p class="card-text text-muted">Liên Hệ</p>
-                            <a href="#" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-eye me-1"></i>Xem Chi Tiết
-                            </a>
+                <!-- Ban Ngành Card -->
+                <div class="stat-card departments-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-sitemap"></i>
                         </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalBanNganh}">0</h3>
+                            <p class="stat-label">Ban Ngành</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/ban-nganh}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Nhân Sự Card -->
+                <div class="stat-card staff-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalNhanSu}">0</h3>
+                            <p class="stat-label">Nhân Sự</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/nhan-su}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sự Kiện Card -->
+                <div class="stat-card events-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalSuKien}">0</h3>
+                            <p class="stat-label">Sự Kiện</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/su-kien}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tài Chính Card -->
+                <div class="stat-card finance-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalTaiChinh}">0</h3>
+                            <p class="stat-label">Tài Chính</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/tai-chinh}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Liên Hệ Card -->
+                <div class="stat-card contact-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalLienHe}">0</h3>
+                            <p class="stat-label">Liên Hệ</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/lien-he}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Bài Viết Card -->
+                <div class="stat-card posts-card">
+                    <div class="stat-card-content">
+                        <div class="stat-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 class="stat-number" th:text="${stats.totalBaiViet ?: '0'}">0</h3>
+                            <p class="stat-label">Bài Viết</p>
+                        </div>
+                    </div>
+                    <div class="stat-card-footer">
+                        <a th:href="@{/admin/bai-viet}" class="stat-link">
+                            <span>Xem Chi Tiết</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h5>
+            <!-- Quick Actions Section -->
+            <div class="quick-actions-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-bolt me-2"></i>
+                        Thao Tác Nhanh
+                    </h2>
+                    <p class="section-subtitle">Các chức năng thường dùng để quản lý hệ thống</p>
                 </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <a th:href="@{/admin/tin-huu}" class="btn btn-primary w-100">
-                                <i class="fas fa-plus me-2"></i>Quản Lý Tin Hữu
-                            </a>
+
+                <div class="quick-actions-grid">
+                    <a th:href="@{/admin/tin-huu}" class="quick-action-card primary">
+                        <div class="action-icon">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <div class="col-md-3">
-                            <a th:href="@{/admin/su-kien}" class="btn btn-success w-100">
-                                <i class="fas fa-calendar-plus me-2"></i>Quản Lý Sự Kiện
-                            </a>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Tin Hữu</h4>
+                            <p class="action-desc">Thêm, sửa, xóa thông tin tin hữu</p>
                         </div>
-                        <div class="col-md-3">
-                            <a th:href="@{/admin/thong-bao}" class="btn btn-info w-100">
-                                <i class="fas fa-bullhorn me-2"></i>Quản Lý Thông Báo
-                            </a>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
                         </div>
-                        <div class="col-md-3">
-                            <a th:href="@{/admin/tai-chinh}" class="btn btn-warning w-100">
-                                <i class="fas fa-chart-line me-2"></i>Quản Lý Tài Chính
-                            </a>
+                    </a>
+
+                    <a th:href="@{/admin/su-kien}" class="quick-action-card success">
+                        <div class="action-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Sự Kiện</h4>
+                            <p class="action-desc">Tạo và quản lý các sự kiện</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/bai-viet}" class="quick-action-card info">
+                        <div class="action-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Bài Viết</h4>
+                            <p class="action-desc">Đăng và quản lý tin tức</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/tai-chinh}" class="quick-action-card warning">
+                        <div class="action-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Tài Chính</h4>
+                            <p class="action-desc">Theo dõi thu chi và báo cáo</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/nhom}" class="quick-action-card purple">
+                        <div class="action-icon">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Nhóm</h4>
+                            <p class="action-desc">Tổ chức và phân chia nhóm</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+
+                    <a th:href="@{/admin/ban-nganh}" class="quick-action-card teal">
+                        <div class="action-icon">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <div class="action-content">
+                            <h4 class="action-title">Quản Lý Ban Ngành</h4>
+                            <p class="action-desc">Cơ cấu tổ chức ban ngành</p>
+                        </div>
+                        <div class="action-arrow">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- System Info Section -->
+            <div class="system-info-section">
+                <div class="system-info-card">
+                    <div class="info-header">
+                        <h3 class="info-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Thông Tin Hệ Thống
+                        </h3>
+                    </div>
+                    <div class="info-content">
+                        <div class="info-item">
+                            <span class="info-label">Phiên bản:</span>
+                            <span class="info-value">v1.0.0</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cập nhật lần cuối:</span>
+                            <span class="info-value" id="lastUpdate"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Trạng thái:</span>
+                            <span class="info-value status-online">
+                                <i class="fas fa-circle me-1"></i>Hoạt động
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -182,5 +312,461 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('vi-VN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update last update time
+        function updateLastUpdate() {
+            const now = new Date();
+            const updateString = now.toLocaleString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('lastUpdate').textContent = updateString;
+        }
+
+        // Animate numbers
+        function animateNumbers() {
+            const numbers = document.querySelectorAll('.stat-number');
+            numbers.forEach(number => {
+                const target = parseInt(number.textContent);
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    number.textContent = Math.floor(current);
+                }, 30);
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            updateLastUpdate();
+            animateNumbers();
+            
+            // Update time every minute
+            setInterval(updateTime, 60000);
+        });
+    </script>
+
+    <style>
+        /* Modern Admin Dashboard Styles */
+        .modern-admin-dashboard {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Header */
+        .modern-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50%, -50%);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .header-actions {
+            text-align: right;
+        }
+
+        .current-time {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-card-content {
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #666;
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .stat-card-footer {
+            padding: 1rem 2rem;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+
+        .stat-link {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .stat-link:hover {
+            color: #333;
+            text-decoration: none;
+        }
+
+        /* Card Specific Colors */
+        .users-card .stat-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .users-card .stat-number { color: #667eea; }
+
+        .groups-card .stat-icon { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .groups-card .stat-number { color: #f093fb; }
+
+        .departments-card .stat-icon { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .departments-card .stat-number { color: #4facfe; }
+
+        .staff-card .stat-icon { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .staff-card .stat-number { color: #43e97b; }
+
+        .events-card .stat-icon { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .events-card .stat-number { color: #fa709a; }
+
+        .finance-card .stat-icon { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .finance-card .stat-number { color: #20c997; }
+
+        .contact-card .stat-icon { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+        .contact-card .stat-number { color: #fd7e14; }
+
+        .posts-card .stat-icon { background: linear-gradient(135deg, #e0c3fc 0%, #9bb5ff 100%); }
+        .posts-card .stat-number { color: #6f42c1; }
+
+        /* Quick Actions Section */
+        .quick-actions-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quick-action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action-card:hover::before {
+            width: 100%;
+            opacity: 0.1;
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .action-content {
+            flex: 1;
+        }
+
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #2d3748;
+        }
+
+        .action-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0;
+        }
+
+        .action-arrow {
+            color: #ccc;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .quick-action-card:hover .action-arrow {
+            color: #666;
+            transform: translateX(5px);
+        }
+
+        /* Action Card Colors */
+        .quick-action-card.primary::before { background: #667eea; }
+        .quick-action-card.primary .action-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .quick-action-card.success::before { background: #28a745; }
+        .quick-action-card.success .action-icon { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+
+        .quick-action-card.info::before { background: #17a2b8; }
+        .quick-action-card.info .action-icon { background: linear-gradient(135deg, #17a2b8 0%, #007bff 100%); }
+
+        .quick-action-card.warning::before { background: #ffc107; }
+        .quick-action-card.warning .action-icon { background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); }
+
+        .quick-action-card.purple::before { background: #6f42c1; }
+        .quick-action-card.purple .action-icon { background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); }
+
+        .quick-action-card.teal::before { background: #20c997; }
+        .quick-action-card.teal .action-icon { background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%); }
+
+        /* System Info Section */
+        .system-info-section {
+            margin-bottom: 2rem;
+        }
+
+        .system-info-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .info-header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .info-title {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .info-content {
+            padding: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .status-online {
+            color: #28a745 !important;
+        }
+
+        .status-online i {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modern-header {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-title {
+                font-size: 1.5rem;
+            }
+
+            .stat-card-content {
+                padding: 1.5rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </body>
 </html>

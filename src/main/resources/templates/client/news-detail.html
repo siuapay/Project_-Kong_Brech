@@ -1,311 +1,308 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/client-layout :: head}"></head>
-<style>
-    /* Rich Content Styles */
-    .article-content {
-        line-height: 1.8;
-        font-size: 16px;
-    }
-    
-    .article-content h4 {
-        color: #2c3e50;
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-    
-    .article-content p {
-        margin-bottom: 1.2rem;
-        text-align: justify;
-    }
-    
-    .article-content img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .article-content .alert {
-        border-radius: 8px;
-        border: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .article-content .text-center {
-        margin: 2rem 0;
-    }
-    
-    .article-content .text-muted {
-        font-style: italic;
-        font-size: 14px;
-    }
-</style>
-<body>
+<body class="news-detail-page">
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
-    <!-- Article Content -->
-    <section class="py-5">
+    <!-- Hero Section -->
+    <section class="hero-section">
         <div class="container">
             <div class="row">
-                <!-- Main Content -->
-                <div class="col-lg-8">
-                    <article class="card">
-                        <!-- Article Header -->
-                        <div class="card-header bg-white border-0 pb-0">
-                            <div class="mb-3">
-                                <span class="badge bg-primary" th:if="${baiViet.danhMuc}">
-                                    <i class="fas fa-tag me-1"></i>
-                                    <span th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
-                                </span>
-                                <span class="badge bg-success ms-2" th:if="${baiViet.noiBat}">
-                                    <i class="fas fa-star me-1"></i>Nổi bật
-                                </span>
+                <div class="col-12">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb modern-breadcrumb">
+                            <li class="breadcrumb-item">
+                                <a href="/news" class="breadcrumb-link">
+                                    <i class="fas fa-newspaper me-1"></i>Tin tức
+                                </a>
+                            </li>
+                            <li th:if="${baiViet.danhMuc != null}" class="breadcrumb-item">
+                                <a th:href="@{/news/category/{slug}(slug=${baiViet.danhMuc.slug})}" 
+                                   class="breadcrumb-link" th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Bài viết</li>
+                        </ol>
+                    </nav>
+                    
+                    <!-- Article Title Section -->
+                    <div class="article-title-section text-center">
+                        <div class="category-badges mb-3">
+                            <span class="modern-badge" th:if="${baiViet.danhMuc}">
+                                <i class="fas fa-tag me-1"></i>
+                                <span th:text="${baiViet.danhMuc.tenDanhMuc}">Danh mục</span>
+                            </span>
+                            <span class="modern-badge featured-badge ms-2" th:if="${baiViet.noiBat}">
+                                <i class="fas fa-star me-1"></i>Nổi bật
+                            </span>
+                        </div>
+                        
+                        <h1 class="article-title" th:text="${baiViet.tieuDe}">Tiêu đề bài viết</h1>
+                        
+                        <!-- Article Meta in Header -->
+                        <div class="article-meta-header">
+                            <div class="meta-item">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${baiViet.tacGia}">Tác giả</span>
+                                <span class="author-badge" th:text="${baiViet.loaiTacGia.displayName}">Admin</span>
                             </div>
-                            
-                            <h1 class="card-title h2 mb-3" th:text="${baiViet.tieuDe}">
-                                Tiêu đề bài viết
-                            </h1>
-                            
-                            <div class="d-flex flex-wrap align-items-center text-muted mb-3">
-                                <div class="me-4 mb-2">
-                                    <i class="fas fa-user me-1"></i>
-                                    <span th:text="${baiViet.tacGia}">Tác giả</span>
-                                </div>
-                                <div class="me-4 mb-2">
-                                    <i class="fas fa-calendar me-1"></i>
-                                    <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
-                                </div>
-                                <div class="me-4 mb-2">
-                                    <i class="fas fa-eye me-1"></i>
-                                    <span th:text="${baiViet.luotXem}">0</span> lượt xem
-                                </div>
-                                <div class="mb-2">
-                                    <i class="fas fa-clock me-1"></i>
-                                    <span th:text="${#strings.length(baiViet.noiDung) / 200}">5</span> phút đọc
-                                </div>
+                            <div class="meta-divider">•</div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span th:text="${#temporals.format(baiViet.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                            </div>
+                            <div class="meta-divider">•</div>
+                            <div class="meta-item">
+                                <i class="fas fa-eye"></i>
+                                <span th:text="${@numberFormat.formatCompact(baiViet.luotXem)}">0</span> lượt xem
+                            </div>
+                            <div class="meta-divider">•</div>
+                            <div class="meta-item">
+                                <i class="fas fa-clock"></i>
+                                <span th:text="${#strings.length(baiViet.noiDung) / 200}">5</span> phút đọc
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section class="main-content-section">
+        <div class="container">
+            <div class="content-wrapper">
+                <!-- Left Column - Article Content -->
+                <div class="article-column">
+                    <div class="article-container">
+                        <!-- Modern Share Section -->
+                        <div class="modern-share-section">
+                            <div class="share-label">Chia sẻ bài viết</div>
+                            <div class="share-buttons-modern">
+                                <button class="share-btn facebook" onclick="shareOnFacebook()">
+                                    <i class="fab fa-facebook-f"></i>
+                                </button>
+                                <button class="share-btn twitter" onclick="shareOnTwitter()">
+                                    <i class="fab fa-twitter"></i>
+                                </button>
+                                <button class="share-btn copy" onclick="copyLink()">
+                                    <i class="fas fa-link"></i>
+                                </button>
                             </div>
                         </div>
 
                         <!-- Featured Image -->
-                        <div th:if="${baiViet.anhDaiDien}">
+                        <div th:if="${baiViet.anhDaiDien}" class="featured-image-container">
                             <img th:src="${baiViet.anhDaiDien}" 
-                                 class="card-img-top" 
-                                 th:alt="${baiViet.tieuDe}"
-                                 style="height: 400px; object-fit: cover;">
+                                 class="featured-image" 
+                                 th:alt="${baiViet.tieuDe}">
                         </div>
 
-                        <!-- Article Body -->
-                        <div class="card-body">
-                            <!-- Summary -->
-                            <div class="alert alert-info" th:if="${baiViet.tomTat}">
-                                <h6 class="alert-heading">
-                                    <i class="fas fa-info-circle me-2"></i>Tóm tắt
-                                </h6>
-                                <p class="mb-0" th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
+                        <!-- Article Summary -->
+                        <div th:if="${baiViet.tomTat}" class="article-summary">
+                            <div class="summary-icon">
+                                <i class="fas fa-info-circle"></i>
                             </div>
-
-                            <!-- Content -->
-                            <!-- Hiển thị Rich Content nếu có, không thì hiển thị nội dung thường -->
-                            <div class="article-content" 
-                                 th:utext="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)} ? ${baiViet.noiDungRich} : ${baiViet.noiDung}">
-                                Nội dung bài viết sẽ được hiển thị ở đây...
+                            <div class="summary-content">
+                                <h5 class="summary-title">Tóm tắt nội dung</h5>
+                                <p class="summary-text" th:text="${baiViet.tomTat}">Tóm tắt bài viết</p>
                             </div>
+                        </div>
 
-                            <!-- Images Gallery - Chỉ hiển thị nếu không có rich content -->
-                            <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and (baiViet.danhSachHinhAnh != null and !baiViet.danhSachHinhAnh.empty)}" class="mt-4">
-                                <h5 class="mb-3">
-                                    <i class="fas fa-images me-2"></i>Hình ảnh
-                                </h5>
-                                <div class="row">
-                                    <div class="col-md-6 mb-3" th:each="image : ${baiViet.danhSachHinhAnh}">
-                                        <img th:src="${image}" 
-                                             class="img-fluid rounded shadow-sm" 
-                                             th:alt="${baiViet.tieuDe}"
-                                             style="cursor: pointer;"
-                                             onclick="openImageModal(this.src)">
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Article Content -->
+                        <div class="modern-article-content" 
+                             th:utext="${baiViet.noiDungRich != null and !#strings.isEmpty(baiViet.noiDungRich)} ? ${baiViet.noiDungRich} : ${baiViet.noiDung}">
+                            Nội dung bài viết sẽ được hiển thị ở đây...
+                        </div>
 
-                            <!-- Videos - Chỉ hiển thị nếu không có rich content -->
-                            <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and (baiViet.danhSachVideo != null and !baiViet.danhSachVideo.empty)}" class="mt-4">
-                                <h5 class="mb-3">
-                                    <i class="fas fa-video me-2"></i>Video
-                                </h5>
-                                <div class="row">
-                                    <div class="col-lg-6 mb-3" th:each="video : ${baiViet.danhSachVideo}">
-                                        <div class="ratio ratio-16x9">
-                                            <video controls class="rounded">
-                                                <source th:src="${video}" type="video/mp4">
-                                                Trình duyệt của bạn không hỗ trợ video.
-                                            </video>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tags section removed as tagList field doesn't exist in BaiViet entity -->
-
-                            <!-- Share Buttons -->
-                            <div class="mt-4 pt-3 border-top">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-share-alt me-2"></i>Chia sẻ bài viết
-                                </h6>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-primary btn-sm" onclick="shareOnFacebook()">
-                                        <i class="fab fa-facebook me-1"></i>Facebook
-                                    </button>
-                                    <button class="btn btn-outline-info btn-sm" onclick="shareOnTwitter()">
-                                        <i class="fab fa-twitter me-1"></i>Twitter
-                                    </button>
-                                    <button class="btn btn-outline-success btn-sm" onclick="copyLink()">
-                                        <i class="fas fa-link me-1"></i>Sao chép link
-                                    </button>
+                        <!-- Images Gallery -->
+                        <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and (baiViet.danhSachHinhAnh != null and !baiViet.danhSachHinhAnh.empty)}" class="mt-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-images me-2"></i>Hình ảnh
+                            </h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-3" th:each="image : ${baiViet.danhSachHinhAnh}">
+                                    <img th:src="${image}" 
+                                         class="img-fluid rounded shadow-sm" 
+                                         th:alt="${baiViet.tieuDe}"
+                                         style="cursor: pointer;"
+                                         onclick="openImageModal(this.src)">
                                 </div>
                             </div>
                         </div>
-                    </article>
-                </div>
 
-                <!-- Sidebar -->
-                <div class="col-lg-4">
-                    <!-- Author Info -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-user me-2"></i>Tác giả
+                        <!-- Videos -->
+                        <div th:if="${(baiViet.noiDungRich == null or #strings.isEmpty(baiViet.noiDungRich)) and (baiViet.danhSachVideo != null and !baiViet.danhSachVideo.empty)}" class="mt-4">
+                            <h5 class="mb-3">
+                                <i class="fas fa-video me-2"></i>Video
+                            </h5>
+                            <div class="row">
+                                <div class="col-lg-6 mb-3" th:each="video : ${baiViet.danhSachVideo}">
+                                    <div class="ratio ratio-16x9">
+                                        <video controls class="rounded">
+                                            <source th:src="${video}" type="video/mp4">
+                                            Trình duyệt của bạn không hỗ trợ video.
+                                        </video>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Share Buttons -->
+                        <div class="mt-4 pt-3 border-top">
+                            <h6 class="mb-3">
+                                <i class="fas fa-share-alt me-2"></i>Chia sẻ bài viết
                             </h6>
-                        </div>
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary btn-sm" onclick="shareOnFacebook()">
+                                    <i class="fab fa-facebook me-1"></i>Facebook
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" onclick="shareOnTwitter()">
+                                    <i class="fab fa-twitter me-1"></i>Twitter
+                                </button>
+                                <button class="btn btn-outline-success btn-sm" onclick="copyLink()">
+                                    <i class="fas fa-link me-1"></i>Sao chép link
+                                </button>
                             </div>
-                            <h6 th:text="${baiViet.tacGia}">Tên tác giả</h6>
-                            <p class="text-muted small mb-0" th:text="${baiViet.loaiTacGia.displayName}">
-                                Vai trò
-                            </p>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Related Articles -->
-                    <div class="card mb-4" th:if="${relatedNews != null and !relatedNews.empty}">
-                        <div class="card-header bg-success text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-newspaper me-2"></i>Bài viết liên quan
-                            </h6>
+                <!-- Right Column - Sidebar -->
+                <div class="sidebar-column">
+                    <div class="sidebar-container">
+                        <!-- Author Info -->
+                        <div class="sidebar-card author-card">
+                            <div class="sidebar-header">
+                                <div class="sidebar-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <h5 class="sidebar-title">Tác giả</h5>
+                            </div>
+                            <div class="sidebar-content text-center">
+                                <div class="author-avatar">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <h6 class="author-name" th:text="${baiViet.tacGia}">Tên tác giả</h6>
+                                <p class="author-role" th:text="${baiViet.loaiTacGia.displayName}">Vai trò</p>
+                            </div>
                         </div>
-                        <div class="card-body p-0">
-                            <div class="list-group list-group-flush">
+
+                        <!-- Related Articles -->
+                        <div class="sidebar-card related-articles" th:if="${relatedNews != null and !relatedNews.empty}">
+                            <div class="sidebar-header">
+                                <div class="sidebar-icon">
+                                    <i class="fas fa-newspaper"></i>
+                                </div>
+                                <h5 class="sidebar-title">Bài viết liên quan</h5>
+                            </div>
+                            <div class="sidebar-content">
                                 <a th:each="related : ${relatedNews}" 
                                    th:href="@{/news/{id}(id=${related.id})}"
-                                   class="list-group-item list-group-item-action">
-                                    <div class="d-flex">
+                                   class="related-item">
+                                    <div class="related-image">
                                         <img th:src="${related.anhDaiDien} ?: '/images/default-news.jpg'" 
-                                             class="rounded me-3" 
-                                             style="width: 60px; height: 60px; object-fit: cover;"
                                              th:alt="${related.tieuDe}">
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1" th:text="${#strings.abbreviate(related.tieuDe, 60)}">
-                                                Tiêu đề bài viết liên quan
-                                            </h6>
-                                            <small class="text-muted">
-                                                <i class="fas fa-calendar me-1"></i>
-                                                <span th:text="${#temporals.format(related.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                                            </small>
+                                    </div>
+                                    <div class="related-content">
+                                        <h6 class="related-title" th:text="${#strings.abbreviate(related.tieuDe, 60)}">
+                                            Tiêu đề bài viết liên quan
+                                        </h6>
+                                        <div class="related-meta">
+                                            <i class="fas fa-calendar"></i>
+                                            <span th:text="${#temporals.format(related.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
                                         </div>
                                     </div>
                                 </a>
                             </div>
                         </div>
-                    </div>
 
-                 
-          <!-- Featured Articles -->
-          <div th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="fas fa-star me-2"></i>Bài Viết Nổi Bật</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietNoiBat}" class="border-bottom p-3">
-                <div class="d-flex">
-                  <img th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'" 
-                       class="rounded me-3" 
-                       style="width: 60px; height: 60px; object-fit: cover"
-                       th:alt="${bv.tieuDe}">
-                  <div>
-                    <h6 class="mb-2">
-                      <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                         class="text-decoration-none text-dark"
-                         th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                    </h6>
-                    <div class="news-meta">
-                      <i class="fas fa-calendar me-1"></i>
-                      <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                      <span class="mx-2">•</span>
-                      <i class="fas fa-eye me-1"></i>
-                      <span th:text="${bv.luotXem}">0</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <!-- Featured Articles -->
+                        <div th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}" class="sidebar-card featured-articles">
+                            <div class="sidebar-header">
+                                <div class="sidebar-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <h5 class="sidebar-title">Bài Viết Nổi Bật</h5>
+                            </div>
+                            <div class="sidebar-content">
+                                <div th:each="bv : ${baiVietNoiBat}" class="news-item">
+                                    <div class="news-image">
+                                        <img th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'" 
+                                             th:alt="${bv.tieuDe}">
+                                    </div>
+                                    <div class="news-content">
+                                        <h6 class="news-title">
+                                            <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                                               th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                                        </h6>
+                                        <div class="news-meta">
+                                            <i class="fas fa-calendar"></i>
+                                            <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                                            <span class="meta-divider">•</span>
+                                            <i class="fas fa-eye"></i>
+                                            <span th:text="${@numberFormat.formatCompact(bv.luotXem)}">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-          <!-- Recent News -->
-          <div th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-success text-white">
-              <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Tin Mới Nhất</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietMoiNhat}" class="border-bottom p-3">
-                <h6 class="mb-2">
-                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                     class="text-decoration-none text-dark"
-                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                </h6>
-                <div class="news-meta">
-                  <i class="fas fa-calendar me-1"></i>
-                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <!-- Recent News -->
+                        <div th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}" class="sidebar-card recent-news">
+                            <div class="sidebar-header">
+                                <div class="sidebar-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h5 class="sidebar-title">Tin Mới Nhất</h5>
+                            </div>
+                            <div class="sidebar-content">
+                                <div th:each="bv : ${baiVietMoiNhat}" class="news-item simple">
+                                    <h6 class="news-title">
+                                        <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                                           th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                                    </h6>
+                                    <div class="news-meta">
+                                        <i class="fas fa-calendar"></i>
+                                        <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-          <!-- Popular Articles -->
-          <div th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-warning text-dark">
-              <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Bài Viết Phổ Biến</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietPhoBien}" class="border-bottom p-3">
-                <h6 class="mb-2">
-                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                     class="text-decoration-none text-dark"
-                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                </h6>
-                <div class="news-meta">
-                  <i class="fas fa-eye me-1"></i>
-                  <span th:text="${bv.luotXem}">0</span> lượt xem
-                  <span class="mx-2">•</span>
-                  <i class="fas fa-calendar me-1"></i>
-                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}">01/01</span>
-                </div>
-              </div>
-            </div>
-          </div>
+                        <!-- Popular Articles -->
+                        <div th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}" class="sidebar-card popular-articles">
+                            <div class="sidebar-header">
+                                <div class="sidebar-icon">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <h5 class="sidebar-title">Bài Viết Phổ Biến</h5>
+                            </div>
+                            <div class="sidebar-content">
+                                <div th:each="bv : ${baiVietPhoBien}" class="news-item simple">
+                                    <h6 class="news-title">
+                                        <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
+                                           th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
+                                    </h6>
+                                    <div class="news-meta">
+                                        <i class="fas fa-eye"></i>
+                                        <span th:text="${@numberFormat.formatCompact(bv.luotXem)}">0</span> lượt xem
+                                        <span class="meta-divider">•</span>
+                                        <i class="fas fa-calendar"></i>
+                                        <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}">01/01</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-          <!-- Newsletter -->
-      
-
-                    <!-- Back to News -->
-                    <div class="card">
-                        <div class="card-body text-center">
-                            <a href="/news" class="btn btn-outline-primary">
-                                <i class="fas fa-arrow-left me-2"></i>Về trang tin tức
-                            </a>
+                        <!-- Back to News -->
+                        <div class="sidebar-card back-button">
+                            <div class="sidebar-content text-center">
+                                <a href="/news" class="btn btn-modern-primary">
+                                    <i class="fas fa-arrow-left me-2"></i>Về trang tin tức
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -353,71 +350,620 @@
 
         function copyLink() {
             navigator.clipboard.writeText(window.location.href).then(function() {
-                // Show success message
-                const toast = document.createElement('div');
-                toast.className = 'toast align-items-center text-white bg-success border-0 position-fixed';
-                toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999;';
-                toast.innerHTML = `
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <i class="fas fa-check me-2"></i>Đã sao chép link!
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                    </div>
-                `;
-                document.body.appendChild(toast);
-                
-                const bsToast = new bootstrap.Toast(toast);
-                bsToast.show();
-                
-                toast.addEventListener('hidden.bs.toast', function() {
-                    document.body.removeChild(toast);
-                });
+                showToast('Đã sao chép link bài viết!');
+            }).catch(function() {
+                showToast('Đã sao chép link bài viết!');
             });
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.innerHTML = `
+                <i class="fas fa-check-circle me-2"></i>
+                ${message}
+            `;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+                z-index: 9999;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                animation: slideInRight 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS animations for toast
+        if (!document.getElementById('toast-animations')) {
+            const style = document.createElement('style');
+            style.id = 'toast-animations';
+            style.textContent = `
+                @keyframes slideInRight {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutRight {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
         }
     </script>
 
     <style>
-        .article-content {
-            line-height: 1.8;
-            font-size: 1.1rem;
+        /* News Detail Page Styles */
+        .news-detail-page {
+            background-color: #f8f9fa;
         }
         
-        .article-content h1, .article-content h2, .article-content h3 {
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Modern Breadcrumb */
+        .modern-breadcrumb {
+            background: rgba(255,255,255,0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .breadcrumb-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .breadcrumb-link:hover {
+            color: white;
+        }
+        
+        .modern-breadcrumb .breadcrumb-item.active {
+            color: white;
+            font-weight: 500;
+        }
+        
+        /* Article Title Section */
+        .article-title-section {
+            margin-top: 2rem;
+        }
+        
+        .category-badges {
+            margin-bottom: 1.5rem;
+        }
+        
+        .modern-badge {
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-block;
+        }
+        
+        .featured-badge {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%) !important;
+        }
+        
+        .article-title {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Article Meta in Header */
+        .article-meta-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: rgba(255,255,255,0.1);
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            margin-top: 2rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+        }
+        
+        .meta-item i {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .author-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .meta-divider {
+            color: rgba(255,255,255,0.5);
+            font-weight: bold;
+        }
+        
+        /* Main Content Layout */
+        .main-content-section {
+            padding: 60px 0;
+            margin-top: -40px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+        
+        .article-column {
+            flex: 2;
+            min-width: 0;
+        }
+        
+        .sidebar-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        /* Article Container */
+        .article-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            padding: 3rem;
+        }
+        
+        /* Modern Share Section */
+        .modern-share-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+        
+        .share-label {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+        
+        .share-buttons-modern {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .share-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .share-btn.facebook {
+            background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+        }
+        
+        .share-btn.twitter {
+            background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+        }
+        
+        .share-btn.copy {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Featured Image */
+        .featured-image-container {
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .featured-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* Article Summary */
+        .article-summary {
+            display: flex;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .summary-icon {
+            flex-shrink: 0;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .summary-title {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* Article Content */
+        .modern-article-content {
+            line-height: 1.8;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        
+        .modern-article-content h1,
+        .modern-article-content h2,
+        .modern-article-content h3,
+        .modern-article-content h4,
+        .modern-article-content h5,
+        .modern-article-content h6 {
+            color: #2c3e50;
             margin-top: 2rem;
             margin-bottom: 1rem;
-            color: var(--primary-color);
+            font-weight: 600;
         }
         
-        .article-content p {
+        .modern-article-content p {
             margin-bottom: 1.2rem;
             text-align: justify;
         }
         
-        .article-content ul, .article-content ol {
-            margin-bottom: 1.2rem;
-            padding-left: 2rem;
-        }
-        
-        .article-content li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .article-content img {
+        .modern-article-content img {
             max-width: 100%;
             height: auto;
             border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             margin: 1rem 0;
         }
         
-        .article-content blockquote {
-            border-left: 4px solid var(--primary-color);
-            padding-left: 1rem;
-            margin: 1.5rem 0;
-            font-style: italic;
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
+        /* Sidebar Styles */
+        .sidebar-container {
+            position: sticky;
+            top: 2rem;
+        }
+        
+        .sidebar-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .sidebar-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        
+        .sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .sidebar-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        
+        .sidebar-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .sidebar-content {
+            padding: 1.5rem;
+        }
+        
+        /* Author Card */
+        .author-avatar {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .author-name {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .author-role {
+            color: #718096;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+        
+        /* News Items */
+        .news-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .news-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .news-item.simple {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .news-image {
+            flex-shrink: 0;
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .news-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .news-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .news-title a {
+            color: #2d3748;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .news-title a:hover {
+            color: #667eea;
+        }
+        
+        .news-meta {
+            font-size: 0.8rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .news-meta i {
+            font-size: 0.7rem;
+        }
+        
+        /* Related Items */
+        .related-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.3s ease;
+        }
+        
+        .related-item:hover {
+            background-color: #f7fafc;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .related-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .related-image {
+            flex-shrink: 0;
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .related-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .related-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .related-title {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            color: #2d3748;
+        }
+        
+        .related-meta {
+            font-size: 0.8rem;
+            color: #718096;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Button Styles */
+        .btn-modern-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1199px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .sidebar-column {
+                min-width: auto;
+            }
+            
+            .sidebar-container {
+                position: static;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 40px 0;
+            }
+            
+            .article-title {
+                font-size: 2rem;
+            }
+            
+            .article-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .modern-share-section {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .article-meta-header {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+            
+            .meta-divider {
+                display: none;
+            }
+            
+            .article-summary {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .featured-image {
+                height: 250px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .article-title {
+                font-size: 1.75rem;
+            }
+            
+            .main-content-section {
+                padding: 40px 0;
+            }
+            
+            .article-container {
+                padding: 1.5rem 1rem;
+            }
         }
     </style>
 </body>

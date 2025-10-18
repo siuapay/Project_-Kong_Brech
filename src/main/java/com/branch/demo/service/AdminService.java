@@ -4,9 +4,7 @@ import com.branch.demo.repository.*;
 import com.branch.demo.domain.Account;
 import com.branch.demo.domain.BanNganh;
 import com.branch.demo.domain.DanhMuc.TrangThaiDanhMuc;
-import com.branch.demo.domain.DiemNhom;
 import com.branch.demo.domain.Nhom;
-import com.branch.demo.domain.NhanSu.ChucVu;
 import com.branch.demo.dto.SuKienDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -722,7 +720,7 @@ public class AdminService {
         if (search == null || search.trim().isEmpty()) {
             return chapSuRepository.findAll(pageable);
         }
-        return chapSuRepository.findByHoTenContainingIgnoreCaseOrChucVuContainingIgnoreCase(search, search, pageable);
+        return chapSuRepository.findByHoTenContainingIgnoreCaseOrChucVuContainingIgnoreCase(search, "", pageable);
     }
 
     public Page<com.branch.demo.domain.ChapSu> getChapSuPageWithFilters(int page, String search,
@@ -809,7 +807,8 @@ public class AdminService {
     }
 
     public void deleteChapSu(Long id) {
-        com.branch.demo.domain.ChapSu chapSu = getChapSuById(id);
+        // Verify the entity exists before deleting
+        getChapSuById(id);
         chapSuRepository.deleteById(id);
     }
 
@@ -917,7 +916,9 @@ public class AdminService {
     public com.branch.demo.domain.BanNganh saveBanNganhWithManagement(
             com.branch.demo.domain.BanNganh banNganh,
             String phoBanNhanSuIds,
-            String phoBanChapSuIds) {
+            String phoBanChapSuIds,
+            String thuQuyNhanSuIds,
+            String thuQuyChapSuIds) {
 
         // Save basic ban nganh info first
         com.branch.demo.domain.BanNganh savedBanNganh = saveBanNganh(banNganh);
@@ -958,12 +959,50 @@ public class AdminService {
             }
         }
 
+        // Handle Thủ Quỹ Nhân Sự
+        java.util.List<com.branch.demo.domain.NhanSu> newThuQuyNhanSu = new java.util.ArrayList<>();
+        if (thuQuyNhanSuIds != null && !thuQuyNhanSuIds.trim().isEmpty()) {
+            String[] ids = thuQuyNhanSuIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long id = Long.parseLong(idStr.trim());
+                    com.branch.demo.domain.NhanSu nhanSu = nhanSuRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân sự với ID: " + id));
+                    newThuQuyNhanSu.add(nhanSu);
+                } catch (NumberFormatException e) {
+                    // Skip invalid ID
+                }
+            }
+        }
+
+        // Handle Thủ Quỹ Chấp Sự
+        java.util.List<com.branch.demo.domain.ChapSu> newThuQuyChapSu = new java.util.ArrayList<>();
+        if (thuQuyChapSuIds != null && !thuQuyChapSuIds.trim().isEmpty()) {
+            String[] ids = thuQuyChapSuIds.split(",");
+            for (String idStr : ids) {
+                try {
+                    Long id = Long.parseLong(idStr.trim());
+                    com.branch.demo.domain.ChapSu chapSu = chapSuRepository.findById(id)
+                            .orElseThrow(() -> new RuntimeException("Không tìm thấy chấp sự với ID: " + id));
+                    newThuQuyChapSu.add(chapSu);
+                } catch (NumberFormatException e) {
+                    // Skip invalid ID
+                }
+            }
+        }
+
         // Clear and set new collections
         savedBanNganh.getDanhSachPhoBanNhanSu().clear();
         savedBanNganh.getDanhSachPhoBanNhanSu().addAll(newPhoBanNhanSu);
 
         savedBanNganh.getDanhSachPhoBanChapSu().clear();
         savedBanNganh.getDanhSachPhoBanChapSu().addAll(newPhoBanChapSu);
+
+        savedBanNganh.getDanhSachThuQuyNhanSu().clear();
+        savedBanNganh.getDanhSachThuQuyNhanSu().addAll(newThuQuyNhanSu);
+
+        savedBanNganh.getDanhSachThuQuyChapSu().clear();
+        savedBanNganh.getDanhSachThuQuyChapSu().addAll(newThuQuyChapSu);
 
         return banNganhRepository.save(savedBanNganh);
     }
@@ -1128,7 +1167,8 @@ public class AdminService {
     }
 
     public void deleteNhanSu(Long id) {
-        com.branch.demo.domain.NhanSu nhanSu = getNhanSuById(id);
+        // Verify the entity exists before deleting
+        getNhanSuById(id);
         nhanSuRepository.deleteById(id);
     }
 
@@ -1245,8 +1285,16 @@ public class AdminService {
             }
         }
 
-        return suKienRepository.searchSuKien(search, loaiSuKienIdLong, trangThaiEnum,
+        Page<com.branch.demo.domain.SuKien> result = suKienRepository.searchSuKien(search, loaiSuKienIdLong,
+                trangThaiEnum,
                 fromLocalDate, toLocalDate, pageable);
+
+        // Filter out any null objects that might have slipped through
+        java.util.List<com.branch.demo.domain.SuKien> filteredContent = result.getContent().stream()
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(filteredContent, pageable, result.getTotalElements());
     }
 
     public com.branch.demo.domain.SuKien getSuKienById(Long id) {
@@ -1319,13 +1367,47 @@ public class AdminService {
     public void deleteSuKien(Long id) {
         com.branch.demo.domain.SuKien suKien = getSuKienById(id);
         suKien.setDeleted(true);
+        suKien.setDeletedAt(LocalDateTime.now());
         suKien.setUpdatedAt(LocalDateTime.now());
         suKienRepository.save(suKien);
     }
 
     public Page<com.branch.demo.domain.SuKien> getDeletedSuKienPage(int page, String search) {
+        return getDeletedSuKienPage(page, search, null, null);
+    }
+    
+    public Page<com.branch.demo.domain.SuKien> getDeletedSuKienPage(int page, String search, String fromDate, String toDate) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "deletedAt"));
-        return suKienRepository.findDeletedWithSearch(search, pageable);
+        
+        // Parse dates
+        LocalDate parsedFromDate = null;
+        LocalDate parsedToDate = null;
+        try {
+            if (fromDate != null && !fromDate.isEmpty()) {
+                parsedFromDate = LocalDate.parse(fromDate);
+            }
+            if (toDate != null && !toDate.isEmpty()) {
+                parsedToDate = LocalDate.parse(toDate);
+            }
+        } catch (Exception e) {
+            // Ignore date parsing errors
+        }
+        
+        Page<com.branch.demo.domain.SuKien> result;
+        
+        // Check if date filtering is needed
+        if (parsedFromDate != null || parsedToDate != null) {
+            result = suKienRepository.findDeletedWithSearchAndDateFilter(search, parsedFromDate, parsedToDate, pageable);
+        } else {
+            result = suKienRepository.findDeletedWithSearch(search, pageable);
+        }
+
+        // Filter out any null objects that might have slipped through
+        java.util.List<com.branch.demo.domain.SuKien> filteredContent = result.getContent().stream()
+                .filter(java.util.Objects::nonNull)
+                .collect(java.util.stream.Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(filteredContent, pageable, result.getTotalElements());
     }
 
     public void restoreSuKien(Long id) {
@@ -1335,6 +1417,7 @@ public class AdminService {
             throw new RuntimeException("Sự kiện chưa bị xóa");
         }
         suKien.setDeleted(false);
+        suKien.setDeletedAt(null);
         suKien.setUpdatedAt(LocalDateTime.now());
         suKienRepository.save(suKien);
     }
@@ -1348,9 +1431,20 @@ public class AdminService {
         suKienRepository.deleteById(id);
     }
 
+    public void emptyDeletedSuKienTrash() {
+        java.util.List<com.branch.demo.domain.SuKien> deletedSuKien = suKienRepository.findAll().stream()
+                .filter(com.branch.demo.domain.SuKien::isDeleted)
+                .collect(java.util.stream.Collectors.toList());
+        
+        for (com.branch.demo.domain.SuKien suKien : deletedSuKien) {
+            suKienRepository.deleteById(suKien.getId());
+        }
+    }
+
     // Get upcoming events
-    public java.util.List<com.branch.demo.domain.SuKien> getUpcomingSuKien() {
-        return suKienRepository.findUpcomingEvents();
+    public java.util.List<com.branch.demo.domain.SuKien> getUpcomingSuKien(int limit) {
+        java.util.List<com.branch.demo.domain.SuKien> allUpcoming = suKienRepository.findUpcomingEvents();
+        return allUpcoming.stream().limit(limit).collect(java.util.stream.Collectors.toList());
     }
 
     // Get events by month
@@ -1487,14 +1581,16 @@ public class AdminService {
         return dto;
     }
 
-    // Lấy danh sách nhân sự cho edit account (bao gồm nhân sự hiện tại + nhân sự chưa có tài khoản)
+    // Lấy danh sách nhân sự cho edit account (bao gồm nhân sự hiện tại + nhân sự
+    // chưa có tài khoản)
     public java.util.List<com.branch.demo.dto.NhanSuDTO> getNhanSuForAccountEdit(Long accountId) {
         // Lấy account hiện tại
         Account account = getAccountById(accountId);
-        
+
         // Lấy tất cả nhân sự active
-        java.util.List<com.branch.demo.domain.NhanSu> allActiveNhanSu = nhanSuRepository.findByTrangThai(com.branch.demo.domain.NhanSu.TrangThaiNhanSu.HOAT_DONG);
-        
+        java.util.List<com.branch.demo.domain.NhanSu> allActiveNhanSu = nhanSuRepository
+                .findByTrangThai(com.branch.demo.domain.NhanSu.TrangThaiNhanSu.HOAT_DONG);
+
         return allActiveNhanSu.stream()
                 .filter(nhanSu -> {
                     // Bao gồm nhân sự hiện tại của account
@@ -1508,14 +1604,16 @@ public class AdminService {
                 .collect(java.util.stream.Collectors.toList());
     }
 
-    // Lấy danh sách chấp sự cho edit account (bao gồm chấp sự hiện tại + chấp sự chưa có tài khoản)
+    // Lấy danh sách chấp sự cho edit account (bao gồm chấp sự hiện tại + chấp sự
+    // chưa có tài khoản)
     public java.util.List<com.branch.demo.dto.ChapSuDTO> getChapSuForAccountEdit(Long accountId) {
         // Lấy account hiện tại
         Account account = getAccountById(accountId);
-        
+
         // Lấy tất cả chấp sự active
-        java.util.List<com.branch.demo.domain.ChapSu> allActiveChapSu = chapSuRepository.findByTrangThai(com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
-        
+        java.util.List<com.branch.demo.domain.ChapSu> allActiveChapSu = chapSuRepository
+                .findByTrangThai(com.branch.demo.domain.ChapSu.TrangThaiChapSu.DANG_NHIEM_VU);
+
         return allActiveChapSu.stream()
                 .filter(chapSu -> {
                     // Bao gồm chấp sự hiện tại của account
@@ -1755,6 +1853,38 @@ public class AdminService {
             counter++;
         }
         baiViet.setSlug(uniqueSlug);
+
+        // Handle SEO fields - convert empty strings to null and auto-generate if needed
+        if (baiViet.getMetaTitle() != null && baiViet.getMetaTitle().trim().isEmpty()) {
+            baiViet.setMetaTitle(null);
+        }
+        if (baiViet.getMetaDescription() != null && baiViet.getMetaDescription().trim().isEmpty()) {
+            baiViet.setMetaDescription(null);
+        }
+        if (baiViet.getMetaKeywords() != null && baiViet.getMetaKeywords().trim().isEmpty()) {
+            baiViet.setMetaKeywords(null);
+        }
+
+        // Auto-generate SEO fields if they are null
+        if (baiViet.getMetaTitle() == null && baiViet.getTieuDe() != null) {
+            // Use title as meta title, truncate if too long
+            String metaTitle = baiViet.getTieuDe();
+            if (metaTitle.length() > 60) {
+                metaTitle = metaTitle.substring(0, 57) + "...";
+            }
+            baiViet.setMetaTitle(metaTitle);
+        }
+
+        if (baiViet.getMetaDescription() == null && baiViet.getTomTat() != null) {
+            // Use summary as meta description, truncate if too long
+            String metaDescription = baiViet.getTomTat();
+            if (metaDescription.length() > 160) {
+                metaDescription = metaDescription.substring(0, 157) + "...";
+            }
+            baiViet.setMetaDescription(metaDescription);
+        }
+
+
 
         return baiVietRepository.save(baiViet);
     }
@@ -2068,6 +2198,30 @@ public class AdminService {
         Account account = getAccountById(id);
         account.setPassword(passwordEncoder.encode(newPassword));
         accountRepository.save(account);
+    }
+
+    public java.util.List<Account> getAllAccounts() {
+        return accountRepository.findAll();
+    }
+
+    public long countActiveAccounts() {
+        return accountRepository.findAll().stream()
+                .filter(account -> account.getStatus() == Account.AccountStatus.ACTIVE)
+                .count();
+    }
+
+    public long countInactiveAccounts() {
+        return accountRepository.findAll().stream()
+                .filter(account -> account.getStatus() == Account.AccountStatus.INACTIVE)
+                .count();
+    }
+
+    public long countAdminAccounts() {
+        return accountRepository.findByRole(Account.Role.ADMIN).size();
+    }
+
+    public long countUserAccounts() {
+        return accountRepository.findByRole(Account.Role.USER).size();
     }
 
     public java.util.List<Account> getAllActiveAccounts() {

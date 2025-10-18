@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,53 +15,116 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-folder-open me-2"></i>Quản Lý Danh Mục Tài Chính
-                    </h2>
-                    <p class="text-muted mb-0">Quản lý các danh mục thu chi cho giao dịch tài chính</p>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Quản Lý Danh Mục Tài Chính</h1>
+                            <p class="header-subtitle">Quản lý các danh mục thu chi cho giao dịch tài chính</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/tai-chinh/danh-muc/add}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-plus me-2"></i>Thêm Danh Mục Mới
+                        </a>
+                    </div>
                 </div>
-                <a th:href="@{/admin/tai-chinh/danh-muc/add}" class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Thêm Danh Mục Mới
-                </a>
             </div>
 
-            <!-- Search & Filter -->
-            <div class="card shadow border-0 mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Tìm Kiếm & Bộ Lọc</h6>
-                </div>
-                <div class="card-body">
+            <!-- Modern Search & Filters -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="card-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <div class="card-title">
+                            <h5>Tìm Kiếm & Bộ Lọc</h5>
+                            <p>Tìm kiếm và lọc danh sách danh mục tài chính</p>
+                        </div>
+                    </div>
+                    <button class="btn-toggle" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#advancedFilters" aria-expanded="false">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Nâng cao</span>
+                    </button>
+                </div>   
+                <div class="card-content">
                     <form method="get" th:action="@{/admin/tai-chinh/danh-muc}" id="filterForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-search"></i>
+                        <!-- Basic Search -->
+                        <div class="search-row">
+                            <div class="search-input-group">
+                                <div class="input-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <input type="text" class="form-input" name="search" th:value="${search}"
+                                       placeholder="Tìm kiếm theo tên danh mục, mô tả..." id="searchInput">
+                                <button type="button" class="clear-input-btn" onclick="clearSearchInput()"
+                                        th:style="${search != null and !#strings.isEmpty(search)} ? 'display: block;' : 'display: none;'"
+                                        title="Xóa từ khóa tìm kiếm">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <div class="search-actions">
+                                <button type="submit" class="btn-modern btn-modern-primary">
+                                    <i class="fas fa-search me-1"></i>Tìm kiếm
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Active Filters Display -->
+                        <div class="active-filters" 
+                             th:if="${search != null and !#strings.isEmpty(search)} or ${loai != null and !#strings.isEmpty(loai)}">
+                            <div class="filters-label">
+                                <i class="fas fa-filter me-2"></i>Bộ lọc đang áp dụng:
+                            </div>
+                            <div class="filter-tags">
+                                <!-- Search Filter Tag -->
+                                <div class="filter-tag" th:if="${search != null and !#strings.isEmpty(search)}">
+                                    <span class="filter-tag-label">Tìm kiếm:</span>
+                                    <span class="filter-tag-value" th:text="${search}"></span>
+                                    <a th:href="@{/admin/tai-chinh/danh-muc(loai=${loai})}"
+                                       class="filter-tag-remove" title="Xóa bộ lọc tìm kiếm">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                </div>
+                                <!-- Type Filter Tag -->
+                                <div class="filter-tag" th:if="${loai != null and !#strings.isEmpty(loai)}">
+                                    <span class="filter-tag-label">Loại:</span>
+                                    <span class="filter-tag-value">
+                                        <span th:if="${loai == 'THU'}">Thu nhập</span>
+                                        <span th:if="${loai == 'CHI'}">Chi phí</span>
                                     </span>
-                                    <input type="text" class="form-control" name="search" 
-                                           th:value="${search}" placeholder="Tìm kiếm theo tên danh mục...">
+                                    <a th:href="@{/admin/tai-chinh/danh-muc(search=${search})}"
+                                       class="filter-tag-remove" title="Xóa bộ lọc loại">
+                                        <i class="fas fa-times"></i>
+                                    </a>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <select class="form-select" name="loai">
-                                    <option value="">Tất cả loại</option>
-                                    <option value="THU" th:selected="${loai == 'THU'}">
-                                        <i class="fas fa-arrow-up text-success"></i> Thu
-                                    </option>
-                                    <option value="CHI" th:selected="${loai == 'CHI'}">
-                                        <i class="fas fa-arrow-down text-danger"></i> Chi
-                                    </option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-search me-1"></i>Tìm kiếm
+                        </div>
+
+                        <!-- Advanced Filters -->
+                        <div class="collapse" id="advancedFilters">
+                            <div class="advanced-filters">
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label class="filter-label">Loại danh mục</label>
+                                        <select class="form-select" name="loai">
+                                            <option value="">Tất cả loại</option>
+                                            <option value="THU" th:selected="${loai == 'THU'}">Thu nhập</option>
+                                            <option value="CHI" th:selected="${loai == 'CHI'}">Chi phí</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="filter-actions">
+                                    <button type="submit" class="btn-modern btn-modern-primary">
+                                        <i class="fas fa-filter me-1"></i>Áp dụng
                                     </button>
-                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn btn-outline-secondary">
+                                    <a th:href="@{/admin/tai-chinh/danh-muc}" class="btn-modern btn-modern-outline">
                                         <i class="fas fa-times me-1"></i>Xóa bộ lọc
                                     </a>
                                 </div>
@@ -71,128 +134,119 @@
                 </div>
             </div>
 
-            <!-- Categories List -->
-            <div class="card shadow border-0">
-                <div class="card-header bg-light border-0">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">
-                            <i class="fas fa-list me-2"></i>Danh Sách Danh Mục
-                            <span class="badge bg-primary ms-2" th:text="${danhMucPage.totalElements}">0</span>
-                        </h5>
-                        <small class="text-muted">
-                            Trang <span th:text="${danhMucPage.number + 1}">1</span> 
-                            / <span th:text="${danhMucPage.totalPages}">1</span>
-                        </small>
+            <!-- Financial Categories List -->
+            <div class="modern-card">
+                <div class="card-header">
+                    <div class="header-left">
+                        <div class="card-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <div class="card-title">
+                            <h5>Danh Sách Danh Mục Tài Chính</h5>
+                            <p>Tổng cộng <span class="total-count" th:text="${danhMucPage.totalElements}">0</span> danh mục</p>
+                        </div>
                     </div>
                 </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th width="5%">#</th>
-                                    <th width="25%">Tên Danh Mục</th>
-                                    <th width="12%">Loại</th>
-                                    <th width="30%">Mô Tả</th>
-                                    <th width="10%">Số GD</th>
-                                    <th width="10%">Ngày Tạo</th>
-                                    <th width="8%">Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:if="${danhMucPage.content.empty}">
-                                    <td colspan="7" class="text-center py-4 text-muted">
-                                        <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                                        Không có danh mục nào được tìm thấy
-                                    </td>
-                                </tr>
-                                <tr th:each="danhMuc, iterStat : ${danhMucPage.content}" class="align-middle">
-                                    <td>
-                                        <span class="fw-bold text-primary" 
-                                              th:text="${danhMucPage.number * danhMucPage.size + iterStat.index + 1}">1</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                 th:class="${danhMuc.loai.name() == 'THU'} ? 'bg-success' : 'bg-danger'">
-                                                <i th:class="${danhMuc.loai.name() == 'THU'} ? 'fas fa-arrow-up text-white' : 'fas fa-arrow-down text-white'"></i>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0" th:text="${danhMuc.tenDanhMuc}">Tên danh mục</h6>
-                                                <small class="text-muted">ID: <span th:text="${danhMuc.id}">1</span></small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span th:if="${danhMuc.loai.name() == 'THU'}" class="badge bg-success">
-                                            <i class="fas fa-arrow-up me-1"></i>Thu
-                                        </span>
-                                        <span th:if="${danhMuc.loai.name() == 'CHI'}" class="badge bg-danger">
-                                            <i class="fas fa-arrow-down me-1"></i>Chi
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span th:if="${danhMuc.moTa}" th:text="${#strings.abbreviate(danhMuc.moTa, 60)}">Mô tả</span>
-                                        <span th:unless="${danhMuc.moTa}" class="text-muted fst-italic">Chưa có mô tả</span>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge bg-info" id="gd-count-${danhMuc.id}">
-                                            <i class="fas fa-exchange-alt me-1"></i>
+                <div class="card-content">
+                    <!-- Empty State -->
+                    <div th:if="${danhMucPage.content.empty}" class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <h3>Chưa có danh mục tài chính nào</h3>
+                        <p>Hãy tạo danh mục đầu tiên để phân loại giao dịch tài chính</p>
+                        <a th:href="@{/admin/tai-chinh/danh-muc/add}" class="btn-modern btn-modern-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm Danh Mục Đầu Tiên
+                        </a>
+                    </div>
+
+                    <!-- Financial Categories Grid -->
+                    <div th:unless="${danhMucPage.content.empty}" class="items-grid">
+                        <div th:each="danhMuc : ${danhMucPage.content}" class="item-card financial-category-card">
+                            <div class="item-avatar">
+                                <div class="financial-category-icon" 
+                                     th:class="${danhMuc.loai.name() == 'THU'} ? 'income-icon' : 'expense-icon'">
+                                    <i th:class="${danhMuc.loai.name() == 'THU'} ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                                </div>
+                            </div>
+                            <div class="item-info">
+                                <div class="item-header">
+                                    <h4 class="item-name" th:text="${danhMuc.tenDanhMuc}">Tên Danh Mục</h4>
+                                    <div class="item-status">
+                                        <span th:if="${danhMuc.loai.name() == 'THU'}" class="status-badge income">Thu nhập</span>
+                                        <span th:if="${danhMuc.loai.name() == 'CHI'}" class="status-badge expense">Chi phí</span>
+                                    </div>
+                                </div>
+                                <div class="item-details">
+                                    <div class="detail-row" th:if="${danhMuc.moTa}">
+                                        <span class="detail-label">Mô tả:</span>
+                                        <span th:text="${#strings.abbreviate(danhMuc.moTa, 80)}" class="text-muted">Mô tả danh mục</span>
+                                    </div>
+                                    <div class="detail-row" th:unless="${danhMuc.moTa}">
+                                        <span class="detail-label">Mô tả:</span>
+                                        <span class="text-muted fst-italic">Chưa có mô tả</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Số giao dịch:</span>
+                                        <span class="transaction-count" th:id="'gd-count-' + ${danhMuc.id}">
                                             <span class="count-text">0</span>
                                         </span>
-                                    </td>
-                                    <td>
-                                        <small class="text-muted" th:text="${#temporals.format(danhMuc.createdAt, 'dd/MM/yyyy')}">01/01/2024</small>
-                                    </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a th:href="@{/admin/tai-chinh/danh-muc/view/{id}(id=${danhMuc.id})}" 
-                                               class="btn btn-sm btn-outline-info" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMuc.id})}" 
-                                               class="btn btn-sm btn-outline-warning" title="Chỉnh sửa">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                    title="Xóa danh mục"
-                                                    th:data-id="${danhMuc.id}"
-                                                    th:data-name="${danhMuc.tenDanhMuc}"
-                                                    onclick="confirmDelete(this.dataset.id, this.dataset.name)">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Ngày tạo:</span>
+                                        <span th:text="${#temporals.format(danhMuc.createdAt, 'dd/MM/yyyy')}">01/01/2024</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">ID:</span>
+                                        <code class="id-code" th:text="${danhMuc.id}">1</code>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <a th:href="@{/admin/tai-chinh/danh-muc/view/{id}(id=${danhMuc.id})}" 
+                                   class="action-btn view" title="Xem chi tiết">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a th:href="@{/admin/tai-chinh/danh-muc/edit/{id}(id=${danhMuc.id})}" 
+                                   class="action-btn edit" title="Chỉnh sửa">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="action-btn delete" 
+                                        th:data-id="${danhMuc.id}"
+                                        th:data-name="${danhMuc.tenDanhMuc}"
+                                        onclick="confirmDelete(this.dataset.id, this.dataset.name)"
+                                        title="Xóa danh mục">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Pagination -->
-                <div class="card-footer bg-light border-0" th:if="${danhMucPage.totalPages > 1}">
-                    <nav>
-                        <ul class="pagination justify-content-center mb-0">
-                            <li class="page-item" th:classappend="${danhMucPage.first} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number - 1}, search=${search}, loai=${loai})}">
-                                    <i class="fas fa-chevron-left"></i>
-                                </a>
-                            </li>
-                            
-                            <li th:each="pageNum : ${#numbers.sequence(0, danhMucPage.totalPages - 1)}"
-                                class="page-item" th:classappend="${pageNum == danhMucPage.number} ? 'active'">
-                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${pageNum}, search=${search}, loai=${loai})}"
-                                   th:text="${pageNum + 1}">1</a>
-                            </li>
-                            
-                            <li class="page-item" th:classappend="${danhMucPage.last} ? 'disabled'">
-                                <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number + 1}, search=${search}, loai=${loai})}">
-                                    <i class="fas fa-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+            <!-- Pagination -->
+            <div th:if="${danhMucPage.totalPages > 1}" class="modern-pagination">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item" th:classappend="${danhMucPage.first} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number - 1}, search=${search}, loai=${loai})}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        
+                        <li th:each="pageNum : ${#numbers.sequence(0, danhMucPage.totalPages - 1)}"
+                            class="page-item" th:classappend="${pageNum == danhMucPage.number} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${pageNum}, search=${search}, loai=${loai})}"
+                               th:text="${pageNum + 1}">1</a>
+                        </li>
+                        
+                        <li class="page-item" th:classappend="${danhMucPage.last} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/tai-chinh/danh-muc(page=${danhMucPage.number + 1}, search=${search}, loai=${loai})}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
         </div>
     </main>
@@ -225,8 +279,7 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div> 
     <script>
         function confirmDelete(id, name) {
             document.getElementById('deleteName').textContent = name;
@@ -234,8 +287,23 @@
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
 
-        // Load transaction counts for each category
+        function clearSearchInput() {
+            document.getElementById('searchInput').value = '';
+            document.querySelector('.clear-input-btn').style.display = 'none';
+        }
+
+        // Show/hide clear button based on input
         document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const clearBtn = document.querySelector('.clear-input-btn');
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearBtn.style.display = this.value ? 'block' : 'none';
+                });
+            }
+            
+            // Load transaction counts for each category
             const countElements = document.querySelectorAll('[id^="gd-count-"]');
             
             countElements.forEach(element => {
@@ -247,11 +315,11 @@
                         const countText = element.querySelector('.count-text');
                         countText.textContent = data.count || 0;
                         
-                        // Update badge color based on count
+                        // Update styling based on count
                         if (data.count > 0) {
-                            element.className = 'badge bg-success';
+                            element.className = 'transaction-count active';
                         } else {
-                            element.className = 'badge bg-secondary';
+                            element.className = 'transaction-count';
                         }
                     })
                     .catch(error => {
@@ -260,5 +328,634 @@
             });
         });
     </script>
+
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Card Styles */
+        .modern-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Search & Filter Styles */
+        .search-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .search-input-group {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 2;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .clear-input-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .clear-input-btn:hover {
+            background: #f8f9fa;
+            color: #dc3545;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Active Filters */
+        .active-filters {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-tag {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .filter-tag-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .filter-tag-value {
+            color: #495057;
+        }
+
+        .filter-tag-remove {
+            color: #dc3545;
+            text-decoration: none;
+            padding: 0.1rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+        }
+
+        .filter-tag-remove:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Advanced Filters */
+        .advanced-filters {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            flex: 1;
+        }
+
+        .filter-label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-toggle {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-modern-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+        }
+
+        .btn-modern-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Items Grid */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .item-avatar {
+            margin-bottom: 1rem;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .item-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .item-status {
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .item-details {
+            margin-bottom: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .action-btn.view {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .action-btn.edit {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: white;
+        }
+
+        .action-btn.delete {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Financial Category Specific Styles */
+        .financial-category-card .financial-category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .financial-category-icon.income-icon {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+
+        .financial-category-icon.expense-icon {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+        }
+
+        .transaction-count {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .transaction-count.active {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+        }
+
+        .id-code {
+            background: #f8f9fa;
+            color: #6c757d;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Status badges for financial categories */
+        .status-badge.income {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .status-badge.expense {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        /* Total Count Styling */
+        .total-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: inline-block;
+            min-width: 2rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            margin: 0 0.25rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Pagination */
+        .modern-pagination {
+            margin-top: 2rem;
+        }
+
+        .pagination .page-link {
+            border: none;
+            padding: 0.75rem 1rem;
+            margin: 0 0.25rem;
+            border-radius: 12px;
+            color: #667eea;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .pagination .page-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background: #f8f9fa;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-row {
+                flex-direction: column;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .filter-actions {
+                justify-content: center;
+            }
+        }
+    </style>
 </body>
 </html>

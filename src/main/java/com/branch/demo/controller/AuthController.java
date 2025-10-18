@@ -29,6 +29,7 @@ public class AuthController {
     
     @GetMapping("/login")
     public String loginPage(@RequestParam(value = "error", required = false) String error,
+                           @RequestParam(value = "message", required = false) String message,
                            @RequestParam(value = "logout", required = false) String logout,
                            Authentication authentication,
                            Model model) {
@@ -41,7 +42,10 @@ public class AuthController {
         
         if (error != null) {
             model.addAttribute("error", true);
-            model.addAttribute("errorMessage", "Tên đăng nhập hoặc mật khẩu không đúng");
+            // Sử dụng message từ URL parameter nếu có, nếu không thì dùng message mặc định
+            String errorMessage = (message != null && !message.isEmpty()) ? 
+                message : "Tên đăng nhập hoặc mật khẩu không đúng";
+            model.addAttribute("errorMessage", errorMessage);
         }
         
         if (logout != null) {

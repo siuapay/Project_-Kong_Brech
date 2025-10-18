@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,54 +15,67 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-map-marker-alt me-2"></i>Chi Tiết Điểm Nhóm
-                    </h2>
-                    <p class="text-muted mb-0">Thông tin chi tiết và đầy đủ của điểm nhóm</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="btn btn-warning">
-                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa
-                    </a>
-                    <a th:href="@{/admin/diem-nhom}" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                    </a>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title">Chi Tiết Điểm Nhóm</h1>
+                            <p class="header-subtitle">Thông tin chi tiết và đầy đủ của điểm nhóm</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-edit me-2"></i>Chỉnh Sửa
+                        </a>
+                        <a th:href="@{/admin/diem-nhom}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row g-4">
                 <!-- Main Profile Card -->
                 <div class="col-lg-4">
-                    <div class="card shadow-lg border-0">
-                        <div class="card-body text-center p-4">
-                            <!-- Location Icon -->
-                            <div class="mb-4">
-                                <div class="location-icon bg-success text-white rounded-circle mx-auto d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-map-marker-alt fa-3x"></i>
+                    <div class="modern-card">
+                        <div class="card-content text-center">
+                            <!-- Modern Location Section -->
+                            <div class="location-section">
+                                <div class="location-wrapper">
+                                    <div class="location-icon-circle">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </div>
                                 </div>
                             </div>
                             
                             <!-- Name & Basic Info -->
-                            <h3 class="text-primary mb-1" th:text="${diemNhom.tenDiemNhom}">Tên Điểm Nhóm</h3>
-                            <p class="text-muted mb-3" th:text="${!diemNhom.danhSachBanNganh.empty ? diemNhom.danhSachBanNganh.size() + ' ban ngành' : 'Chưa phân công ban ngành'}">Ban ngành</p>
+                            <div class="profile-info">
+                                <h2 class="profile-name" th:text="${diemNhom.tenDiemNhom}">Tên Điểm Nhóm</h2>
+                                <p class="profile-desc" th:text="${!diemNhom.danhSachBanNganh.empty ? diemNhom.danhSachBanNganh.size() + ' ban ngành' : 'Chưa phân công ban ngành'}">Ban ngành</p>
+                            </div>
                             
                             <!-- Status Badge -->
-                            <div class="mb-4">
-                                <span th:if="${diemNhom.trangThai.name() == 'HOAT_DONG'}" class="badge bg-success fs-6 px-3 py-2">
-                                    <i class="fas fa-check-circle me-1"></i>Đang Hoạt Động
-                                </span>
-                                <span th:if="${diemNhom.trangThai.name() == 'CHUAN_BI'}" class="badge bg-warning fs-6 px-3 py-2">
-                                    <i class="fas fa-clock me-1"></i>Chuẩn Bị
-                                </span>
-                                <span th:if="${diemNhom.trangThai.name() == 'TAM_NGHI'}" class="badge bg-secondary fs-6 px-3 py-2">
-                                    <i class="fas fa-pause-circle me-1"></i>Tạm Nghỉ
-                                </span>
-                                <span th:if="${diemNhom.trangThai.name() == 'DONG_CUA'}" class="badge bg-danger fs-6 px-3 py-2">
-                                    <i class="fas fa-times-circle me-1"></i>Đóng Cửa
-                                </span>
+                            <div class="status-section">
+                                <div th:if="${diemNhom.trangThai.name() == 'HOAT_DONG'}" class="status-badge active">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Đang Hoạt Động</span>
+                                </div>
+                                <div th:if="${diemNhom.trangThai.name() == 'CHUAN_BI'}" class="status-badge preparing">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Chuẩn Bị</span>
+                                </div>
+                                <div th:if="${diemNhom.trangThai.name() == 'TAM_NGHI'}" class="status-badge inactive">
+                                    <i class="fas fa-pause-circle"></i>
+                                    <span>Tạm Nghỉ</span>
+                                </div>
+                                <div th:if="${diemNhom.trangThai.name() == 'DONG_CUA'}" class="status-badge closed">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Đóng Cửa</span>
+                                </div>
                             </div>
 
                             <!-- Quick Stats -->
@@ -137,44 +150,84 @@
                         </div>
                     </div>
 
-                    <!-- Quick Actions -->
-                    <div class="card shadow border-0 mt-4">
-                        <div class="card-header bg-gradient-success text-white">
-                            <h6 class="mb-0"><i class="fas fa-bolt me-2"></i>Thao Tác Nhanh</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="btn btn-warning">
-                                    <i class="fas fa-edit me-2"></i>Chỉnh Sửa
-                                </a>
-                                <button type="button" class="btn btn-danger" 
-                                        th:data-id="${diemNhom.id}"
-                                        th:data-name="${diemNhom.tenDiemNhom}"
-                                        onclick="confirmDelete(this.dataset.id, this.dataset.name)">
-                                    <i class="fas fa-trash me-2"></i>Xóa Điểm Nhóm
-                                </button>
-                                <hr>
-                                <a th:href="@{/admin/diem-nhom}" class="btn btn-outline-secondary">
-                                    <i class="fas fa-list me-2"></i>Danh Sách
-                                </a>
-                                <a th:href="@{/admin/diem-nhom/new}" class="btn btn-outline-primary">
-                                    <i class="fas fa-plus me-2"></i>Thêm Mới
-                                </a>
+                    <!-- Modern Quick Actions -->
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thao Tác Nhanh</h5>
+                                    <p>Các hành động có thể thực hiện</p>
+                                </div>
                             </div>
+                        </div>
+                        <div class="card-content">
+                            <a th:href="@{/admin/diem-nhom/edit/{id}(id=${diemNhom.id})}" class="action-item edit">
+                                <div class="action-icon">
+                                    <i class="fas fa-edit"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Chỉnh Sửa</span>
+                                    <span class="action-desc">Cập nhật thông tin</span>
+                                </div>
+                            </a>
+                            
+                            <button type="button" class="action-item delete" 
+                                    th:data-id="${diemNhom.id}"
+                                    th:data-name="${diemNhom.tenDiemNhom}"
+                                    onclick="confirmDelete(this.dataset.id, this.dataset.name)">
+                                <div class="action-icon">
+                                    <i class="fas fa-trash"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Xóa Điểm Nhóm</span>
+                                    <span class="action-desc">Xóa khỏi hệ thống</span>
+                                </div>
+                            </button>
+                            
+                            <div class="actions-divider"></div>
+                            
+                            <a th:href="@{/admin/diem-nhom}" class="action-item secondary">
+                                <div class="action-icon">
+                                    <i class="fas fa-list"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Danh Sách</span>
+                                    <span class="action-desc">Xem tất cả điểm nhóm</span>
+                                </div>
+                            </a>
+                            
+                            <a th:href="@{/admin/diem-nhom/new}" class="action-item primary">
+                                <div class="action-icon">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div class="action-text">
+                                    <span class="action-title">Thêm Mới</span>
+                                    <span class="action-desc">Tạo điểm nhóm mới</span>
+                                </div>
+                            </a>
                         </div>
                     </div>
                 </div>
 
-                <!-- Detailed Information -->
+                <!-- Modern Detailed Information -->
                 <div class="col-lg-8">
                     <!-- Basic Information -->
-                    <div class="card shadow border-0 mb-4">
-                        <div class="card-header bg-light border-0">
-                            <h5 class="text-primary mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Cơ Bản
-                            </h5>
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Cơ Bản</h5>
+                                    <p>Chi tiết về thông tin điểm nhóm</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <div class="row g-4">
                                 <div class="col-md-6">
                                     <div class="info-item">
@@ -255,13 +308,19 @@
 
 
                     <!-- System Information -->
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light border-0">
-                            <h5 class="text-secondary mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Hệ Thống
-                            </h5>
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-cog"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Hệ Thống</h5>
+                                    <p>Chi tiết về bản ghi</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <div class="row g-4">
                                 <div class="col-md-4">
                                     <div class="info-item text-center">
@@ -1070,4 +1129,383 @@
         }
     </style>
 </body>
-</html>
+</html>   
+ <!-- Modern View Page Styles -->
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Modern Location Section */
+        .location-section {
+            margin-bottom: 2rem;
+        }
+
+        .location-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .location-icon-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 4px solid #f8f9fa;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .profile-info {
+            margin-bottom: 2rem;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-desc {
+            color: #718096;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .status-section {
+            margin-bottom: 2rem;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .status-badge.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .status-badge.preparing {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        .status-badge.closed {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        /* Modern Actions */
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            border: none;
+            background: transparent;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .action-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .action-item.edit:hover {
+            background: linear-gradient(135deg, #fef5e7 0%, #fed7aa 100%);
+        }
+
+        .action-item.delete:hover {
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+        }
+
+        .action-item.primary:hover {
+            background: linear-gradient(135deg, #e6f3ff 0%, #bee3f8 100%);
+        }
+
+        .action-item .action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .action-item.edit .action-icon {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        .action-item.delete .action-icon {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: white;
+        }
+
+        .action-item.secondary .action-icon {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            color: white;
+        }
+
+        .action-item.primary .action-icon {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .action-text {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.95rem;
+        }
+
+        .action-desc {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 0.1rem;
+        }
+
+        .actions-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+            margin: 1rem 0;
+        }
+
+        /* Info Item Styles */
+        .info-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .info-value {
+            font-size: 1rem;
+            color: #2d3748;
+            line-height: 1.5;
+        }
+
+        .note-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .note-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        /* Stat Item Styles */
+        .stat-item {
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item small {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Button Link Styles */
+        .btn-link {
+            border: none !important;
+            background: none !important;
+            text-decoration: none !important;
+        }
+
+        .btn-link:hover {
+            background: none !important;
+            border: none !important;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .stat-item h4 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>

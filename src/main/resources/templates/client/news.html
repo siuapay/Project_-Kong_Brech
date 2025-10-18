@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/client-layout :: head}"></head>
-  <body>
+  <body class="news-page">
     <!-- Navigation -->
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
@@ -9,7 +9,7 @@
     <section class="modern-hero-section">
       <div class="hero-background"></div>
       <div class="hero-overlay"></div>
-      <div class="container position-relative" style="z-index: 10;">
+      <div class="container position-relative" style="z-index: 10">
         <div class="row justify-content-center text-center">
           <div class="col-lg-8">
             <div class="hero-content">
@@ -23,10 +23,12 @@
               <div class="hero-actions">
                 <div class="hero-description mb-4">
                   <p class="description-text">
-                    "Hãy để ánh sáng các ngươi soi trước mặt người ta, để họ thấy việc lành của các ngươi và ngợi khen Cha các ngươi ở trên trời." - Ma-thi-ơ 5:16
+                    "Hãy để ánh sáng các ngươi soi trước mặt người ta, để họ
+                    thấy việc lành của các ngươi và ngợi khen Cha các ngươi ở
+                    trên trời." - Ma-thi-ơ 5:16
                   </p>
                 </div>
-                <div class="hero-buttons">
+            <!--   <div class="hero-buttons">
                   <a href="#news-content" class="hero-btn primary">
                     <i class="fas fa-arrow-down me-2"></i>
                     Xem Tin Tức
@@ -35,6 +37,515 @@
                     <i class="fas fa-info-circle me-2"></i>
                     Về Chúng Tôi
                   </a>
+                </div>--> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <section class="main-content-section" id="news-content">
+      <div class="container">
+        <div class="content-wrapper">
+          <!-- Left Column - News Content -->
+          <div class="news-column">
+
+
+            <!-- Search/Filter Results Info -->
+            <div
+              th:if="${(search != null and !#strings.isEmpty(search)) or selectedDanhMuc != null}"
+              class="filter-results-info mb-4"
+            >
+              <div class="results-card">
+                <div class="results-icon">
+                  <i class="fas fa-filter"></i>
+                </div>
+                <div class="results-content">
+                  <!-- Search results -->
+                  <div
+                    th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+                    class="result-text"
+                  >
+                    Tìm thấy
+                    <strong
+                      class="highlight-number"
+                      th:text="${baiVietPage.totalElements}"
+                      >0</strong
+                    >
+                    kết quả cho từ khóa "<strong
+                      class="highlight-keyword"
+                      th:text="${search}"
+                      >search</strong
+                    >"
+                    <span th:if="${selectedDanhMuc != null}">
+                      trong danh mục "<strong
+                        class="highlight-category"
+                        th:text="${selectedDanhMuc.tenDanhMuc}"
+                        >category</strong
+                      >"</span
+                    >
+                  </div>
+
+                  <div
+                    th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content == null or baiVietPage.content.empty)}"
+                    class="result-text no-results"
+                  >
+                    <i class="fas fa-search me-2"></i>
+                    Không tìm thấy kết quả nào cho từ khóa "<strong
+                      class="highlight-keyword"
+                      th:text="${search}"
+                      >search</strong
+                    >"
+                    <span th:if="${selectedDanhMuc != null}">
+                      trong danh mục "<strong
+                        class="highlight-category"
+                        th:text="${selectedDanhMuc.tenDanhMuc}"
+                        >category</strong
+                      >"</span
+                    >
+                  </div>
+
+                  <!-- Category filter only -->
+                  <div
+                    th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content != null and !baiVietPage.content.empty)}"
+                    class="result-text"
+                  >
+                    <i class="fas fa-folder-open me-2"></i>
+                    Hiển thị
+                    <strong
+                      class="highlight-number"
+                      th:text="${baiVietPage.totalElements}"
+                      >0</strong
+                    >
+                    tin tức trong danh mục "<strong
+                      class="highlight-category"
+                      th:text="${selectedDanhMuc.tenDanhMuc}"
+                      >category</strong
+                    >"
+                  </div>
+
+                  <div
+                    th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content == null or baiVietPage.content.empty)}"
+                    class="result-text no-results"
+                  >
+                    <i class="fas fa-folder me-2"></i>
+                    Không có tin tức nào trong danh mục "<strong
+                      class="highlight-category"
+                      th:text="${selectedDanhMuc.tenDanhMuc}"
+                      >category</strong
+                    >"
+                  </div>
+                </div>
+                <a href="/news" class="clear-filter-btn">
+                  <i class="fas fa-times me-1"></i>Xóa bộ lọc
+                </a>
+              </div>
+            </div>
+
+            <!-- Modern Featured Article -->
+            <div
+              th:if="${baiVietPage.content != null and !baiVietPage.content.empty}"
+              class="mb-5"
+            >
+              <div
+                th:with="featured=${baiVietPage.content[0]}"
+                class="featured-article"
+              >
+                <div class="featured-content">
+                  <div class="featured-image-container">
+                    <img
+                      th:src="${featured.anhDaiDien} ?: '/images/default-news.jpg'"
+                      class="featured-image"
+                      th:alt="${featured.tieuDe}"
+                    />
+                    <div class="featured-overlay"></div>
+                    <div
+                      th:if="${featured.danhMuc != null}"
+                      class="featured-category"
+                      th:style="${featured.danhMuc.mauSac != null} ? 'background-color: ' + ${featured.danhMuc.mauSac} + '; color: white;' : ''"
+                    >
+                      <i
+                        th:class="${featured.danhMuc.icon != null} ? 'fas fa-' + ${featured.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"
+                      ></i>
+                      <span th:text="${featured.danhMuc.tenDanhMuc}"
+                        >Danh mục</span
+                      >
+                    </div>
+                  </div>
+                  <div class="featured-info">
+                    <div class="featured-badge">
+                      <i class="fas fa-star me-1"></i>Nổi bật
+                    </div>
+                    <h2 class="featured-title">
+                      <a
+                        th:href="@{/news/{slug}(slug=${featured.slug})}"
+                        class="text-decoration-none"
+                        th:text="${featured.tieuDe}"
+                        >Tiêu đề bài viết</a
+                      >
+                    </h2>
+                    <p class="featured-summary" th:text="${featured.tomTat}">
+                      Tóm tắt bài viết...
+                    </p>
+                    <div class="featured-meta">
+                      <div class="meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span
+                          th:text="${#temporals.format(featured.ngayXuatBan, 'dd/MM/yyyy')}"
+                          >01/01/2024</span
+                        >
+                      </div>
+                      <div class="meta-item">
+                        <i class="fas fa-eye"></i>
+                        <span
+                          th:text="${@numberFormat.formatCompact(featured.luotXem)}"
+                          >0</span
+                        >
+                        lượt xem
+                      </div>
+                      <div class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span>5 phút đọc</span>
+                      </div>
+                    </div>
+                    <a
+                      th:href="@{/news/{slug}(slug=${featured.slug})}"
+                      class="featured-btn"
+                    >
+                      Đọc bài viết
+                      <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modern News Grid -->
+            <div class="modern-news-grid">
+              <div
+                th:each="news, iterStat : ${baiVietPage.content}"
+                th:if="${iterStat.index > 0}"
+                class="news-grid-item"
+              >
+                <article class="modern-news-card">
+                  <div class="news-card-image">
+                    <img
+                      th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'"
+                      th:alt="${news.tieuDe}"
+                    />
+                    <div class="news-card-overlay"></div>
+                    <div
+                      th:if="${news.danhMuc != null}"
+                      class="news-card-category"
+                      th:style="${news.danhMuc.mauSac != null} ? 'background-color: ' + ${news.danhMuc.mauSac} + '; color: white;' : ''"
+                    >
+                      <i
+                        th:class="${news.danhMuc.icon != null} ? 'fas fa-' + ${news.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"
+                      ></i>
+                      <span th:text="${news.danhMuc.tenDanhMuc}">Danh mục</span>
+                    </div>
+                  </div>
+                  <div class="news-card-content">
+                    <h3 class="news-card-title">
+                      <a
+                        th:href="@{/news/{slug}(slug=${news.slug})}"
+                        th:text="${#strings.abbreviate(news.tieuDe, 60)}"
+                        >Tiêu đề</a
+                      >
+                    </h3>
+                    <p
+                      class="news-card-summary"
+                      th:text="${#strings.abbreviate(news.tomTat, 100)}"
+                    >
+                      Tóm tắt...
+                    </p>
+                    <div class="news-card-meta">
+                      <div class="meta-group">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span
+                          th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}"
+                          >01/01</span
+                        >
+                      </div>
+                      <div class="meta-group">
+                        <i class="fas fa-eye"></i>
+                        <span
+                          th:text="${@numberFormat.formatCompact(news.luotXem)}"
+                          >0</span
+                        >
+                      </div>
+                    </div>
+                    <a
+                      th:href="@{/news/{slug}(slug=${news.slug})}"
+                      class="news-card-btn"
+                    >
+                      Đọc thêm
+                    </a>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${baiVietPage.content.empty}" class="text-center py-5">
+              <i
+                class="fas fa-newspaper fa-5x text-muted mb-3"
+                th:if="${search == null or #strings.isEmpty(search)}"
+              ></i>
+              <i
+                class="fas fa-search fa-5x text-muted mb-3"
+                th:if="${search != null and !#strings.isEmpty(search)}"
+              ></i>
+              <h3
+                class="text-muted"
+                th:if="${search == null or #strings.isEmpty(search)}"
+              >
+                Chưa Có Tin Tức
+              </h3>
+              <h3
+                class="text-muted"
+                th:if="${search != null and !#strings.isEmpty(search)}"
+              >
+                Không Tìm Thấy Kết Quả
+              </h3>
+              <p
+                class="text-muted"
+                th:if="${search == null or #strings.isEmpty(search)}"
+              >
+                Hiện tại chưa có tin tức nào được đăng tải.
+              </p>
+              <p
+                class="text-muted"
+                th:if="${search != null and !#strings.isEmpty(search)}"
+              >
+                Không có tin tức nào phù hợp với từ khóa tìm kiếm của bạn.
+              </p>
+              <a
+                href="/"
+                class="btn btn-primary"
+                th:if="${search == null or #strings.isEmpty(search)}"
+              >
+                <i class="fas fa-home me-2"></i>Về Trang Chủ
+              </a>
+              <a
+                href="/news"
+                class="btn btn-primary"
+                th:if="${search != null and !#strings.isEmpty(search)}"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Xem Tất Cả Tin Tức
+              </a>
+            </div>
+
+            <!-- Pagination -->
+            <nav th:if="${totalPages > 1}" class="mt-4">
+              <ul class="pagination justify-content-center">
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage == 0} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/news(page=${currentPage - 1}, search=${search}, danhMucId=${danhMucId})}"
+                  >
+                    <i class="fas fa-chevron-left"></i>
+                  </a>
+                </li>
+
+                <li
+                  th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                  class="page-item"
+                  th:classappend="${pageNum == currentPage} ? 'active'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/news(page=${pageNum}, search=${search}, danhMucId=${danhMucId})}"
+                    th:text="${pageNum + 1}"
+                    >1</a
+                  >
+                </li>
+
+                <li
+                  class="page-item"
+                  th:classappend="${currentPage >= totalPages - 1} ? 'disabled'"
+                >
+                  <a
+                    class="page-link"
+                    th:href="@{/news(page=${currentPage + 1}, search=${search}, danhMucId=${danhMucId})}"
+                  >
+                    <i class="fas fa-chevron-right"></i>
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </div>
+
+          <!-- Right Column - Modern Sidebar -->
+          <div class="sidebar-column">
+            <div class="sidebar-container">
+              <!-- Categories Widget -->
+              <div class="sidebar-card categories-widget">
+                <div class="sidebar-header">
+                  <div class="sidebar-icon">
+                    <i class="fas fa-folder"></i>
+                  </div>
+                  <h5 class="sidebar-title">Danh Mục</h5>
+                </div>
+                <div class="sidebar-content">
+                  <a
+                    href="/news"
+                    class="category-item"
+                    th:classappend="${selectedDanhMuc == null} ? 'active' : ''"
+                  >
+                    <div class="category-icon">
+                      <i class="fas fa-th-large"></i>
+                    </div>
+                    <div class="category-info">
+                      <span class="category-name">Tất cả</span>
+                    </div>
+                  </a>
+                  <a
+                    th:each="category : ${danhMucList}"
+                    th:href="@{/news(danhMucId=${category.id})}"
+                    class="category-item"
+                    th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
+                  >
+                    <div
+                      class="category-icon"
+                      th:style="${category.mauSac != null} ? 'background-color: ' + ${category.mauSac} + ';' : 'background-color: #667eea;'"
+                    >
+                      <i
+                        th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} : 'fas fa-folder'"
+                      ></i>
+                    </div>
+                    <div class="category-info">
+                      <span
+                        class="category-name"
+                        th:text="${category.tenDanhMuc}"
+                        >Danh mục</span
+                      >
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Featured Articles -->
+              <div
+                th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}"
+                class="sidebar-card featured-articles"
+              >
+                <div class="sidebar-header">
+                  <div class="sidebar-icon">
+                    <i class="fas fa-star"></i>
+                  </div>
+                  <h5 class="sidebar-title">Bài Viết Nổi Bật</h5>
+                </div>
+                <div class="sidebar-content">
+                  <div th:each="bv : ${baiVietNoiBat}" class="news-item">
+                    <div class="news-image">
+                      <img
+                        th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'"
+                        th:alt="${bv.tieuDe}"
+                      />
+                    </div>
+                    <div class="news-content">
+                      <h6 class="news-title">
+                        <a
+                          th:href="@{/news/{slug}(slug=${bv.slug})}"
+                          th:text="${#strings.abbreviate(bv.tieuDe, 50)}"
+                          >Tiêu đề</a
+                        >
+                      </h6>
+                      <div class="news-meta">
+                        <i class="fas fa-calendar"></i>
+                        <span
+                          th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}"
+                          >01/01/2024</span
+                        >
+                        <span class="meta-divider">•</span>
+                        <i class="fas fa-eye"></i>
+                        <span
+                          th:text="${@numberFormat.formatCompact(bv.luotXem)}"
+                          >0</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Recent News -->
+              <div
+                th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}"
+                class="sidebar-card recent-news"
+              >
+                <div class="sidebar-header">
+                  <div class="sidebar-icon">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <h5 class="sidebar-title">Tin Mới Nhất</h5>
+                </div>
+                <div class="sidebar-content">
+                  <div
+                    th:each="bv : ${baiVietMoiNhat}"
+                    class="news-item simple"
+                  >
+                    <h6 class="news-title">
+                      <a
+                        th:href="@{/news/{slug}(slug=${bv.slug})}"
+                        th:text="${#strings.abbreviate(bv.tieuDe, 50)}"
+                        >Tiêu đề</a
+                      >
+                    </h6>
+                    <div class="news-meta">
+                      <i class="fas fa-calendar"></i>
+                      <span
+                        th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}"
+                        >01/01/2024</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Popular Articles -->
+              <div
+                th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}"
+                class="sidebar-card popular-articles"
+              >
+                <div class="sidebar-header">
+                  <div class="sidebar-icon">
+                    <i class="fas fa-fire"></i>
+                  </div>
+                  <h5 class="sidebar-title">Bài Viết Phổ Biến</h5>
+                </div>
+                <div class="sidebar-content">
+                  <div
+                    th:each="bv : ${baiVietPhoBien}"
+                    class="news-item simple"
+                  >
+                    <h6 class="news-title">
+                      <a
+                        th:href="@{/news/{slug}(slug=${bv.slug})}"
+                        th:text="${#strings.abbreviate(bv.tieuDe, 50)}"
+                        >Tiêu đề</a
+                      >
+                    </h6>
+                    <div class="news-meta">
+                      <i class="fas fa-eye"></i>
+                      <span th:text="${@numberFormat.formatCompact(bv.luotXem)}"
+                        >0</span
+                      >
+                      lượt xem
+                      <span class="meta-divider">•</span>
+                      <i class="fas fa-calendar"></i>
+                      <span
+                        th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}"
+                        >01/01</span
+                      >
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -43,427 +554,20 @@
       </div>
     </section>
 
-    <div class="container my-5" id="news-content">
-      <div class="row">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-          <!-- Smart Category Filter with Dropdown -->
-          <div class="smart-category-filter mb-5">
-            <div class="filter-header mb-3">
-              <h5 class="filter-title">
-                <i class="fas fa-filter me-2"></i>Danh Mục Tin Tức
-              </h5>
-            </div>
-            <div class="category-container">
-              <!-- Always visible categories -->
-              <div class="visible-categories">
-                <!-- All categories button -->
-                <a
-                  href="/news"
-                  class="category-pill"
-                  th:classappend="${selectedDanhMuc == null} ? 'active' : ''"
-                >
-                  <i class="fas fa-th-large me-2"></i>
-                  <span>Tất cả</span>
-                  <span class="pill-count" th:text="${baiVietPage.totalElements ?: '0'}">0</span>
-                </a>
-                
-                <!-- First 4 categories -->
-                <a
-                  th:each="category, iterStat : ${danhMucList}"
-                  th:if="${iterStat.index < 4}"
-                  th:href="@{/news(danhMucId=${category.id})}"
-                  class="category-pill"
-                  th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
-                  th:style="${category.mauSac != null} ? '--pill-color: ' + ${category.mauSac} + ';' : '--pill-color: #007bff;'"
-                >
-                  <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} + ' me-2' : 'fas fa-folder me-2'"></i>
-                  <span th:text="${category.tenDanhMuc}">Danh mục</span>
-                </a>
-              </div>
-              
-              <!-- More categories dropdown -->
-              <div class="dropdown-container" th:if="${#lists.size(danhMucList) > 4}">
-                <button class="category-pill dropdown-toggle-btn" id="moreCategories" data-bs-toggle="dropdown" aria-expanded="false">
-                  <i class="fas fa-ellipsis-h me-2"></i>
-                  <span>Xem thêm</span>
-                  <span class="pill-count" th:text="${#lists.size(danhMucList) - 4}">+</span>
-                </button>
-                <div class="dropdown-menu category-dropdown" aria-labelledby="moreCategories">
-                  <div class="dropdown-header">
-                    <i class="fas fa-list me-2"></i>Danh mục khác
-                  </div>
-                  <a
-                    th:each="category, iterStat : ${danhMucList}"
-                    th:if="${iterStat.index >= 4}"
-                    th:href="@{/news(danhMucId=${category.id})}"
-                    class="dropdown-item category-dropdown-item"
-                    th:classappend="${selectedDanhMuc != null and selectedDanhMuc.id == category.id} ? 'active' : ''"
-                    th:style="${category.mauSac != null} ? '--item-color: ' + ${category.mauSac} + ';' : '--item-color: #007bff;'"
-                  >
-                    <div class="dropdown-item-content">
-                      <div class="item-icon" th:style="${category.mauSac != null} ? 'background-color: ' + ${category.mauSac} + ';' : 'background-color: #007bff;'">
-                        <i th:class="${category.icon != null} ? 'fas fa-' + ${category.icon} : 'fas fa-folder'"></i>
-                      </div>
-                      <span class="item-text" th:text="${category.tenDanhMuc}">Danh mục</span>
-                    </div>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Search/Filter Results Info -->
-          <div
-            th:if="${(search != null and !#strings.isEmpty(search)) or selectedDanhMuc != null}"
-            class="filter-results-info mb-4"
-          >
-            <div class="results-card">
-              <div class="results-icon">
-                <i class="fas fa-filter"></i>
-              </div>
-              <div class="results-content">
-                <!-- Search results -->
-                <div
-                  th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content != null and !baiVietPage.content.empty)}"
-                  class="result-text"
-                >
-                  Tìm thấy <strong class="highlight-number" th:text="${baiVietPage.totalElements}">0</strong> kết
-                  quả cho từ khóa "<strong class="highlight-keyword" th:text="${search}">search</strong>"
-                  <span th:if="${selectedDanhMuc != null}">
-                    trong danh mục "<strong class="highlight-category" th:text="${selectedDanhMuc.tenDanhMuc}"
-                      >category</strong
-                    >"</span
-                  >
-                </div>
-
-                <div
-                  th:if="${search != null and !#strings.isEmpty(search) and (baiVietPage.content == null or baiVietPage.content.empty)}"
-                  class="result-text no-results"
-                >
-                  <i class="fas fa-search me-2"></i>
-                  Không tìm thấy kết quả nào cho từ khóa "<strong class="highlight-keyword"
-                    th:text="${search}"
-                    >search</strong
-                  >"
-                  <span th:if="${selectedDanhMuc != null}">
-                    trong danh mục "<strong class="highlight-category" th:text="${selectedDanhMuc.tenDanhMuc}"
-                      >category</strong
-                    >"</span
-                  >
-                </div>
-
-                <!-- Category filter only -->
-                <div
-                  th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content != null and !baiVietPage.content.empty)}"
-                  class="result-text"
-                >
-                  <i class="fas fa-folder-open me-2"></i>
-                  Hiển thị <strong class="highlight-number" th:text="${baiVietPage.totalElements}">0</strong> tin
-                  tức trong danh mục "<strong class="highlight-category"
-                    th:text="${selectedDanhMuc.tenDanhMuc}"
-                    >category</strong
-                  >"
-                </div>
-
-                <div
-                  th:if="${(search == null or #strings.isEmpty(search)) and selectedDanhMuc != null and (baiVietPage.content == null or baiVietPage.content.empty)}"
-                  class="result-text no-results"
-                >
-                  <i class="fas fa-folder me-2"></i>
-                  Không có tin tức nào trong danh mục "<strong class="highlight-category"
-                    th:text="${selectedDanhMuc.tenDanhMuc}"
-                    >category</strong
-                  >"
-                </div>
-              </div>
-              <a href="/news" class="clear-filter-btn">
-                <i class="fas fa-times me-1"></i>Xóa bộ lọc
-              </a>
-            </div>
-          </div>
-
-
-          <!-- Modern Featured Article -->
-          <div th:if="${baiVietPage.content != null and !baiVietPage.content.empty}" class="mb-5">
-            <div th:with="featured=${baiVietPage.content[0]}" class="featured-article">
-              <div class="featured-content">
-                <div class="featured-image-container">
-                  <img
-                    th:src="${featured.anhDaiDien} ?: '/images/default-news.jpg'"
-                    class="featured-image"
-                    th:alt="${featured.tieuDe}"
-                  />
-                  <div class="featured-overlay"></div>
-                  <div th:if="${featured.danhMuc != null}" class="featured-category"
-                       th:style="${featured.danhMuc.mauSac != null} ? 'background-color: ' + ${featured.danhMuc.mauSac} + '; color: white;' : ''">
-                    <i th:class="${featured.danhMuc.icon != null} ? 'fas fa-' + ${featured.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
-                    <span th:text="${featured.danhMuc.tenDanhMuc}">Danh mục</span>
-                  </div>
-                </div>
-                <div class="featured-info">
-                  <div class="featured-badge">
-                    <i class="fas fa-star me-1"></i>Nổi bật
-                  </div>
-                  <h2 class="featured-title">
-                    <a
-                      th:href="@{/news/{slug}(slug=${featured.slug})}"
-                      class="text-decoration-none"
-                      th:text="${featured.tieuDe}"
-                    >Tiêu đề bài viết</a>
-                  </h2>
-                  <p class="featured-summary" th:text="${featured.tomTat}">
-                    Tóm tắt bài viết...
-                  </p>
-                  <div class="featured-meta">
-                    <div class="meta-item">
-                      <i class="fas fa-calendar-alt"></i>
-                      <span th:text="${#temporals.format(featured.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                    </div>
-                    <div class="meta-item">
-                      <i class="fas fa-eye"></i>
-                      <span th:text="${featured.luotXem}">0</span> lượt xem
-                    </div>
-                    <div class="meta-item">
-                      <i class="fas fa-clock"></i>
-                      <span>5 phút đọc</span>
-                    </div>
-                  </div>
-                  <a th:href="@{/news/{slug}(slug=${featured.slug})}" class="featured-btn">
-                    Đọc bài viết
-                    <i class="fas fa-arrow-right ms-2"></i>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Modern News Grid -->
-          <div class="modern-news-grid">
-            <div
-              th:each="news, iterStat : ${baiVietPage.content}"
-              th:if="${iterStat.index > 0}"
-              class="news-grid-item"
-            >
-              <article class="modern-news-card">
-                <div class="news-card-image">
-                  <img
-                    th:src="${news.anhDaiDien} ?: '/images/default-news.jpg'"
-                    th:alt="${news.tieuDe}"
-                  />
-                  <div class="news-card-overlay"></div>
-                  <div th:if="${news.danhMuc != null}" class="news-card-category"
-                       th:style="${news.danhMuc.mauSac != null} ? 'background-color: ' + ${news.danhMuc.mauSac} + '; color: white;' : ''">
-                    <i th:class="${news.danhMuc.icon != null} ? 'fas fa-' + ${news.danhMuc.icon} + ' me-1' : 'fas fa-folder me-1'"></i>
-                    <span th:text="${news.danhMuc.tenDanhMuc}">Danh mục</span>
-                  </div>
-                </div>
-                <div class="news-card-content">
-                  <h3 class="news-card-title">
-                    <a
-                      th:href="@{/news/{slug}(slug=${news.slug})}"
-                      th:text="${#strings.abbreviate(news.tieuDe, 60)}"
-                    >Tiêu đề</a>
-                  </h3>
-                  <p class="news-card-summary" th:text="${#strings.abbreviate(news.tomTat, 100)}">
-                    Tóm tắt...
-                  </p>
-                  <div class="news-card-meta">
-                    <div class="meta-group">
-                      <i class="fas fa-calendar-alt"></i>
-                      <span th:text="${#temporals.format(news.ngayXuatBan, 'dd/MM/yyyy')}">01/01</span>
-                    </div>
-                    <div class="meta-group">
-                      <i class="fas fa-eye"></i>
-                      <span th:text="${news.luotXem}">0</span>
-                    </div>
-                  </div>
-                  <a th:href="@{/news/{slug}(slug=${news.slug})}" class="news-card-btn">
-                    Đọc thêm
-                  </a>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div
-            th:if="${baiVietPage.content.empty}"
-            class="text-center py-5"
-          >
-            <i
-              class="fas fa-newspaper fa-5x text-muted mb-3"
-              th:if="${search == null or #strings.isEmpty(search)}"
-            ></i>
-            <i
-              class="fas fa-search fa-5x text-muted mb-3"
-              th:if="${search != null and !#strings.isEmpty(search)}"
-            ></i>
-            <h3 class="text-muted" th:if="${search == null or #strings.isEmpty(search)}">
-              Chưa Có Tin Tức
-            </h3>
-            <h3 class="text-muted" th:if="${search != null and !#strings.isEmpty(search)}">
-              Không Tìm Thấy Kết Quả
-            </h3>
-            <p class="text-muted" th:if="${search == null or #strings.isEmpty(search)}">
-              Hiện tại chưa có tin tức nào được đăng tải.
-            </p>
-            <p class="text-muted" th:if="${search != null and !#strings.isEmpty(search)}">
-              Không có tin tức nào phù hợp với từ khóa tìm kiếm của bạn.
-            </p>
-            <a href="/" class="btn btn-primary" th:if="${search == null or #strings.isEmpty(search)}">
-              <i class="fas fa-home me-2"></i>Về Trang Chủ
-            </a>
-            <a
-              href="/news"
-              class="btn btn-primary"
-              th:if="${search != null and !#strings.isEmpty(search)}"
-            >
-              <i class="fas fa-arrow-left me-2"></i>Xem Tất Cả Tin Tức
-            </a>
-          </div>
-
-          <!-- Pagination -->
-          <nav th:if="${totalPages > 1}" class="mt-4">
-            <ul class="pagination justify-content-center">
-              <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link" th:href="@{/news(page=${currentPage - 1}, search=${search}, danhMucId=${danhMucId})}">
-                  <i class="fas fa-chevron-left"></i>
-                </a>
-              </li>
-              
-              <li th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
-                  class="page-item" th:classappend="${pageNum == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/news(page=${pageNum}, search=${search}, danhMucId=${danhMucId})}"
-                   th:text="${pageNum + 1}">1</a>
-              </li>
-              
-              <li class="page-item" th:classappend="${currentPage >= totalPages - 1} ? 'disabled'">
-                <a class="page-link" th:href="@{/news(page=${currentPage + 1}, search=${search}, danhMucId=${danhMucId})}">
-                  <i class="fas fa-chevron-right"></i>
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-          <!-- Featured Articles -->
-          <div th:if="${baiVietNoiBat != null and !baiVietNoiBat.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-primary text-white">
-              <h5 class="mb-0"><i class="fas fa-star me-2"></i>Bài Viết Nổi Bật</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietNoiBat}" class="border-bottom p-3">
-                <div class="d-flex">
-                  <img th:src="${bv.anhDaiDien} ?: '/images/default-news.jpg'" 
-                       class="rounded me-3" 
-                       style="width: 60px; height: 60px; object-fit: cover"
-                       th:alt="${bv.tieuDe}">
-                  <div>
-                    <h6 class="mb-2">
-                      <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                         class="text-decoration-none text-dark"
-                         th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                    </h6>
-                    <div class="news-meta">
-                      <i class="fas fa-calendar me-1"></i>
-                      <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                      <span class="mx-2">•</span>
-                      <i class="fas fa-eye me-1"></i>
-                      <span th:text="${bv.luotXem}">0</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Recent News -->
-          <div th:if="${baiVietMoiNhat != null and !baiVietMoiNhat.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-success text-white">
-              <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Tin Mới Nhất</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietMoiNhat}" class="border-bottom p-3">
-                <h6 class="mb-2">
-                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                     class="text-decoration-none text-dark"
-                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                </h6>
-                <div class="news-meta">
-                  <i class="fas fa-calendar me-1"></i>
-                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM/yyyy')}">01/01/2024</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Popular Articles -->
-          <div th:if="${baiVietPhoBien != null and !baiVietPhoBien.empty}" class="card sidebar-card mb-4">
-            <div class="card-header bg-warning text-dark">
-              <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Bài Viết Phổ Biến</h5>
-            </div>
-            <div class="card-body p-0">
-              <div th:each="bv : ${baiVietPhoBien}" class="border-bottom p-3">
-                <h6 class="mb-2">
-                  <a th:href="@{/news/{slug}(slug=${bv.slug})}" 
-                     class="text-decoration-none text-dark"
-                     th:text="${#strings.abbreviate(bv.tieuDe, 50)}">Tiêu đề</a>
-                </h6>
-                <div class="news-meta">
-                  <i class="fas fa-eye me-1"></i>
-                  <span th:text="${bv.luotXem}">0</span> lượt xem
-                  <span class="mx-2">•</span>
-                  <i class="fas fa-calendar me-1"></i>
-                  <span th:text="${#temporals.format(bv.ngayXuatBan, 'dd/MM')}">01/01</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Newsletter -->
-       
-        </div>
-      </div>
-    </div>
-
     <!-- Footer -->
     <footer th:replace="~{fragments/client-layout :: footer}"></footer>
 
     <!-- Scripts -->
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
-    
-    <!-- Category Dropdown Script -->
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Bootstrap dropdown
-        const dropdownToggle = document.getElementById('moreCategories');
-        if (dropdownToggle) {
-          const dropdown = new bootstrap.Dropdown(dropdownToggle);
-          
-          // Add smooth animation
-          const dropdownMenu = dropdownToggle.nextElementSibling;
-          
-          dropdownToggle.addEventListener('show.bs.dropdown', function() {
-            dropdownMenu.style.display = 'block';
-            setTimeout(() => {
-              dropdownMenu.classList.add('show');
-            }, 10);
-          });
-          
-          dropdownToggle.addEventListener('hide.bs.dropdown', function() {
-            dropdownMenu.classList.remove('show');
-            setTimeout(() => {
-              dropdownMenu.style.display = 'none';
-            }, 300);
-          });
-        }
-      });
-    </script>
+
+
 
     <style>
+      /* News Page Styles */
+      .news-page {
+        background-color: #f8f9fa;
+      }
+
       /* Modern Hero Section */
       .modern-hero-section {
         position: relative;
@@ -472,17 +576,22 @@
         align-items: center;
         overflow: hidden;
       }
-      
+
       .hero-background {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        background: linear-gradient(
+          135deg,
+          #667eea 0%,
+          #764ba2 50%,
+          #f093fb 100%
+        );
         z-index: 1;
       }
-      
+
       .hero-overlay {
         position: absolute;
         top: 0;
@@ -492,63 +601,63 @@
         background: rgba(0, 0, 0, 0.3);
         z-index: 2;
       }
-      
+
       .hero-content {
         position: relative;
         z-index: 10;
         color: white !important;
       }
-      
+
       .hero-icon {
         font-size: 4rem;
         opacity: 0.9;
         color: white !important;
       }
-      
+
       .hero-title {
         font-size: 3.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         color: white !important;
       }
-      
+
       .hero-subtitle {
         font-size: 1.25rem;
         opacity: 0.9;
         font-weight: 300;
         color: white !important;
       }
-      
+
       .hero-actions {
         margin-top: 2rem;
       }
-      
+
       .hero-description {
         max-width: 600px;
         margin: 0 auto;
       }
-      
+
       .description-text {
         font-size: 1.1rem;
         line-height: 1.6;
         font-style: italic;
         opacity: 0.95;
         color: #f8f9fa !important;
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
         padding: 1.5rem;
         border-radius: 15px;
         border-left: 4px solid #ffd700;
         margin: 0;
       }
-      
+
       .hero-buttons {
         display: flex;
         justify-content: center;
         gap: 1rem;
         flex-wrap: wrap;
       }
-      
+
       .hero-btn {
         display: inline-flex;
         align-items: center;
@@ -560,198 +669,64 @@
         transition: all 0.3s ease;
         border: 2px solid transparent;
       }
-      
+
       .hero-btn.primary {
         background: linear-gradient(45deg, #ffd700, #ffed4e);
         color: #2c3e50 !important;
         box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
       }
-      
+
       .hero-btn.primary:hover {
         background: linear-gradient(45deg, #ffed4e, #ffd700);
         color: #2c3e50 !important;
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
       }
-      
+
       .hero-btn.secondary {
         background: transparent;
         color: white !important;
-        border-color: rgba(255,255,255,0.5);
+        border-color: rgba(255, 255, 255, 0.5);
       }
-      
+
       .hero-btn.secondary:hover {
-        background: rgba(255,255,255,0.1);
+        background: rgba(255, 255, 255, 0.1);
         color: white !important;
         border-color: white;
         transform: translateY(-2px);
       }
-      
-      /* Smart Category Filter with Dropdown */
-      .smart-category-filter {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        border: 1px solid #e9ecef;
-      }
-      
-      .filter-title {
-        color: #2c3e50;
-        font-weight: 600;
-        margin: 0;
-      }
-      
-      .category-container {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-      }
-      
-      .visible-categories {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-      }
-      
-      .category-pill {
-        --pill-color: #007bff;
-        display: inline-flex;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        background: white;
-        border: 2px solid var(--pill-color);
-        border-radius: 50px;
-        color: var(--pill-color);
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
+
+      /* Main Content Layout */
+      .main-content-section {
+        padding: 60px 0;
+        margin-top: -40px;
         position: relative;
-        overflow: hidden;
-        cursor: pointer;
+        z-index: 10;
       }
-      
-      .category-pill:hover {
-        background: var(--pill-color);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-      }
-      
-      .category-pill.active {
-        background: var(--pill-color);
-        color: white;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      }
-      
-      .pill-count {
-        background: rgba(255,255,255,0.2);
-        padding: 0.25rem 0.5rem;
-        border-radius: 15px;
-        font-size: 0.75rem;
-        margin-left: 0.5rem;
-        font-weight: 600;
-      }
-      
-      /* Dropdown specific styles */
-      .dropdown-container {
-        position: relative;
-      }
-      
-      .dropdown-toggle-btn {
-        --pill-color: #6c757d;
-        border-style: dashed !important;
-        background: #f8f9fa;
-      }
-      
-      .dropdown-toggle-btn:hover {
-        --pill-color: #495057;
-        background: #495057;
-      }
-      
-      .category-dropdown {
-        min-width: 280px;
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        padding: 0;
-        margin-top: 0.5rem;
-        overflow: hidden;
-      }
-      
-      .dropdown-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem 1.25rem;
-        font-weight: 600;
-        font-size: 0.9rem;
-        border: none;
-        margin: 0;
-      }
-      
-      .category-dropdown-item {
-        --item-color: #007bff;
-        padding: 0;
-        border: none;
-        transition: all 0.3s ease;
-      }
-      
-      .category-dropdown-item:hover {
-        background: #f8f9fa;
-      }
-      
-      .category-dropdown-item.active {
-        background: var(--item-color);
-        color: white;
-      }
-      
-      .category-dropdown-item.active .dropdown-item-content {
-        color: white;
-      }
-      
-      .dropdown-item-content {
+
+      .content-wrapper {
         display: flex;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        color: #2c3e50;
-        text-decoration: none;
+        gap: 2rem;
+        align-items: flex-start;
       }
-      
-      .item-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 0.75rem;
-        color: white;
-        font-size: 0.8rem;
+
+      .news-column {
+        flex: 2;
+        min-width: 0;
       }
-      
-      .item-text {
-        font-weight: 500;
-        font-size: 0.9rem;
+
+      .sidebar-column {
+        flex: 1;
+        min-width: 300px;
       }
-      
-      /* Animation for dropdown */
-      .category-dropdown {
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: all 0.3s ease;
-      }
-      
-      .category-dropdown.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      
+
+
+
       /* Filter Results Info */
       .filter-results-info {
         margin-bottom: 2rem;
       }
-      
+
       .results-card {
         background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
         border: 1px solid #e1f5fe;
@@ -760,13 +735,13 @@
         display: flex;
         align-items: center;
         gap: 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         position: relative;
         overflow: hidden;
       }
-      
+
       .results-card::before {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -774,7 +749,7 @@
         height: 100%;
         background: linear-gradient(to bottom, #2196f3, #9c27b0);
       }
-      
+
       .results-icon {
         width: 50px;
         height: 50px;
@@ -787,410 +762,567 @@
         font-size: 1.2rem;
         flex-shrink: 0;
       }
-      
+
       .results-content {
         flex: 1;
       }
-      
+
       .result-text {
-        color: #2c3e50;
-        font-size: 1rem;
-        line-height: 1.5;
         margin: 0;
+        color: #2c3e50;
+        font-weight: 500;
       }
-      
-      .result-text.no-results {
-        color: #e74c3c;
-      }
-      
+
       .highlight-number {
         color: #2196f3;
-        font-weight: 700;
       }
-      
+
       .highlight-keyword {
         color: #9c27b0;
-        font-weight: 600;
-        background: rgba(156, 39, 176, 0.1);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
       }
-      
+
       .highlight-category {
-        color: #ff9800;
-        font-weight: 600;
-        background: rgba(255, 152, 0, 0.1);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
+        color: #ff5722;
       }
-      
+
       .clear-filter-btn {
-        background: white;
-        color: #6c757d;
+        background: rgba(255, 255, 255, 0.8);
+        color: #666;
         padding: 0.5rem 1rem;
-        border-radius: 25px;
+        border-radius: 20px;
         text-decoration: none;
         font-size: 0.9rem;
-        font-weight: 500;
-        border: 1px solid #dee2e6;
         transition: all 0.3s ease;
-        flex-shrink: 0;
+        border: 1px solid rgba(255, 255, 255, 0.5);
       }
-      
+
       .clear-filter-btn:hover {
-        background: #f8f9fa;
-        color: #495057;
-        border-color: #adb5bd;
-        transform: translateY(-1px);
+        background: white;
+        color: #333;
+        text-decoration: none;
       }
-      
+
       /* Featured Article */
       .featured-article {
         background: white;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
-      
+
       .featured-article:hover {
         transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
       }
-      
+
       .featured-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        min-height: 400px;
+        display: flex;
+        min-height: 300px;
       }
-      
+
       .featured-image-container {
+        flex: 1;
         position: relative;
         overflow: hidden;
       }
-      
+
       .featured-image {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
       }
-      
+
       .featured-article:hover .featured-image {
         transform: scale(1.05);
       }
-      
+
       .featured-overlay {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(45deg, rgba(0,0,0,0.3), transparent);
+        background: linear-gradient(
+          45deg,
+          rgba(102, 126, 234, 0.8),
+          rgba(118, 75, 162, 0.8)
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
-      
+
+      .featured-article:hover .featured-overlay {
+        opacity: 1;
+      }
+
       .featured-category {
         position: absolute;
         top: 1rem;
         left: 1rem;
-        background: rgba(255,255,255,0.9);
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
         padding: 0.5rem 1rem;
-        border-radius: 25px;
+        border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
+        z-index: 10;
       }
-      
-      .featured-category i {
-        font-size: 0.75rem;
-      }
-      
-      /* Dynamic color support for featured */
-      .featured-category[style*="background-color"] {
-        backdrop-filter: none;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-      }
-      
-      .featured-article:hover .featured-category {
-        transform: scale(1.05);
-      }
-      
+
       .featured-info {
+        flex: 1;
         padding: 2rem;
         display: flex;
         flex-direction: column;
         justify-content: center;
       }
-      
+
       .featured-badge {
-        display: inline-flex;
-        align-items: center;
-        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        background: linear-gradient(135deg, #ffc107, #ff8f00);
         color: white;
         padding: 0.5rem 1rem;
-        border-radius: 25px;
+        border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 600;
-        width: fit-content;
+        align-self: flex-start;
         margin-bottom: 1rem;
       }
-      
+
       .featured-title {
-        font-size: 1.75rem;
+        font-size: 1.8rem;
         font-weight: 700;
-        color: #2c3e50;
         margin-bottom: 1rem;
         line-height: 1.3;
       }
-      
+
       .featured-title a {
-        color: inherit;
+        color: #2c3e50;
+        text-decoration: none;
         transition: color 0.3s ease;
       }
-      
+
       .featured-title a:hover {
-        color: #007bff;
+        color: #667eea;
       }
-      
+
       .featured-summary {
-        color: #6c757d;
-        font-size: 1rem;
+        color: #666;
         line-height: 1.6;
         margin-bottom: 1.5rem;
       }
-      
+
       .featured-meta {
         display: flex;
         gap: 1.5rem;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
       }
-      
+
       .meta-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        color: #6c757d;
+        color: #666;
         font-size: 0.9rem;
       }
-      
+
       .meta-item i {
-        color: #007bff;
+        color: #667eea;
       }
-      
+
       .featured-btn {
-        display: inline-flex;
-        align-items: center;
-        background: linear-gradient(45deg, #007bff, #0056b3);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 0.75rem 2rem;
-        border-radius: 50px;
+        border-radius: 25px;
         text-decoration: none;
         font-weight: 600;
-        width: fit-content;
+        align-self: flex-start;
         transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
       }
-      
+
       .featured-btn:hover {
-        background: linear-gradient(45deg, #0056b3, #004085);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         color: white;
-        transform: translateX(5px);
+        text-decoration: none;
       }
-      
+
       /* Modern News Grid */
       .modern-news-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         gap: 2rem;
       }
-      
+
       .modern-news-card {
         background: white;
-        border-radius: 15px;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
         transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
       }
-      
+
       .modern-news-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
       }
-      
+
       .news-card-image {
         position: relative;
-        height: 220px;
+        height: 200px;
         overflow: hidden;
       }
-      
+
       .news-card-image img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
       }
-      
+
       .modern-news-card:hover .news-card-image img {
-        transform: scale(1.1);
+        transform: scale(1.05);
       }
-      
+
       .news-card-overlay {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+        background: linear-gradient(
+          45deg,
+          rgba(102, 126, 234, 0.8),
+          rgba(118, 75, 162, 0.8)
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
-      
+
+      .modern-news-card:hover .news-card-overlay {
+        opacity: 1;
+      }
+
       .news-card-category {
         position: absolute;
         top: 1rem;
-        right: 1rem;
-        background: rgba(255,255,255,0.95);
+        left: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        color: #2c3e50;
         padding: 0.4rem 0.8rem;
-        border-radius: 20px;
+        border-radius: 15px;
         font-size: 0.75rem;
         font-weight: 600;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
-        backdrop-filter: blur(10px);
+        z-index: 10;
       }
-      
-      .news-card-category i {
-        font-size: 0.7rem;
-      }
-      
-      /* Dynamic color support for news cards */
-      .news-card-category[style*="background-color"] {
-        backdrop-filter: none;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-      }
-      
-      .modern-news-card:hover .news-card-category {
-        transform: scale(1.05);
-      }
-      
+
       .news-card-content {
         padding: 1.5rem;
       }
-      
+
       .news-card-title {
         font-size: 1.1rem;
         font-weight: 600;
-        color: #2c3e50;
         margin-bottom: 0.75rem;
         line-height: 1.4;
       }
-      
+
       .news-card-title a {
-        color: inherit;
+        color: #2c3e50;
         text-decoration: none;
         transition: color 0.3s ease;
       }
-      
+
       .news-card-title a:hover {
-        color: #007bff;
+        color: #667eea;
       }
-      
+
       .news-card-summary {
-        color: #6c757d;
-        font-size: 0.9rem;
+        color: #666;
         line-height: 1.5;
         margin-bottom: 1rem;
+        font-size: 0.9rem;
       }
-      
+
       .news-card-meta {
         display: flex;
         justify-content: space-between;
+        align-items: center;
         margin-bottom: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #eee;
       }
-      
+
       .meta-group {
         display: flex;
         align-items: center;
         gap: 0.4rem;
-        color: #6c757d;
+        color: #666;
         font-size: 0.8rem;
       }
-      
+
       .meta-group i {
-        color: #007bff;
+        color: #667eea;
       }
-      
+
       .news-card-btn {
-        display: inline-flex;
-        align-items: center;
-        background: #f8f9fa;
-        color: #007bff;
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 20px;
         text-decoration: none;
         font-size: 0.9rem;
         font-weight: 500;
         transition: all 0.3s ease;
+        display: inline-block;
       }
-      
+
       .news-card-btn:hover {
-        background: #007bff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         color: white;
+        text-decoration: none;
       }
-      
-      /* Sidebar */
+
+      /* Sidebar Styles - Same as news-detail.html */
+      .sidebar-container {
+        position: sticky;
+        top: 2rem;
+      }
+
       .sidebar-card {
-        border: none;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        border-radius: 15px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .sidebar-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      }
+
+      .sidebar-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .sidebar-icon {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+      }
+
+      .sidebar-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .sidebar-content {
+        padding: 1.5rem;
+      }
+
+      /* Categories Widget */
+      .category-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-decoration: none;
+        color: #2d3748;
+        transition: all 0.3s ease;
+      }
+
+      .category-item:hover {
+        background-color: #f7fafc;
+        text-decoration: none;
+        color: #2d3748;
+      }
+
+      .category-item.active {
+        background-color: #667eea;
+        color: white;
+        border-radius: 8px;
+        margin: 0.25rem 0;
+        padding: 0.75rem 1rem;
+      }
+
+      .category-item:last-child {
+        border-bottom: none;
+      }
+
+      .category-icon {
+        width: 35px;
+        height: 35px;
+        background: #667eea;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+      }
+
+      .category-info {
+        flex: 1;
+      }
+
+      .category-name {
+        font-weight: 500;
+        font-size: 0.9rem;
+      }
+
+      /* News Items */
+      .news-item {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .news-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      .news-item.simple {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .news-image {
+        flex-shrink: 0;
+        width: 80px;
+        height: 60px;
+        border-radius: 8px;
         overflow: hidden;
       }
-      
-      /* Smooth scroll */
-      html {
-        scroll-behavior: smooth;
+
+      .news-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
-      
-      /* Responsive */
+
+      .news-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .news-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .news-title a {
+        color: #2d3748;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .news-title a:hover {
+        color: #667eea;
+      }
+
+      .news-meta {
+        font-size: 0.8rem;
+        color: #718096;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .news-meta i {
+        font-size: 0.7rem;
+      }
+
+      .meta-divider {
+        color: #cbd5e0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1199px) {
+        .content-wrapper {
+          flex-direction: column;
+        }
+
+        .sidebar-column {
+          min-width: auto;
+        }
+
+        .sidebar-container {
+          position: static;
+        }
+
+        .featured-content {
+          flex-direction: column;
+          min-height: auto;
+        }
+
+        .featured-image-container {
+          height: 250px;
+        }
+      }
+
       @media (max-width: 768px) {
         .hero-title {
           font-size: 2.5rem;
         }
-        
-        .description-text {
-          font-size: 1rem;
-          padding: 1rem;
+
+        .hero-subtitle {
+          font-size: 1.1rem;
         }
-        
-        .hero-buttons {
-          flex-direction: column;
-          align-items: center;
+
+        .main-content-section {
+          padding: 40px 0;
         }
-        
-        .hero-btn {
-          width: 200px;
-          justify-content: center;
-        }
-        
-        .featured-content {
-          grid-template-columns: 1fr;
-        }
-        
-        .featured-info {
-          padding: 1.5rem;
-        }
-        
+
         .modern-news-grid {
           grid-template-columns: 1fr;
         }
-        
-        .category-pills {
+
+        .category-container {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .visible-categories {
           justify-content: center;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .hero-title {
+          font-size: 2rem;
+        }
+
+
+
+        .featured-info {
+          padding: 1.5rem;
+        }
+
+        .featured-title {
+          font-size: 1.4rem;
         }
       }
     </style>

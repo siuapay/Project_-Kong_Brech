@@ -6,14 +6,43 @@
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
     <!-- Page Header -->
-    <section class="py-5 bg-primary-custom text-white">
-      <div class="container">
+    <section
+      class="hero-section py-5 text-white position-relative overflow-hidden"
+    >
+      <div class="hero-bg"></div>
+      <div class="container position-relative">
         <div class="row">
-          <div class="col-lg-8 mx-auto text-center">
+          <div class="col-lg-10 mx-auto text-center">
+            <div class="hero-icon mb-4">
+              <i class="fas fa-users fa-3x"></i>
+            </div>
             <h1 class="display-4 fw-bold mb-3">Danh Sách Tín Hữu</h1>
-            <p class="lead">
-              Thông tin và thống kê tín hữu trong chi hội
+            <p class="lead mb-4">
+              Thông tin và thống kê tín hữu trong chi hội năm
+              <span th:text="${#dates.year(#dates.createNow())}">2024</span>
             </p>
+            <div
+              class="hero-stats d-flex justify-content-center gap-4 flex-wrap"
+            >
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(totalTinHuu)}">0</div>
+                <div class="stat-label">Tổng Tín Hữu</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(totalNam)}">0</div>
+                <div class="stat-label">Nam Giới</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(totalNu)}">0</div>
+                <div class="stat-label">Nữ Giới</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${@numberFormat.formatCompact(tinHuuHoatDong ?: 0)}">
+                  0
+                </div>
+                <div class="stat-label">Hoạt Động</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -22,131 +51,200 @@
     <!-- Statistics Section -->
     <section class="py-5 bg-light">
       <div class="container">
+        <!-- Section Header -->
+        <div class="section-header text-center mb-5">
+          <h2 class="section-title">Thống Kê Chi Tiết</h2>
+          <p class="section-subtitle">
+            Phân tích và thống kê về cộng đồng tín hữu
+          </p>
+        </div>
+
         <!-- Main Statistics Cards -->
-        <div class="row mb-4">
-          <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 ">
-              <div class="card-body text-center p-4">
-                <div class="stats-icon bg-primary mb-3">
-                  <i class="fas fa-users fa-2x text-white"></i>
+        <div class="row g-4 mb-5">
+          <div class="col-lg-3 col-md-6">
+            <div class="modern-stats-card stats-primary">
+              <div class="stats-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(totalTinHuu)}">0</h3>
+                <p class="stats-label">Tổng Tín Hữu</p>
+                <div class="stats-trend">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Tất cả thành viên</span>
                 </div>
-                <h2 class="stats-number text-primary mb-2" th:text="${totalTinHuu}">0</h2>
-                <p class="stats-label mb-0">Tổng Tín Hữu</p>
-                <small class="text-muted">Tất cả tín hữu trong chi hội</small>
               </div>
             </div>
           </div>
-          
-          <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 ">
-              <div class="card-body text-center p-4">
-                <div class="stats-icon bg-info mb-3">
-                  <i class="fas fa-male fa-2x text-white"></i>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="modern-stats-card stats-info">
+              <div class="stats-icon">
+                <i class="fas fa-male"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(totalNam)}">0</h3>
+                <p class="stats-label">Nam Giới</p>
+                <div class="stats-progress">
+                  <div
+                    class="progress-bar"
+                    th:style="'width: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0} + '%'"
+                  ></div>
                 </div>
-                <h2 class="stats-number text-info mb-2" th:text="${totalNam}">0</h2>
-                <p class="stats-label mb-0">Nam Giới</p>
-                <div class="progress mt-2" style="height: 6px;">
-                  <div class="progress-bar bg-info" role="progressbar" 
-                       th:style="'width: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0} + '%'"></div>
+                <div
+                  class="stats-percentage"
+                  th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNam * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}"
+                >
+                  0%
                 </div>
-                <small class="text-muted" th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNam * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}">0%</small>
               </div>
             </div>
           </div>
-          
-          <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 ">
-              <div class="card-body text-center p-4">
-                <div class="stats-icon bg-success mb-3">
-                  <i class="fas fa-female fa-2x text-white"></i>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="modern-stats-card stats-success">
+              <div class="stats-icon">
+                <i class="fas fa-female"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(totalNu)}">0</h3>
+                <p class="stats-label">Nữ Giới</p>
+                <div class="stats-progress">
+                  <div
+                    class="progress-bar"
+                    th:style="'width: ' + ${totalTinHuu > 0 ? (totalNu * 100.0 / totalTinHuu) : 0} + '%'"
+                  ></div>
                 </div>
-                <h2 class="stats-number text-success mb-2" th:text="${totalNu}">0</h2>
-                <p class="stats-label mb-0">Nữ Giới</p>
-                <div class="progress mt-2" style="height: 6px;">
-                  <div class="progress-bar bg-success" role="progressbar" 
-                       th:style="'width: ' + ${totalTinHuu > 0 ? (totalNu * 100.0 / totalTinHuu) : 0} + '%'"></div>
+                <div
+                  class="stats-percentage"
+                  th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNu * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}"
+                >
+                  0%
                 </div>
-                <small class="text-muted" th:text="${totalTinHuu > 0 ? #numbers.formatDecimal((totalNu * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'}">0%</small>
               </div>
             </div>
           </div>
-          
-          <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-0 shadow-sm h-100 ">
-              <div class="card-body text-center p-4">
-                <div class="stats-icon bg-warning mb-3">
-                  <i class="fas fa-user-check fa-2x text-white"></i>
+
+          <div class="col-lg-3 col-md-6">
+            <div class="modern-stats-card stats-warning">
+              <div class="stats-icon">
+                <i class="fas fa-user-check"></i>
+              </div>
+              <div class="stats-content">
+                <h3 class="stats-number" th:text="${@numberFormat.formatCompact(tinHuuHoatDong ?: 0)}">0</h3>
+                <p class="stats-label">Đang Hoạt Động</p>
+                <div class="stats-trend">
+                  <i class="fas fa-heart"></i>
+                  <span>Tích cực tham gia</span>
                 </div>
-                <h2 class="stats-number text-warning mb-2" th:text="${tinHuuHoatDong ?: 0}">0</h2>
-                <p class="stats-label mb-0">Đang Hoạt Động</p>
-                <small class="text-muted">Tín hữu tích cực tham gia</small>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Additional Statistics -->
+        <!-- Gender Distribution Chart -->
         <div class="row">
-          <div class="col-md-12">
-            <div class="card border-0 shadow-sm">
-              <div class="card-header bg-white border-0">
-                <h5 class="card-title mb-0">
-                  <i class="fas fa-chart-pie me-2 text-primary"></i>
-                  Thống Kê Chi Tiết
-                </h5>
+          <div class="col-lg-8 mx-auto">
+            <div class="chart-card">
+              <div class="chart-header">
+                <h4 class="chart-title">
+                  <i class="fas fa-chart-pie me-2"></i>Phân Bố Giới Tính
+                </h4>
+                <p class="chart-subtitle">
+                  Tỷ lệ nam nữ trong cộng đồng tín hữu
+                </p>
               </div>
-              <div class="card-body">
-                <div class="row text-center">
-                  <div class="col-md-3 mb-3">
-                    <div class="border-end">
-                      <h4 class="text-primary mb-1" th:text="${totalTinHuu}">0</h4>
-                      <small class="text-muted">Tổng Tín Hữu</small>
-                    </div>
-                  </div>
-                  <div class="col-md-3 mb-3">
-                    <div class="border-end">
-                      <h4 class="text-info mb-1" th:text="${totalNam}">0</h4>
-                      <small class="text-muted">Nam Giới</small>
-                    </div>
-                  </div>
-                  <div class="col-md-3 mb-3">
-                    <div class="border-end">
-                      <h4 class="text-success mb-1" th:text="${totalNu}">0</h4>
-                      <small class="text-muted">Nữ Giới</small>
-                    </div>
-                  </div>
-                  <div class="col-md-3 mb-3">
-                    <h4 class="text-warning mb-1" th:text="${tinHuuChuaPhanNhom ?: 0}">0</h4>
-                    <small class="text-muted">Chưa Có Nhóm</small>
-                  </div>
-                </div>
-                
-                <!-- Gender Distribution Chart -->
-                <div class="row mt-4">
-                  <div class="col-md-6 mx-auto">
-                    <div class="text-center">
-                      <h6 class="text-muted mb-3">Phân Bố Giới Tính</h6>
-                      <div class="d-flex justify-content-center align-items-center">
-                        <div class="me-4">
-                          <div class="d-flex align-items-center mb-2">
-                            <div class="legend-color bg-info me-2"></div>
-                            <span class="small">Nam: <strong th:text="${totalNam}">0</strong></span>
-                          </div>
-                          <div class="d-flex align-items-center">
-                            <div class="legend-color bg-success me-2"></div>
-                            <span class="small">Nữ: <strong th:text="${totalNu}">0</strong></span>
-                          </div>
-                        </div>
-                        <div class="gender-chart">
-                          <div class="chart-circle">
-                            <div class="chart-male" th:style="'--percentage: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0}"></div>
-                            <div class="chart-center">
-                              <span class="h5 mb-0" th:text="${totalTinHuu}">0</span>
-                              <small class="d-block text-muted">Tổng</small>
-                            </div>
+              <div class="chart-body">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <div class="gender-chart-container">
+                      <div class="gender-chart">
+                        <div
+                          class="chart-circle"
+                          th:style="'--male-percentage: ' + ${totalTinHuu > 0 ? (totalNam * 100.0 / totalTinHuu) : 0}"
+                        >
+                          <div class="chart-center">
+                            <span class="chart-total" th:text="${@numberFormat.formatCompact(totalTinHuu)}"
+                              >0</span
+                            >
+                            <small class="chart-label">Tổng</small>
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="chart-legend">
+                      <div class="legend-item">
+                        <div class="legend-color male"></div>
+                        <div class="legend-info">
+                          <div class="legend-label">Nam Giới</div>
+                          <div class="legend-value">
+                            <span class="number" th:text="${@numberFormat.formatCompact(totalNam)}">0</span>
+                            <span
+                              class="percentage"
+                              th:text="'(' + ${totalTinHuu > 0 ? #numbers.formatDecimal((totalNam * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'} + ')'"
+                              >0%</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="legend-item">
+                        <div class="legend-color female"></div>
+                        <div class="legend-info">
+                          <div class="legend-label">Nữ Giới</div>
+                          <div class="legend-value">
+                            <span class="number" th:text="${@numberFormat.formatCompact(totalNu)}">0</span>
+                            <span
+                              class="percentage"
+                              th:text="'(' + ${totalTinHuu > 0 ? #numbers.formatDecimal((totalNu * 100.0 / totalTinHuu), 1, 1) + '%' : '0%'} + ')'"
+                              >0%</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Additional Stats Row -->
+                <div class="row mt-4 pt-4 border-top">
+                  <div class="col-md-3 text-center">
+                    <div class="additional-stat">
+                      <h5
+                        class="stat-number text-primary"
+                        th:text="${@numberFormat.formatCompact(totalTinHuu)}"
+                      >
+                        0
+                      </h5>
+                      <small class="text-muted">Tổng Tín Hữu</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 text-center">
+                    <div class="additional-stat">
+                      <h5 class="stat-number text-info" th:text="${@numberFormat.formatCompact(totalNam)}">
+                        0
+                      </h5>
+                      <small class="text-muted">Nam Giới</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 text-center">
+                    <div class="additional-stat">
+                      <h5 class="stat-number text-success" th:text="${@numberFormat.formatCompact(totalNu)}">
+                        0
+                      </h5>
+                      <small class="text-muted">Nữ Giới</small>
+                    </div>
+                  </div>
+                  <div class="col-md-3 text-center">
+                    <div class="additional-stat">
+                      <h5
+                        class="stat-number text-warning"
+                        th:text="${@numberFormat.formatCompact(tinHuuChuaPhanNhom ?: 0)}"
+                      >
+                        0
+                      </h5>
+                      <small class="text-muted">Chưa Có Nhóm</small>
                     </div>
                   </div>
                 </div>
@@ -168,28 +266,29 @@
                 <i class="fas fa-heart fa-3x mb-3 text-white-50"></i>
                 <h3 class="mb-3">Cộng Đồng Tín Hữu Chi Hội Kong Brech</h3>
                 <p class="lead mb-4">
-                  Chúng tôi là một cộng đồng tín hữu đoàn kết, yêu thương và phục vụ Chúa với tấm lòng chân thành. 
-                  Mỗi tín hữu đều là một phần quan trọng trong đại gia đình này.
+                  Chúng tôi là một cộng đồng tín hữu đoàn kết, yêu thương và
+                  phục vụ Chúa với tấm lòng chân thành. Mỗi tín hữu đều là một
+                  phần quan trọng trong đại gia đình này.
                 </p>
                 <div class="row text-center">
                   <div class="col-md-4 mb-3">
                     <div class="d-flex flex-column align-items-center">
                       <i class="fas fa-users fa-2x mb-2"></i>
-                      <h4 class="mb-1" th:text="${totalTinHuu}">0</h4>
+                      <h4 class="mb-1" th:text="${@numberFormat.formatCompact(totalTinHuu)}">0</h4>
                       <small>Tín Hữu</small>
                     </div>
                   </div>
                   <div class="col-md-4 mb-3">
                     <div class="d-flex flex-column align-items-center">
                       <i class="fas fa-hands-praying fa-2x mb-2"></i>
-                      <h4 class="mb-1" th:text="${tinHuuHoatDong ?: 0}">0</h4>
+                      <h4 class="mb-1" th:text="${@numberFormat.formatCompact(tinHuuHoatDong ?: 0)}">0</h4>
                       <small>Đang Hoạt Động</small>
                     </div>
                   </div>
                   <div class="col-md-4 mb-3">
                     <div class="d-flex flex-column align-items-center">
                       <i class="fas fa-church fa-2x mb-2"></i>
-                      <h4 class="mb-1" th:text="${tinHuuCoPhanNhom ?: 0}">0</h4>
+                      <h4 class="mb-1" th:text="${@numberFormat.formatCompact(tinHuuCoPhanNhom ?: 0)}">0</h4>
                       <small>Đã Có Nhóm</small>
                     </div>
                   </div>
@@ -206,7 +305,8 @@
               <div class="card-body py-4">
                 <blockquote class="blockquote mb-0">
                   <p class="fs-5 text-muted fst-italic">
-                    "Vì ở đâu có hai ba người nhóm họp nhân danh Ta, thì Ta ở đó, ở giữa họ."
+                    "Vì ở đâu có hai ba người nhóm họp nhân danh Ta, thì Ta ở
+                    đó, ở giữa họ."
                   </p>
                   <footer class="blockquote-footer mt-3">
                     <cite title="Source Title">Ma-thi-ơ 18:20</cite>
@@ -222,7 +322,9 @@
           <div class="col-12">
             <div class="text-center mb-4">
               <h3 class="text-primary">Giá Trị Cộng Đồng</h3>
-              <p class="text-muted">Những giá trị cốt lõi định hướng cộng đồng tín hữu chúng ta</p>
+              <p class="text-muted">
+                Những giá trị cốt lõi định hướng cộng đồng tín hữu chúng ta
+              </p>
             </div>
           </div>
         </div>
@@ -231,12 +333,15 @@
           <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-sm h-100 text-center">
               <div class="card-body p-4">
-                <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
+                <div
+                  class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3"
+                >
                   <i class="fas fa-pray fa-2x"></i>
                 </div>
                 <h5 class="card-title">Đức Tin</h5>
                 <p class="card-text text-muted">
-                  Tin tưởng và yêu mến Chúa Giê-su Christ, sống theo lời dạy của Ngài trong mọi hoàn cảnh.
+                  Tin tưởng và yêu mến Chúa Giê-su Christ, sống theo lời dạy của
+                  Ngài trong mọi hoàn cảnh.
                 </p>
               </div>
             </div>
@@ -245,12 +350,15 @@
           <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-sm h-100 text-center">
               <div class="card-body p-4">
-                <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
+                <div
+                  class="feature-icon bg-success text-white rounded-circle mx-auto mb-3"
+                >
                   <i class="fas fa-heart fa-2x"></i>
                 </div>
                 <h5 class="card-title">Yêu Thương</h5>
                 <p class="card-text text-muted">
-                  Yêu thương lẫn nhau như Chúa đã yêu thương chúng ta, chia sẻ và hỗ trợ trong mọi hoàn cảnh.
+                  Yêu thương lẫn nhau như Chúa đã yêu thương chúng ta, chia sẻ
+                  và hỗ trợ trong mọi hoàn cảnh.
                 </p>
               </div>
             </div>
@@ -259,12 +367,15 @@
           <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-sm h-100 text-center">
               <div class="card-body p-4">
-                <div class="feature-icon bg-info text-white rounded-circle mx-auto mb-3">
+                <div
+                  class="feature-icon bg-info text-white rounded-circle mx-auto mb-3"
+                >
                   <i class="fas fa-hands-helping fa-2x"></i>
                 </div>
                 <h5 class="card-title">Phục Vụ</h5>
                 <p class="card-text text-muted">
-                  Phục vụ Chúa và cộng đồng với tấm lòng sẵn sàng, góp phần xây dựng Vương quốc Thiên Chúa.
+                  Phục vụ Chúa và cộng đồng với tấm lòng sẵn sàng, góp phần xây
+                  dựng Vương quốc Thiên Chúa.
                 </p>
               </div>
             </div>
@@ -280,6 +391,336 @@
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
 
     <style>
+      /* Hero Section */
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+      }
+
+      .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+      }
+
+      .hero-icon {
+        background: rgba(255, 255, 255, 0.2);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+
+      .hero-stats {
+        margin-top: 2rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        min-width: 120px;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+
+      /* Section Headers */
+      .section-header {
+        margin-bottom: 3rem;
+      }
+
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+
+      .section-subtitle {
+        font-size: 1.1rem;
+        color: #718096;
+        margin: 0;
+      }
+
+      /* Modern Stats Cards */
+      .modern-stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .modern-stats-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--card-color),
+          var(--card-color-light)
+        );
+      }
+
+      .modern-stats-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .stats-primary {
+        --card-color: #667eea;
+        --card-color-light: #764ba2;
+      }
+
+      .stats-info {
+        --card-color: #17a2b8;
+        --card-color-light: #20c997;
+      }
+
+      .stats-success {
+        --card-color: #28a745;
+        --card-color-light: #20c997;
+      }
+
+      .stats-warning {
+        --card-color: #ffc107;
+        --card-color-light: #fd7e14;
+      }
+
+      .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        background: linear-gradient(
+          135deg,
+          var(--card-color),
+          var(--card-color-light)
+        );
+        margin-bottom: 1.5rem;
+      }
+
+      .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+
+      .stats-label {
+        font-size: 1rem;
+        color: #718096;
+        margin-bottom: 1rem;
+      }
+
+      .stats-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--card-color);
+        font-weight: 500;
+      }
+
+      .stats-progress {
+        width: 100%;
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--card-color),
+          var(--card-color-light)
+        );
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+
+      .stats-percentage {
+        font-size: 0.85rem;
+        color: var(--card-color);
+        font-weight: 600;
+      }
+
+      /* Chart Card */
+      .chart-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+      }
+
+      .chart-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        text-align: center;
+        border-bottom: 1px solid #e2e8f0;
+      }
+
+      .chart-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+
+      .chart-subtitle {
+        color: #718096;
+        margin: 0;
+      }
+
+      .chart-body {
+        padding: 2rem;
+      }
+
+      .gender-chart-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .gender-chart {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+
+      .chart-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: conic-gradient(
+          #17a2b8 0deg,
+          #17a2b8 calc(var(--male-percentage) * 3.6deg),
+          #28a745 calc(var(--male-percentage) * 3.6deg),
+          #28a745 360deg
+        );
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-center {
+        width: 120px;
+        height: 120px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-total {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .chart-label {
+        color: #718096;
+        font-size: 0.9rem;
+      }
+
+      .chart-legend {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        justify-content: center;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+      }
+
+      .legend-color.male {
+        background: #17a2b8;
+      }
+
+      .legend-color.female {
+        background: #28a745;
+      }
+
+      .legend-info {
+        flex: 1;
+      }
+
+      .legend-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+      }
+
+      .legend-value .number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .legend-value .percentage {
+        color: #718096;
+        margin-left: 0.5rem;
+      }
+
+      .additional-stat {
+        padding: 1rem;
+      }
+
+      .additional-stat .stat-number {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+      }
+
       .avatar-circle {
         width: 40px;
         height: 40px;
@@ -292,29 +733,29 @@
         font-weight: bold;
         font-size: 1.1rem;
       }
-      
+
       .table th {
         border-top: none;
         font-weight: 600;
         color: #495057;
       }
-      
+
       .table td {
         vertical-align: middle;
       }
-      
+
       .card:hover {
         transform: translateY(-2px);
         transition: transform 0.2s;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       }
-      
+
       .pagination .page-link {
         border-radius: 8px;
         margin: 0 2px;
         border: 1px solid #dee2e6;
       }
-      
+
       .pagination .page-item.active .page-link {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-color: #667eea;
@@ -326,12 +767,12 @@
         border-radius: 15px;
         overflow: hidden;
       }
-      
+
       .stats-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
-      
+
       .stats-icon {
         width: 70px;
         height: 70px;
@@ -341,30 +782,30 @@
         justify-content: center;
         margin: 0 auto;
       }
-      
+
       .stats-number {
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
       }
-      
+
       .stats-label {
         font-weight: 600;
         font-size: 1.1rem;
         color: #495057;
       }
-      
+
       .legend-color {
         width: 12px;
         height: 12px;
         border-radius: 2px;
       }
-      
+
       /* Gender Chart */
       .gender-chart {
         position: relative;
       }
-      
+
       .chart-circle {
         width: 120px;
         height: 120px;
@@ -380,7 +821,7 @@
         justify-content: center;
         position: relative;
       }
-      
+
       .chart-center {
         width: 80px;
         height: 80px;
@@ -390,66 +831,120 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
-      
+
       .bg-primary-custom {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-      
+
       /* Enhanced Progress Bars */
       .progress {
         border-radius: 10px;
         overflow: hidden;
       }
-      
+
       .progress-bar {
         border-radius: 10px;
         transition: width 0.6s ease;
       }
-      
+
       /* Card Header Styling */
       .card-header {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
       }
-      
+
       /* Border Styling */
       .border-end {
         border-right: 2px solid #e9ecef !important;
       }
-      
+
+      /* Responsive Design */
       @media (max-width: 768px) {
+        .hero-section {
+          min-height: 300px;
+          padding: 3rem 0;
+        }
+
+        .section-title {
+          font-size: 2rem;
+        }
+
+        .hero-stats {
+          gap: 1rem !important;
+        }
+
+        .stat-item {
+          min-width: 100px;
+          padding: 0.75rem;
+        }
+
+        .stat-number {
+          font-size: 1.5rem;
+        }
+
+        .modern-stats-card {
+          padding: 1.5rem;
+        }
+
+        .chart-body {
+          padding: 1.5rem;
+        }
+
+        .chart-circle {
+          width: 150px;
+          height: 150px;
+        }
+
+        .chart-center {
+          width: 90px;
+          height: 90px;
+        }
+
         .border-end {
           border-right: none !important;
           border-bottom: 2px solid #e9ecef !important;
           padding-bottom: 1rem;
         }
-        
-        .stats-number {
-          font-size: 2rem;
+      }
+
+      @media (max-width: 576px) {
+        .hero-stats {
+          flex-direction: column;
+          align-items: center;
         }
-        
-        .chart-circle {
-          width: 100px;
-          height: 100px;
+
+        .stat-item {
+          width: 100%;
+          max-width: 200px;
         }
-        
-        .chart-center {
-          width: 70px;
-          height: 70px;
+
+        .chart-body .row {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .chart-legend {
+          margin-top: 2rem;
         }
       }
-      
+
       /* Animation for statistics */
       @keyframes countUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      
+
       .stats-number {
         animation: countUp 0.8s ease-out;
       }
-      
+
       /* Feature Icons */
       .feature-icon {
         width: 80px;
@@ -459,18 +954,18 @@
         justify-content: center;
         margin: 0 auto;
       }
-      
+
       /* Gradient Background */
       .bg-gradient-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
-      
+
       /* Blockquote Styling */
       .blockquote {
         position: relative;
         padding: 1rem 2rem;
       }
-      
+
       .blockquote::before {
         content: '"';
         font-size: 4rem;
@@ -480,14 +975,14 @@
         left: 10px;
         font-family: Georgia, serif;
       }
-      
+
       /* Card Hover Effects */
       .card:hover {
         transform: translateY(-5px);
         transition: all 0.3s ease;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
-      
+
       /* Status Circle */
       .status-circle {
         width: 50px;
@@ -498,14 +993,14 @@
         justify-content: center;
         margin: 0 auto;
       }
-      
+
       /* Responsive adjustments */
       @media (max-width: 768px) {
         .feature-icon {
           width: 60px;
           height: 60px;
         }
-        
+
         .blockquote::before {
           font-size: 3rem;
           top: -5px;

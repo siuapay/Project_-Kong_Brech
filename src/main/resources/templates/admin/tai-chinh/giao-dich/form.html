@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
   <head th:replace="~{fragments/admin-layout :: head}"></head>
-  <body>
+  <body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -15,300 +15,334 @@
         <!-- Flash Messages -->
         <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-        <!-- Page Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h2 class="text-primary">
-              <i class="fas fa-plus-circle me-2" th:if="${!isEdit}"></i>
-              <i class="fas fa-edit me-2" th:if="${isEdit}"></i>
-              <span
-                th:text="${isEdit} ? 'Sửa Giao Dịch Tài Chính' : 'Thêm Giao Dịch Tài Chính'"
-                >Thêm Giao Dịch</span
-              >
-            </h2>
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <a th:href="@{/admin}">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item">
-                  <a th:href="@{/admin/tai-chinh/giao-dich}"
-                    >Giao Dịch Tài Chính</a
-                  >
-                </li>
-                <li
-                  class="breadcrumb-item active"
-                  th:text="${isEdit} ? 'Sửa' : 'Thêm'"
-                >
-                  Thêm
-                </li>
-              </ol>
-            </nav>
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-plus-circle" th:if="${!isEdit}"></i>
+                <i class="fas fa-edit" th:if="${isEdit}"></i>
+              </div>
+              <div class="header-text">
+                <h1 class="header-title" th:text="${isEdit} ? 'Sửa Giao Dịch' : 'Thêm Giao Dịch'">Thêm Giao Dịch</h1>
+                <p class="header-subtitle">Quản lý giao dịch tài chính của tổ chức</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <a th:href="@{/admin/tai-chinh/giao-dich}" class="btn-modern btn-modern-outline">
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
+            </div>
           </div>
-          <a
-            th:href="@{/admin/tai-chinh/giao-dich}"
-            class="btn btn-outline-secondary"
-          >
-            <i class="fas fa-arrow-left me-2"></i>Quay Lại
-          </a>
         </div>
 
-        <!-- Form -->
-        <div class="row justify-content-center">
-          <div class="col-lg-10">
-            <div class="card shadow border-0">
-              <div class="card-header bg-light">
-                <h5 class="mb-0">
-                  <i class="fas fa-info-circle me-2"></i>Thông Tin Giao Dịch
-                </h5>
+        <!-- Modern Form Layout -->
+        <div class="form-grid-container">
+          <!-- Main Form -->
+          <div class="form-main-content">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Giao Dịch</h5>
+                    <p>Nhập đầy đủ thông tin giao dịch tài chính</p>
+                  </div>
+                </div>
               </div>
-              <div class="card-body">
+              <div class="card-content">
                 <form
                   th:action="@{/admin/tai-chinh/giao-dich/save}"
                   method="post"
                   th:object="${giaoDichDTO}"
+                  class="modern-form"
                 >
                   <input type="hidden" th:field="*{id}" />
 
-                  <div class="row g-4">
-                    <!-- Thời Gian và Loại -->
-                    <div class="col-md-6">
-                      <label for="thoiGian" class="form-label">
-                        <i class="fas fa-calendar-alt me-1"></i>Thời Gian Giao
-                        Dịch
-                        <span class="text-danger">*</span>
-                      </label>
-                      <input
-                        type="datetime-local"
-                        class="form-control"
-                        id="thoiGian"
-                        th:field="*{thoiGian}"
-                        th:classappend="${#fields.hasErrors('thoiGian')} ? 'is-invalid'"
-                        required
-                      />
-                      <div
-                        class="invalid-feedback"
-                        th:if="${#fields.hasErrors('thoiGian')}"
-                        th:errors="*{thoiGian}"
-                      >
-                        Lỗi thời gian
+                  <div class="form-sections">
+                    <!-- Section 1: Basic Info -->
+                    <div class="form-section">
+                      <div class="section-header">
+                        <i class="fas fa-info-circle"></i>
+                        <h6>Thông Tin Cơ Bản</h6>
                       </div>
-                    </div>
+                      <div class="form-grid">
+                        <!-- Thời Gian -->
+                        <div class="form-group">
+                          <label for="thoiGian" class="form-label">
+                            <i class="fas fa-calendar-alt"></i>
+                            Thời Gian Giao Dịch
+                            <span class="required">*</span>
+                          </label>
+                          <div class="input-wrapper">
+                            <input
+                              type="datetime-local"
+                              class="form-input"
+                              id="thoiGian"
+                              th:field="*{thoiGian}"
+                              th:classappend="${#fields.hasErrors('thoiGian')} ? 'error'"
+                              required
+                            />
+                            
+                          </div>
+                          <div
+                            class="error-message"
+                            th:if="${#fields.hasErrors('thoiGian')}"
+                            th:errors="*{thoiGian}"
+                          >
+                            Lỗi thời gian
+                          </div>
+                        </div>
 
-                    <div class="col-md-6">
-                      <label for="loai" class="form-label">
-                        <i class="fas fa-exchange-alt me-1"></i>Loại Giao Dịch
-                        <span class="text-danger">*</span>
-                      </label>
-                      <select
-                        class="form-select"
-                        id="loai"
-                        th:field="*{loai}"
-                        th:classappend="${#fields.hasErrors('loai')} ? 'is-invalid'"
-                        required
-                        onchange="updateCategoryOptions()"
-                      >
-                        <option value="">Chọn loại giao dịch...</option>
-                        <option
-                          th:each="loaiValue : ${loaiGiaoDichValues}"
-                          th:value="${loaiValue.name()}"
-                          th:text="${loaiValue.displayName}"
-                          th:selected="${giaoDichDTO.loai == loaiValue.name()}"
-                        >
-                          Loại
-                        </option>
-                      </select>
-                      <div
-                        class="invalid-feedback"
-                        th:if="${#fields.hasErrors('loai')}"
-                        th:errors="*{loai}"
-                      >
-                        Lỗi loại giao dịch
-                      </div>
-                    </div>
-
-                    <!-- Số Tiền -->
-                    <div class="col-md-6">
-                      <label for="soTien" class="form-label">
-                        <i class="fas fa-money-bill-wave me-1"></i>Số Tiền
-                        <span class="text-danger">*</span>
-                      </label>
-                      <div class="input-group">
-                        <input
-                          type="number"
-                          class="form-control"
-                          id="soTien"
-                          th:field="*{soTien}"
-                          th:classappend="${#fields.hasErrors('soTien')} ? 'is-invalid'"
-                          placeholder="Nhập số tiền..."
-                          min="1"
-                          step="1"
-                          required
-                        />
-                        <span class="input-group-text">VNĐ</span>
-                      </div>
-                      <div
-                        class="invalid-feedback"
-                        th:if="${#fields.hasErrors('soTien')}"
-                        th:errors="*{soTien}"
-                      >
-                        Lỗi số tiền
-                      </div>
-                      <div class="form-text">Số tiền phải lớn hơn 0</div>
-                    </div>
-
-                    <!-- Danh Mục -->
-                    <div class="col-md-6">
-                      <label for="danhMucId" class="form-label">
-                        <i class="fas fa-folder me-1"></i>Danh Mục
-                        <span class="text-danger">*</span>
-                      </label>
-                      <select
-                        class="form-select"
-                        id="danhMucId"
-                        th:field="*{danhMucId}"
-                        th:classappend="${#fields.hasErrors('danhMucId')} ? 'is-invalid'"
-                        required
-                      >
-                        <option value="">Chọn danh mục...</option>
-                        <option
-                          th:each="dm : ${danhMucList}"
-                          th:value="${dm.id}"
-                          th:text="${dm.tenDanhMuc}"
-                          th:data-loai="${dm.loai.name()}"
-                          th:selected="${giaoDichDTO.danhMucId == dm.id}"
-                        >
-                          Danh mục
-                        </option>
-                      </select>
-                      <div
-                        class="invalid-feedback"
-                        th:if="${#fields.hasErrors('danhMucId')}"
-                        th:errors="*{danhMucId}"
-                      >
-                        Lỗi danh mục
-                      </div>
-                      <div class="form-text">
-                        Danh mục phải phù hợp với loại giao dịch
-                      </div>
-                    </div>
-
-                    <!-- Người Phụ Trách -->
-                    <div class="col-md-6">
-                      <label for="nguoiPhuTrachId" class="form-label">
-                        <i class="fas fa-user me-1"></i>Người Phụ Trách
-                      </label>
-                      <select
-                        class="form-select"
-                        id="nguoiPhuTrachId"
-                        th:field="*{nguoiPhuTrachId}"
-                      >
-                        <option value="">Chọn người phụ trách...</option>
-                        <option
-                          th:each="ns : ${nhanSuList}"
-                          th:value="${ns.id}"
-                          th:text="${ns.hoTen + ' (' + (ns.chucVu != null ? ns.chucVu.displayName : 'Chưa có chức vụ') + ')'}"
-                          th:selected="${giaoDichDTO.nguoiPhuTrachId == ns.id}"
-                        >
-                          Người phụ trách
-                        </option>
-                      </select>
-                    </div>
-
-                    <!-- Nội Dung -->
-                    <div class="col-12">
-                      <label for="noiDung" class="form-label">
-                        <i class="fas fa-align-left me-1"></i>Nội Dung Giao Dịch
-                        <span class="text-danger">*</span>
-                      </label>
-                      <textarea
-                        class="form-control"
-                        id="noiDung"
-                        rows="4"
-                        th:field="*{noiDung}"
-                        th:classappend="${#fields.hasErrors('noiDung')} ? 'is-invalid'"
-                        placeholder="Nhập nội dung chi tiết về giao dịch..."
-                        maxlength="1000"
-                        required
-                      ></textarea>
-                      <div
-                        class="invalid-feedback"
-                        th:if="${#fields.hasErrors('noiDung')}"
-                        th:errors="*{noiDung}"
-                      >
-                        Lỗi nội dung
-                      </div>
-                      <div class="form-text">Tối đa 1000 ký tự</div>
-                    </div>
-                  </div>
-
-                  <!-- Preview Section -->
-                  <div class="mt-4">
-                    <h6 class="text-muted mb-3">
-                      <i class="fas fa-eye me-1"></i>Xem Trước Giao Dịch
-                    </h6>
-                    <div class="card bg-light">
-                      <div class="card-body">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <div
-                              class="avatar-lg rounded-circle d-flex align-items-center justify-content-center"
-                              id="previewIcon"
+                        <!-- Loại Giao Dịch -->
+                        <div class="form-group">
+                          <label for="loai" class="form-label">
+                            <i class="fas fa-exchange-alt"></i>
+                            Loại Giao Dịch
+                            <span class="required">*</span>
+                          </label>
+                          <div class="select-wrapper">
+                            <select
+                              class="form-select"
+                              id="loai"
+                              th:field="*{loai}"
+                              th:classappend="${#fields.hasErrors('loai')} ? 'error'"
+                              required
+                              onchange="updateCategoryOptions()"
                             >
-                              <i
-                                class="fas fa-exchange-alt fa-2x text-white"
-                              ></i>
+                              <option value="">Chọn loại giao dịch...</option>
+                              <option
+                                th:each="loaiValue : ${loaiGiaoDichValues}"
+                                th:value="${loaiValue.name()}"
+                                th:text="${loaiValue.displayName}"
+                                th:selected="${giaoDichDTO.loai == loaiValue.name()}"
+                              >
+                                Loại
+                              </option>
+                            </select>
+                            <div class="select-icon">
+                              <i class="fas fa-chevron-down"></i>
                             </div>
                           </div>
-                          <div class="col">
-                            <div
-                              class="d-flex justify-content-between align-items-start"
+                          <div
+                            class="error-message"
+                            th:if="${#fields.hasErrors('loai')}"
+                            th:errors="*{loai}"
+                          >
+                            Lỗi loại giao dịch
+                          </div>
+                        </div>
+
+                        <!-- Số Tiền -->
+                        <div class="form-group">
+                          <label for="soTien" class="form-label">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Số Tiền
+                            <span class="required">*</span>
+                          </label>
+                          <div class="input-wrapper amount-input">
+                            <input
+                              type="number"
+                              class="form-input"
+                              id="soTien"
+                              th:field="*{soTien}"
+                              th:classappend="${#fields.hasErrors('soTien')} ? 'error'"
+                              placeholder="Nhập số tiền..."
+                              min="1"
+                              step="1"
+                              required
+                            />
+                            <div class="input-suffix">VNĐ</div>
+                          </div>
+                          <div
+                            class="error-message"
+                            th:if="${#fields.hasErrors('soTien')}"
+                            th:errors="*{soTien}"
+                          >
+                            Lỗi số tiền
+                          </div>
+                          <div class="form-hint">Số tiền phải lớn hơn 0</div>
+                        </div>
+
+                        <!-- Danh Mục -->
+                        <div class="form-group">
+                          <label for="danhMucId" class="form-label">
+                            <i class="fas fa-folder"></i>
+                            Danh Mục
+                            <span class="required">*</span>
+                          </label>
+                          <div class="select-wrapper">
+                            <select
+                              class="form-select"
+                              id="danhMucId"
+                              th:field="*{danhMucId}"
+                              th:classappend="${#fields.hasErrors('danhMucId')} ? 'error'"
+                              required
                             >
-                              <div>
-                                <h5 class="mb-1" id="previewContent">
-                                  Nội dung giao dịch sẽ hiển thị ở đây
-                                </h5>
-                                <div class="d-flex align-items-center gap-3">
-                                  <span class="badge" id="previewTypeBadge"
-                                    >Loại</span
-                                  >
-                                  <small class="text-muted" id="previewCategory"
-                                    >Danh mục</small
-                                  >
-                                  <small class="text-muted" id="previewPerson"
-                                    >Người phụ trách</small
-                                  >
-                                </div>
-                                <small class="text-muted" id="previewTime"
-                                  >Thời gian</small
-                                >
-                              </div>
-                              <div class="text-end">
-                                <h4 class="mb-0" id="previewAmount">0 VNĐ</h4>
-                              </div>
+                              <option value="">Chọn danh mục...</option>
+                              <option
+                                th:each="dm : ${danhMucList}"
+                                th:value="${dm.id}"
+                                th:text="${dm.tenDanhMuc}"
+                                th:data-loai="${dm.loai.name()}"
+                                th:selected="${giaoDichDTO.danhMucId == dm.id}"
+                              >
+                                Danh mục
+                              </option>
+                            </select>
+                            <div class="select-icon">
+                              <i class="fas fa-chevron-down"></i>
                             </div>
                           </div>
+                          <div
+                            class="error-message"
+                            th:if="${#fields.hasErrors('danhMucId')}"
+                            th:errors="*{danhMucId}"
+                          >
+                            Lỗi danh mục
+                          </div>
+                          <div class="form-hint">
+                            Danh mục phải phù hợp với loại giao dịch
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Section 2: Additional Info -->
+                    <div class="form-section">
+                      <div class="section-header">
+                        <i class="fas fa-user-cog"></i>
+                        <h6>Thông Tin Bổ Sung</h6>
+                      </div>
+                      <div class="form-grid single-column">
+
+                        <!-- Người Phụ Trách -->
+                        <div class="form-group">
+                          <label for="nguoiPhuTrachId" class="form-label">
+                            <i class="fas fa-user"></i>
+                            Người Phụ Trách
+                          </label>
+                          <div class="select-wrapper">
+                            <select
+                              class="form-select"
+                              id="nguoiPhuTrachId"
+                              th:field="*{nguoiPhuTrachId}"
+                            >
+                              <option value="">Chọn người phụ trách...</option>
+                              <option
+                                th:each="ns : ${nhanSuList}"
+                                th:value="${ns.id}"
+                                th:text="${ns.hoTen + ' (' + (ns.chucVu != null ? ns.chucVu.displayName : 'Chưa có chức vụ') + ')'}"
+                                th:selected="${giaoDichDTO.nguoiPhuTrachId == ns.id}"
+                              >
+                                Người phụ trách
+                              </option>
+                            </select>
+                            <div class="select-icon">
+                              <i class="fas fa-chevron-down"></i>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Nội Dung -->
+                        <div class="form-group full-width">
+                          <label for="noiDung" class="form-label">
+                            <i class="fas fa-align-left"></i>
+                            Nội Dung Giao Dịch
+                            <span class="required">*</span>
+                          </label>
+                          <div class="textarea-wrapper">
+                            <textarea
+                              class="form-textarea"
+                              id="noiDung"
+                              rows="4"
+                              th:field="*{noiDung}"
+                              th:classappend="${#fields.hasErrors('noiDung')} ? 'error'"
+                              placeholder="Nhập nội dung chi tiết về giao dịch..."
+                              maxlength="1000"
+                              required
+                            ></textarea>
+                            <div class="textarea-counter">
+                              <span id="charCount">0</span>/1000
+                            </div>
+                          </div>
+                          <div
+                            class="error-message"
+                            th:if="${#fields.hasErrors('noiDung')}"
+                            th:errors="*{noiDung}"
+                          >
+                            Lỗi nội dung
+                          </div>
+                          <div class="form-hint">Mô tả chi tiết về giao dịch này</div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <!-- Action Buttons -->
-                  <div class="d-flex justify-content-between mt-4">
+                  <!-- Form Actions -->
+                  <div class="form-actions">
                     <a
                       th:href="@{/admin/tai-chinh/giao-dich}"
-                      class="btn btn-outline-secondary"
+                      class="btn-modern btn-modern-secondary"
                     >
-                      <i class="fas fa-times me-1"></i>Hủy
+                      <i class="fas fa-times"></i>
+                      Hủy
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                      <i class="fas fa-save me-1"></i>
-                      <span th:text="${isEdit} ? 'Cập Nhật' : 'Lưu Giao Dịch'"
-                        >Lưu</span
-                      >
+                    <button type="submit" class="btn-modern btn-modern-primary">
+                      <i class="fas fa-save"></i>
+                      <span th:text="${isEdit} ? 'Cập Nhật' : 'Lưu Giao Dịch'">Lưu</span>
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Sidebar -->
+          <div class="form-sidebar">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-eye"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Xem Trước</h5>
+                    <p>Preview giao dịch của bạn</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="preview-card">
+                  <div class="preview-header">
+                    <div class="preview-icon" id="previewIcon">
+                      <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="preview-type">
+                      <span class="type-badge" id="previewTypeBadge">Loại</span>
+                    </div>
+                  </div>
+                  <div class="preview-content">
+                    <h6 id="previewContent">Nội dung giao dịch sẽ hiển thị ở đây</h6>
+                    <div class="preview-amount" id="previewAmount">0 VNĐ</div>
+                  </div>
+                  <div class="preview-details">
+                    <div class="detail-item">
+                      <i class="fas fa-folder"></i>
+                      <span id="previewCategory">Chưa chọn danh mục</span>
+                    </div>
+                    <div class="detail-item">
+                      <i class="fas fa-user"></i>
+                      <span id="previewPerson">Chưa chọn người phụ trách</span>
+                    </div>
+                    <div class="detail-item">
+                      <i class="fas fa-clock"></i>
+                      <span id="previewTime">Chưa chọn thời gian</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -318,6 +352,574 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <style>
+      /* Modern Admin Page */
+      .modern-admin-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      /* Modern Page Header */
+      .modern-page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      /* Modern Buttons */
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-modern-outline {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-modern-outline:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-modern-secondary {
+        background: #6c757d;
+        color: white;
+      }
+
+      .btn-modern-secondary:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Form Grid Layout */
+      .form-grid-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      .form-main-content {
+        min-width: 0;
+      }
+
+      .form-sidebar {
+        min-width: 0;
+      }
+
+      /* Modern Cards */
+      .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .card-title h5 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .card-title p {
+        margin: 0.25rem 0 0 0;
+        font-size: 0.875rem;
+        color: #718096;
+      }
+
+      .card-content {
+        padding: 2rem;
+      }
+
+      /* Modern Form Styles */
+      .modern-form {
+        width: 100%;
+      }
+
+      .form-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+      }
+
+      .form-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border-left: 4px solid #667eea;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+
+      .section-header i {
+        color: #667eea;
+        font-size: 1.25rem;
+      }
+
+      .section-header h6 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .form-grid.single-column {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-group.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.875rem;
+      }
+
+      .form-label i {
+        color: #667eea;
+        width: 16px;
+      }
+
+      .required {
+        color: #e53e3e;
+      }
+
+      /* Input Styles */
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-input.error {
+        border-color: #e53e3e;
+      }
+
+      .input-icon {
+        position: absolute;
+        right: 1rem;
+        color: #a0aec0;
+        pointer-events: none;
+      }
+
+      .amount-input .form-input {
+        padding-right: 3.5rem;
+      }
+
+      .input-suffix {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #4a5568;
+        font-weight: 600;
+        font-size: 0.875rem;
+        pointer-events: none;
+      }
+
+      /* Select Styles */
+      .select-wrapper {
+        position: relative;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        appearance: none;
+      }
+
+      .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-select.error {
+        border-color: #e53e3e;
+      }
+
+      .select-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #a0aec0;
+        pointer-events: none;
+      }
+
+      /* Textarea Styles */
+      .textarea-wrapper {
+        position: relative;
+      }
+
+      .form-textarea {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 120px;
+        transition: all 0.3s ease;
+        background: white;
+        font-family: inherit;
+      }
+
+      .form-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .form-textarea.error {
+        border-color: #e53e3e;
+      }
+
+      .textarea-counter {
+        position: absolute;
+        bottom: 0.5rem;
+        right: 1rem;
+        font-size: 0.75rem;
+        color: #a0aec0;
+        background: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+      }
+
+      /* Error and Hint Messages */
+      .error-message {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+
+      .form-hint {
+        color: #718096;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+
+      /* Form Actions */
+      .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e2e8f0;
+      }
+
+      /* Preview Card */
+      .preview-card {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 2px solid #e2e8f0;
+      }
+
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .preview-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: white;
+        background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+        transition: all 0.3s ease;
+      }
+
+      .type-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        background: #e2e8f0;
+        color: #4a5568;
+      }
+
+      .preview-content {
+        margin-bottom: 1.5rem;
+      }
+
+      .preview-content h6 {
+        margin: 0 0 0.5rem 0;
+        color: #2d3748;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+
+      .preview-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2d3748;
+      }
+
+      .preview-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #4a5568;
+      }
+
+      .detail-item i {
+        width: 16px;
+        color: #667eea;
+      }
+
+      /* Preview States */
+      .preview-icon.thu {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      }
+
+      .preview-icon.chi {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+      }
+
+      .type-badge.thu {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .type-badge.chi {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+      }
+
+      .preview-amount.thu {
+        color: #38a169;
+      }
+
+      .preview-amount.chi {
+        color: #e53e3e;
+      }
+
+      /* Responsive */
+      @media (max-width: 991px) {
+        .form-grid-container {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+        
+        .form-sidebar {
+          order: 2;
+        }
+        
+        .form-main-content {
+          order: 1;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1.5rem;
+          text-align: center;
+        }
+
+        .header-info {
+          flex-direction: column;
+          text-align: center;
+          gap: 1rem;
+        }
+
+        .header-title {
+          font-size: 2rem;
+        }
+
+        .header-icon {
+          width: 60px;
+          height: 60px;
+          font-size: 1.5rem;
+        }
+
+        .header-actions {
+          flex-direction: column;
+          width: 100%;
+          gap: 0.5rem;
+        }
+
+        .btn-modern {
+          justify-content: center;
+          width: 100%;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .form-actions {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .form-actions .btn-modern {
+          width: 100%;
+        }
+      }
+    </style>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const thoiGianInput = document.getElementById("thoiGian");
@@ -326,6 +928,7 @@
         const danhMucSelect = document.getElementById("danhMucId");
         const nguoiPhuTrachSelect = document.getElementById("nguoiPhuTrachId");
         const noiDungTextarea = document.getElementById("noiDung");
+        const charCount = document.getElementById("charCount");
 
         const previewContent = document.getElementById("previewContent");
         const previewTypeBadge = document.getElementById("previewTypeBadge");
@@ -335,55 +938,60 @@
         const previewAmount = document.getElementById("previewAmount");
         const previewIcon = document.getElementById("previewIcon");
 
+        // Character counter for textarea
+        function updateCharCount() {
+          const count = noiDungTextarea.value.length;
+          charCount.textContent = count;
+          
+          if (count > 900) {
+            charCount.style.color = '#e53e3e';
+          } else if (count > 800) {
+            charCount.style.color = '#f56500';
+          } else {
+            charCount.style.color = '#a0aec0';
+          }
+        }
+
         function updatePreview() {
-          const noiDung =
-            noiDungTextarea.value || "Nội dung giao dịch sẽ hiển thị ở đây";
+          const noiDung = noiDungTextarea.value || "Nội dung giao dịch sẽ hiển thị ở đây";
           const loai = loaiSelect.value;
           const soTien = soTienInput.value;
           const thoiGian = thoiGianInput.value;
 
-          const selectedCategory =
-            danhMucSelect.options[danhMucSelect.selectedIndex];
+          const selectedCategory = danhMucSelect.options[danhMucSelect.selectedIndex];
           const categoryName = selectedCategory.text || "Chưa chọn danh mục";
 
-          const selectedPerson =
-            nguoiPhuTrachSelect.options[nguoiPhuTrachSelect.selectedIndex];
+          const selectedPerson = nguoiPhuTrachSelect.options[nguoiPhuTrachSelect.selectedIndex];
           const personName = selectedPerson.text || "Chưa chọn người phụ trách";
 
           previewContent.textContent = noiDung;
           previewCategory.textContent = categoryName;
           previewPerson.textContent = personName;
 
+          // Reset classes
+          previewIcon.className = "preview-icon";
+          previewTypeBadge.className = "type-badge";
+          previewAmount.className = "preview-amount";
+
           if (loai === "THU") {
             previewTypeBadge.textContent = "Thu";
-            previewTypeBadge.className = "badge bg-success";
-            previewIcon.className =
-              "avatar-lg rounded-circle d-flex align-items-center justify-content-center bg-success";
-            previewIcon.innerHTML =
-              '<i class="fas fa-arrow-up fa-2x text-white"></i>';
-            previewAmount.className = "mb-0 text-success";
+            previewTypeBadge.classList.add("thu");
+            previewIcon.classList.add("thu");
+            previewIcon.innerHTML = '<i class="fas fa-arrow-up"></i>';
+            previewAmount.classList.add("thu");
           } else if (loai === "CHI") {
             previewTypeBadge.textContent = "Chi";
-            previewTypeBadge.className = "badge bg-danger";
-            previewIcon.className =
-              "avatar-lg rounded-circle d-flex align-items-center justify-content-center bg-danger";
-            previewIcon.innerHTML =
-              '<i class="fas fa-arrow-down fa-2x text-white"></i>';
-            previewAmount.className = "mb-0 text-danger";
+            previewTypeBadge.classList.add("chi");
+            previewIcon.classList.add("chi");
+            previewIcon.innerHTML = '<i class="fas fa-arrow-down"></i>';
+            previewAmount.classList.add("chi");
           } else {
             previewTypeBadge.textContent = "Loại";
-            previewTypeBadge.className = "badge bg-secondary";
-            previewIcon.className =
-              "avatar-lg rounded-circle d-flex align-items-center justify-content-center bg-secondary";
-            previewIcon.innerHTML =
-              '<i class="fas fa-exchange-alt fa-2x text-white"></i>';
-            previewAmount.className = "mb-0";
+            previewIcon.innerHTML = '<i class="fas fa-exchange-alt"></i>';
           }
 
           if (soTien) {
-            const formattedAmount = new Intl.NumberFormat("vi-VN").format(
-              soTien
-            );
+            const formattedAmount = new Intl.NumberFormat("vi-VN").format(soTien);
             previewAmount.textContent = formattedAmount + " VNĐ";
           } else {
             previewAmount.textContent = "0 VNĐ";
@@ -410,8 +1018,7 @@
           });
 
           // Reset selection if current selection is not compatible
-          const currentSelection =
-            danhMucSelect.options[danhMucSelect.selectedIndex];
+          const currentSelection = danhMucSelect.options[danhMucSelect.selectedIndex];
           if (
             currentSelection &&
             currentSelection.dataset.loai &&
@@ -430,9 +1037,13 @@
         soTienInput.addEventListener("input", updatePreview);
         danhMucSelect.addEventListener("change", updatePreview);
         nguoiPhuTrachSelect.addEventListener("change", updatePreview);
-        noiDungTextarea.addEventListener("input", updatePreview);
+        noiDungTextarea.addEventListener("input", function() {
+          updateCharCount();
+          updatePreview();
+        });
 
         // Initial setup
+        updateCharCount();
         updateCategoryOptions();
         updatePreview();
       });

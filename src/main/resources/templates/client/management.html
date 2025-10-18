@@ -6,14 +6,32 @@
     <nav th:replace="~{fragments/client-layout :: navbar}"></nav>
 
     <!-- Page Header -->
-    <section class="py-5 bg-primary-custom text-white">
-      <div class="container">
+    <section class="hero-section py-5 text-white position-relative overflow-hidden">
+      <div class="hero-bg"></div>
+      <div class="container position-relative">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h1 class="display-4 fw-bold mb-3">Sự kiện & Hoạt đông</h1>
-            <p class="lead">
-              Tổng quan hoạt động và thống kê của chi hội
+            <div class="hero-icon mb-4">
+              <i class="fas fa-chart-line fa-3x"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">Sự Kiện & Hoạt Động</h1>
+            <p class="lead mb-4">
+              Tổng quan hoạt động và thống kê của chi hội trong năm <span th:text="${#dates.year(#dates.createNow())}">2024</span>
             </p>
+            <div class="hero-stats d-flex justify-content-center gap-4 flex-wrap">
+              <div class="stat-item">
+                <div class="stat-number" th:text="${totalTinHuu}">0</div>
+                <div class="stat-label">Tín Hữu</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${totalSuKienThangNay}">0</div>
+                <div class="stat-label">Sự Kiện</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number" th:text="${totalBaiViet}">0</div>
+                <div class="stat-label">Bài Viết</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -25,63 +43,74 @@
         <!-- Tổng Quan Hoạt Động -->
         <div class="row mb-5">
           <div class="col-12">
-            <div class="card shadow-sm">
-              <div class="card-header bg-success text-white">
-                <h4 class="mb-0">
-                  <i class="fas fa-chart-line me-2"></i>Tổng Quan Hoạt Động
-                </h4>
+            <div class="section-header text-center mb-4">
+              <h2 class="section-title">Thống Kê Chi Tiết</h2>
+              <p class="section-subtitle">Tổng quan các hoạt động và số liệu quan trọng</p>
+            </div>
+            <div class="row g-4">
+              <!-- Tổng Tín Hữu -->
+              <div class="col-lg-3 col-md-6">
+                <div class="stats-card stats-primary">
+                  <div class="stats-icon">
+                    <i class="fas fa-users"></i>
+                  </div>
+                  <div class="stats-content">
+                    <h3 class="stats-number" th:text="${totalTinHuu}">0</h3>
+                    <p class="stats-label">Tổng Tín Hữu</p>
+                    <div class="stats-trend">
+                      <i class="fas fa-arrow-up"></i>
+                      <span>Đang hoạt động</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="card-body">
-                <div class="row">
-                  <!-- Tổng Tín Hữu -->
-                  <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="card bg-primary text-white h-100">
-                      <div class="card-body text-center">
-                        <div class="icon-large mb-3">
-                          <i class="fas fa-users fa-3x"></i>
-                        </div>
-                        <h2 class="mb-2" th:text="${totalTinHuu}">0</h2>
-                        <p class="mb-0">Tổng Tín Hữu</p>
-                      </div>
+
+              <!-- Sự Kiện Tháng Này -->
+              <div class="col-lg-3 col-md-6">
+                <div class="stats-card stats-info">
+                  <div class="stats-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                  </div>
+                  <div class="stats-content">
+                    <h3 class="stats-number" th:text="${totalSuKienThangNay}">0</h3>
+                    <p class="stats-label">Sự Kiện Tháng Này</p>
+                    <div class="stats-trend">
+                      <i class="fas fa-calendar-check"></i>
+                      <span th:text="'Tháng ' + ${#dates.month(#dates.createNow())}">Tháng 12</span>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <!-- Sự Kiện Tháng Này -->
-                  <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="card bg-info text-white h-100">
-                      <div class="card-body text-center">
-                        <div class="icon-large mb-3">
-                          <i class="fas fa-calendar-alt fa-3x"></i>
-                        </div>
-                        <h2 class="mb-2" th:text="${totalSuKienThangNay}">0</h2>
-                        <p class="mb-0">Sự Kiện Tháng Này</p>
-                      </div>
+              <!-- Tổng Bài Viết -->
+              <div class="col-lg-3 col-md-6">
+                <div class="stats-card stats-warning">
+                  <div class="stats-icon">
+                    <i class="fas fa-newspaper"></i>
+                  </div>
+                  <div class="stats-content">
+                    <h3 class="stats-number" th:text="${totalBaiViet}">0</h3>
+                    <p class="stats-label">Tổng Bài Viết</p>
+                    <div class="stats-trend">
+                      <i class="fas fa-edit"></i>
+                      <span>Đã xuất bản</span>
                     </div>
                   </div>
+                </div>
+              </div>
 
-                  <!-- Tổng Bài Viết -->
-                  <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="card bg-warning text-white h-100">
-                      <div class="card-body text-center">
-                        <div class="icon-large mb-3">
-                          <i class="fas fa-newspaper fa-3x"></i>
-                        </div>
-                        <h2 class="mb-2" th:text="${totalBaiViet}">0</h2>
-                        <p class="mb-0">Tổng Bài Viết</p>
-                      </div>
-                    </div>
+              <!-- Tổng Điểm Nhóm -->
+              <div class="col-lg-3 col-md-6">
+                <div class="stats-card stats-success">
+                  <div class="stats-icon">
+                    <i class="fas fa-map-marker-alt"></i>
                   </div>
-
-                  <!-- Tổng Điểm Nhóm -->
-                  <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="card bg-danger text-white h-100">
-                      <div class="card-body text-center">
-                        <div class="icon-large mb-3">
-                          <i class="fas fa-map-marker-alt fa-3x"></i>
-                        </div>
-                        <h2 class="mb-2" th:text="${totalDiemNhom}">0</h2>
-                        <p class="mb-0">Tổng Điểm Nhóm</p>
-                      </div>
+                  <div class="stats-content">
+                    <h3 class="stats-number" th:text="${totalDiemNhom}">0</h3>
+                    <p class="stats-label">Tổng Điểm Nhóm</p>
+                    <div class="stats-trend">
+                      <i class="fas fa-map"></i>
+                      <span>Khu vực</span>
                     </div>
                   </div>
                 </div>
@@ -96,7 +125,7 @@
             <div class="card shadow-sm">
               <div class="card-header bg-info text-white">
                 <h4 class="mb-0">
-                  <i class="fas fa-calendar-alt me-2"></i>10 Sự Kiện Gần Nhất
+                  <i class="fas fa-calendar-alt me-2"></i> Sự Kiện Gần Nhất
                 </h4>
               </div>
               <div class="card-body">
@@ -116,7 +145,8 @@
                           <div class="d-flex align-items-start">
                             <div class="event-date bg-primary text-white me-3 flex-shrink-0">
                               <div class="day" th:text="${#temporals.day(event.ngayDienRa)}">15</div>
-                              <div class="month" th:text="${#temporals.monthName(event.ngayDienRa)}">Tháng 12</div>
+                              <div class="month" th:text="${#temporals.monthNameShort(event.ngayDienRa)}">T12</div>
+                              <div class="year" th:text="${#temporals.year(event.ngayDienRa)}">2024</div>
                             </div>
                             <div class="flex-grow-1">
                               <h6 class="mb-2">
@@ -213,18 +243,169 @@
     <div th:replace="~{fragments/client-layout :: scripts}"></div>
 
     <style>
+      /* Hero Section */
+      .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+      }
+      
+      .hero-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+      }
+      
+      .hero-icon {
+        background: rgba(255,255,255,0.2);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+      }
+      
+      .hero-stats {
+        margin-top: 2rem;
+      }
+      
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: rgba(255,255,255,0.1);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        min-width: 120px;
+      }
+      
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+      }
+      
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin: 0;
+      }
+      
+      /* Section Headers */
+      .section-header {
+        margin-bottom: 3rem;
+      }
+      
+      .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+      
+      .section-subtitle {
+        font-size: 1.1rem;
+        color: #718096;
+        margin: 0;
+      }
+      
+      /* Stats Cards */
+      .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .stats-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+      }
+      
+      .stats-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+      }
+      
+      .stats-primary {
+        --card-color: #667eea;
+        --card-color-light: #764ba2;
+      }
+      
+      .stats-info {
+        --card-color: #17a2b8;
+        --card-color-light: #20c997;
+      }
+      
+      .stats-warning {
+        --card-color: #ffc107;
+        --card-color-light: #fd7e14;
+      }
+      
+      .stats-success {
+        --card-color: #28a745;
+        --card-color-light: #20c997;
+      }
+      
+      .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        background: linear-gradient(135deg, var(--card-color), var(--card-color-light));
+        margin-bottom: 1.5rem;
+      }
+      
+      .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+      }
+      
+      .stats-label {
+        font-size: 1rem;
+        color: #718096;
+        margin-bottom: 1rem;
+      }
+      
+      .stats-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--card-color);
+        font-weight: 500;
+      }
+      
       .border-left-primary {
         border-left: 4px solid var(--primary-color) !important;
       }
       
-      .icon-large {
-        opacity: 0.8;
-      }
-      
       .event-date {
-        width: 60px;
-        height: 60px;
-        border-radius: 8px;
+        width: 70px;
+        height: 80px;
+        border-radius: 12px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -232,16 +413,26 @@
         text-align: center;
         font-size: 0.8rem;
         font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       }
       
       .event-date .day {
-        font-size: 1.2rem;
+        font-size: 1.4rem;
         line-height: 1;
+        font-weight: 700;
       }
       
       .event-date .month {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         line-height: 1;
+        opacity: 0.9;
+      }
+      
+      .event-date .year {
+        font-size: 0.6rem;
+        line-height: 1;
+        opacity: 0.8;
+        margin-top: 1px;
       }
       
       .event-image-container {
@@ -277,22 +468,69 @@
       
       /* Responsive adjustments */
       @media (max-width: 768px) {
+        .hero-section {
+          min-height: 300px;
+          padding: 3rem 0;
+        }
+        
+        .section-title {
+          font-size: 2rem;
+        }
+        
+        .stats-card {
+          padding: 1.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .stats-number {
+          font-size: 2rem;
+        }
+        
+        .hero-stats {
+          gap: 1rem !important;
+        }
+        
+        .stat-item {
+          min-width: 100px;
+          padding: 0.75rem;
+        }
+        
+        .stat-number {
+          font-size: 1.5rem;
+        }
+        
         .event-image-container {
           height: 150px;
         }
         
         .event-date {
-          width: 50px;
-          height: 50px;
+          width: 60px;
+          height: 70px;
           font-size: 0.7rem;
         }
         
         .event-date .day {
-          font-size: 1rem;
+          font-size: 1.2rem;
         }
         
         .event-date .month {
           font-size: 0.6rem;
+        }
+        
+        .event-date .year {
+          font-size: 0.55rem;
+        }
+      }
+      
+      @media (max-width: 576px) {
+        .hero-stats {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .stat-item {
+          width: 100%;
+          max-width: 200px;
         }
       }
     </style>

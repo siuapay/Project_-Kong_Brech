@@ -3,7 +3,7 @@
 <head th:replace="~{fragments/admin-layout :: head}">
     <link href="/static/css/searchable-dropdown.css" rel="stylesheet">
 </head>
-<body>
+<body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
@@ -17,184 +17,225 @@
             <!-- Flash Messages -->
             <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-user-plus me-2"></i>
-                        <span th:text="${account.id != null ? 'Chỉnh Sửa Tài Khoản' : 'Thêm Tài Khoản Mới'}">Thêm Tài Khoản Mới</span>
-                    </h2>
-                    <p class="text-muted mb-0">Nhập thông tin chi tiết của tài khoản</p>
+            <!-- Modern Page Header -->
+            <div class="modern-page-header">
+                <div class="header-content">
+                    <div class="header-info">
+                        <div class="header-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1 class="header-title" th:text="${account.id != null ? 'Chỉnh Sửa Tài Khoản' : 'Thêm Tài Khoản Mới'}">Thêm Tài Khoản Mới</h1>
+                            <p class="header-subtitle">Nhập thông tin chi tiết của tài khoản</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <a th:href="@{/admin/account}" class="btn-modern btn-modern-outline">
+                            <i class="fas fa-arrow-left me-2"></i>Quay Lại
+                        </a>
+                    </div>
                 </div>
-                <a th:href="@{/admin/account}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                </a>
             </div>
 
-            <!-- Form -->
-            <div class="row">
+            <!-- Modern Form -->
+            <div class="row g-4">
                 <div class="col-lg-8">
-                    <div class="card">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-user-edit me-2"></i>Thông Tin Tài Khoản
-                            </h5>
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-user-edit"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Thông Tin Tài Khoản</h5>
+                                    <p>Điền đầy đủ thông tin để tạo hoặc chỉnh sửa tài khoản</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <form th:action="@{/admin/account/save}" th:object="${account}" method="post">
-                                <input type="hidden" th:field="*{id}" />
+                                <input type="hidden" th:field="*{id}">
 
-                                <!-- Basic Information -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="username" class="form-label">
-                                            Tên Đăng Nhập <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="text" class="form-control" id="username" th:field="*{username}" 
-                                               required placeholder="Nhập tên đăng nhập" 
-                                               th:readonly="${account.id != null}">
-                                        <div class="form-text">
-                                            <i class="fas fa-info-circle me-1"></i>
-                                            Tên đăng nhập không thể thay đổi sau khi tạo
+                                <!-- Basic Information Section -->
+                                <div class="form-section">
+                                    <div class="row g-4">
+                                        <div class="col-md-6">
+                                            <div class="modern-form-group">
+                                                <label for="username" class="modern-form-label">
+                                                    <i class="fas fa-user me-2"></i>
+                                                    Tên Đăng Nhập <span class="required-star">*</span>
+                                                </label>
+                                                <input type="text" class="modern-form-control" id="username" th:field="*{username}" 
+                                                       required placeholder="Nhập tên đăng nhập" 
+                                                       th:readonly="${account.id != null}">
+                                                <div class="form-hint">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    Tên đăng nhập không thể thay đổi sau khi tạo
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="modern-form-group">
+                                                <label for="email" class="modern-form-label">
+                                                    <i class="fas fa-envelope me-2"></i>
+                                                    Email <span class="required-star">*</span>
+                                                </label>
+                                                <input type="email" class="modern-form-control" id="email" th:field="*{email}" 
+                                                       required placeholder="example@email.com">
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="email" class="form-label">
-                                            Email <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="email" class="form-control" id="email" th:field="*{email}" 
-                                               required placeholder="example@email.com">
+
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-12">
+                                            <div class="modern-form-group">
+                                                <label for="fullName" class="modern-form-label">
+                                                    <i class="fas fa-address-card me-2"></i>
+                                                    Họ và Tên <span class="required-star">*</span>
+                                                </label>
+                                                <input type="text" class="modern-form-control" id="fullName" th:field="*{fullName}" 
+                                                       required placeholder="Nhập họ và tên đầy đủ">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label for="fullName" class="form-label">
-                                        Họ và Tên <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" class="form-control" id="fullName" th:field="*{fullName}" 
-                                           required placeholder="Nhập họ và tên đầy đủ">
-                                </div>
-
-                                <!-- Liên Kết Nhân Sự/Chấp Sự -->
-                                <hr class="my-4" />
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-user-friends me-2"></i>Liên Kết Hồ Sơ
-                                </h6>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Liên kết với hồ sơ (tùy chọn)</label>
-                                    <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="profileType" id="profileNhanSu" value="nhansu">
-                                                <label class="form-check-label" for="profileNhanSu">
-                                                    <i class="fas fa-user text-primary me-1"></i>Nhân Sự
-                                                </label>
+                                <!-- Profile Link Section -->
+                                <div class="form-section">
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-12">
+                                            <label class="modern-form-label">
+                                                <i class="fas fa-user-friends me-2"></i>
+                                                Liên kết với hồ sơ (tùy chọn)
+                                            </label>
+                                            <div class="row g-2">
+                                                <div class="col-md-6">
+                                                    <div class="modern-form-group">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="profileType" id="profileNhanSu" value="nhansu">
+                                                            <label class="form-check-label" for="profileNhanSu">
+                                                                <i class="fas fa-user text-primary me-1"></i>Nhân Sự
+                                                            </label>
+                                                        </div>
+                                                        <div id="nhanSuDropdown" class="mt-2" style="display: none;"></div>
+                                                        <input type="hidden" id="nhanSu" th:field="*{nhanSu.id}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="modern-form-group">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="profileType" id="profileChapSu" value="chapsu">
+                                                            <label class="form-check-label" for="profileChapSu">
+                                                                <i class="fas fa-user-tie text-success me-1"></i>Chấp Sự
+                                                            </label>
+                                                        </div>
+                                                        <div id="chapSuDropdown" class="mt-2" style="display: none;"></div>
+                                                        <input type="hidden" id="chapSu" th:field="*{chapSu.id}">
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div id="nhanSuDropdown" class="mt-2" style="display: none;"></div>
-                                            <input type="hidden" id="nhanSu" th:field="*{nhanSu.id}">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="profileType" id="profileChapSu" value="chapsu">
-                                                <label class="form-check-label" for="profileChapSu">
-                                                    <i class="fas fa-user-tie text-success me-1"></i>Chấp Sự
-                                                </label>
+                                            <div class="form-hint">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Chọn một trong hai loại để liên kết với tài khoản này
                                             </div>
-                                            <div id="chapSuDropdown" class="mt-2" style="display: none;"></div>
-                                            <input type="hidden" id="chapSu" th:field="*{chapSu.id}">
                                         </div>
-                                    </div>
-                                    <div class="form-text">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Chọn một trong hai loại để liên kết với tài khoản này
                                     </div>
                                 </div>
 
                                 <!-- Password Section - Only for new accounts -->
-                                <div th:if="${account.id == null}">
-                                    <hr class="my-4" />
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-key me-2"></i>Thông Tin Bảo Mật
-                                    </h6>
-                                    <div class="alert alert-info">
-                                        <i class="fas fa-info-circle me-2"></i>
-                                        <strong>Mật khẩu tự động:</strong> Hệ thống sẽ tự động tạo mật khẩu ngẫu nhiên cho tài khoản mới. 
-                                        Mật khẩu sẽ được hiển thị sau khi tạo thành công.
+                                <div th:if="${account.id == null}" class="form-section">
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-12">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                        <strong>Mật khẩu tự động:</strong> Hệ thống sẽ tự động tạo mật khẩu ngẫu nhiên cho tài khoản mới. 
+                        Mật khẩu sẽ được hiển thị sau khi tạo thành công.
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <!-- Update Info - Only for existing accounts -->
-                                <div th:if="${account.id != null}">
-                                    <hr class="my-4" />
-                                    <h6 class="text-primary mb-3">
-                                        <i class="fas fa-edit me-2"></i>Cập Nhật Thông Tin
-                                    </h6>
-                                    <div class="alert alert-warning">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        <strong>Lưu ý:</strong> Chỉ có thể cập nhật thông tin cơ bản. 
-                                        Để thay đổi mật khẩu, vui lòng sử dụng chức năng "Reset Mật Khẩu" trong danh sách tài khoản.
-                                    </div>
-                                </div>
-
-                                <!-- Role and Status -->
-                                <hr class="my-4" />
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-shield-alt me-2"></i>Quyền và Trạng Thái
-                                </h6>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="role" class="form-label">
-                                            Quyền Hạn <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-select" id="role" th:field="*{role}" required>
-                                            <option th:each="role : ${T(com.branch.demo.domain.Account.Role).values()}" 
-                                                    th:value="${role}" th:text="${role.displayName}">
-                                            </option>
-                                        </select>
-                                        <div class="form-text">
-                                            <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
-                                            Chỉ Admin mới có quyền truy cập hệ thống quản lý
+                                <div th:if="${account.id != null}" class="form-section">
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-12">
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                                <strong>Lưu ý:</strong> Chỉ có thể cập nhật thông tin cơ bản. 
+                                                Để thay đổi mật khẩu, vui lòng sử dụng chức năng "Reset Mật Khẩu" trong danh sách tài khoản.
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label for="status" class="form-label">
-                                            Trạng Thái <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-select" id="status" th:field="*{status}" required>
-                                            <option th:each="status : ${T(com.branch.demo.domain.Account.AccountStatus).values()}" 
-                                                    th:value="${status}" th:text="${status.displayName}">
-                                            </option>
-                                        </select>
+                                </div>
+
+                                <!-- Role and Status Section -->
+                                <div class="form-section">
+                                    <div class="row g-4 mt-2">
+                                        <div class="col-md-6">
+                                            <div class="modern-form-group">
+                                                <label for="role" class="modern-form-label">
+                                                    <i class="fas fa-shield-alt me-2"></i>
+                                                    Quyền Hạn <span class="required-star">*</span>
+                                                </label>
+                                                <select class="modern-form-select" id="role" th:field="*{role}" required>
+                                                    <option th:each="role : ${T(com.branch.demo.domain.Account.Role).values()}" 
+                                                            th:value="${role}" th:text="${role.displayName}">
+                                                    </option>
+                                                </select>
+                                                <div class="form-hint">
+                                                    <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                                    Chỉ Admin mới có quyền truy cập hệ thống quản lý
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="modern-form-group">
+                                                <label for="status" class="modern-form-label">
+                                                    <i class="fas fa-toggle-on me-2"></i>
+                                                    Trạng Thái <span class="required-star">*</span>
+                                                </label>
+                                                <select class="modern-form-select" id="status" th:field="*{status}" required>
+                                                    <option th:each="status : ${T(com.branch.demo.domain.Account.AccountStatus).values()}" 
+                                                            th:value="${status}" th:text="${status.displayName}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- Submit Buttons -->
-                                <hr class="my-4" />
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a th:href="@{/admin/account}" class="btn btn-secondary">
-                                        <i class="fas fa-times me-2"></i>Hủy
-                                    </a>
-                                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                                        <i class="fas fa-save me-2"></i>
-                                        <span th:text="${account.id != null ? 'Cập Nhật' : 'Tạo Tài Khoản'}">Tạo Tài Khoản</span>
-                                    </button>
+                                <!-- Form Actions -->
+                                <div class="form-actions">
+                                    <div class="actions-container">
+                                        <a th:href="@{/admin/account}" class="btn-cancel">
+                                            <i class="fas fa-times me-2"></i>Hủy Bỏ
+                                        </a>
+                                        <button type="submit" class="btn-submit">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${account.id != null ? 'Cập Nhật' : 'Tạo Tài Khoản'}">Tạo Tài Khoản</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <!-- Info Panel -->
+                <!-- Modern Sidebar -->
                 <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Hướng Dẫn
-                            </h6>
+                    <div class="modern-card">
+                        <div class="card-header">
+                            <div class="header-left">
+                                <div class="card-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <div class="card-title">
+                                    <h5>Hướng Dẫn</h5>
+                                    <p>Hỗ trợ sử dụng form</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
+                        <div class="card-content">
                             <h6 class="text-primary">Quyền Hạn:</h6>
                             <ul class="list-unstyled">
                                 <li class="mb-2">
@@ -228,8 +269,6 @@
                                     Tài khoản bị khóa
                                 </li>
                             </ul>
-
-                            <hr>
 
                             <hr>
 
@@ -473,55 +512,250 @@
                 showProfileDropdown('chapsu');
             }
         }
+    </script>
 
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const icon = document.getElementById(fieldId + 'ToggleIcon');
-            
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+    <style>
+        /* Modern Admin Page Styles */
+        .modern-admin-page {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+            min-height: 100vh;
+        }
+
+        /* Modern Page Header */
+        .modern-page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Modern Buttons */
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-modern-outline {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-modern-outline:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title h5 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .card-title p {
+            margin: 0.25rem 0 0 0;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        /* Form Sections */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        /* Modern Form Controls */
+        .modern-form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .modern-form-label {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .required-star {
+            color: #e53e3e;
+            margin-left: 0.25rem;
+        }
+
+        .modern-form-control,
+        .modern-form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .modern-form-control:focus,
+        .modern-form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-hint {
+            color: #718096;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .actions-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            padding: 0.875rem 2rem;
+            background: #f7fafc;
+            color: #4a5568;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #edf2f7;
+            color: #2d3748;
+            text-decoration: none;
+        }
+
+        .btn-submit {
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .actions-container {
+                flex-direction: column;
             }
         }
-
-        // Password confirmation validation - Only for new accounts
-        const confirmPasswordField = document.getElementById('confirmPassword');
-        const passwordField = document.getElementById('password');
-        
-        if (confirmPasswordField && passwordField) {
-            confirmPasswordField.addEventListener('input', function() {
-                const password = passwordField.value;
-                const confirmPassword = this.value;
-                const message = document.getElementById('passwordMatchMessage');
-                const submitBtn = document.getElementById('submitBtn');
-
-                if (confirmPassword && password !== confirmPassword) {
-                    message.innerHTML = '<i class="fas fa-times text-danger me-1"></i>Mật khẩu không khớp';
-                    message.className = 'form-text text-danger';
-                    submitBtn.disabled = true;
-                } else {
-                    message.innerHTML = confirmPassword ? '<i class="fas fa-check text-success me-1"></i>Mật khẩu khớp' : '';
-                    message.className = 'form-text text-success';
-                    submitBtn.disabled = false;
-                }
-            });
-
-            // Password strength indicator
-            passwordField.addEventListener('input', function() {
-                const password = this.value;
-                const confirmField = document.getElementById('confirmPassword');
-                
-                // Reset confirm password when main password changes
-                if (confirmField && confirmField.value) {
-                    confirmField.dispatchEvent(new Event('input'));
-                }
-            });
-        }
-    </script>
+    </style>
 </body>
 </html>

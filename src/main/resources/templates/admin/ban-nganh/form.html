@@ -1,828 +1,1928 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/admin-layout :: head}"></head>
-<body>
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body class="modern-admin-page">
     <!-- Sidebar -->
     <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Top Navigation -->
-        <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
 
-        <!-- Content -->
-        <div class="container-fluid py-4">
-            <!-- Flash Messages -->
-            <div th:replace="~{fragments/admin-layout :: messages}"></div>
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
 
-            <!-- Page Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="text-primary">
-                        <i class="fas fa-sitemap me-2"></i>
-                        <span th:text="${banNganh.id != null ? 'Chỉnh Sửa Ban Ngành' : 'Thêm Ban Ngành Mới'}">Thêm Ban Ngành</span>
-                    </h2>
-                    <p class="text-muted mb-0">Nhập thông tin chi tiết của ban ngành</p>
-                </div>
-                <a th:href="@{/admin/ban-nganh}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Quay Lại
-                </a>
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-sitemap"></i>
+              </div>
+              <div class="header-text">
+                <h1
+                  class="header-title"
+                  th:text="${banNganh.id != null ? 'Chỉnh Sửa Ban Ngành' : 'Thêm Ban Ngành Mới'}"
+                >
+                  Thêm Ban Ngành Mới
+                </h1>
+                <p class="header-subtitle">
+                  Nhập thông tin chi tiết của ban ngành để quản lý hiệu quả
+                </p>
+              </div>
             </div>
-
-            <!-- Form -->
-            <div class="row">
-                <div class="col-lg-8">
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">
-                                <i class="fas fa-info-circle me-2"></i>Thông Tin Ban Ngành
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <form th:action="@{/admin/ban-nganh/save}" method="post" th:object="${banNganh}">
-                                <input type="hidden" th:field="*{id}">
-                                
-                                <div class="row g-3">
-                                    <div class="col-md-8">
-                                        <label for="tenBan" class="form-label">Tên Ban Ngành <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="tenBan" th:field="*{tenBan}" 
-                                               placeholder="Nhập tên ban ngành" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="maBan" class="form-label">Mã Ban <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="maBan" th:field="*{maBan}" 
-                                               placeholder="VD: BN001" required>
-                                    </div>
-                                    
-                                    <div class="col-12">
-                                        <label for="moTa" class="form-label">Mô Tả</label>
-                                        <textarea class="form-control" id="moTa" th:field="*{moTa}" rows="3"
-                                                  placeholder="Mô tả về chức năng, nhiệm vụ của ban ngành..."></textarea>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="emailLienHe" class="form-label">Email Liên Hệ</label>
-                                        <input type="email" class="form-control" id="emailLienHe" th:field="*{emailLienHe}" 
-                                               placeholder="email@example.com">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label for="dienThoaiLienHe" class="form-label">Điện Thoại Liên Hệ</label>
-                                        <input type="tel" class="form-control" id="dienThoaiLienHe" th:field="*{dienThoaiLienHe}" 
-                                               placeholder="0123456789" 
-                                               pattern="[0-9]{10,11}"
-                                               minlength="10" 
-                                               maxlength="11"
-                                               title="Số điện thoại phải có 10-11 chữ số"
-                                               oninput="validatePhoneNumber(this)">
-                                        <div class="invalid-feedback" id="phoneError">
-                                            Số điện thoại phải có 10-11 chữ số và chỉ chứa số
-                                        </div>
-                                        <div class="form-text">
-                                            <small class="text-muted">Nhập 10-11 chữ số (VD: 0123456789 hoặc 84123456789)</small>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-6">
-                                        <label for="trangThai" class="form-label">Trạng Thái</label>
-                                        <select class="form-select" id="trangThai" th:field="*{trangThai}">
-                                            <option value="HOAT_DONG">Hoạt động</option>
-                                            <option value="TAM_NGHI">Tạm nghỉ</option>
-                                            <option value="GIAI_TAN">Giải tán</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <!-- Quản lý Ban -->
-                                <hr class="my-4">
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-users-cog me-2"></i>Quản Lý Ban
-                                </h6>
-                                
-                                <!-- Trưởng Ban (chỉ 1) -->
-                                <div class="row g-3 mb-4">
-                                    <div class="col-12">
-                                        <label class="form-label">Trưởng Ban <span class="text-danger">*</span></label>
-                                        <div class="row g-2">
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="truongBanType" id="truongBanNhanSu" value="nhansu">
-                                                    <label class="form-check-label" for="truongBanNhanSu">
-                                                        <i class="fas fa-user text-primary me-1"></i>Nhân Sự
-                                                    </label>
-                                                </div>
-                                                <div id="truongBanNhanSuDropdown" class="mt-2" style="display: none;"></div>
-                                                <input type="hidden" id="truongBanNhanSuId" th:field="*{truongBanNhanSu.id}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="truongBanType" id="truongBanChapSu" value="chapsu">
-                                                    <label class="form-check-label" for="truongBanChapSu">
-                                                        <i class="fas fa-user-tie text-success me-1"></i>Chấp Sự
-                                                    </label>
-                                                </div>
-                                                <div id="truongBanChapSuDropdown" class="mt-2" style="display: none;"></div>
-                                                <input type="hidden" id="truongBanChapSuId" th:field="*{truongBanChapSu.id}">
-                                            </div>
-                                        </div>
-                                        <div class="form-text">Chọn một trong hai loại để làm trưởng ban</div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Phó Ban (nhiều) -->
-                                <div class="row g-3">
-                                    <div class="col-12">
-                                        <label class="form-label">Phó Ban (có thể chọn nhiều)</label>
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted small">
-                                                    <i class="fas fa-user text-primary me-1"></i>Phó Ban Nhân Sự
-                                                </label>
-                                                <div id="phoBanNhanSuDropdown"></div>
-                                                <input type="hidden" id="phoBanNhanSuIds" name="phoBanNhanSuIds">
-                                                <div id="selectedPhoBanNhanSu" class="mt-2"></div>
-                                                
-                                                <!-- Hidden inputs for existing data -->
-                                                <div style="display: none;">
-                                                    <div th:each="nhanSu : ${banNganh.danhSachPhoBanNhanSu}">
-                                                        <input type="hidden" class="existing-pho-ban-nhan-su" 
-                                                               th:data-id="${nhanSu.id}" 
-                                                               th:data-name="${nhanSu.hoTen}"
-                                                               th:data-email="${nhanSu.email}"
-                                                               th:data-phone="${nhanSu.dienThoai}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label text-muted small">
-                                                    <i class="fas fa-user-tie text-success me-1"></i>Phó Ban Chấp Sự
-                                                </label>
-                                                <div id="phoBanChapSuDropdown"></div>
-                                                <input type="hidden" id="phoBanChapSuIds" name="phoBanChapSuIds">
-                                                <div id="selectedPhoBanChapSu" class="mt-2"></div>
-                                                
-                                                <!-- Hidden inputs for existing data -->
-                                                <div style="display: none;">
-                                                    <div th:each="chapSu : ${banNganh.danhSachPhoBanChapSu}">
-                                                        <input type="hidden" class="existing-pho-ban-chap-su" 
-                                                               th:data-id="${chapSu.id}" 
-                                                               th:data-name="${chapSu.hoTen}"
-                                                               th:data-email="${chapSu.email}"
-                                                               th:data-phone="${chapSu.dienThoai}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-text">Có thể chọn nhiều nhân sự và chấp sự làm phó ban</div>
-                                    </div>
-                                </div>
-                                
-                                <hr class="my-4">
-                                
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save me-2"></i>
-                                        <span th:text="${banNganh.id != null ? 'Cập Nhật' : 'Thêm Mới'}">Lưu</span>
-                                    </button>
-                                    <a th:href="@{/admin/ban-nganh}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-times me-2"></i>Hủy
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-lg-4">
-                    <!-- Help Card -->
-                    <div class="card shadow border-0">
-                        <div class="card-header bg-info text-white">
-                            <h6 class="mb-0">
-                                <i class="fas fa-lightbulb me-2"></i>Hướng Dẫn
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <h6 class="text-primary">Tên Ban Ngành</h6>
-                                <p class="small text-muted mb-0">Tên đầy đủ của ban ngành (VD: Ban Truyền Giáo, Ban Thanh Niên)</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6 class="text-primary">Mã Ban</h6>
-                                <p class="small text-muted mb-0">Mã định danh duy nhất (VD: BTG001, BTN002)</p>
-                            </div>
-                            <div class="mb-3">
-                                <h6 class="text-primary">Trạng Thái</h6>
-                                <ul class="small text-muted mb-0">
-                                    <li><strong>Hoạt động:</strong> Ban ngành đang hoạt động bình thường</li>
-                                    <li><strong>Tạm nghỉ:</strong> Tạm thời ngưng hoạt động</li>
-                                    <li><strong>Giải tán:</strong> Đã chính thức giải tán</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Preview Card -->
-                    <div class="card shadow border-0 mt-4" th:if="${banNganh.id != null}">
-                        <div class="card-header bg-light">
-                            <h6 class="mb-0">
-                                <i class="fas fa-info me-2"></i>Thông Tin Hiện Tại
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-2">
-                                <small class="text-muted">Ngày tạo:</small>
-                                <div th:if="${banNganh.createdAt}" 
-                                     th:text="${#temporals.format(banNganh.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
-                            </div>
-                            <div class="mb-2">
-                                <small class="text-muted">Cập nhật cuối:</small>
-                                <div th:if="${banNganh.updatedAt}" 
-                                     th:text="${#temporals.format(banNganh.updatedAt, 'dd/MM/yyyy HH:mm')}"></div>
-                            </div>
-                            <div>
-                                <small class="text-muted">Số nhân sự:</small>
-                                <div>
-                                    <span class="badge bg-info" th:text="${banNganh.soLuongNhanSu}">0</span> người
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="header-actions">
+              <a
+                th:href="@{/admin/ban-nganh}"
+                class="btn-modern btn-modern-outline"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
             </div>
+          </div>
         </div>
+
+        <!-- Modern Form -->
+        <div class="row g-4">
+          <div class="col-lg-8">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-sitemap"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Thông Tin Ban Ngành</h5>
+                    <p>Điền đầy đủ thông tin để tạo ban ngành</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <form
+                  th:action="@{/admin/ban-nganh/save}"
+                  method="post"
+                  th:object="${banNganh}"
+                >
+                  <input type="hidden" th:field="*{id}" />
+
+                  <!-- Form Divider -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">Thông tin cơ bản</div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <!-- Basic Information -->
+                  <div class="form-section">
+                    <div class="row g-4">
+                      <div class="col-md-8">
+                        <div class="modern-form-group">
+                          <label for="tenBan" class="modern-form-label">
+                            <i class="fas fa-sitemap me-2"></i>
+                            Tên Ban Ngành <span class="required-star">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            class="modern-form-control"
+                            id="tenBan"
+                            th:field="*{tenBan}"
+                            placeholder="Nhập tên ban ngành"
+                            required
+                          />
+                          <div class="form-feedback">
+                            Vui lòng nhập tên ban ngành.
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="modern-form-group">
+                          <label for="maBan" class="modern-form-label">
+                            <i class="fas fa-code me-2"></i>
+                            Mã Ban <span class="required-star">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            class="modern-form-control"
+                            id="maBan"
+                            th:field="*{maBan}"
+                            placeholder="VD: BN001"
+                            required
+                          />
+                          <div class="form-feedback">Vui lòng nhập mã ban.</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                      <div class="col-12">
+                        <div class="modern-form-group">
+                          <label for="moTa" class="modern-form-label">
+                            <i class="fas fa-align-left me-2"></i>
+                            Mô Tả
+                          </label>
+                          <textarea
+                            class="modern-form-textarea"
+                            id="moTa"
+                            th:field="*{moTa}"
+                            rows="3"
+                            placeholder="Mô tả về chức năng, nhiệm vụ của ban ngành..."
+                          ></textarea>
+                          <div class="form-hint">
+                            Mô tả chi tiết về ban ngành
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Form Divider -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                      <i class="fas fa-address-book me-2"></i>Thông tin liên hệ
+                    </div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <div class="form-section">
+                    <div class="row g-4">
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label for="emailLienHe" class="modern-form-label">
+                            <i class="fas fa-envelope me-2"></i>
+                            Email Liên Hệ
+                          </label>
+                          <input
+                            type="email"
+                            class="modern-form-control"
+                            id="emailLienHe"
+                            th:field="*{emailLienHe}"
+                            placeholder="email@example.com"
+                          />
+                          <div class="form-hint">
+                            Email để liên lạc với ban ngành
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label
+                            for="dienThoaiLienHe"
+                            class="modern-form-label"
+                          >
+                            <i class="fas fa-phone me-2"></i>
+                            Điện Thoại Liên Hệ
+                          </label>
+                          <input
+                            type="tel"
+                            class="modern-form-control"
+                            id="dienThoaiLienHe"
+                            th:field="*{dienThoaiLienHe}"
+                            placeholder="0123456789"
+                            pattern="[0-9]{10,11}"
+                            minlength="10"
+                            maxlength="11"
+                            title="Số điện thoại phải có 10-11 chữ số"
+                            oninput="validatePhoneNumber(this)"
+                          />
+                          <div class="invalid-feedback" id="phoneError">
+                            Số điện thoại phải có 10-11 chữ số và chỉ chứa số
+                          </div>
+                          <div class="form-hint">
+                            Nhập 10-11 chữ số (VD: 0123456789)
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="modern-form-group">
+                          <label for="trangThai" class="modern-form-label">
+                            <i class="fas fa-toggle-on me-2"></i>
+                            Trạng Thái <span class="required-star">*</span>
+                          </label>
+                          <select
+                            class="modern-form-select"
+                            id="trangThai"
+                            th:field="*{trangThai}"
+                            required
+                          >
+                            <option value="HOAT_DONG">Hoạt động</option>
+                            <option value="TAM_NGHI">Tạm nghỉ</option>
+                            <option value="GIAI_TAN">Giải tán</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Form Divider -->
+                  <div class="form-divider">
+                    <div class="divider-line"></div>
+                    <div class="divider-text">
+                      <i class="fas fa-users-cog me-2"></i>Quản lý ban
+                    </div>
+                    <div class="divider-line"></div>
+                  </div>
+
+                  <!-- Trưởng Ban (chỉ 1) -->
+                  <div class="row g-3 mb-4">
+                    <div class="col-12">
+                      <label class="form-label"
+                        >Trưởng Ban <span class="text-danger">*</span></label
+                      >
+                      <div class="row g-2">
+                        <div class="col-md-6">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="truongBanType"
+                              id="truongBanNhanSu"
+                              value="nhansu"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="truongBanNhanSu"
+                            >
+                              <i class="fas fa-user text-primary me-1"></i>Nhân
+                              Sự
+                            </label>
+                          </div>
+                          <div
+                            id="truongBanNhanSuDropdown"
+                            class="mt-2"
+                            style="display: none"
+                          ></div>
+                          <input
+                            type="hidden"
+                            id="truongBanNhanSuId"
+                            th:field="*{truongBanNhanSu.id}"
+                          />
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="radio"
+                              name="truongBanType"
+                              id="truongBanChapSu"
+                              value="chapsu"
+                            />
+                            <label
+                              class="form-check-label"
+                              for="truongBanChapSu"
+                            >
+                              <i class="fas fa-user-tie text-success me-1"></i
+                              >Chấp Sự
+                            </label>
+                          </div>
+                          <div
+                            id="truongBanChapSuDropdown"
+                            class="mt-2"
+                            style="display: none"
+                          ></div>
+                          <input
+                            type="hidden"
+                            id="truongBanChapSuId"
+                            th:field="*{truongBanChapSu.id}"
+                          />
+                        </div>
+                      </div>
+                      <div class="form-text">
+                        Chọn một trong hai loại để làm trưởng ban
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Phó Ban (nhiều) -->
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label"
+                        >Phó Ban (có thể chọn nhiều)</label
+                      >
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label text-muted small">
+                            <i class="fas fa-user text-primary me-1"></i>Phó Ban
+                            Nhân Sự
+                          </label>
+                          <div id="phoBanNhanSuDropdown"></div>
+                          <input
+                            type="hidden"
+                            id="phoBanNhanSuIds"
+                            name="phoBanNhanSuIds"
+                          />
+                          <div id="selectedPhoBanNhanSu" class="mt-2"></div>
+
+                          <!-- Hidden inputs for existing data -->
+                          <div style="display: none">
+                            <div
+                              th:each="nhanSu : ${banNganh.danhSachPhoBanNhanSu}"
+                            >
+                              <input
+                                type="hidden"
+                                class="existing-pho-ban-nhan-su"
+                                th:data-id="${nhanSu.id}"
+                                th:data-name="${nhanSu.hoTen}"
+                                th:data-email="${nhanSu.email}"
+                                th:data-phone="${nhanSu.dienThoai}"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label text-muted small">
+                            <i class="fas fa-user-tie text-success me-1"></i>Phó
+                            Ban Chấp Sự
+                          </label>
+                          <div id="phoBanChapSuDropdown"></div>
+                          <input
+                            type="hidden"
+                            id="phoBanChapSuIds"
+                            name="phoBanChapSuIds"
+                          />
+                          <div id="selectedPhoBanChapSu" class="mt-2"></div>
+
+                          <!-- Hidden inputs for existing data -->
+                          <div style="display: none">
+                            <div
+                              th:each="chapSu : ${banNganh.danhSachPhoBanChapSu}"
+                            >
+                              <input
+                                type="hidden"
+                                class="existing-pho-ban-chap-su"
+                                th:data-id="${chapSu.id}"
+                                th:data-name="${chapSu.hoTen}"
+                                th:data-email="${chapSu.email}"
+                                th:data-phone="${chapSu.dienThoai}"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-text">
+                        Có thể chọn nhiều nhân sự và chấp sự làm phó ban
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Thủ Quỹ (nhiều) -->
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label"
+                        >Thủ Quỹ (có thể chọn nhiều)</label
+                      >
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label text-muted small">
+                            <i class="fas fa-coins text-success me-1"></i>Thủ Quỹ
+                            Nhân Sự
+                          </label>
+                          <div
+                            id="thuQuyNhanSuDropdown"
+                            class="searchable-dropdown"
+                          ></div>
+                          <input
+                            type="hidden"
+                            id="thuQuyNhanSuIds"
+                            name="thuQuyNhanSuIds"
+                          />
+                          <div id="selectedThuQuyNhanSu" class="selected-items">
+                            <!-- Selected items will be displayed here -->
+                          </div>
+                          <!-- Hidden inputs for existing data -->
+                          <div
+                            th:each="thuQuy : ${banNganh.danhSachThuQuyNhanSu}"
+                            style="display: none"
+                          >
+                            <input
+                              type="hidden"
+                              class="existing-thu-quy-nhan-su"
+                              th:data-id="${thuQuy.id}"
+                              th:data-name="${thuQuy.hoTen}"
+                              th:data-email="${thuQuy.email}"
+                              th:data-phone="${thuQuy.dienThoai}"
+                            />
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label text-muted small">
+                            <i class="fas fa-coins text-warning me-1"></i>Thủ Quỹ
+                            Chấp Sự
+                          </label>
+                          <div
+                            id="thuQuyChapSuDropdown"
+                            class="searchable-dropdown"
+                          ></div>
+                          <input
+                            type="hidden"
+                            id="thuQuyChapSuIds"
+                            name="thuQuyChapSuIds"
+                          />
+                          <div id="selectedThuQuyChapSu" class="selected-items">
+                            <!-- Selected items will be displayed here -->
+                          </div>
+                          <!-- Hidden inputs for existing data -->
+                          <div
+                            th:each="thuQuy : ${banNganh.danhSachThuQuyChapSu}"
+                            style="display: none"
+                          >
+                            <input
+                              type="hidden"
+                              class="existing-thu-quy-chap-su"
+                              th:data-id="${thuQuy.id}"
+                              th:data-name="${thuQuy.hoTen}"
+                              th:data-email="${thuQuy.email}"
+                              th:data-phone="${thuQuy.dienThoai}"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-text">
+                        Có thể chọn nhiều nhân sự và chấp sự làm thủ quỹ
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr class="my-4" />
+
+                  <div class="form-actions">
+                    <div class="actions-container">
+                      <a th:href="@{/admin/ban-nganh}" class="btn-cancel">
+                        <i class="fas fa-times me-2"></i>Hủy
+                      </a>
+                      <button type="submit" class="btn-submit">
+                        <i class="fas fa-save me-2"></i>
+                        <span
+                          th:text="${banNganh.id != null ? 'Cập Nhật' : 'Thêm Mới'}"
+                          >Lưu</span
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <!-- Guidelines Card -->
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-lightbulb"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Hướng Dẫn</h5>
+                    <p>Thông tin cần thiết khi tạo ban ngành</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <h6 class="mb-0">
+                  <i class="fas fa-lightbulb me-2"></i>Hướng Dẫn
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-primary">Tên Ban Ngành</h6>
+                  <p class="small text-muted mb-0">
+                    Tên đầy đủ của ban ngành (VD: Ban Truyền Giáo, Ban Thanh
+                    Niên)
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-primary">Mã Ban</h6>
+                  <p class="small text-muted mb-0">
+                    Mã định danh duy nhất (VD: BTG001, BTN002)
+                  </p>
+                </div>
+                <div class="mb-3">
+                  <h6 class="text-primary">Trạng Thái</h6>
+                  <ul class="small text-muted mb-0">
+                    <li>
+                      <strong>Hoạt động:</strong> Ban ngành đang hoạt động bình
+                      thường
+                    </li>
+                    <li><strong>Tạm nghỉ:</strong> Tạm thời ngưng hoạt động</li>
+                    <li><strong>Giải tán:</strong> Đã chính thức giải tán</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div
+              class="card shadow border-0 mt-4"
+              th:if="${banNganh.id != null}"
+            >
+              <div class="card-header bg-light">
+                <h6 class="mb-0">
+                  <i class="fas fa-info me-2"></i>Thông Tin Hiện Tại
+                </h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-2">
+                  <small class="text-muted">Ngày tạo:</small>
+                  <div
+                    th:if="${banNganh.createdAt}"
+                    th:text="${#temporals.format(banNganh.createdAt, 'dd/MM/yyyy HH:mm')}"
+                  ></div>
+                </div>
+                <div class="mb-2">
+                  <small class="text-muted">Cập nhật cuối:</small>
+                  <div
+                    th:if="${banNganh.updatedAt}"
+                    th:text="${#temporals.format(banNganh.updatedAt, 'dd/MM/yyyy HH:mm')}"
+                  ></div>
+                </div>
+                <div>
+                  <small class="text-muted">Số nhân sự:</small>
+                  <div>
+                    <span
+                      class="badge bg-info"
+                      th:text="${banNganh.soLuongNhanSu}"
+                      >0</span
+                    >
+                    người
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
     <script src="/js/searchable-dropdown.js"></script>
+
+    <!-- Modern Form Styles -->
+    <style>
+      /* Modern Admin Page Styles */
+      .modern-admin-page {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+      }
+
+      /* Modern Page Header */
+      .modern-page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0.5rem 0 0 0;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* Modern Buttons */
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+      }
+
+      .btn-modern-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-modern-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+        text-decoration: none;
+      }
+
+      .btn-modern-outline {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .btn-modern-outline:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+      }
+
+      /* Modern Cards */
+      .modern-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+        overflow: hidden;
+      }
+
+      .card-header {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .card-icon {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+      }
+
+      .card-title h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .card-title p {
+        margin: 0.25rem 0 0 0;
+        color: #718096;
+        font-size: 0.9rem;
+      }
+
+      .card-content {
+        padding: 2rem;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+      }
+
+      .header-info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        backdrop-filter: blur(10px);
+      }
+
+      .header-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: white;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0.5rem 0 0 0;
+        font-size: 1.1rem;
+      }
+
+      .modern-form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        border: none;
+      }
+
+      .form-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .form-card-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 20px;
+      }
+
+      .form-card-title h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .form-card-title p {
+        margin: 0.25rem 0 0 0;
+        color: #718096;
+        font-size: 0.95rem;
+      }
+
+      .form-card-body {
+        padding: 2rem;
+      }
+
+      /* Form Dividers */
+      .form-divider {
+        display: flex;
+        align-items: center;
+        margin: 2rem 0;
+        gap: 1rem;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          #e2e8f0 50%,
+          transparent 100%
+        );
+      }
+
+      .divider-text {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      /* Form Sections */
+      .form-section {
+        margin-bottom: 2rem;
+      }
+
+      /* Modern Form Controls */
+      .modern-form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .modern-form-label {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .required-star {
+        color: #e53e3e;
+        margin-left: 0.25rem;
+      }
+
+      .modern-form-control,
+      .modern-form-select,
+      .modern-form-textarea {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+      }
+
+      .modern-form-control:focus,
+      .modern-form-select:focus,
+      .modern-form-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+      }
+
+      .modern-form-textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .form-hint {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-top: 0.25rem;
+      }
+
+      .form-feedback {
+        font-size: 0.85rem;
+        color: #e53e3e;
+        margin-top: 0.25rem;
+        display: none;
+      }
+
+      .modern-form-control:invalid + .form-feedback {
+        display: block;
+      }
+
+      /* Form Actions */
+      .form-actions {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .actions-container {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+      }
+
+      .btn-cancel {
+        padding: 0.75rem 1.5rem;
+        background: #f7fafc;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+      }
+
+      .btn-cancel:hover {
+        background: #edf2f7;
+        border-color: #cbd5e0;
+        color: #2d3748;
+        transform: translateY(-1px);
+      }
+
+      .btn-submit {
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+      }
+
+      /* Info Cards */
+      .info-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+      }
+
+      .info-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .info-card-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+      }
+
+      .info-card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+      }
+
+      .info-card-body {
+        padding: 1.5rem;
+      }
+
+      .guideline-section {
+        margin-bottom: 1.5rem;
+      }
+
+      .guideline-section h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.75rem;
+      }
+
+      .requirement-list,
+      .note-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .requirement-item,
+      .note-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: #4a5568;
+      }
+
+      .requirement-item i {
+        color: #48bb78;
+      }
+
+      .note-item i {
+        color: #667eea;
+        width: 16px;
+      }
+
+      .warning-box {
+        background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+        border: 1px solid #fc8181;
+        border-radius: 10px;
+        padding: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+
+      .warning-icon {
+        color: #c53030;
+        font-size: 1.1rem;
+        margin-top: 0.1rem;
+      }
+
+      .warning-content {
+        color: #742a2a;
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border-radius: 10px;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.8rem;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .actions-container {
+          flex-direction: column;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* Dropdown Styles */
+      .nhom-item {
+        padding: 8px 0;
+      }
+
+      .nhom-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+      }
+
+      .diem-nhom-name {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 2px;
+      }
+
+      .diem-nhom-address {
+        font-size: 12px;
+        color: #999;
+      }
+
+      #nhomDropdown .dropdown-item {
+        padding: 12px 16px !important;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      #nhomDropdown .dropdown-item:last-child {
+        border-bottom: none;
+      }
+
+      #nhomDropdown .dropdown-item:hover {
+        background-color: #f8f9fa;
+      }
+    </style>
+
     <script>
-        // Global variables
-        let allNhanSu = [];
-        let allChapSu = [];
-        let selectedPhoBanNhanSu = [];
-        let selectedPhoBanChapSu = [];
-        
-        // Initialize form when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            loadAllData();
-            initializeTruongBanRadios();
-            // Initialize existing data after a short delay to ensure DOM is ready
-            setTimeout(() => {
-                initializeExistingData();
-            }, 200);
+      // Global variables
+      let allNhanSu = [];
+      let allChapSu = [];
+      let selectedPhoBanNhanSu = [];
+      let selectedPhoBanChapSu = [];
+      let selectedThuQuyNhanSu = [];
+      let selectedThuQuyChapSu = [];
+
+      // Initialize form when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        loadAllData();
+        initializeTruongBanRadios();
+        // Initialize existing data after a short delay to ensure DOM is ready
+        setTimeout(() => {
+          initializeExistingData();
+        }, 200);
+      });
+
+      // Load all data from APIs
+      async function loadAllData() {
+        try {
+          const [nhanSuResponse, chapSuResponse] = await Promise.all([
+            fetch("/admin/api/all-nhan-su"),
+            fetch("/admin/api/all-chap-su"),
+          ]);
+
+          if (nhanSuResponse.ok && chapSuResponse.ok) {
+            allNhanSu = await nhanSuResponse.json();
+            allChapSu = await chapSuResponse.json();
+
+            // Only initialize dropdowns if we have data
+            if (allNhanSu.length > 0 || allChapSu.length > 0) {
+              initializeDropdowns();
+            }
+          }
+        } catch (error) {
+          console.error("Error loading data:", error);
+        }
+      }
+
+      // Initialize all dropdowns
+      function initializeDropdowns() {
+        // Initialize Phó Ban dropdowns (always visible)
+        initializePhoBanDropdowns();
+        // Initialize Thủ Quỹ dropdowns (always visible)
+        initializeThuQuyDropdowns();
+      }
+
+      // Initialize Trưởng Ban radio buttons
+      function initializeTruongBanRadios() {
+        const truongBanNhanSuRadio = document.getElementById("truongBanNhanSu");
+        const truongBanChapSuRadio = document.getElementById("truongBanChapSu");
+
+        truongBanNhanSuRadio.addEventListener("change", function () {
+          if (this.checked) {
+            showTruongBanDropdown("nhansu");
+            hideTruongBanDropdown("chapsu");
+            // Clear ChapSu selection
+            document.getElementById("truongBanChapSuId").value = "";
+          }
         });
-        
-        // Load all data from APIs
-        async function loadAllData() {
-            try {
-                const [nhanSuResponse, chapSuResponse] = await Promise.all([
-                    fetch('/admin/api/all-nhan-su'),
-                    fetch('/admin/api/all-chap-su')
-                ]);
-                
-                if (nhanSuResponse.ok && chapSuResponse.ok) {
-                    allNhanSu = await nhanSuResponse.json();
-                    allChapSu = await chapSuResponse.json();
-                    
-                    // Only initialize dropdowns if we have data
-                    if (allNhanSu.length > 0 || allChapSu.length > 0) {
-                        initializeDropdowns();
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
+
+        truongBanChapSuRadio.addEventListener("change", function () {
+          if (this.checked) {
+            showTruongBanDropdown("chapsu");
+            hideTruongBanDropdown("nhansu");
+            // Clear NhanSu selection
+            document.getElementById("truongBanNhanSuId").value = "";
+          }
+        });
+      }
+
+      // Show Trưởng Ban dropdown
+      function showTruongBanDropdown(type) {
+        const dropdownContainer = document.getElementById(
+          `truongBan${type === "nhansu" ? "NhanSu" : "ChapSu"}Dropdown`
+        );
+        dropdownContainer.style.display = "block";
+
+        if (type === "nhansu") {
+          createTruongBanNhanSuDropdown();
+        } else {
+          createTruongBanChapSuDropdown();
+        }
+      }
+
+      // Hide Trưởng Ban dropdown
+      function hideTruongBanDropdown(type) {
+        const dropdownContainer = document.getElementById(
+          `truongBan${type === "nhansu" ? "NhanSu" : "ChapSu"}Dropdown`
+        );
+        dropdownContainer.style.display = "none";
+        dropdownContainer.innerHTML = "";
+      }
+
+      // Create Trưởng Ban Nhân Sự dropdown
+      function createTruongBanNhanSuDropdown() {
+        const container = document.getElementById("truongBanNhanSuDropdown");
+        const currentValue = document.getElementById("truongBanNhanSuId").value;
+
+        if (container && allNhanSu && allNhanSu.length > 0) {
+          const dropdown = new SearchableDropdown(container, {
+            data: allNhanSu,
+            placeholder: "Tìm kiếm nhân sự...",
+            displayField: "hoTen",
+            valueField: "id",
+            searchFields: ["hoTen", "email", "dienThoai"],
+            allowClear: true,
+            clearText: "Không chọn trưởng ban nhân sự",
+            onSelect: function (item) {
+              document.getElementById("truongBanNhanSuId").value = item.id;
+            },
+            onClear: function () {
+              document.getElementById("truongBanNhanSuId").value = "";
+            },
+          });
+
+          // Set selected value after creating dropdown
+          if (currentValue && currentValue.trim() !== "") {
+            setTimeout(() => {
+              dropdown.setValue(currentValue);
+            }, 100);
+          }
+        }
+      }
+
+      // Create Trưởng Ban Chấp Sự dropdown
+      function createTruongBanChapSuDropdown() {
+        const container = document.getElementById("truongBanChapSuDropdown");
+        const currentValue = document.getElementById("truongBanChapSuId").value;
+
+        if (container && allChapSu && allChapSu.length > 0) {
+          const dropdown = new SearchableDropdown(container, {
+            data: allChapSu,
+            placeholder: "Tìm kiếm chấp sự...",
+            displayField: "hoTen",
+            valueField: "id",
+            searchFields: ["hoTen", "email", "dienThoai"],
+            allowClear: true,
+            clearText: "Không chọn trưởng ban chấp sự",
+            onSelect: function (item) {
+              document.getElementById("truongBanChapSuId").value = item.id;
+            },
+            onClear: function () {
+              document.getElementById("truongBanChapSuId").value = "";
+            },
+          });
+
+          // Set selected value after creating dropdown
+          if (currentValue && currentValue.trim() !== "") {
+            setTimeout(() => {
+              dropdown.setValue(currentValue);
+            }, 100);
+          }
+        }
+      }
+
+      // Initialize Phó Ban dropdowns
+      function initializePhoBanDropdowns() {
+        // Phó Ban Nhân Sú
+        const phoBanNhanSuContainer = document.getElementById(
+          "phoBanNhanSuDropdown"
+        );
+        if (phoBanNhanSuContainer && allNhanSu && allNhanSu.length > 0) {
+          const phoBanNhanSuDropdown = new SearchableDropdown(
+            phoBanNhanSuContainer,
+            {
+              data: allNhanSu,
+              placeholder: "Tìm kiếm nhân sự...",
+              displayField: "hoTen",
+              valueField: "id",
+              searchFields: ["hoTen", "email", "dienThoai"],
+              allowClear: true,
+              clearText: "Không chọn phó ban nhân sự",
+              onSelect: function (item) {
+                addPhoBanNhanSu(item);
+              },
+              onClear: function () {
+                // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
+              },
             }
+          );
         }
-        
-        // Initialize all dropdowns
-        function initializeDropdowns() {
-            // Initialize Phó Ban dropdowns (always visible)
-            initializePhoBanDropdowns();
-        }
-        
-        // Initialize Trưởng Ban radio buttons
-        function initializeTruongBanRadios() {
-            const truongBanNhanSuRadio = document.getElementById('truongBanNhanSu');
-            const truongBanChapSuRadio = document.getElementById('truongBanChapSu');
-            
-            truongBanNhanSuRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    showTruongBanDropdown('nhansu');
-                    hideTruongBanDropdown('chapsu');
-                    // Clear ChapSu selection
-                    document.getElementById('truongBanChapSuId').value = '';
-                }
-            });
-            
-            truongBanChapSuRadio.addEventListener('change', function() {
-                if (this.checked) {
-                    showTruongBanDropdown('chapsu');
-                    hideTruongBanDropdown('nhansu');
-                    // Clear NhanSu selection
-                    document.getElementById('truongBanNhanSuId').value = '';
-                }
-            });
-        }
-        
-        // Show Trưởng Ban dropdown
-        function showTruongBanDropdown(type) {
-            const dropdownContainer = document.getElementById(`truongBan${type === 'nhansu' ? 'NhanSu' : 'ChapSu'}Dropdown`);
-            dropdownContainer.style.display = 'block';
-            
-            if (type === 'nhansu') {
-                createTruongBanNhanSuDropdown();
-            } else {
-                createTruongBanChapSuDropdown();
+
+        // Phó Ban Chấp Sự
+        const phoBanChapSuContainer = document.getElementById(
+          "phoBanChapSuDropdown"
+        );
+        if (phoBanChapSuContainer && allChapSu && allChapSu.length > 0) {
+          const phoBanChapSuDropdown = new SearchableDropdown(
+            phoBanChapSuContainer,
+            {
+              data: allChapSu,
+              placeholder: "Tìm kiếm chấp sự...",
+              displayField: "hoTen",
+              valueField: "id",
+              searchFields: ["hoTen", "email", "dienThoai"],
+              allowClear: true,
+              clearText: "Không chọn phó ban chấp sự",
+              onSelect: function (item) {
+                addPhoBanChapSu(item);
+              },
+              onClear: function () {
+                // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
+              },
             }
+          );
         }
-        
-        // Hide Trưởng Ban dropdown
-        function hideTruongBanDropdown(type) {
-            const dropdownContainer = document.getElementById(`truongBan${type === 'nhansu' ? 'NhanSu' : 'ChapSu'}Dropdown`);
-            dropdownContainer.style.display = 'none';
-            dropdownContainer.innerHTML = '';
+      }
+
+      // Add Phó Ban Nhân Sự
+      function addPhoBanNhanSu(item) {
+        // Check if already selected
+        if (selectedPhoBanNhanSu.find((p) => p.id === item.id)) {
+          return;
         }
-        
-        // Create Trưởng Ban Nhân Sự dropdown
-        function createTruongBanNhanSuDropdown() {
-            const container = document.getElementById('truongBanNhanSuDropdown');
-            const currentValue = document.getElementById('truongBanNhanSuId').value;
-            
-            if (container && allNhanSu && allNhanSu.length > 0) {
-                const dropdown = new SearchableDropdown(container, {
-                    data: allNhanSu,
-                    placeholder: 'Tìm kiếm nhân sự...',
-                    displayField: 'hoTen',
-                    valueField: 'id',
-                    searchFields: ['hoTen', 'email', 'dienThoai'],
-                    allowClear: true,
-                    clearText: 'Không chọn trưởng ban nhân sự',
-                    onSelect: function(item) {
-                        document.getElementById('truongBanNhanSuId').value = item.id;
-                    },
-                    onClear: function() {
-                        document.getElementById('truongBanNhanSuId').value = '';
-                    }
-                });
-                
-                // Set selected value after creating dropdown
-                if (currentValue && currentValue.trim() !== '') {
-                    setTimeout(() => {
-                        dropdown.setValue(currentValue);
-                    }, 100);
-                }
-            }
-        }
-        
-        // Create Trưởng Ban Chấp Sự dropdown
-        function createTruongBanChapSuDropdown() {
-            const container = document.getElementById('truongBanChapSuDropdown');
-            const currentValue = document.getElementById('truongBanChapSuId').value;
-            
-            if (container && allChapSu && allChapSu.length > 0) {
-                const dropdown = new SearchableDropdown(container, {
-                    data: allChapSu,
-                    placeholder: 'Tìm kiếm chấp sự...',
-                    displayField: 'hoTen',
-                    valueField: 'id',
-                    searchFields: ['hoTen', 'email', 'dienThoai'],
-                    allowClear: true,
-                    clearText: 'Không chọn trưởng ban chấp sự',
-                    onSelect: function(item) {
-                        document.getElementById('truongBanChapSuId').value = item.id;
-                    },
-                    onClear: function() {
-                        document.getElementById('truongBanChapSuId').value = '';
-                    }
-                });
-                
-                // Set selected value after creating dropdown
-                if (currentValue && currentValue.trim() !== '') {
-                    setTimeout(() => {
-                        dropdown.setValue(currentValue);
-                    }, 100);
-                }
-            }
-        }
-        
-        // Initialize Phó Ban dropdowns
-        function initializePhoBanDropdowns() {
-            // Phó Ban Nhân Sú
-            const phoBanNhanSuContainer = document.getElementById('phoBanNhanSuDropdown');
-            if (phoBanNhanSuContainer && allNhanSu && allNhanSu.length > 0) {
-                const phoBanNhanSuDropdown = new SearchableDropdown(phoBanNhanSuContainer, {
-                    data: allNhanSu,
-                    placeholder: 'Tìm kiếm nhân sự...',
-                    displayField: 'hoTen',
-                    valueField: 'id',
-                    searchFields: ['hoTen', 'email', 'dienThoai'],
-                    allowClear: true,
-                    clearText: 'Không chọn phó ban nhân sự',
-                    onSelect: function(item) {
-                        addPhoBanNhanSu(item);
-                    },
-                    onClear: function() {
-                        // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
-                    }
-                });
-            }
-            
-            // Phó Ban Chấp Sự
-            const phoBanChapSuContainer = document.getElementById('phoBanChapSuDropdown');
-            if (phoBanChapSuContainer && allChapSu && allChapSu.length > 0) {
-                const phoBanChapSuDropdown = new SearchableDropdown(phoBanChapSuContainer, {
-                    data: allChapSu,
-                    placeholder: 'Tìm kiếm chấp sự...',
-                    displayField: 'hoTen',
-                    valueField: 'id',
-                    searchFields: ['hoTen', 'email', 'dienThoai'],
-                    allowClear: true,
-                    clearText: 'Không chọn phó ban chấp sự',
-                    onSelect: function(item) {
-                        addPhoBanChapSu(item);
-                    },
-                    onClear: function() {
-                        // Không cần làm gì vì đây là dropdown để thêm, không phải để chọn
-                    }
-                });
-            }
-        }
-        
-        // Add Phó Ban Nhân Sự
-        function addPhoBanNhanSu(item) {
-            // Check if already selected
-            if (selectedPhoBanNhanSu.find(p => p.id === item.id)) {
-                return;
-            }
-            
-            selectedPhoBanNhanSu.push(item);
-            updatePhoBanNhanSuDisplay();
-            updatePhoBanNhanSuInput();
-        }
-        
-        // Remove Phó Ban Nhân Sự
-        function removePhoBanNhanSu(id) {
-            selectedPhoBanNhanSu = selectedPhoBanNhanSu.filter(p => p.id !== id);
-            updatePhoBanNhanSuDisplay();
-            updatePhoBanNhanSuInput();
-        }
-        
-        // Update Phó Ban Nhân Sự display
-        function updatePhoBanNhanSuDisplay() {
-            const container = document.getElementById('selectedPhoBanNhanSu');
-            container.innerHTML = '';
-            
-            selectedPhoBanNhanSu.forEach(item => {
-                const badge = document.createElement('span');
-                badge.className = 'badge bg-primary me-1 mb-1';
-                badge.innerHTML = `
+
+        selectedPhoBanNhanSu.push(item);
+        updatePhoBanNhanSuDisplay();
+        updatePhoBanNhanSuInput();
+      }
+
+      // Remove Phó Ban Nhân Sự
+      function removePhoBanNhanSu(id) {
+        selectedPhoBanNhanSu = selectedPhoBanNhanSu.filter((p) => p.id !== id);
+        updatePhoBanNhanSuDisplay();
+        updatePhoBanNhanSuInput();
+      }
+
+      // Update Phó Ban Nhân Sự display
+      function updatePhoBanNhanSuDisplay() {
+        const container = document.getElementById("selectedPhoBanNhanSu");
+        container.innerHTML = "";
+
+        selectedPhoBanNhanSu.forEach((item) => {
+          const badge = document.createElement("span");
+          badge.className = "badge bg-primary me-1 mb-1";
+          badge.innerHTML = `
                     ${item.hoTen}
                     <button type="button" class="btn-close btn-close-white ms-1" 
                             onclick="removePhoBanNhanSu(${item.id})" style="font-size: 0.7em;"></button>
                 `;
-                container.appendChild(badge);
-            });
+          container.appendChild(badge);
+        });
+      }
+
+      // Update Phó Ban Nhân Sự hidden input
+      function updatePhoBanNhanSuInput() {
+        const input = document.getElementById("phoBanNhanSuIds");
+        input.value = selectedPhoBanNhanSu.map((p) => p.id).join(",");
+      }
+
+      // Add Phó Ban Chấp Sự
+      function addPhoBanChapSu(item) {
+        // Check if already selected
+        if (selectedPhoBanChapSu.find((p) => p.id === item.id)) {
+          return;
         }
-        
-        // Update Phó Ban Nhân Sự hidden input
-        function updatePhoBanNhanSuInput() {
-            const input = document.getElementById('phoBanNhanSuIds');
-            input.value = selectedPhoBanNhanSu.map(p => p.id).join(',');
-        }
-        
-        // Add Phó Ban Chấp Sự
-        function addPhoBanChapSu(item) {
-            // Check if already selected
-            if (selectedPhoBanChapSu.find(p => p.id === item.id)) {
-                return;
-            }
-            
-            selectedPhoBanChapSu.push(item);
-            updatePhoBanChapSuDisplay();
-            updatePhoBanChapSuInput();
-        }
-        
-        // Remove Phó Ban Chấp Sự
-        function removePhoBanChapSu(id) {
-            selectedPhoBanChapSu = selectedPhoBanChapSu.filter(p => p.id !== id);
-            updatePhoBanChapSuDisplay();
-            updatePhoBanChapSuInput();
-        }
-        
-        // Update Phó Ban Chấp Sự display
-        function updatePhoBanChapSuDisplay() {
-            const container = document.getElementById('selectedPhoBanChapSu');
-            container.innerHTML = '';
-            
-            selectedPhoBanChapSu.forEach(item => {
-                const badge = document.createElement('span');
-                badge.className = 'badge bg-success me-1 mb-1';
-                badge.innerHTML = `
+
+        selectedPhoBanChapSu.push(item);
+        updatePhoBanChapSuDisplay();
+        updatePhoBanChapSuInput();
+      }
+
+      // Remove Phó Ban Chấp Sự
+      function removePhoBanChapSu(id) {
+        selectedPhoBanChapSu = selectedPhoBanChapSu.filter((p) => p.id !== id);
+        updatePhoBanChapSuDisplay();
+        updatePhoBanChapSuInput();
+      }
+
+      // Update Phó Ban Chấp Sự display
+      function updatePhoBanChapSuDisplay() {
+        const container = document.getElementById("selectedPhoBanChapSu");
+        container.innerHTML = "";
+
+        selectedPhoBanChapSu.forEach((item) => {
+          const badge = document.createElement("span");
+          badge.className = "badge bg-success me-1 mb-1";
+          badge.innerHTML = `
                     ${item.hoTen}
                     <button type="button" class="btn-close btn-close-white ms-1" 
                             onclick="removePhoBanChapSu(${item.id})" style="font-size: 0.7em;"></button>
                 `;
-                container.appendChild(badge);
-            });
-        }
-        
-        // Update Phó Ban Chấp Sự hidden input
-        function updatePhoBanChapSuInput() {
-            const input = document.getElementById('phoBanChapSuIds');
-            input.value = selectedPhoBanChapSu.map(p => p.id).join(',');
-        }
-        
-        // Initialize existing data (for edit mode)
-        function initializeExistingData() {
-            // Check if editing existing record
-            const truongBanNhanSuId = document.getElementById('truongBanNhanSuId').value;
-            const truongBanChapSuId = document.getElementById('truongBanChapSuId').value;
-            
-            if (truongBanNhanSuId && truongBanNhanSuId.trim() !== '') {
-                document.getElementById('truongBanNhanSu').checked = true;
-                showTruongBanDropdown('nhansu');
-            } else if (truongBanChapSuId && truongBanChapSuId.trim() !== '') {
-                document.getElementById('truongBanChapSu').checked = true;
-                showTruongBanDropdown('chapsu');
-            }
-            
-            // Initialize existing Phó Ban data only once
-            if (selectedPhoBanNhanSu.length === 0 && selectedPhoBanChapSu.length === 0) {
-                initializeExistingPhoBan();
-            }
-        }
-        
-        // Initialize existing Phó Ban data
-        function initializeExistingPhoBan() {
-            // Clear existing arrays first to avoid duplicates
-            selectedPhoBanNhanSu = [];
-            selectedPhoBanChapSu = [];
-            
-            // Load existing phó ban nhân sự from hidden inputs
-            const existingNhanSuInputs = document.querySelectorAll('.existing-pho-ban-nhan-su');
-            existingNhanSuInputs.forEach(input => {
-                const id = parseInt(input.dataset.id);
-                // Check if already exists to avoid duplicates
-                if (!selectedPhoBanNhanSu.find(p => p.id === id)) {
-                    const nhanSu = {
-                        id: id,
-                        hoTen: input.dataset.name,
-                        email: input.dataset.email || '',
-                        dienThoai: input.dataset.phone || ''
-                    };
-                    selectedPhoBanNhanSu.push(nhanSu);
-                }
-            });
-            
-            if (selectedPhoBanNhanSu.length > 0) {
-                updatePhoBanNhanSuDisplay();
-                updatePhoBanNhanSuInput();
-            }
-            
-            // Load existing phó ban chấp sự from hidden inputs
-            const existingChapSuInputs = document.querySelectorAll('.existing-pho-ban-chap-su');
-            existingChapSuInputs.forEach(input => {
-                const id = parseInt(input.dataset.id);
-                // Check if already exists to avoid duplicates
-                if (!selectedPhoBanChapSu.find(p => p.id === id)) {
-                    const chapSu = {
-                        id: id,
-                        hoTen: input.dataset.name,
-                        email: input.dataset.email || '',
-                        dienThoai: input.dataset.phone || ''
-                    };
-                    selectedPhoBanChapSu.push(chapSu);
-                }
-            });
-            
-            if (selectedPhoBanChapSu.length > 0) {
-                updatePhoBanChapSuDisplay();
-                updatePhoBanChapSuInput();
-            }
-        }
-        
-        // Auto-generate maBan from tenBan
-        document.getElementById('tenBan').addEventListener('input', function() {
-            const tenBan = this.value;
-            const maBanField = document.getElementById('maBan');
-            
-            // Only auto-generate if maBan is empty (for new records)
-            if (!maBanField.value && tenBan) {
-                // Simple logic to generate code
-                const words = tenBan.split(' ');
-                let code = 'BN';
-                words.forEach(word => {
-                    if (word.length > 0) {
-                        code += word.charAt(0).toUpperCase();
-                    }
-                });
-                code += '001';
-                maBanField.value = code;
-            }
+          container.appendChild(badge);
         });
-        
-        // Auto uppercase maBan and check for duplicates
-        const maBanField = document.getElementById('maBan');
-        const currentId = document.querySelector('input[name="id"]').value;
-        let checkTimeout;
-        
-        maBanField.addEventListener('input', function() {
-            this.value = this.value.toUpperCase();
-            
-            // Clear previous timeout
-            if (checkTimeout) {
-                clearTimeout(checkTimeout);
-            }
-            
-            // Check for duplicates after user stops typing
-            checkTimeout = setTimeout(() => {
-                checkMaBanDuplicate(this.value, currentId);
-            }, 500);
-        });
-        
-        // Function to check maBan duplicate
-        function checkMaBanDuplicate(maBan, currentId) {
-            if (!maBan || maBan.trim() === '') {
-                clearMaBanValidation();
-                return;
-            }
-            
-            fetch(`/admin/api/check-ma-ban-duplicate?maBan=${encodeURIComponent(maBan)}&currentId=${currentId || ''}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.isDuplicate) {
-                        showMaBanError('Mã ban đã tồn tại. Vui lòng chọn mã khác.');
-                    } else {
-                        clearMaBanValidation();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking maBan duplicate:', error);
-                });
-        }
-        
-        function showMaBanError(message) {
-            const maBanField = document.getElementById('maBan');
-            maBanField.classList.add('is-invalid');
-            
-            // Remove existing error message
-            const existingError = document.getElementById('maBanError');
-            if (existingError) {
-                existingError.remove();
-            }
-            
-            // Add new error message
-            const errorDiv = document.createElement('div');
-            errorDiv.id = 'maBanError';
-            errorDiv.className = 'invalid-feedback';
-            errorDiv.textContent = message;
-            maBanField.parentNode.appendChild(errorDiv);
-        }
-        
-        function clearMaBanValidation() {
-            const maBanField = document.getElementById('maBan');
-            maBanField.classList.remove('is-invalid');
-            
-            const existingError = document.getElementById('maBanError');
-            if (existingError) {
-                existingError.remove();
-            }
+      }
+
+      // Update Phó Ban Chấp Sự hidden input
+      function updatePhoBanChapSuInput() {
+        const input = document.getElementById("phoBanChapSuIds");
+        input.value = selectedPhoBanChapSu.map((p) => p.id).join(",");
+      }
+
+      // Initialize existing data (for edit mode)
+      function initializeExistingData() {
+        // Check if editing existing record
+        const truongBanNhanSuId =
+          document.getElementById("truongBanNhanSuId").value;
+        const truongBanChapSuId =
+          document.getElementById("truongBanChapSuId").value;
+
+        if (truongBanNhanSuId && truongBanNhanSuId.trim() !== "") {
+          document.getElementById("truongBanNhanSu").checked = true;
+          showTruongBanDropdown("nhansu");
+        } else if (truongBanChapSuId && truongBanChapSuId.trim() !== "") {
+          document.getElementById("truongBanChapSu").checked = true;
+          showTruongBanDropdown("chapsu");
         }
 
-        // Form validation and cleanup
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const tenBan = document.getElementById('tenBan').value.trim();
-            const maBan = document.getElementById('maBan').value.trim();
-            
-            if (!tenBan) {
-                alert('Vui lòng nhập tên ban ngành!');
-                e.preventDefault();
-                return;
-            }
-            
-            if (!maBan) {
-                alert('Vui lòng nhập mã ban!');
-                e.preventDefault();
-                return;
-            }
-            
-            // Check if there's a validation error
-            if (document.getElementById('maBanError')) {
-                alert('Vui lòng sửa lỗi mã ban trước khi lưu!');
-                e.preventDefault();
-                return;
-            }
-            
-            // Validate Trưởng Ban selection
-            const truongBanNhanSuChecked = document.getElementById('truongBanNhanSu').checked;
-            const truongBanChapSuChecked = document.getElementById('truongBanChapSu').checked;
-            const truongBanNhanSuId = document.getElementById('truongBanNhanSuId').value;
-            const truongBanChapSuId = document.getElementById('truongBanChapSuId').value;
-            
-            if (truongBanNhanSuChecked && !truongBanNhanSuId) {
-                alert('Vui lòng chọn nhân sự làm trưởng ban!');
-                e.preventDefault();
-                return;
-            }
-            
-            if (truongBanChapSuChecked && !truongBanChapSuId) {
-                alert('Vui lòng chọn chấp sự làm trưởng ban!');
-                e.preventDefault();
-                return;
-            }
-            
-            // Clean up empty fields to ensure they are submitted as empty (will be converted to null)
-            const moTa = document.getElementById('moTa');
-            const emailLienHe = document.getElementById('emailLienHe');
-            const dienThoaiLienHe = document.getElementById('dienThoaiLienHe');
-            
-            if (moTa.value.trim() === '') moTa.value = '';
-            if (emailLienHe.value.trim() === '') emailLienHe.value = '';
-            if (dienThoaiLienHe.value.trim() === '') dienThoaiLienHe.value = '';
-        });
-        
-        // Phone number validation function
-        function validatePhoneNumber(input) {
-            const value = input.value;
-            const phoneRegex = /^[0-9]{10,11}$/;
-            const numbersOnlyRegex = /^[0-9]*$/;
-            
-            // Remove any non-numeric characters
-            const cleanValue = value.replace(/[^0-9]/g, '');
-            if (cleanValue !== value) {
-                input.value = cleanValue;
-            }
-            
-            // Validate length and format
-            const isValid = phoneRegex.test(cleanValue);
-            const isNumbersOnly = numbersOnlyRegex.test(cleanValue);
-            
-            if (cleanValue.length > 0 && (!isNumbersOnly || cleanValue.length < 10 || cleanValue.length > 11)) {
-                input.classList.add('is-invalid');
-                input.classList.remove('is-valid');
-                
-                // Update error message based on the issue
-                const errorDiv = document.getElementById('phoneError');
-                if (!isNumbersOnly) {
-                    errorDiv.textContent = 'Chỉ được nhập số';
-                } else if (cleanValue.length < 10) {
-                    errorDiv.textContent = 'Số điện thoại phải có ít nhất 10 chữ số';
-                } else if (cleanValue.length > 11) {
-                    errorDiv.textContent = 'Số điện thoại không được quá 11 chữ số';
-                }
-            } else if (cleanValue.length >= 10 && cleanValue.length <= 11) {
-                input.classList.remove('is-invalid');
-                input.classList.add('is-valid');
-            } else {
-                input.classList.remove('is-invalid', 'is-valid');
-            }
+        // Initialize existing Phó Ban data only once
+        if (
+          selectedPhoBanNhanSu.length === 0 &&
+          selectedPhoBanChapSu.length === 0
+        ) {
+          initializeExistingPhoBan();
         }
-        
-        // Add event listeners for phone validation
-        document.addEventListener('DOMContentLoaded', function() {
-            const phoneInput = document.getElementById('dienThoaiLienHe');
-            
-            // Prevent non-numeric input
-            phoneInput.addEventListener('keypress', function(e) {
-                // Allow backspace, delete, tab, escape, enter
-                if ([8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
-                    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                    (e.keyCode === 65 && e.ctrlKey === true) ||
-                    (e.keyCode === 67 && e.ctrlKey === true) ||
-                    (e.keyCode === 86 && e.ctrlKey === true) ||
-                    (e.keyCode === 88 && e.ctrlKey === true)) {
-                    return;
-                }
-                
-                // Ensure that it is a number and stop the keypress
-                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                    e.preventDefault();
-                }
-            });
-            
-            // Validate on paste
-            phoneInput.addEventListener('paste', function(e) {
-                setTimeout(() => {
-                    validatePhoneNumber(this);
-                }, 10);
-            });
-            
-            // Format phone number display (optional)
-            phoneInput.addEventListener('blur', function() {
-                const value = this.value.trim();
-                if (value.length === 10 && value.startsWith('0')) {
-                    // Vietnamese mobile format: 0123 456 789
-                    this.value = value.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-                } else if (value.length === 11 && value.startsWith('84')) {
-                    // International format: 84 123 456 789
-                    this.value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{3})/, '$1 $2 $3 $4');
-                }
-            });
-            
-            // Remove formatting on focus for easier editing
-            phoneInput.addEventListener('focus', function() {
-                this.value = this.value.replace(/\s/g, '');
-            });
+
+        // Initialize existing Thủ Quỹ data only once
+        if (
+          selectedThuQuyNhanSu.length === 0 &&
+          selectedThuQuyChapSu.length === 0
+        ) {
+          initializeExistingThuQuy();
+        }
+      }
+
+      // Initialize existing Phó Ban data
+      function initializeExistingPhoBan() {
+        // Clear existing arrays first to avoid duplicates
+        selectedPhoBanNhanSu = [];
+        selectedPhoBanChapSu = [];
+
+        // Load existing phó ban nhân sự from hidden inputs
+        const existingNhanSuInputs = document.querySelectorAll(
+          ".existing-pho-ban-nhan-su"
+        );
+        existingNhanSuInputs.forEach((input) => {
+          const id = parseInt(input.dataset.id);
+          // Check if already exists to avoid duplicates
+          if (!selectedPhoBanNhanSu.find((p) => p.id === id)) {
+            const nhanSu = {
+              id: id,
+              hoTen: input.dataset.name,
+              email: input.dataset.email || "",
+              dienThoai: input.dataset.phone || "",
+            };
+            selectedPhoBanNhanSu.push(nhanSu);
+          }
         });
+
+        if (selectedPhoBanNhanSu.length > 0) {
+          updatePhoBanNhanSuDisplay();
+          updatePhoBanNhanSuInput();
+        }
+
+        // Load existing phó ban chấp sự from hidden inputs
+        const existingChapSuInputs = document.querySelectorAll(
+          ".existing-pho-ban-chap-su"
+        );
+        existingChapSuInputs.forEach((input) => {
+          const id = parseInt(input.dataset.id);
+          // Check if already exists to avoid duplicates
+          if (!selectedPhoBanChapSu.find((p) => p.id === id)) {
+            const chapSu = {
+              id: id,
+              hoTen: input.dataset.name,
+              email: input.dataset.email || "",
+              dienThoai: input.dataset.phone || "",
+            };
+            selectedPhoBanChapSu.push(chapSu);
+          }
+        });
+
+        if (selectedPhoBanChapSu.length > 0) {
+          updatePhoBanChapSuDisplay();
+          updatePhoBanChapSuInput();
+        }
+      }
+
+      // Initialize existing Thủ Quỹ data
+      function initializeExistingThuQuy() {
+        // Clear existing arrays first to avoid duplicates
+        selectedThuQuyNhanSu = [];
+        selectedThuQuyChapSu = [];
+
+        // Load existing thủ quỹ nhân sự from hidden inputs
+        const existingThuQuyNhanSuInputs = document.querySelectorAll(
+          ".existing-thu-quy-nhan-su"
+        );
+        existingThuQuyNhanSuInputs.forEach((input) => {
+          const id = parseInt(input.dataset.id);
+          // Check if already exists to avoid duplicates
+          if (!selectedThuQuyNhanSu.find((p) => p.id === id)) {
+            const nhanSu = {
+              id: id,
+              hoTen: input.dataset.name,
+              email: input.dataset.email || "",
+              dienThoai: input.dataset.phone || "",
+            };
+            selectedThuQuyNhanSu.push(nhanSu);
+          }
+        });
+
+        if (selectedThuQuyNhanSu.length > 0) {
+          updateThuQuyNhanSuDisplay();
+          updateThuQuyNhanSuInput();
+        }
+
+        // Load existing thủ quỹ chấp sự from hidden inputs
+        const existingThuQuyChapSuInputs = document.querySelectorAll(
+          ".existing-thu-quy-chap-su"
+        );
+        existingThuQuyChapSuInputs.forEach((input) => {
+          const id = parseInt(input.dataset.id);
+          // Check if already exists to avoid duplicates
+          if (!selectedThuQuyChapSu.find((p) => p.id === id)) {
+            const chapSu = {
+              id: id,
+              hoTen: input.dataset.name,
+              email: input.dataset.email || "",
+              dienThoai: input.dataset.phone || "",
+            };
+            selectedThuQuyChapSu.push(chapSu);
+          }
+        });
+
+        if (selectedThuQuyChapSu.length > 0) {
+          updateThuQuyChapSuDisplay();
+          updateThuQuyChapSuInput();
+        }
+      }
+
+      // Initialize Thủ Quỹ dropdowns
+      function initializeThuQuyDropdowns() {
+        // Thủ Quỹ Nhân Sự
+        const thuQuyNhanSuContainer = document.getElementById(
+          "thuQuyNhanSuDropdown"
+        );
+        if (thuQuyNhanSuContainer) {
+          new SearchableDropdown(thuQuyNhanSuContainer, {
+            data: allNhanSu,
+            placeholder: "Tìm kiếm nhân sự...",
+            displayField: "hoTen",
+            valueField: "id",
+            searchFields: ["hoTen", "email", "dienThoai"],
+            allowClear: true,
+            clearText: "Không chọn thủ quỹ nhân sự",
+            onSelect: function (item) {
+              addThuQuyNhanSu(item);
+            },
+          });
+        }
+
+        // Thủ Quỹ Chấp Sự
+        const thuQuyChapSuContainer = document.getElementById(
+          "thuQuyChapSuDropdown"
+        );
+        if (thuQuyChapSuContainer) {
+          new SearchableDropdown(thuQuyChapSuContainer, {
+            data: allChapSu,
+            placeholder: "Tìm kiếm chấp sự...",
+            displayField: "hoTen",
+            valueField: "id",
+            searchFields: ["hoTen", "email", "dienThoai"],
+            allowClear: true,
+            clearText: "Không chọn thủ quỹ chấp sự",
+            onSelect: function (item) {
+              addThuQuyChapSu(item);
+            },
+          });
+        }
+      }
+
+      // Add Thủ Quỹ Nhân Sự
+      function addThuQuyNhanSu(item) {
+        // Check if already selected
+        if (!selectedThuQuyNhanSu.find((p) => p.id === item.id)) {
+          selectedThuQuyNhanSu.push(item);
+          updateThuQuyNhanSuDisplay();
+          updateThuQuyNhanSuInput();
+        }
+      }
+
+      // Remove Thủ Quỹ Nhân Sự
+      function removeThuQuyNhanSu(id) {
+        selectedThuQuyNhanSu = selectedThuQuyNhanSu.filter((p) => p.id !== id);
+        updateThuQuyNhanSuDisplay();
+        updateThuQuyNhanSuInput();
+      }
+
+      // Update Thủ Quỹ Nhân Sự display
+      function updateThuQuyNhanSuDisplay() {
+        const container = document.getElementById("selectedThuQuyNhanSu");
+        container.innerHTML = "";
+
+        selectedThuQuyNhanSu.forEach((item) => {
+          const badge = document.createElement("span");
+          badge.className = "badge bg-success me-1 mb-1";
+          badge.innerHTML = `
+                    ${item.hoTen}
+                    <button type="button" class="btn-close btn-close-white ms-1" 
+                            onclick="removeThuQuyNhanSu(${item.id})" style="font-size: 0.7em;"></button>
+                `;
+          container.appendChild(badge);
+        });
+      }
+
+      // Update Thủ Quỹ Nhân Sự hidden input
+      function updateThuQuyNhanSuInput() {
+        const input = document.getElementById("thuQuyNhanSuIds");
+        input.value = selectedThuQuyNhanSu.map((p) => p.id).join(",");
+      }
+
+      // Add Thủ Quỹ Chấp Sự
+      function addThuQuyChapSu(item) {
+        // Check if already selected
+        if (!selectedThuQuyChapSu.find((p) => p.id === item.id)) {
+          selectedThuQuyChapSu.push(item);
+          updateThuQuyChapSuDisplay();
+          updateThuQuyChapSuInput();
+        }
+      }
+
+      // Remove Thủ Quỹ Chấp Sự
+      function removeThuQuyChapSu(id) {
+        selectedThuQuyChapSu = selectedThuQuyChapSu.filter((p) => p.id !== id);
+        updateThuQuyChapSuDisplay();
+        updateThuQuyChapSuInput();
+      }
+
+      // Update Thủ Quỹ Chấp Sự display
+      function updateThuQuyChapSuDisplay() {
+        const container = document.getElementById("selectedThuQuyChapSu");
+        container.innerHTML = "";
+
+        selectedThuQuyChapSu.forEach((item) => {
+          const badge = document.createElement("span");
+          badge.className = "badge bg-warning me-1 mb-1";
+          badge.innerHTML = `
+                    ${item.hoTen}
+                    <button type="button" class="btn-close btn-close-white ms-1" 
+                            onclick="removeThuQuyChapSu(${item.id})" style="font-size: 0.7em;"></button>
+                `;
+          container.appendChild(badge);
+        });
+      }
+
+      // Update Thủ Quỹ Chấp Sự hidden input
+      function updateThuQuyChapSuInput() {
+        const input = document.getElementById("thuQuyChapSuIds");
+        input.value = selectedThuQuyChapSu.map((p) => p.id).join(",");
+      }
+
+      // Auto-generate maBan from tenBan
+      document.getElementById("tenBan").addEventListener("input", function () {
+        const tenBan = this.value;
+        const maBanField = document.getElementById("maBan");
+
+        // Only auto-generate if maBan is empty (for new records)
+        if (!maBanField.value && tenBan) {
+          // Simple logic to generate code
+          const words = tenBan.split(" ");
+          let code = "BN";
+          words.forEach((word) => {
+            if (word.length > 0) {
+              code += word.charAt(0).toUpperCase();
+            }
+          });
+          code += "001";
+          maBanField.value = code;
+        }
+      });
+
+      // Auto uppercase maBan and check for duplicates
+      const maBanField = document.getElementById("maBan");
+      const currentId = document.querySelector('input[name="id"]').value;
+      let checkTimeout;
+
+      maBanField.addEventListener("input", function () {
+        this.value = this.value.toUpperCase();
+
+        // Clear previous timeout
+        if (checkTimeout) {
+          clearTimeout(checkTimeout);
+        }
+
+        // Check for duplicates after user stops typing
+        checkTimeout = setTimeout(() => {
+          checkMaBanDuplicate(this.value, currentId);
+        }, 500);
+      });
+
+      // Function to check maBan duplicate
+      function checkMaBanDuplicate(maBan, currentId) {
+        if (!maBan || maBan.trim() === "") {
+          clearMaBanValidation();
+          return;
+        }
+
+        fetch(
+          `/admin/api/check-ma-ban-duplicate?maBan=${encodeURIComponent(
+            maBan
+          )}&currentId=${currentId || ""}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.isDuplicate) {
+              showMaBanError("Mã ban đã tồn tại. Vui lòng chọn mã khác.");
+            } else {
+              clearMaBanValidation();
+            }
+          })
+          .catch((error) => {
+            console.error("Error checking maBan duplicate:", error);
+          });
+      }
+
+      function showMaBanError(message) {
+        const maBanField = document.getElementById("maBan");
+        maBanField.classList.add("is-invalid");
+
+        // Remove existing error message
+        const existingError = document.getElementById("maBanError");
+        if (existingError) {
+          existingError.remove();
+        }
+
+        // Add new error message
+        const errorDiv = document.createElement("div");
+        errorDiv.id = "maBanError";
+        errorDiv.className = "invalid-feedback";
+        errorDiv.textContent = message;
+        maBanField.parentNode.appendChild(errorDiv);
+      }
+
+      function clearMaBanValidation() {
+        const maBanField = document.getElementById("maBan");
+        maBanField.classList.remove("is-invalid");
+
+        const existingError = document.getElementById("maBanError");
+        if (existingError) {
+          existingError.remove();
+        }
+      }
+
+      // Form validation and cleanup
+      document.querySelector("form").addEventListener("submit", function (e) {
+        const tenBan = document.getElementById("tenBan").value.trim();
+        const maBan = document.getElementById("maBan").value.trim();
+
+        if (!tenBan) {
+          alert("Vui lòng nhập tên ban ngành!");
+          e.preventDefault();
+          return;
+        }
+
+        if (!maBan) {
+          alert("Vui lòng nhập mã ban!");
+          e.preventDefault();
+          return;
+        }
+
+        // Check if there's a validation error
+        if (document.getElementById("maBanError")) {
+          alert("Vui lòng sửa lỗi mã ban trước khi lưu!");
+          e.preventDefault();
+          return;
+        }
+
+        // Validate Trưởng Ban selection
+        const truongBanNhanSuChecked =
+          document.getElementById("truongBanNhanSu").checked;
+        const truongBanChapSuChecked =
+          document.getElementById("truongBanChapSu").checked;
+        const truongBanNhanSuId =
+          document.getElementById("truongBanNhanSuId").value;
+        const truongBanChapSuId =
+          document.getElementById("truongBanChapSuId").value;
+
+        if (truongBanNhanSuChecked && !truongBanNhanSuId) {
+          alert("Vui lòng chọn nhân sự làm trưởng ban!");
+          e.preventDefault();
+          return;
+        }
+
+        if (truongBanChapSuChecked && !truongBanChapSuId) {
+          alert("Vui lòng chọn chấp sự làm trưởng ban!");
+          e.preventDefault();
+          return;
+        }
+
+        // Clean up empty fields to ensure they are submitted as empty (will be converted to null)
+        const moTa = document.getElementById("moTa");
+        const emailLienHe = document.getElementById("emailLienHe");
+        const dienThoaiLienHe = document.getElementById("dienThoaiLienHe");
+
+        if (moTa.value.trim() === "") moTa.value = "";
+        if (emailLienHe.value.trim() === "") emailLienHe.value = "";
+        if (dienThoaiLienHe.value.trim() === "") dienThoaiLienHe.value = "";
+      });
+
+      // Phone number validation function
+      function validatePhoneNumber(input) {
+        const value = input.value;
+        const phoneRegex = /^[0-9]{10,11}$/;
+        const numbersOnlyRegex = /^[0-9]*$/;
+
+        // Remove any non-numeric characters
+        const cleanValue = value.replace(/[^0-9]/g, "");
+        if (cleanValue !== value) {
+          input.value = cleanValue;
+        }
+
+        // Validate length and format
+        const isValid = phoneRegex.test(cleanValue);
+        const isNumbersOnly = numbersOnlyRegex.test(cleanValue);
+
+        if (
+          cleanValue.length > 0 &&
+          (!isNumbersOnly || cleanValue.length < 10 || cleanValue.length > 11)
+        ) {
+          input.classList.add("is-invalid");
+          input.classList.remove("is-valid");
+
+          // Update error message based on the issue
+          const errorDiv = document.getElementById("phoneError");
+          if (!isNumbersOnly) {
+            errorDiv.textContent = "Chỉ được nhập số";
+          } else if (cleanValue.length < 10) {
+            errorDiv.textContent = "Số điện thoại phải có ít nhất 10 chữ số";
+          } else if (cleanValue.length > 11) {
+            errorDiv.textContent = "Số điện thoại không được quá 11 chữ số";
+          }
+        } else if (cleanValue.length >= 10 && cleanValue.length <= 11) {
+          input.classList.remove("is-invalid");
+          input.classList.add("is-valid");
+        } else {
+          input.classList.remove("is-invalid", "is-valid");
+        }
+      }
+
+      // Add event listeners for phone validation
+      document.addEventListener("DOMContentLoaded", function () {
+        const phoneInput = document.getElementById("dienThoaiLienHe");
+
+        // Prevent non-numeric input
+        phoneInput.addEventListener("keypress", function (e) {
+          // Allow backspace, delete, tab, escape, enter
+          if (
+            [8, 9, 27, 13, 46].indexOf(e.keyCode) !== -1 ||
+            // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+            (e.keyCode === 65 && e.ctrlKey === true) ||
+            (e.keyCode === 67 && e.ctrlKey === true) ||
+            (e.keyCode === 86 && e.ctrlKey === true) ||
+            (e.keyCode === 88 && e.ctrlKey === true)
+          ) {
+            return;
+          }
+
+          // Ensure that it is a number and stop the keypress
+          if (
+            (e.shiftKey || e.keyCode < 48 || e.keyCode > 57) &&
+            (e.keyCode < 96 || e.keyCode > 105)
+          ) {
+            e.preventDefault();
+          }
+        });
+
+        // Validate on paste
+        phoneInput.addEventListener("paste", function (e) {
+          setTimeout(() => {
+            validatePhoneNumber(this);
+          }, 10);
+        });
+
+        // Format phone number display (optional)
+        phoneInput.addEventListener("blur", function () {
+          const value = this.value.trim();
+          if (value.length === 10 && value.startsWith("0")) {
+            // Vietnamese mobile format: 0123 456 789
+            this.value = value.replace(/(\d{4})(\d{3})(\d{3})/, "$1 $2 $3");
+          } else if (value.length === 11 && value.startsWith("84")) {
+            // International format: 84 123 456 789
+            this.value = value.replace(
+              /(\d{2})(\d{3})(\d{3})(\d{3})/,
+              "$1 $2 $3 $4"
+            );
+          }
+        });
+
+        // Remove formatting on focus for easier editing
+        phoneInput.addEventListener("focus", function () {
+          this.value = this.value.replace(/\s/g, "");
+        });
+      });
     </script>
-</body>
+  </body>
 </html>

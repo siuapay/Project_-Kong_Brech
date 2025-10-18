@@ -111,10 +111,22 @@ public class AccountController {
 
         Account account = accountOpt.get();
         model.addAttribute("account", account);
-        model.addAttribute("nhanSu",
-                account.getNhanSu() != null ? account.getNhanSu() : new com.branch.demo.domain.NhanSu());
-        model.addAttribute("chapSu",
-                account.getChapSu() != null ? account.getChapSu() : new com.branch.demo.domain.ChapSu());
+        // Chỉ truyền object thực sự tồn tại để sidebar hiển thị đúng
+        model.addAttribute("nhanSu", account.getNhanSu());
+        model.addAttribute("chapSu", account.getChapSu());
+        
+        // Tạo object mới cho form binding
+        if (account.getNhanSu() != null) {
+            model.addAttribute("nhanSuForm", account.getNhanSu());
+        } else {
+            model.addAttribute("nhanSuForm", new com.branch.demo.domain.NhanSu());
+        }
+        
+        if (account.getChapSu() != null) {
+            model.addAttribute("chapSuForm", account.getChapSu());
+        } else {
+            model.addAttribute("chapSuForm", new com.branch.demo.domain.ChapSu());
+        }
         model.addAttribute("activeTab", "profile");
 
         return "account/profile-edit";
@@ -214,6 +226,7 @@ public class AccountController {
 
         model.addAttribute("account", account);
         model.addAttribute("nhanSu", account.getNhanSu());
+        model.addAttribute("chapSu", account.getChapSu());
         model.addAttribute("baiVietPage", baiVietPage);
         model.addAttribute("search", search);
         model.addAttribute("currentPage", page);
@@ -263,6 +276,7 @@ public class AccountController {
 
         model.addAttribute("account", account);
         model.addAttribute("nhanSu", account.getNhanSu());
+        model.addAttribute("chapSu", account.getChapSu());
         model.addAttribute("baiViet", baiViet);
         model.addAttribute("danhMucList", danhMucRepository.findAll());
         model.addAttribute("activeTab", "posts");
@@ -468,6 +482,7 @@ public class AccountController {
 
         model.addAttribute("account", account);
         model.addAttribute("nhanSu", account.getNhanSu());
+        model.addAttribute("chapSu", account.getChapSu());
         model.addAttribute("baiViet", new BaiViet());
         model.addAttribute("danhMucList", danhMucList);
         model.addAttribute("activeTab", "create");
