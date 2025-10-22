@@ -23,7 +23,7 @@ public class LienHe extends BaseAuditableEntity {
     @Column(name = "chu_de", length = 255)
     private String chuDe;
     
-    @Column(name = "noi_dung", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "noi_dung", columnDefinition = "TEXT")
     private String noiDung;
     
     @Column(name = "loai_lien_he")
@@ -42,14 +42,14 @@ public class LienHe extends BaseAuditableEntity {
     @Column(name = "ngay_xu_ly")
     private LocalDateTime ngayXuLy;
     
-    @Column(name = "ghi_chu_xu_ly", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "ghi_chu_xu_ly", columnDefinition = "TEXT")
     private String ghiChuXuLy;
     
     // Thông tin báo cáo vi phạm
     @Column(name = "co_vi_pham")
     private Boolean coViPham = false;
     
-    @Column(name = "ly_do_vi_pham", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "ly_do_vi_pham", columnDefinition = "TEXT")
     private String lyDoViPham;
     
     @ManyToOne(fetch = FetchType.LAZY)

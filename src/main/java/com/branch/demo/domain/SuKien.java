@@ -34,7 +34,7 @@ public class SuKien extends BaseAuditableEntity {
     @Column(name = "mo_ta", length = 1000)
     private String moTa;
     
-    @Column(name = "noi_dung", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "noi_dung", columnDefinition = "TEXT")
     private String noiDung;
     
     @Column(name = "ngay_dien_ra")

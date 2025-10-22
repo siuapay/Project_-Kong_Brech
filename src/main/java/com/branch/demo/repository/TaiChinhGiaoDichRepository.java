@@ -23,10 +23,10 @@ public interface TaiChinhGiaoDichRepository extends JpaRepository<TaiChinhGiaoDi
     Page<TaiChinhGiaoDich> findByLoai(LoaiGiaoDich loai, Pageable pageable);
     
     // Tìm theo năm
-    @Query("SELECT gd FROM TaiChinhGiaoDich gd WHERE YEAR(gd.thoiGian) = :nam ORDER BY gd.thoiGian DESC")
+    @Query("SELECT gd FROM TaiChinhGiaoDich gd WHERE EXTRACT(YEAR FROM gd.thoiGian) = :nam ORDER BY gd.thoiGian DESC")
     List<TaiChinhGiaoDich> findByNam(@Param("nam") Integer nam);
     
-    @Query("SELECT gd FROM TaiChinhGiaoDich gd WHERE YEAR(gd.thoiGian) = :nam ORDER BY gd.thoiGian DESC")
+    @Query("SELECT gd FROM TaiChinhGiaoDich gd WHERE EXTRACT(YEAR FROM gd.thoiGian) = :nam ORDER BY gd.thoiGian DESC")
     Page<TaiChinhGiaoDich> findByNam(@Param("nam") Integer nam, Pageable pageable);
     
     // Tìm theo danh mục
@@ -98,31 +98,31 @@ public interface TaiChinhGiaoDichRepository extends JpaRepository<TaiChinhGiaoDi
     
     // Tính tổng thu theo năm
     @Query("SELECT COALESCE(SUM(gd.soTien), 0) FROM TaiChinhGiaoDich gd WHERE " +
-           "YEAR(gd.thoiGian) = :nam AND gd.loai = 'THU'")
+           "EXTRACT(YEAR FROM gd.thoiGian) = :nam AND gd.loai = 'THU'")
     BigDecimal getTongThuByNam(@Param("nam") Integer nam);
     
     // Tính tổng chi theo năm
     @Query("SELECT COALESCE(SUM(gd.soTien), 0) FROM TaiChinhGiaoDich gd WHERE " +
-           "YEAR(gd.thoiGian) = :nam AND gd.loai = 'CHI'")
+           "EXTRACT(YEAR FROM gd.thoiGian) = :nam AND gd.loai = 'CHI'")
     BigDecimal getTongChiByNam(@Param("nam") Integer nam);
     
     // Tính tổng theo danh mục và năm
     @Query("SELECT COALESCE(SUM(gd.soTien), 0) FROM TaiChinhGiaoDich gd WHERE " +
-           "YEAR(gd.thoiGian) = :nam AND gd.danhMuc.id = :danhMucId")
+           "EXTRACT(YEAR FROM gd.thoiGian) = :nam AND gd.danhMuc.id = :danhMucId")
     BigDecimal getTongByDanhMucAndNam(@Param("danhMucId") Long danhMucId, @Param("nam") Integer nam);
     
     // Tính tổng theo danh mục, loại và năm
     @Query("SELECT COALESCE(SUM(gd.soTien), 0) FROM TaiChinhGiaoDich gd WHERE " +
-           "YEAR(gd.thoiGian) = :nam AND gd.danhMuc.id = :danhMucId AND gd.loai = :loai")
+           "EXTRACT(YEAR FROM gd.thoiGian) = :nam AND gd.danhMuc.id = :danhMucId AND gd.loai = :loai")
     BigDecimal getTongByDanhMucLoaiAndNam(@Param("danhMucId") Long danhMucId, @Param("loai") LoaiGiaoDich loai, @Param("nam") Integer nam);
     
     // Lấy các năm có giao dịch
-    @Query("SELECT DISTINCT YEAR(gd.thoiGian) FROM TaiChinhGiaoDich gd ORDER BY YEAR(gd.thoiGian) DESC")
+    @Query("SELECT DISTINCT EXTRACT(YEAR FROM gd.thoiGian) FROM TaiChinhGiaoDich gd ORDER BY EXTRACT(YEAR FROM gd.thoiGian) DESC")
     List<Integer> findDistinctYears();
     
     // Đếm giao dịch theo loại và năm
     @Query("SELECT COUNT(gd) FROM TaiChinhGiaoDich gd WHERE " +
-           "YEAR(gd.thoiGian) = :nam AND gd.loai = :loai")
+           "EXTRACT(YEAR FROM gd.thoiGian) = :nam AND gd.loai = :loai")
     long countByLoaiAndNam(@Param("loai") LoaiGiaoDich loai, @Param("nam") Integer nam);
     
     // Lấy giao dịch gần nhất
@@ -134,17 +134,17 @@ public interface TaiChinhGiaoDichRepository extends JpaRepository<TaiChinhGiaoDi
     Page<TaiChinhGiaoDich> findTopByLoaiOrderBySoTienDesc(@Param("loai") LoaiGiaoDich loai, Pageable pageable);
     
     // Thống kê theo tháng trong năm
-    @Query("SELECT MONTH(gd.thoiGian) as thang, " +
+    @Query("SELECT EXTRACT(MONTH FROM gd.thoiGian) as thang, " +
            "COALESCE(SUM(CASE WHEN gd.loai = 'THU' THEN gd.soTien ELSE 0 END), 0) as tongThu, " +
            "COALESCE(SUM(CASE WHEN gd.loai = 'CHI' THEN gd.soTien ELSE 0 END), 0) as tongChi " +
-           "FROM TaiChinhGiaoDich gd WHERE YEAR(gd.thoiGian) = :nam " +
-           "GROUP BY MONTH(gd.thoiGian) ORDER BY MONTH(gd.thoiGian)")
+           "FROM TaiChinhGiaoDich gd WHERE EXTRACT(YEAR FROM gd.thoiGian) = :nam " +
+           "GROUP BY EXTRACT(MONTH FROM gd.thoiGian) ORDER BY EXTRACT(MONTH FROM gd.thoiGian)")
     List<Object[]> getThongKeTheoThang(@Param("nam") Integer nam);
     
     // Thống kê theo danh mục trong năm (chỉ lấy danh mục có giao dịch)
     @Query("SELECT dm.tenDanhMuc, gd.loai, SUM(gd.soTien), COUNT(gd.id) " +
            "FROM TaiChinhGiaoDich gd JOIN gd.danhMuc dm " +
-           "WHERE YEAR(gd.thoiGian) = :nam " +
+           "WHERE EXTRACT(YEAR FROM gd.thoiGian) = :nam " +
            "GROUP BY dm.tenDanhMuc, gd.loai " +
            "ORDER BY gd.loai, SUM(gd.soTien) DESC")
     List<Object[]> getThongKeTheoDanhMuc(@Param("nam") Integer nam);
@@ -172,7 +172,7 @@ public interface TaiChinhGiaoDichRepository extends JpaRepository<TaiChinhGiaoDi
     long getTotalTransactionCount();
     
     // Đếm giao dịch theo năm
-    @Query("SELECT COUNT(gd) FROM TaiChinhGiaoDich gd WHERE YEAR(gd.thoiGian) = :nam")
+    @Query("SELECT COUNT(gd) FROM TaiChinhGiaoDich gd WHERE EXTRACT(YEAR FROM gd.thoiGian) = :nam")
     long countByNam(@Param("nam") Integer nam);
     
     // Đếm giao dịch theo danh mục

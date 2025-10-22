@@ -1,6 +1,7 @@
 package com.branch.demo.repository;
 
 import com.branch.demo.domain.TaiChinhNam;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -69,13 +70,18 @@ public interface TaiChinhNamRepository extends JpaRepository<TaiChinhNam, Intege
     // Kiểm tra năm đã tồn tại
     boolean existsByNam(Integer nam);
     
-    // Lấy 5 năm gần nhất có dữ liệu
-    @Query(value = "SELECT * FROM tai_chinh_nam WHERE tong_thu > 0 OR tong_chi > 0 ORDER BY nam DESC LIMIT 5", nativeQuery = true)
-    List<TaiChinhNam> findTop5RecentYearsWithData();
+    // Lấy các năm có dữ liệu - Compatible với cả SQL Server và PostgreSQL
+    @Query("SELECT tn FROM TaiChinhNam tn WHERE tn.tongThu > 0 OR tn.tongChi > 0 ORDER BY tn.nam DESC")
+    List<TaiChinhNam> findRecentYearsWithData(Pageable pageable);
     
-    // Lấy 10 năm gần nhất có dữ liệu
-    @Query(value = "SELECT * FROM tai_chinh_nam WHERE tong_thu > 0 OR tong_chi > 0 ORDER BY nam DESC LIMIT 10", nativeQuery = true)
-    List<TaiChinhNam> findTop10RecentYearsWithData();
+    // Helper methods for convenience
+    default List<TaiChinhNam> findTop5RecentYearsWithData() {
+        return findRecentYearsWithData(org.springframework.data.domain.PageRequest.of(0, 5));
+    }
+    
+    default List<TaiChinhNam> findTop10RecentYearsWithData() {
+        return findRecentYearsWithData(org.springframework.data.domain.PageRequest.of(0, 10));
+    }
     
     // Lấy các năm có lời (số dư > 0)
     @Query("SELECT tn FROM TaiChinhNam tn WHERE tn.soDu > 0 ORDER BY tn.nam DESC")

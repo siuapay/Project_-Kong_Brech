@@ -14,7 +14,7 @@ public class ThongBao extends BaseAuditableEntity {
     @Column(nullable = false)
     private String tieuDe;
     
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String noiDung;
     
     @Enumerated(EnumType.STRING)

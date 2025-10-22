@@ -37,7 +37,7 @@ public interface TinHuuRepository extends JpaRepository<TinHuu, Long> {
     List<TinHuu> findByTrangThai(String trangThai);
 
     // Tìm theo độ tuổi
-    @Query("SELECT t FROM TinHuu t WHERE YEAR(CURRENT_DATE) - t.namSinh BETWEEN :minAge AND :maxAge")
+    @Query("SELECT t FROM TinHuu t WHERE EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN :minAge AND :maxAge")
     List<TinHuu> findByAgeRange(@Param("minAge") int minAge, @Param("maxAge") int maxAge);
 
     // Tìm theo email
@@ -73,20 +73,20 @@ public interface TinHuuRepository extends JpaRepository<TinHuu, Long> {
     // Thống kê theo độ tuổi
     @Query("SELECT " +
             "CASE " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh < 18 THEN 'Dưới 18' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 18 AND 30 THEN '18-30' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 31 AND 50 THEN '31-50' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 51 AND 65 THEN '51-65' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh < 18 THEN 'Dưới 18' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 18 AND 30 THEN '18-30' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 31 AND 50 THEN '31-50' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 51 AND 65 THEN '51-65' " +
             "ELSE 'Trên 65' END as ageGroup, " +
             "COUNT(t) " +
             "FROM TinHuu t " +
             "WHERE t.namSinh IS NOT NULL " +
             "GROUP BY " +
             "CASE " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh < 18 THEN 'Dưới 18' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 18 AND 30 THEN '18-30' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 31 AND 50 THEN '31-50' " +
-            "WHEN YEAR(CURRENT_DATE) - t.namSinh BETWEEN 51 AND 65 THEN '51-65' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh < 18 THEN 'Dưới 18' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 18 AND 30 THEN '18-30' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 31 AND 50 THEN '31-50' " +
+            "WHEN EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh BETWEEN 51 AND 65 THEN '51-65' " +
             "ELSE 'Trên 65' END")
     List<Object[]> countByAgeGroup();
 
