@@ -1,20 +1,23 @@
-# 🚀 RAILWAY ENVIRONMENT VARIABLES SETUP
+# 🚀 RAILWAY DATABASE SETUP - URGENT FIX
 
-## 🔧 **BẮT BUỘC: Set các Environment Variables sau trên Railway:**
+## 🚨 **VẤN ĐỀ HIỆN TẠI:**
+Railway chưa có PostgreSQL database → `DATABASE_URL` không tồn tại
 
-### **Cách 1: Qua Railway Dashboard**
+## 🔧 **CÁCH SỬA NGAY:**
+
+### **Bước 1: Tạo PostgreSQL Database trên Railway**
 1. Vào Railway Dashboard → Your Project
-2. Click tab **"Variables"**
-3. Thêm các variables sau:
+2. Click **"+ New"** → **"Database"** → **"Add PostgreSQL"**
+3. Đợi database được tạo (1-2 phút)
 
+### **Bước 2: Connect Database với Service**
+1. Sau khi database tạo xong
+2. Vào **"Variables"** tab của service
+3. Railway sẽ **TỰ ĐỘNG** tạo `DATABASE_URL`
+
+### **Bước 3: Set Environment Variables**
 ```bash
-# Database Configuration
-DATABASE_DRIVER=org.postgresql.Driver
-DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
-LOB_NON_CONTEXTUAL=true
-JDBC_METADATA_DEFAULTS=false
-
-# Profile
+# Profile (BẮT BUỘC)
 SPRING_PROFILES_ACTIVE=production
 ```
 
