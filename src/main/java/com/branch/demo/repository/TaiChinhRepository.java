@@ -51,8 +51,8 @@ public interface TaiChinhRepository extends JpaRepository<TaiChinh, Long> {
            "tc.loaiGiaoDich = 'THU' AND " +
            "tc.trangThai = :trangThai AND " +
            "LOWER(tc.danhMuc) LIKE LOWER('%dâng hiến%') AND " +
-           "EXTRACT(YEAR FROM tc.ngayGiaoDich) = :nam AND " +
-           "EXTRACT(MONTH FROM tc.ngayGiaoDich) = :thang")
+           "YEAR(tc.ngayGiaoDich) = :nam AND " +
+           "MONTH(tc.ngayGiaoDich) = :thang")
     BigDecimal tinhTongDangHienTheoThang(
         @Param("trangThai") TrangThaiGiaoDich trangThai,
         @Param("nam") int nam,
@@ -60,14 +60,14 @@ public interface TaiChinhRepository extends JpaRepository<TaiChinh, Long> {
     
     // Báo cáo tài chính theo tháng
     @Query("SELECT " +
-           "EXTRACT(YEAR FROM tc.ngayGiaoDich) as nam, " +
-           "EXTRACT(MONTH FROM tc.ngayGiaoDich) as thang, " +
+           "YEAR(tc.ngayGiaoDich) as nam, " +
+           "MONTH(tc.ngayGiaoDich) as thang, " +
            "tc.loaiGiaoDich, " +
            "SUM(tc.soTien) as tongTien " +
            "FROM TaiChinh tc " +
            "WHERE tc.trangThai = :trangThai " +
-           "GROUP BY EXTRACT(YEAR FROM tc.ngayGiaoDich), EXTRACT(MONTH FROM tc.ngayGiaoDich), tc.loaiGiaoDich " +
-           "ORDER BY EXTRACT(YEAR FROM tc.ngayGiaoDich) DESC, EXTRACT(MONTH FROM tc.ngayGiaoDich) DESC")
+           "GROUP BY YEAR(tc.ngayGiaoDich), MONTH(tc.ngayGiaoDich), tc.loaiGiaoDich " +
+           "ORDER BY YEAR(tc.ngayGiaoDich) DESC, MONTH(tc.ngayGiaoDich) DESC")
     List<Object[]> getBaoCaoTheoThang(@Param("trangThai") TrangThaiGiaoDich trangThai);
     
     // Thống kê theo danh mục

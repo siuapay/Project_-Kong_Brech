@@ -26,7 +26,13 @@ public class DatabaseConnectionTest implements CommandLineRunner {
             System.out.println("Database User: " + metaData.getUserName());
             System.out.println("Driver Name: " + metaData.getDriverName());
             System.out.println("Driver Version: " + metaData.getDriverVersion());
-            System.out.println("Connection successful: ✅");
+            
+            // Check if it's MySQL
+            if (metaData.getDatabaseProductName().toLowerCase().contains("mysql")) {
+                System.out.println("✅ MySQL Connection successful!");
+            } else {
+                System.out.println("✅ Database Connection successful!");
+            }
             System.out.println("===============================");
             
         } catch (Exception e) {

@@ -52,8 +52,8 @@ public interface SuKienRepository extends JpaRepository<SuKien, Long> {
            " LOWER(lsk.tenLoai) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
            "(:loaiSuKienId IS NULL OR sk.loaiSuKien.id = :loaiSuKienId) AND " +
            "(:trangThai IS NULL OR sk.trangThai = :trangThai) AND " +
-           "(:fromDate IS NULL OR CAST(sk.ngayDienRa AS DATE) >= :fromDate) AND " +
-           "(:toDate IS NULL OR CAST(sk.ngayDienRa AS DATE) <= :toDate)")
+           "(:fromDate IS NULL OR DATE(sk.ngayDienRa) >= :fromDate) AND " +
+           "(:toDate IS NULL OR DATE(sk.ngayDienRa) <= :toDate)")
     Page<SuKien> searchSuKien(
         @Param("search") String search,
         @Param("loaiSuKienId") Long loaiSuKienId,
@@ -124,8 +124,8 @@ public interface SuKienRepository extends JpaRepository<SuKien, Long> {
            "(:search IS NULL OR :search = '' OR " +
            " LOWER(sk.tenSuKien) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
            " LOWER(sk.moTa) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-           "(:fromDate IS NULL OR CAST(sk.deletedAt AS DATE) >= :fromDate) AND " +
-           "(:toDate IS NULL OR CAST(sk.deletedAt AS DATE) <= :toDate)")
+           "(:fromDate IS NULL OR DATE(sk.deletedAt) >= :fromDate) AND " +
+           "(:toDate IS NULL OR DATE(sk.deletedAt) <= :toDate)")
     Page<SuKien> findDeletedWithSearchAndDateFilter(
         @Param("search") String search,
         @Param("fromDate") LocalDate fromDate,
