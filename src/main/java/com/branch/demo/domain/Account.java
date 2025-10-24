@@ -3,7 +3,8 @@ package com.branch.demo.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.branch.demo.validation.ValidationGroups;
+import com.branch.demo.validation.ValidUsername;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +21,7 @@ public class Account implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank(message = "Tên đăng nhập không được để trống")
-    @Size(min = 3, max = 50, message = "Tên đăng nhập phải từ 3-50 ký tự")
+    @ValidUsername(groups = {ValidationGroups.Common.class, ValidationGroups.WithProfileLink.class, ValidationGroups.WithoutProfileLink.class})
     @Column(unique = true, nullable = false)
     private String username;
     
@@ -31,13 +31,13 @@ public class Account implements UserDetails {
     @Column(name = "first_password")
     private String firstPassword;
     
-    @NotBlank(message = "Email không được để trống")
-    @Email(message = "Email không hợp lệ")
-    @Column(unique = true, nullable = false)
+    @NotBlank(message = "Email không được để trống", groups = ValidationGroups.WithoutProfileLink.class)
+    @Email(message = "Email không hợp lệ", groups = {ValidationGroups.WithProfileLink.class, ValidationGroups.WithoutProfileLink.class})
+    @Column(unique = true)
     private String email;
     
-    @NotBlank(message = "Họ tên không được để trống")
-    @Column(nullable = false)
+    @NotBlank(message = "Họ tên không được để trống", groups = ValidationGroups.WithoutProfileLink.class)
+    @Column
     private String fullName;
     
     @Enumerated(EnumType.STRING)

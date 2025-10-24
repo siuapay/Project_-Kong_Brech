@@ -85,9 +85,9 @@ public class AdminService {
         }
 
         try {
-            stats.put("totalNhom", nhomRepository.count());
+            stats.put("totalDiemNhom", diemNhomRepository.count());
         } catch (Exception e) {
-            stats.put("totalNhom", 0L);
+            stats.put("totalDiemNhom", 0L);
         }
 
         try {

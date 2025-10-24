@@ -55,19 +55,19 @@
                     </div>
                 </div>
 
-                <!-- Nhóm Card -->
+                <!-- Điểm Nhóm Card -->
                 <div class="stat-card groups-card">
                     <div class="stat-card-content">
                         <div class="stat-icon">
-                            <i class="fas fa-layer-group"></i>
+                            <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div class="stat-info">
-                            <h3 class="stat-number" th:text="${stats.totalNhom}">0</h3>
-                            <p class="stat-label">Nhóm</p>
+                            <h3 class="stat-number" th:text="${stats.totalDiemNhom}">0</h3>
+                            <p class="stat-label">Điểm Nhóm</p>
                         </div>
                     </div>
                     <div class="stat-card-footer">
-                        <a th:href="@{/admin/nhom}" class="stat-link">
+                        <a th:href="@{/admin/diem-nhom}" class="stat-link">
                             <span>Xem Chi Tiết</span>
                             <i class="fas fa-arrow-right"></i>
                         </a>
@@ -252,13 +252,13 @@
                         </div>
                     </a>
 
-                    <a th:href="@{/admin/nhom}" class="quick-action-card purple">
+                    <a th:href="@{/admin/diem-nhom}" class="quick-action-card purple">
                         <div class="action-icon">
-                            <i class="fas fa-layer-group"></i>
+                            <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div class="action-content">
-                            <h4 class="action-title">Quản Lý Nhóm</h4>
-                            <p class="action-desc">Tổ chức và phân chia nhóm</p>
+                            <h4 class="action-title">Quản Lý Điểm Nhóm</h4>
+                            <p class="action-desc">Tổ chức và quản lý điểm nhóm</p>
                         </div>
                         <div class="action-arrow">
                             <i class="fas fa-chevron-right"></i>

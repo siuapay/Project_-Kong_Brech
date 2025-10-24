@@ -70,7 +70,8 @@
                                                        th:readonly="${account.id != null}">
                                                 <div class="form-hint">
                                                     <i class="fas fa-info-circle me-1"></i>
-                                                    Tên đăng nhập không thể thay đổi sau khi tạo
+                                                    <span th:if="${account.id == null}">Chỉ chữ cái, số, dấu gạch dưới, gạch ngang và dấu chấm. Không có dấu cách</span>
+                                                    <span th:if="${account.id != null}">Tên đăng nhập không thể thay đổi sau khi tạo</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -78,10 +79,14 @@
                                             <div class="modern-form-group">
                                                 <label for="email" class="modern-form-label">
                                                     <i class="fas fa-envelope me-2"></i>
-                                                    Email <span class="required-star">*</span>
+                                                    Email <span class="required-star" id="emailRequired">*</span>
                                                 </label>
                                                 <input type="email" class="modern-form-control" id="email" th:field="*{email}" 
-                                                       required placeholder="example@email.com">
+                                                       placeholder="example@email.com">
+                                                <div class="form-hint">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    <span id="emailHint">Bắt buộc khi không liên kết hồ sơ</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -91,10 +96,14 @@
                                             <div class="modern-form-group">
                                                 <label for="fullName" class="modern-form-label">
                                                     <i class="fas fa-address-card me-2"></i>
-                                                    Họ và Tên <span class="required-star">*</span>
+                                                    Họ và Tên <span class="required-star" id="fullNameRequired">*</span>
                                                 </label>
                                                 <input type="text" class="modern-form-control" id="fullName" th:field="*{fullName}" 
-                                                       required placeholder="Nhập họ và tên đầy đủ">
+                                                       placeholder="Nhập họ và tên đầy đủ">
+                                                <div class="form-hint">
+                                                    <i class="fas fa-info-circle me-1"></i>
+                                                    <span id="fullNameHint">Bắt buộc khi không liên kết hồ sơ</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -275,7 +284,7 @@
                             <h6 class="text-primary">Liên Kết Hồ Sơ:</h6>
                             <p class="small text-muted mb-2">
                                 Bạn có thể liên kết tài khoản này với một nhân sự hoặc chấp sự trong hệ thống. 
-                                Khi liên kết, thông tin cá nhân sẽ được hiển thị từ hồ sơ tương ứng.
+                                Khi liên kết, thông tin cá nhân sẽ được lấy từ hồ sơ tương ứng.
                             </p>
                             <ul class="list-unstyled small">
                                 <li class="mb-1">
@@ -287,12 +296,12 @@
                                     <strong>Chấp Sự:</strong> Liên kết với hồ sơ chấp sự
                                 </li>
                                 <li class="mb-1">
-                                    <i class="fas fa-info text-info me-2"></i>
-                                    Chỉ có thể chọn một trong hai loại
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    <strong>Có liên kết:</strong> Email và Họ tên không bắt buộc
                                 </li>
                                 <li class="mb-1">
-                                    <i class="fas fa-info text-info me-2"></i>
-                                    Có thể để trống nếu chưa có hồ sơ tương ứng
+                                    <i class="fas fa-exclamation text-warning me-2"></i>
+                                    <strong>Không liên kết:</strong> Email và Họ tên bắt buộc nhập
                                 </li>
                             </ul>
 
@@ -330,9 +339,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadAllData();
             initializeProfileRadios();
+            initializeRequiredFieldLogic();
             // Initialize existing data after a short delay to ensure DOM is ready
             setTimeout(() => {
                 initializeExistingData();
+                updateRequiredFields();
             }, 200);
         });
         
@@ -379,6 +390,7 @@
                     hideProfileDropdown('chapsu');
                     // Clear ChapSu selection
                     document.getElementById('chapSu').value = '';
+                    updateRequiredFields();
                 }
             });
             
@@ -388,8 +400,58 @@
                     hideProfileDropdown('nhansu');
                     // Clear NhanSu selection
                     document.getElementById('nhanSu').value = '';
+                    updateRequiredFields();
                 }
             });
+        }
+        
+        // Initialize required field logic
+        function initializeRequiredFieldLogic() {
+            // Add event listeners for dropdown selections
+            document.addEventListener('change', function(e) {
+                if (e.target.id === 'nhanSu' || e.target.id === 'chapSu') {
+                    updateRequiredFields();
+                }
+            });
+            
+            // Add event listener for clearing selections
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('clear-selection')) {
+                    setTimeout(updateRequiredFields, 100);
+                }
+            });
+        }
+        
+        // Update required fields based on profile selection
+        function updateRequiredFields() {
+            const nhanSuId = document.getElementById('nhanSu').value;
+            const chapSuId = document.getElementById('chapSu').value;
+            const hasProfileLink = (nhanSuId && nhanSuId.trim() !== '') || (chapSuId && chapSuId.trim() !== '');
+            
+            const emailField = document.getElementById('email');
+            const fullNameField = document.getElementById('fullName');
+            const emailRequired = document.getElementById('emailRequired');
+            const fullNameRequired = document.getElementById('fullNameRequired');
+            const emailHint = document.getElementById('emailHint');
+            const fullNameHint = document.getElementById('fullNameHint');
+            
+            if (hasProfileLink) {
+                // Has profile link - not required
+                emailField.removeAttribute('required');
+                fullNameField.removeAttribute('required');
+                emailRequired.style.display = 'none';
+                fullNameRequired.style.display = 'none';
+                emailHint.textContent = 'Tùy chọn khi đã liên kết hồ sơ';
+                fullNameHint.textContent = 'Tùy chọn khi đã liên kết hồ sơ';
+            } else {
+                // No profile link - required
+                emailField.setAttribute('required', 'required');
+                fullNameField.setAttribute('required', 'required');
+                emailRequired.style.display = 'inline';
+                fullNameRequired.style.display = 'inline';
+                emailHint.textContent = 'Bắt buộc khi không liên kết hồ sơ';
+                fullNameHint.textContent = 'Bắt buộc khi không liên kết hồ sơ';
+            }
         }
         
         // Show profile dropdown
@@ -440,9 +502,11 @@
                     },
                     onSelect: function(item) {
                         document.getElementById('nhanSu').value = item.id;
+                        updateRequiredFields();
                     },
                     onClear: function() {
                         document.getElementById('nhanSu').value = '';
+                        updateRequiredFields();
                     }
                 });
                 
@@ -484,9 +548,11 @@
                     },
                     onSelect: function(item) {
                         document.getElementById('chapSu').value = item.id;
+                        updateRequiredFields();
                     },
                     onClear: function() {
                         document.getElementById('chapSu').value = '';
+                        updateRequiredFields();
                     }
                 });
                 

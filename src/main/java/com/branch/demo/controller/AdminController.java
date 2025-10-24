@@ -2017,32 +2017,48 @@ public class AdminController {
                 account.setStatus(Account.AccountStatus.ACTIVE); // Set default
             }
 
-            // Manual validation for required fields
-            boolean hasErrors = false;
-            StringBuilder errorMsg = new StringBuilder();
-
-            if (account.getUsername() == null || account.getUsername().trim().isEmpty()) {
-                errorMsg.append("Tên đăng nhập không được để trống. ");
-                hasErrors = true;
-            } else if (account.getUsername().trim().length() < 3 || account.getUsername().trim().length() > 50) {
-                errorMsg.append("Tên đăng nhập phải từ 3-50 ký tự. ");
-                hasErrors = true;
+            // Xử lý logic nhân sự và chấp sự trước khi validation
+            if (account.getNhanSu() != null && account.getNhanSu().getId() != null && account.getNhanSu().getId() > 0) {
+                try {
+                    account.setNhanSu(adminService.getNhanSuById(account.getNhanSu().getId()));
+                } catch (Exception e) {
+                    account.setNhanSu(null);
+                }
+            } else {
+                account.setNhanSu(null);
+            }
+            
+            if (account.getChapSu() != null && account.getChapSu().getId() != null && account.getChapSu().getId() > 0) {
+                try {
+                    account.setChapSu(adminService.getChapSuById(account.getChapSu().getId()));
+                } catch (Exception e) {
+                    account.setChapSu(null);
+                }
+            } else {
+                account.setChapSu(null);
+            }
+            
+            // Đảm bảo chỉ chọn một trong hai
+            if (account.getNhanSu() != null && account.getChapSu() != null) {
+                account.setChapSu(null);
             }
 
-            if (account.getEmail() == null || account.getEmail().trim().isEmpty()) {
-                errorMsg.append("Email không được để trống. ");
-                hasErrors = true;
-            } else if (!account.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-                errorMsg.append("Email không hợp lệ. ");
-                hasErrors = true;
-            }
+            // Determine validation group based on profile link
+            boolean hasProfileLink = account.getNhanSu() != null || account.getChapSu() != null;
+            Class<?> validationGroup = hasProfileLink ? 
+                com.branch.demo.validation.ValidationGroups.WithProfileLink.class : 
+                com.branch.demo.validation.ValidationGroups.WithoutProfileLink.class;
 
-            if (account.getFullName() == null || account.getFullName().trim().isEmpty()) {
-                errorMsg.append("Họ tên không được để trống. ");
-                hasErrors = true;
-            }
+            // Perform validation using appropriate group
+            jakarta.validation.Validator validator = jakarta.validation.Validation.buildDefaultValidatorFactory().getValidator();
+            java.util.Set<jakarta.validation.ConstraintViolation<Account>> violations = validator.validate(account, validationGroup);
 
-            if (hasErrors) {
+            if (!violations.isEmpty()) {
+                StringBuilder errorMsg = new StringBuilder();
+                for (jakarta.validation.ConstraintViolation<Account> violation : violations) {
+                    errorMsg.append(violation.getMessage()).append(" ");
+                }
+                
                 model.addAttribute("account", account);
                 model.addAttribute("title", title);
                 model.addAttribute("pageTitle", pageTitle);
@@ -2062,7 +2078,8 @@ public class AdminController {
                     return "admin/account/form";
                 }
 
-                if (adminService.isEmailExists(account.getEmail())) {
+                if (account.getEmail() != null && !account.getEmail().trim().isEmpty() && 
+                    adminService.isEmailExists(account.getEmail())) {
                     model.addAttribute("account", account);
                     model.addAttribute("title", title);
                     model.addAttribute("pageTitle", pageTitle);
@@ -2072,7 +2089,8 @@ public class AdminController {
                 }
             } else {
                 // For updates, check email uniqueness excluding current account
-                if (adminService.isEmailExistsExcludingId(account.getEmail(), account.getId())) {
+                if (account.getEmail() != null && !account.getEmail().trim().isEmpty() && 
+                    adminService.isEmailExistsExcludingId(account.getEmail(), account.getId())) {
                     model.addAttribute("account", account);
                     model.addAttribute("title", title);
                     model.addAttribute("pageTitle", pageTitle);
@@ -2082,39 +2100,7 @@ public class AdminController {
                 }
             }
 
-            // Xử lý logic nhân sự và chấp sự - load từ database hoặc set null
-            if (account.getNhanSu() != null && account.getNhanSu().getId() != null && account.getNhanSu().getId() > 0) {
-                try {
-                    // Load nhân sự từ database
-                    account.setNhanSu(adminService.getNhanSuById(account.getNhanSu().getId()));
-                } catch (Exception e) {
-                    // Nếu không tìm thấy, set null
-                    account.setNhanSu(null);
-                }
-            } else {
-                // Set null nếu không có ID hợp lệ
-                account.setNhanSu(null);
-            }
-            
-            if (account.getChapSu() != null && account.getChapSu().getId() != null && account.getChapSu().getId() > 0) {
-                try {
-                    // Load chấp sự từ database
-                    account.setChapSu(adminService.getChapSuById(account.getChapSu().getId()));
-                } catch (Exception e) {
-                    // Nếu không tìm thấy, set null
-                    account.setChapSu(null);
-                }
-            } else {
-                // Set null nếu không có ID hợp lệ
-                account.setChapSu(null);
-            }
-            
-            // Đảm bảo chỉ chọn một trong hai
-            if (account.getNhanSu() != null && account.getChapSu() != null) {
-                // Nếu cả hai đều được set, ưu tiên nhân sự và clear chấp sự
-                account.setChapSu(null);
-            }
-            
+
             String generatedPassword = adminService.saveAccount(account, null);
 
             if (generatedPassword != null) {

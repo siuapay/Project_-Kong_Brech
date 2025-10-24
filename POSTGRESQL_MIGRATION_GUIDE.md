@@ -5,8 +5,9 @@
 ### ✅ ĐÃ SỬA XONG:
 
 1. **NVARCHAR(MAX) → TEXT**
+
    - `ThongBao.noiDung`
-   - `SuKien.noiDung`  
+   - `SuKien.noiDung`
    - `LienHe.noiDung`, `ghiChuXuLy`, `lyDoViPham`
    - `BaiViet.noiDung`, `noiDungRich`
 
@@ -21,54 +22,59 @@
 **Tìm và thay thế trong các file sau:**
 
 1. **TinHuuRepository.java:**
+
    ```java
    // CŨ (SQL Server):
    YEAR(CURRENT_DATE) - t.namSinh
    MONTH(t.ngayBaoTin)
-   
+
    // MỚI (PostgreSQL):
    EXTRACT(YEAR FROM CURRENT_DATE) - t.namSinh
    EXTRACT(MONTH FROM t.ngayBaoTin)
    ```
 
 2. **TaiChinhRepository.java:**
+
    ```java
    // CŨ:
    YEAR(tc.ngayGiaoDich) = :nam
    MONTH(tc.ngayGiaoDich) = :thang
-   
+
    // MỚI:
    EXTRACT(YEAR FROM tc.ngayGiaoDich) = :nam
    EXTRACT(MONTH FROM tc.ngayGiaoDich) = :thang
    ```
 
 3. **TaiChinhGiaoDichRepository.java:**
+
    ```java
    // CŨ:
    YEAR(gd.thoiGian) = :nam
    MONTH(gd.thoiGian)
-   
+
    // MỚI:
    EXTRACT(YEAR FROM gd.thoiGian) = :nam
    EXTRACT(MONTH FROM gd.thoiGian)
    ```
 
 4. **SuKienRepository.java:**
+
    ```java
    // CŨ:
    YEAR(sk.ngayDienRa) = :year
    MONTH(sk.ngayDienRa) = :month
-   
+
    // MỚI:
    EXTRACT(YEAR FROM sk.ngayDienRa) = :year
    EXTRACT(MONTH FROM sk.ngayDienRa) = :month
    ```
 
 5. **LienHeRepository.java:**
+
    ```java
    // CŨ:
    YEAR(lh.createdAt), MONTH(lh.createdAt)
-   
+
    // MỚI:
    EXTRACT(YEAR FROM lh.createdAt), EXTRACT(MONTH FROM lh.createdAt)
    ```
@@ -76,6 +82,7 @@
 ### 🔍 CÁCH TÌM VÀ THAY THẾ NHANH:
 
 **Trong IDE (IntelliJ/VSCode):**
+
 1. Mở "Find and Replace" (Ctrl+Shift+R)
 2. Enable "Regex" mode
 3. Tìm: `YEAR\(([^)]+)\)`
