@@ -1510,20 +1510,7 @@ public class AdminController {
 
     // ==================== API ENDPOINTS ====================
 
-    @GetMapping("/api/all-loai-su-kien")
-    @ResponseBody
-    public org.springframework.http.ResponseEntity<?> getAllLoaiSuKien() {
-        try {
-            java.util.List<com.branch.demo.domain.LoaiSuKien> loaiSuKienList = adminService.getAllActiveLoaiSuKien();
-            System.out.println("API /api/all-loai-su-kien called successfully, returning " + loaiSuKienList.size() + " items");
-            return org.springframework.http.ResponseEntity.ok(loaiSuKienList);
-        } catch (Exception e) {
-            System.err.println("Error in /api/all-loai-su-kien: " + e.getMessage());
-            e.printStackTrace();
-            return org.springframework.http.ResponseEntity.status(500)
-                .body(java.util.Map.of("error", "Internal server error: " + e.getMessage()));
-        }
-    }
+
 
     // ==================== LOẠI SỰ KIỆN MANAGEMENT ====================
 
