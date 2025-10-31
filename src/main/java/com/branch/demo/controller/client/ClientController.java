@@ -294,6 +294,10 @@ public class ClientController {
         try {
             java.util.List<BanNganh> banNganhList = banNganhRepository.findAll();
             java.util.Map<Long, Long> tinHuuCountMap = new java.util.HashMap<>();
+            
+            // Variables for totals
+            int totalMembers = 0;
+            long totalTinHuu = 0;
 
             // Load members and tin huu count for each department
             for (BanNganh banNganh : banNganhList) {
@@ -301,18 +305,34 @@ public class ClientController {
                 java.util.List<NhanSu> members = nhanSuRepository.findByBanNganh(banNganh);
                 banNganh.setDanhSachNhanSu(members);
 
+                // Eager load chấp sự members (since they are LAZY)
+                banNganh.getDanhSachChapSu().size(); // Force initialization
+                
+                // Eager load Thủ quỹ data (since they are LAZY)
+                banNganh.getDanhSachThuQuyNhanSu().size(); // Force initialization
+                banNganh.getDanhSachThuQuyChapSu().size(); // Force initialization
+
                 // Count tin huu in this ban nganh
                 long tinHuuCount = tinHuuRepository.countByBanNganh(banNganh);
                 tinHuuCountMap.put(banNganh.getId(), tinHuuCount);
+                
+                // Add to totals
+                totalMembers += (members != null ? members.size() : 0);
+                totalMembers += (banNganh.getDanhSachChapSu() != null ? banNganh.getDanhSachChapSu().size() : 0);
+                totalTinHuu += tinHuuCount;
             }
 
-            System.out.println("Found " + banNganhList.size() + " ban nganh");
+            System.out.println("Found " + banNganhList.size() + " ban nganh, " + totalMembers + " members, " + totalTinHuu + " tin huu");
             model.addAttribute("banNganhList", banNganhList);
             model.addAttribute("tinHuuCountMap", tinHuuCountMap);
+            model.addAttribute("totalMembers", totalMembers);
+            model.addAttribute("totalTinHuu", totalTinHuu);
         } catch (Exception e) {
             System.out.println("Error loading ban nganh: " + e.getMessage());
             model.addAttribute("banNganhList", java.util.Collections.emptyList());
             model.addAttribute("tinHuuCountMap", java.util.Collections.emptyMap());
+            model.addAttribute("totalMembers", 0);
+            model.addAttribute("totalTinHuu", 0L);
         }
 
         return "client/departments";
