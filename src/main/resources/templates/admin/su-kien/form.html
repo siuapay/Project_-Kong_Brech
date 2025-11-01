@@ -177,16 +177,28 @@
                       </div>
                       <div class="col-md-4">
                         <div class="modern-form-group">
-                          <label for="loaiSuKien" class="modern-form-label">
+                          <label for="loaiSuKienId" class="modern-form-label">
                             <i class="fas fa-tag me-2"></i>
                             Loại Sự Kiện <span class="required-star">*</span>
                           </label>
-                          <div id="loaiSuKienDropdown"></div>
-                          <input
-                            type="hidden"
-                            id="loaiSuKien"
+                          <select
+                            class="modern-form-select"
+                            id="loaiSuKienId"
                             th:field="*{loaiSuKienId}"
-                          />
+                            required
+                          >
+                            <option value="">-- Chọn loại sự kiện --</option>
+                            <option
+                              th:each="loai : ${danhSachLoaiSuKien}"
+                              th:value="${loai.id}"
+                              th:text="${loai.tenLoai}"
+                              th:selected="${suKien.loaiSuKienId != null and suKien.loaiSuKienId == loai.id}"
+                            >
+                            </option>
+                          </select>
+                          <div class="form-feedback">
+                            Vui lòng chọn loại sự kiện.
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -491,7 +503,7 @@
 
     <!-- Scripts -->
     <div th:replace="~{fragments/admin-layout :: scripts}"></div>
-    <script src="/static/js/searchable-dropdown.js"></script>
+
     <script>
       // Form validation
       (function () {
@@ -508,7 +520,7 @@
                   function (event) {
                     // Custom validation for loaiSuKien
                     const loaiSuKienInput =
-                      document.getElementById("loaiSuKien");
+                      document.getElementById("loaiSuKienId");
                     if (
                       !loaiSuKienInput.value ||
                       loaiSuKienInput.value.trim() === ""
@@ -517,21 +529,21 @@
                       event.stopPropagation();
 
                       // Scroll to loaiSuKien field and highlight it
-                      const loaiSuKienDropdown =
-                        document.getElementById("loaiSuKienDropdown");
-                      loaiSuKienDropdown.scrollIntoView({
+                      const loaiSuKienSelect =
+                        document.getElementById("loaiSuKienId");
+                      loaiSuKienSelect.scrollIntoView({
                         behavior: "smooth",
                         block: "center",
                       });
 
                       // Add error styling
-                      loaiSuKienDropdown.style.border = "2px solid #e53e3e";
-                      loaiSuKienDropdown.style.borderRadius = "8px";
+                      loaiSuKienSelect.style.border = "2px solid #e53e3e";
+                      loaiSuKienSelect.style.borderRadius = "8px";
 
                       // Remove error styling after 3 seconds
                       setTimeout(() => {
-                        loaiSuKienDropdown.style.border = "";
-                        loaiSuKienDropdown.style.borderRadius = "";
+                        loaiSuKienSelect.style.border = "";
+                        loaiSuKienSelect.style.borderRadius = "";
                       }, 3000);
 
                       return false;
@@ -552,52 +564,13 @@
         );
       })();
 
-      let loaiSuKienDropdown;
+      // Loại sự kiện dropdown is now handled by Thymeleaf server-side rendering
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Khởi tạo searchable dropdown cho loại sự kiện
-        loaiSuKienDropdown = new SearchableDropdown("loaiSuKienDropdown", {
-          placeholder: "Chọn loại sự kiện...",
-          searchPlaceholder: "Tìm kiếm loại sự kiện...",
-          displayField: "tenLoai",
-          valueField: "id",
-          allowClear: true,
-          clearText: "Không chọn loại sự kiện",
-          onSelect: function (item) {
-            // Cập nhật hidden input
-            document.getElementById("loaiSuKien").value = item.id;
-          },
-          onClear: function () {
-            // Clear hidden input
-            document.getElementById("loaiSuKien").value = "";
-          },
-        });
-
-        // Load loại sự kiện
-        loadAllLoaiSuKien();
-
-        // Set giá trị hiện tại nếu có (cho edit mode)
-        const currentLoaiSuKienValue =
-          document.getElementById("loaiSuKien").value;
-
-        if (currentLoaiSuKienValue) {
-          setTimeout(() => {
-            loaiSuKienDropdown.setValue(currentLoaiSuKienValue);
-          }, 500);
-        }
+        // Using standard HTML select - no additional JavaScript needed for dropdown
       });
 
-      // Load tất cả loại sự kiện
-      function loadAllLoaiSuKien() {
-        fetch("/api/all-loai-of-su-kien")
-          .then((response) => response.json())
-          .then((data) => {
-            loaiSuKienDropdown.setData(data);
-          })
-          .catch((error) => {
-            console.error("Error loading loại sự kiện:", error);
-          });
-      }
+      // Removed loadAllLoaiSuKien function - using Thymeleaf server-side rendering
 
       // Image preview
       function previewImage(input) {
