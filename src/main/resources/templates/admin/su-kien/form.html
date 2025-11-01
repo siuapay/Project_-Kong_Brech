@@ -589,7 +589,7 @@
 
       // Load tất cả loại sự kiện
       function loadAllLoaiSuKien() {
-        fetch('/admin/api/all-loai-su-kien')
+        fetch("/admin/api/all-loai-of-su-kien")
           .then((response) => response.json())
           .then((data) => {
             loaiSuKienDropdown.setData(data);
