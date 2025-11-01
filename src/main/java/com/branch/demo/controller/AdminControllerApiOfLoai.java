@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/api")
+@RequestMapping("/api")
 public class AdminControllerApiOfLoai {
 
     @Autowired
