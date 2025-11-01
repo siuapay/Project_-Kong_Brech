@@ -1510,7 +1510,11 @@ public class AdminController {
 
     // ==================== API ENDPOINTS ====================
 
-
+    @GetMapping("/api/all-loai-su-kien")
+    @ResponseBody
+    public java.util.List<com.branch.demo.domain.LoaiSuKien> getAllLoaiSuKien() {
+        return adminService.getAllActiveLoaiSuKien();
+    }
 
     // ==================== LOẠI SỰ KIỆN MANAGEMENT ====================
 
