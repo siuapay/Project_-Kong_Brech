@@ -1,5 +1,7 @@
 package com.branch.demo.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,7 +19,28 @@ public class FileUploadService {
     private final String[] ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"};
     private final long MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
     
+    @Value("${file.storage.type:local}")
+    private String storageType;
+    
+    @Autowired(required = false)
+    private CloudinaryService cloudinaryService;
+    
     public String uploadFile(MultipartFile file, String subDirectory) throws IOException {
+        // Nếu cấu hình cloud storage, sử dụng Cloudinary
+        if ("cloudinary".equalsIgnoreCase(storageType) && cloudinaryService != null) {
+            try {
+                return cloudinaryService.uploadFile(file, subDirectory);
+            } catch (Exception e) {
+                System.err.println("Cloudinary upload failed, fallback to local: " + e.getMessage());
+                // Fallback to local storage if cloud fails
+            }
+        }
+        
+        // Sử dụng local storage (mặc định)
+        return uploadFileLocal(file, subDirectory);
+    }
+    
+    private String uploadFileLocal(MultipartFile file, String subDirectory) throws IOException {
         // Kiểm tra file có rỗng không
         if (file.isEmpty()) {
             throw new IOException("File không được để trống");
