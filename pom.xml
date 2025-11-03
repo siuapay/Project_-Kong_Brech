@@ -73,6 +73,13 @@
 			<scope>runtime</scope>
 		</dependency>
 		
+		<!-- Cloudinary for cloud file storage -->
+		<dependency>
+			<groupId>com.cloudinary</groupId>
+			<artifactId>cloudinary-http44</artifactId>
+			<version>1.34.0</version>
+		</dependency>
+		
 		<!-- Azure Storage for file uploads -->
 		<dependency>
 			<groupId>com.azure</groupId>

@@ -37,7 +37,9 @@ public class FileUploadService {
         }
         
         // Sử dụng local storage (mặc định)
-        return uploadFileLocal(file, subDirectory);
+        String result = uploadFileLocal(file, subDirectory);
+        System.out.println("📁 File uploaded to: " + result);
+        return result;
     }
     
     private String uploadFileLocal(MultipartFile file, String subDirectory) throws IOException {
@@ -75,7 +77,7 @@ public class FileUploadService {
         Files.copy(file.getInputStream(), uploadPath, StandardCopyOption.REPLACE_EXISTING);
         
         // Trả về đường dẫn relative để lưu vào database
-        return "/uploads/" + subDirectory + "/" + uniqueFilename;
+        return "/static/uploads/" + subDirectory + "/" + uniqueFilename;
     }
 
     public String uploadAvatar(MultipartFile file) throws IOException {
@@ -87,34 +89,44 @@ public class FileUploadService {
     
     public void deleteAvatar(String avatarUrl) {
         if (avatarUrl != null && !avatarUrl.isEmpty()) {
-            try {
-                // Chuyển từ URL thành đường dẫn file
-                String filename = avatarUrl.substring(avatarUrl.lastIndexOf("/") + 1);
-                Path filePath = Paths.get(UPLOAD_DIR + "avatars/" + filename);
-                Files.deleteIfExists(filePath);
-            } catch (IOException e) {
-                System.err.println("Không thể xóa file avatar: " + e.getMessage());
+            // Nếu là Cloudinary URL, dùng CloudinaryService
+            if (avatarUrl.contains("cloudinary.com") && cloudinaryService != null) {
+                cloudinaryService.deleteFile(avatarUrl);
+            } else {
+                // Xóa file local
+                try {
+                    String filename = avatarUrl.substring(avatarUrl.lastIndexOf("/") + 1);
+                    Path filePath = Paths.get(UPLOAD_DIR + "avatars/" + filename);
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    System.err.println("Không thể xóa file avatar: " + e.getMessage());
+                }
             }
         }
     }
     
     public void deleteImage(String imageUrl) {
         if (imageUrl != null && !imageUrl.isEmpty()) {
-            try {
-                // Chuyển từ URL thành đường dẫn file
-                String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
-                // Determine subdirectory from URL path
-                String subDirectory = "images"; // default
-                if (imageUrl.contains("/uploads/")) {
-                    String pathPart = imageUrl.substring(imageUrl.indexOf("/uploads/") + 9);
-                    if (pathPart.contains("/")) {
-                        subDirectory = pathPart.substring(0, pathPart.lastIndexOf("/"));
+            // Nếu là Cloudinary URL, dùng CloudinaryService
+            if (imageUrl.contains("cloudinary.com") && cloudinaryService != null) {
+                cloudinaryService.deleteFile(imageUrl);
+            } else {
+                // Xóa file local
+                try {
+                    String filename = imageUrl.substring(imageUrl.lastIndexOf("/") + 1);
+                    // Determine subdirectory from URL path
+                    String subDirectory = "images"; // default
+                    if (imageUrl.contains("/uploads/")) {
+                        String pathPart = imageUrl.substring(imageUrl.indexOf("/uploads/") + 9);
+                        if (pathPart.contains("/")) {
+                            subDirectory = pathPart.substring(0, pathPart.lastIndexOf("/"));
+                        }
                     }
+                    Path filePath = Paths.get(UPLOAD_DIR + subDirectory + "/" + filename);
+                    Files.deleteIfExists(filePath);
+                } catch (IOException e) {
+                    System.err.println("Không thể xóa file image: " + e.getMessage());
                 }
-                Path filePath = Paths.get(UPLOAD_DIR + subDirectory + "/" + filename);
-                Files.deleteIfExists(filePath);
-            } catch (IOException e) {
-                System.err.println("Không thể xóa file image: " + e.getMessage());
             }
         }
     }
