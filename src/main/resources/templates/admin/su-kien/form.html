@@ -567,7 +567,187 @@
       // Loại sự kiện dropdown is now handled by Thymeleaf server-side rendering
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Using standard HTML select - no additional JavaScript needed for dropdown
+        // Convert select to searchable dropdown
+        const selectElement = document.getElementById('loaiSuKienId');
+        const options = Array.from(selectElement.options);
+        let isValidSelection = false;
+        
+        // Create search input
+        const searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'modern-form-select';
+        searchInput.placeholder = 'Tìm kiếm loại sự kiện...';
+        searchInput.autocomplete = 'off';
+        searchInput.required = true;
+        
+        // Create dropdown container
+        const dropdownContainer = document.createElement('div');
+        dropdownContainer.className = 'search-dropdown-container';
+        dropdownContainer.style.position = 'relative';
+        
+        // Create options list
+        const optionsList = document.createElement('div');
+        optionsList.className = 'search-options-list';
+        optionsList.style.cssText = `
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #ddd;
+          border-top: none;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 1000;
+          display: none;
+        `;
+        
+        // Hide original select
+        selectElement.style.display = 'none';
+        
+        // Insert new elements
+        selectElement.parentNode.insertBefore(dropdownContainer, selectElement);
+        dropdownContainer.appendChild(searchInput);
+        dropdownContainer.appendChild(optionsList);
+        
+        // Populate options
+        function populateOptions(filter = '') {
+          optionsList.innerHTML = '';
+          options.forEach(option => {
+            if (option.value && option.text.toLowerCase().includes(filter.toLowerCase())) {
+              const optionDiv = document.createElement('div');
+              optionDiv.textContent = option.text;
+              optionDiv.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #eee;';
+              optionDiv.addEventListener('mouseenter', () => optionDiv.style.backgroundColor = '#f5f5f5');
+              optionDiv.addEventListener('mouseleave', () => optionDiv.style.backgroundColor = 'white');
+              optionDiv.addEventListener('click', () => {
+                selectElement.value = option.value;
+                searchInput.value = option.text;
+                optionsList.style.display = 'none';
+                isValidSelection = true;
+                searchInput.style.borderColor = '#ddd';
+                searchInput.setCustomValidity('');
+              });
+              optionsList.appendChild(optionDiv);
+            }
+          });
+        }
+        
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+          populateOptions(this.value);
+          optionsList.style.display = 'block';
+          
+          // Reset validation when user types
+          isValidSelection = false;
+          selectElement.value = '';
+          
+          // Check if input matches any option exactly
+          const exactMatch = options.find(opt => opt.text === this.value && opt.value);
+          if (exactMatch) {
+            isValidSelection = true;
+            selectElement.value = exactMatch.value;
+            this.style.borderColor = '#ddd';
+            this.setCustomValidity('');
+          } else {
+            this.style.borderColor = '#dc3545';
+            this.setCustomValidity('Vui lòng chọn từ danh sách có sẵn');
+          }
+        });
+        
+        searchInput.addEventListener('focus', function() {
+          populateOptions(this.value);
+          optionsList.style.display = 'block';
+        });
+        
+        searchInput.addEventListener('blur', function() {
+          setTimeout(() => {
+            if (!isValidSelection && this.value.trim() !== '') {
+              this.style.borderColor = '#dc3545';
+              this.setCustomValidity('Vui lòng chọn từ danh sách có sẵn');
+            } else if (this.value.trim() === '') {
+              this.style.borderColor = '#dc3545';
+              this.setCustomValidity('Vui lòng chọn loại sự kiện');
+            }
+          }, 200);
+        });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!dropdownContainer.contains(e.target)) {
+            optionsList.style.display = 'none';
+          }
+        });
+        
+        // Set initial value for edit mode
+        const selectedOption = selectElement.options[selectElement.selectedIndex];
+        if (selectedOption && selectedOption.value) {
+          searchInput.value = selectedOption.text;
+          isValidSelection = true;
+        }
+        
+        // Form validation before submit
+        const form = selectElement.closest('form');
+        if (form) {
+          form.addEventListener('submit', function(e) {
+            // Validate loại sự kiện
+            if (!isValidSelection || !selectElement.value) {
+              e.preventDefault();
+              searchInput.style.borderColor = '#dc3545';
+              searchInput.setCustomValidity('Vui lòng chọn loại sự kiện từ danh sách');
+              searchInput.reportValidity();
+              return false;
+            }
+            
+            // Validate other required fields
+            const tenSuKien = document.getElementById('tenSuKien');
+            const ngayDienRa = document.getElementById('ngayDienRa');
+            
+            if (!tenSuKien.value.trim()) {
+              tenSuKien.style.borderColor = '#dc3545';
+              tenSuKien.setCustomValidity('Vui lòng nhập tên sự kiện');
+              tenSuKien.reportValidity();
+              e.preventDefault();
+              return false;
+            }
+            
+            if (!ngayDienRa.value) {
+              ngayDienRa.style.borderColor = '#dc3545';
+              ngayDienRa.setCustomValidity('Vui lòng chọn ngày diễn ra');
+              ngayDienRa.reportValidity();
+              e.preventDefault();
+              return false;
+            }
+          });
+        }
+        
+        // Add validation for other required fields
+        const tenSuKien = document.getElementById('tenSuKien');
+        const ngayDienRa = document.getElementById('ngayDienRa');
+        
+        if (tenSuKien) {
+          tenSuKien.addEventListener('input', function() {
+            if (this.value.trim()) {
+              this.style.borderColor = '#ddd';
+              this.setCustomValidity('');
+            } else {
+              this.style.borderColor = '#dc3545';
+              this.setCustomValidity('Vui lòng nhập tên sự kiện');
+            }
+          });
+        }
+        
+        if (ngayDienRa) {
+          ngayDienRa.addEventListener('change', function() {
+            if (this.value) {
+              this.style.borderColor = '#ddd';
+              this.setCustomValidity('');
+            } else {
+              this.style.borderColor = '#dc3545';
+              this.setCustomValidity('Vui lòng chọn ngày diễn ra');
+            }
+          });
+        }
       });
 
       // Removed loadAllLoaiSuKien function - using Thymeleaf server-side rendering
@@ -1143,6 +1323,30 @@
         .stats-grid {
           grid-template-columns: 1fr;
         }
+      }
+      
+      /* Validation Error Styles */
+      .modern-form-select:invalid,
+      .modern-form-input:invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+      }
+      
+      .search-dropdown-container input:invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+      }
+      
+      .form-feedback {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+      }
+      
+      /* Custom validation message */
+      .validation-error {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
       }
     </style>
   </body>
