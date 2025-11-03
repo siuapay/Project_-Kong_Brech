@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
@@ -56,7 +56,8 @@ public class CloudinaryService {
             String uniqueFilename = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
             
             // Upload lên Cloudinary
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+            @SuppressWarnings("unchecked")
+            Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
                 file.getBytes(),
                 ObjectUtils.asMap(
                     "folder", folder,
