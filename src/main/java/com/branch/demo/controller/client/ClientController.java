@@ -371,9 +371,13 @@ public class ClientController {
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_2 ||
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_1 ||
                             cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_QUY_2 ||
-                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.UY_VIEN) {
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.UY_VIEN ||
+                            cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CHAP_SU) {
                         banChapSu.add(cs);
                     }
+                } else {
+                    // Add chấp sự with null chức vụ to banChapSu
+                    banChapSu.add(cs);
                 }
             }
 
@@ -493,6 +497,8 @@ public class ClientController {
                 return 6;
             case UY_VIEN:
                 return 7;
+            case CHAP_SU:
+                return 8;
             default:
                 return 999;
         }

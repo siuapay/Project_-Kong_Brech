@@ -71,7 +71,7 @@
                     </div>
                     <div class="col-md-8">
                       <h3 class="leader-name" th:text="${chapSuChinh.hoTen}">Họ Tên</h3>
-                      <p class="leader-position" th:text="${chapSuChinh.chucVu?.displayName}">Chức vụ</p>
+                      <p class="leader-position" th:text="${chapSuChinh.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</p>
                       
                       <div class="leader-info">
                         <div class="row g-3">
@@ -141,7 +141,7 @@
                   </div>
                   <div class="deputy-content">
                     <h5 class="deputy-name" th:text="${phuTa.hoTen}">Họ Tên</h5>
-                    <p class="deputy-position" th:text="${phuTa.chucVu?.displayName}">Phụ Tá Quản Nhiệm</p>
+                    <p class="deputy-position" th:text="${phuTa.chucVu?.displayName ?: 'Nhân viên'}">Phụ Tá Quản Nhiệm</p>
                     
                     <div class="deputy-info">
                       <div class="info-row" th:if="${phuTa.nhiemKy}">
@@ -199,7 +199,7 @@
                               <h6 class="mb-2 text-primary" th:text="${member.hoTen}">Họ Tên</h6>
                               <p class="text-muted mb-1">
                                 <i class="fas fa-briefcase me-1"></i>
-                                <span th:text="${member.chucVu?.displayName}">Chức vụ</span>
+                                <span th:text="${member.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
                               </p>
                               <p class="text-muted mb-1" th:if="${member.nhiemKy}">
                                 <i class="fas fa-calendar me-1"></i>
@@ -343,61 +343,7 @@
           </div>
         </div>
 
-        <!-- Liên Hệ Ban Chấp Sự -->
-        <div class="row mt-5">
-          <div class="col-lg-8 mx-auto">
-            <div class="card shadow-sm">
-              <div class="card-header bg-warning text-dark">
-                <h4 class="mb-0">
-                  <i class="fas fa-address-book me-2"></i>Liên Hệ Ban Chấp Sự
-                </h4>
-              </div>
-              <div class="card-body">
-                <div class="row">
-                  <div class="col-md-4 mb-3">
-                    <div class="text-center">
-                      <div class="icon-circle bg-primary text-white mx-auto mb-2">
-                        <i class="fas fa-clock"></i>
-                      </div>
-                      <h6>Giờ Tiếp Dân</h6>
-                      <p class="text-muted mb-0">
-                        Thứ 2 - Thứ 6<br>
-                        8:00 - 11:00<br>
-                        14:00 - 17:00
-                      </p>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="text-center">
-                      <div class="icon-circle bg-success text-white mx-auto mb-2">
-                        <i class="fas fa-phone"></i>
-                      </div>
-                      <h6>Điện Thoại</h6>
-                      <p class="text-muted mb-0">
-                        <a href="tel:+84123456789" class="text-decoration-none">
-                          +84 123 456 789
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="text-center">
-                      <div class="icon-circle bg-info text-white mx-auto mb-2">
-                        <i class="fas fa-envelope"></i>
-                      </div>
-                      <h6>Email</h6>
-                      <p class="text-muted mb-0">
-                        <a href="mailto:banchapsu@kongbrech.com" class="text-decoration-none">
-                          banchapsu@kongbrech.com
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
 

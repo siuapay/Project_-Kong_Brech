@@ -2,7 +2,6 @@ package com.branch.demo.domain;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,9 @@ public class DiemNhom extends BaseAuditableEntity {
     
     @Column(name = "mo_ta", length = 1000)
     private String moTa;
+    
+    @Column(name = "hinh_anh_url", length = 500)
+    private String hinhAnhUrl;
     
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -86,6 +88,9 @@ public class DiemNhom extends BaseAuditableEntity {
     
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
+    
+    public String getHinhAnhUrl() { return hinhAnhUrl; }
+    public void setHinhAnhUrl(String hinhAnhUrl) { this.hinhAnhUrl = hinhAnhUrl; }
     
     public List<BanNganh> getDanhSachBanNganh() { return danhSachBanNganh; }
     public void setDanhSachBanNganh(List<BanNganh> danhSachBanNganh) { this.danhSachBanNganh = danhSachBanNganh; }

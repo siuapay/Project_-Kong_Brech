@@ -296,7 +296,13 @@
                     </td>
                     <td class="td-name">
                       <div class="name-info">
-                        <div class="name-icon">
+                        <!-- Hiển thị hình ảnh nếu có, nếu không thì hiển thị icon ngôi nhà -->
+                        <div class="name-icon" th:if="${diemNhom.hinhAnhUrl != null and !diemNhom.hinhAnhUrl.isEmpty()}">
+                          <img th:src="${diemNhom.hinhAnhUrl}" 
+                               th:alt="${diemNhom.tenDiemNhom}"
+                               class="name-image">
+                        </div>
+                        <div class="name-icon" th:unless="${diemNhom.hinhAnhUrl != null and !diemNhom.hinhAnhUrl.isEmpty()}">
                           <i class="fas fa-home"></i>
                         </div>
                         <div class="name-details">
@@ -1089,6 +1095,15 @@
         justify-content: center;
         color: white;
         font-size: 16px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .name-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
       }
 
       .name-title {
@@ -1105,6 +1120,9 @@
       .address-text {
         color: #4a5568;
         line-height: 1.4;
+      }
+
+
       }
 
       .department-tags {

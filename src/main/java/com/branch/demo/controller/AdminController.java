@@ -1271,8 +1271,20 @@ public class AdminController {
     @PostMapping("/diem-nhom/save")
     public String saveDiemNhom(@ModelAttribute com.branch.demo.domain.DiemNhom diemNhom,
             @RequestParam(required = false) String selectedBanNganh,
+            @RequestParam(required = false) MultipartFile hinhAnhFile,
             RedirectAttributes redirectAttributes) {
         try {
+            // Process image upload
+            if (hinhAnhFile != null && !hinhAnhFile.isEmpty()) {
+                try {
+                    String imageUrl = fileUploadService.uploadFile(hinhAnhFile, "diem-nhom");
+                    diemNhom.setHinhAnhUrl(imageUrl);
+                } catch (Exception e) {
+                    redirectAttributes.addFlashAttribute("error", "Lỗi upload hình ảnh: " + e.getMessage());
+                    return "redirect:/admin/diem-nhom/edit/" + (diemNhom.getId() != null ? diemNhom.getId() : "new");
+                }
+            }
+            
             // Process selected ban nganh
             if (selectedBanNganh != null && !selectedBanNganh.trim().isEmpty()) {
                 String[] banNganhIds = selectedBanNganh.split(",");

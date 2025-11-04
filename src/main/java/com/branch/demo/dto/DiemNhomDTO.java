@@ -5,16 +5,18 @@ public class DiemNhomDTO {
     private String tenDiemNhom;
     private String diaChi;
     private String moTa;
+    private String hinhAnhUrl;
     private java.util.List<BanNganhDTO> danhSachBanNganh;
     
     // Constructors
     public DiemNhomDTO() {}
     
-    public DiemNhomDTO(Long id, String tenDiemNhom, String diaChi, String moTa) {
+    public DiemNhomDTO(Long id, String tenDiemNhom, String diaChi, String moTa, String hinhAnhUrl) {
         this.id = id;
         this.tenDiemNhom = tenDiemNhom;
         this.diaChi = diaChi;
         this.moTa = moTa;
+        this.hinhAnhUrl = hinhAnhUrl;
     }
     
     // Getters and Setters
@@ -29,6 +31,9 @@ public class DiemNhomDTO {
     
     public String getMoTa() { return moTa; }
     public void setMoTa(String moTa) { this.moTa = moTa; }
+    
+    public String getHinhAnhUrl() { return hinhAnhUrl; }
+    public void setHinhAnhUrl(String hinhAnhUrl) { this.hinhAnhUrl = hinhAnhUrl; }
     
     public java.util.List<BanNganhDTO> getDanhSachBanNganh() { return danhSachBanNganh; }
     public void setDanhSachBanNganh(java.util.List<BanNganhDTO> danhSachBanNganh) { this.danhSachBanNganh = danhSachBanNganh; }

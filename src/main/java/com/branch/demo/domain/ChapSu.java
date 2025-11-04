@@ -3,7 +3,6 @@ package com.branch.demo.domain;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class ChapSu extends BaseAuditableEntity {
     @Column(name = "ho_ten", nullable = false, length = 255)
     private String hoTen;
 
-    @Column(name = "chuc_vu")
+    @Column(name = "chuc_vu", length = 50)
     @Enumerated(EnumType.STRING)
     private ChucVu chucVu;
 
@@ -268,7 +267,8 @@ public class ChapSu extends BaseAuditableEntity {
         THU_KY_2("Thư ký 2"),
         THU_QUY_1("Thủ quỹ 1"),
         THU_QUY_2("Thủ quỹ 2"),
-        UY_VIEN("Ủy viên");
+        UY_VIEN("Ủy viên"),
+        CHAP_SU("Chấp sự");
 
         private final String displayName;
 
