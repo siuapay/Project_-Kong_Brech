@@ -22,10 +22,10 @@ public class BaiViet extends BaseAuditableEntity {
     @Column(name = "tom_tat", length = 1000)
     private String tomTat;
 
-    @Column(name = "noi_dung", columnDefinition = "TEXT")
+    @Column(name = "noi_dung", columnDefinition = "LONGTEXT")
     private String noiDung;
 
-    @Column(name = "noi_dung_rich", columnDefinition = "TEXT")
+    @Column(name = "noi_dung_rich", columnDefinition = "LONGTEXT")
     private String noiDungRich; // Rich HTML content with embedded images/videos
 
     @Column(name = "anh_dai_dien", length = 500)
