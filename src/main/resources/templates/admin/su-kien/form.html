@@ -76,21 +76,21 @@
                   <input type="hidden" th:field="*{createdAt}" />
                   <input type="hidden" th:field="*{hinhAnhUrl}" />
 
-                  <!-- Modern Image Upload Section -->
-                  <div class="image-upload-section">
+                  <!-- Modern Image Upload Section with Drag & Drop -->
+                  <div class="image-upload-section" id="imageDropZone">
                     <div class="section-header">
                       <div class="section-icon">
                         <i class="fas fa-image"></i>
                       </div>
                       <div class="section-title">
                         <h4>Hình Ảnh Sự Kiện</h4>
-                        <p>Tải lên hình ảnh đại diện cho sự kiện</p>
+                        <p>Kéo thả ảnh vào đây hoặc click để chọn file</p>
                       </div>
                     </div>
 
                     <div class="image-upload-container">
-                      <!-- Image Preview -->
-                      <div class="image-preview-wrapper">
+                      <!-- Image Preview with Drop Zone -->
+                      <div class="image-preview-wrapper" id="imagePreviewWrapper">
                         <div class="image-preview-box">
                           <img
                             id="imagePreview"
@@ -99,7 +99,12 @@
                           />
                           <div class="image-overlay">
                             <i class="fas fa-camera"></i>
+                            <span class="overlay-text">Kéo thả ảnh</span>
                           </div>
+                        </div>
+                        <div class="drop-indicator">
+                          <i class="fas fa-cloud-upload-alt"></i>
+                          <span>Thả ảnh vào đây</span>
                         </div>
                       </div>
 
@@ -130,6 +135,10 @@
                           <div class="info-item">
                             <i class="fas fa-weight-hanging text-info me-2"></i>
                             <span>Tối đa 5MB</span>
+                          </div>
+                          <div class="info-item">
+                            <i class="fas fa-hand-pointer text-primary me-2"></i>
+                            <span>Hỗ trợ kéo thả</span>
                           </div>
                         </div>
 
@@ -754,15 +763,105 @@
 
       // Image preview
       function previewImage(input) {
-        if (input.files && input.files[0]) {
+        const file = input.files[0];
+        handleImageFile(file, input);
+      }
+
+      // Handle image file (for both file input and drag & drop)
+      function handleImageFile(file, input) {
+        const preview = document.getElementById('imagePreview');
+        const status = document.getElementById('uploadStatus');
+        const fileInput = document.getElementById('imageFile');
+
+        if (file) {
+          // Validate file size (5MB)
+          if (file.size > 5 * 1024 * 1024) {
+            alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
+            if (input) input.value = '';
+            return false;
+          }
+
+          // Validate file type
+          const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+          if (!allowedTypes.includes(file.type)) {
+            alert('Định dạng file không được hỗ trợ! Chỉ chấp nhận JPG, JPEG, PNG, GIF.');
+            if (input) input.value = '';
+            return false;
+          }
+
+          // Show preview
           const reader = new FileReader();
           reader.onload = function (e) {
-            document.getElementById("imagePreview").src = e.target.result;
-            document.getElementById("uploadStatus").classList.remove("d-none");
+            preview.src = e.target.result;
+            status.classList.remove('d-none');
           };
-          reader.readAsDataURL(input.files[0]);
+          reader.readAsDataURL(file);
+
+          // If file came from drag & drop, update the file input
+          if (!input) {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+          }
+
+          return true;
         }
+        return false;
       }
+
+      // Drag & Drop functionality
+      (function initDragDrop() {
+        const preview = document.getElementById('imagePreview');
+        const dropZone = document.getElementById('imageDropZone');
+        const previewWrapper = document.getElementById('imagePreviewWrapper');
+        
+        if (!dropZone || !preview) return;
+
+        // Store original image URL for reset
+        preview.setAttribute('data-original', preview.src);
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, preventDefaults, false);
+          document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        // Highlight drop zone when dragging over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+          dropZone.classList.add('drag-over');
+          previewWrapper.classList.add('drag-over');
+        }
+
+        function unhighlight(e) {
+          dropZone.classList.remove('drag-over');
+          previewWrapper.classList.remove('drag-over');
+        }
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+
+          if (files.length > 0) {
+            handleImageFile(files[0], null);
+          }
+        }
+      })();
 
       // Date validation
       const dateInput = document.getElementById("ngayDienRa");
@@ -930,7 +1029,7 @@
         padding: 2rem;
       }
 
-      /* Image Upload Section */
+      /* Image Upload Section with Drag & Drop */
       .image-upload-section {
         background: #f8fafc;
         border: 2px dashed #e2e8f0;
@@ -938,6 +1037,15 @@
         padding: 2rem;
         margin-bottom: 2rem;
         text-align: center;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .image-upload-section.drag-over {
+        border-color: #667eea;
+        background: linear-gradient(135deg, #e6f0ff 0%, #d4e4ff 100%);
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        transform: scale(1.01);
       }
 
       .section-header {
@@ -981,6 +1089,16 @@
 
       .image-preview-wrapper {
         position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .image-preview-wrapper.drag-over {
+        transform: scale(1.05);
+      }
+
+      .image-preview-wrapper.drag-over .drop-indicator {
+        opacity: 1;
+        visibility: visible;
       }
 
       .image-preview-box {
@@ -1004,18 +1122,56 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(102, 126, 234, 0.8);
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 1.5rem;
         opacity: 0;
         transition: opacity 0.3s ease;
+        gap: 0.5rem;
+      }
+
+      .image-overlay .overlay-text {
+        font-size: 12px;
+        font-weight: 500;
       }
 
       .image-preview-box:hover .image-overlay {
         opacity: 1;
+      }
+
+      .drop-indicator {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(102, 126, 234, 0.95);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 10;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+      }
+
+      .drop-indicator i {
+        font-size: 2rem;
+      }
+
+      .drop-indicator span {
+        font-size: 0.9rem;
+        font-weight: 500;
+        white-space: nowrap;
       }
 
       .image-upload-controls {

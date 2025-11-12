@@ -61,28 +61,33 @@
                 <input type="hidden" th:field="*{createdAt}" />
                 <input type="hidden" th:field="*{avatarUrl}" />
 
-                <!-- Modern Avatar Upload Section -->
-                <div class="avatar-upload-section">
+                <!-- Modern Avatar Upload Section with Drag & Drop -->
+                <div class="avatar-upload-section" id="avatarDropZone">
                   <div class="section-header">
                     <div class="section-icon">
                       <i class="fas fa-user-circle"></i>
                     </div>
                     <div class="section-title">
                       <h4>Ảnh Đại Diện</h4>
-                      <p>Tải lên ảnh đại diện cho tin hữu</p>
+                      <p>Kéo thả ảnh vào đây hoặc click để chọn file</p>
                     </div>
                   </div>
                   
                   <div class="avatar-upload-container">
-                    <!-- Avatar Preview -->
-                    <div class="avatar-preview-wrapper">
+                    <!-- Avatar Preview with Drop Zone -->
+                    <div class="avatar-preview-wrapper" id="avatarPreviewWrapper">
                       <div class="avatar-preview-circle">
                         <img id="avatarPreview"
                           th:src="${tinHuu.avatarUrl != null ? tinHuu.avatarUrl : '/static/images/default-avatar.svg'}"
                           alt="Avatar Preview" />
                         <div class="avatar-overlay">
                           <i class="fas fa-camera"></i>
+                          <span class="overlay-text">Kéo thả ảnh</span>
                         </div>
+                      </div>
+                      <div class="drop-indicator">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Thả ảnh vào đây</span>
                       </div>
                     </div>
 
@@ -105,6 +110,10 @@
                         <div class="info-item">
                           <i class="fas fa-weight-hanging text-info me-2"></i>
                           <span>Tối đa 5MB</span>
+                        </div>
+                        <div class="info-item">
+                          <i class="fas fa-hand-pointer text-primary me-2"></i>
+                          <span>Hỗ trợ kéo thả</span>
                         </div>
                       </div>
 
@@ -484,23 +493,29 @@
     // Avatar preview function
     function previewAvatar(input) {
       const file = input.files[0];
+      handleAvatarFile(file, input);
+    }
+
+    // Handle avatar file (for both file input and drag & drop)
+    function handleAvatarFile(file, input) {
       const preview = document.getElementById('avatarPreview');
       const status = document.getElementById('uploadStatus');
+      const fileInput = document.getElementById('avatarFile');
 
       if (file) {
         // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
           alert('File quá lớn! Vui lòng chọn file nhỏ hơn 5MB.');
-          input.value = '';
-          return;
+          if (input) input.value = '';
+          return false;
         }
 
         // Validate file type
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
         if (!allowedTypes.includes(file.type)) {
           alert('Định dạng file không được hỗ trợ! Chỉ chấp nhận JPG, JPEG, PNG, GIF.');
-          input.value = '';
-          return;
+          if (input) input.value = '';
+          return false;
         }
 
         // Show preview
@@ -510,18 +525,74 @@
           status.classList.remove('d-none');
         };
         reader.readAsDataURL(file);
+
+        // If file came from drag & drop, update the file input
+        if (!input) {
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(file);
+          fileInput.files = dataTransfer.files;
+        }
+
+        return true;
       } else {
         // Reset to original avatar if no file selected
         const originalSrc = preview.getAttribute('data-original') || '/images/default-avatar.svg';
         preview.src = originalSrc;
         status.classList.add('d-none');
+        return false;
       }
     }
 
-    // Store original avatar URL for reset
+    // Drag & Drop functionality
     document.addEventListener('DOMContentLoaded', function () {
       const preview = document.getElementById('avatarPreview');
+      const dropZone = document.getElementById('avatarDropZone');
+      const previewWrapper = document.getElementById('avatarPreviewWrapper');
+      
+      // Store original avatar URL for reset
       preview.setAttribute('data-original', preview.src);
+
+      // Prevent default drag behaviors
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+      });
+
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      // Highlight drop zone when dragging over it
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+      });
+
+      function highlight(e) {
+        dropZone.classList.add('drag-over');
+        previewWrapper.classList.add('drag-over');
+      }
+
+      function unhighlight(e) {
+        dropZone.classList.remove('drag-over');
+        previewWrapper.classList.remove('drag-over');
+      }
+
+      // Handle dropped files
+      dropZone.addEventListener('drop', handleDrop, false);
+
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+
+        if (files.length > 0) {
+          handleAvatarFile(files[0], null);
+        }
+      }
     });
 
     // Form validation and cleanup
@@ -805,7 +876,7 @@
       padding: 2rem;
     }
 
-    /* Avatar Upload Section */
+    /* Avatar Upload Section with Drag & Drop */
     .avatar-upload-section {
       background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
       border-radius: 15px;
@@ -813,11 +884,19 @@
       margin-bottom: 2rem;
       border: 2px dashed #e2e8f0;
       transition: all 0.3s ease;
+      position: relative;
     }
 
     .avatar-upload-section:hover {
       border-color: #667eea;
       background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
+    }
+
+    .avatar-upload-section.drag-over {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #e6f0ff 0%, #d4e4ff 100%);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+      transform: scale(1.01);
     }
 
     .section-header {
@@ -860,6 +939,16 @@
 
     .avatar-preview-wrapper {
       position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .avatar-preview-wrapper.drag-over {
+      transform: scale(1.05);
+    }
+
+    .avatar-preview-wrapper.drag-over .drop-indicator {
+      opacity: 1;
+      visibility: visible;
     }
 
     .avatar-preview-circle {
@@ -891,16 +980,54 @@
       bottom: 0;
       background: rgba(102, 126, 234, 0.8);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       opacity: 0;
       transition: opacity 0.3s ease;
       color: white;
       font-size: 24px;
+      gap: 0.5rem;
+    }
+
+    .avatar-overlay .overlay-text {
+      font-size: 12px;
+      font-weight: 500;
     }
 
     .avatar-preview-circle:hover .avatar-overlay {
       opacity: 1;
+    }
+
+    .drop-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(102, 126, 234, 0.95);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .drop-indicator i {
+      font-size: 2rem;
+    }
+
+    .drop-indicator span {
+      font-size: 0.9rem;
+      font-weight: 500;
+      white-space: nowrap;
     }
 
     .avatar-upload-controls {
