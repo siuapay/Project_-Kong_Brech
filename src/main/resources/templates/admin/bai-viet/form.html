@@ -196,6 +196,7 @@
                                 </div>
 
                                 <div class="form-section">
+                                    <!-- Ảnh đại diện với drag & drop -->
                                     <div class="row g-4">
                                         <div class="col-12">
                                             <div class="modern-form-group">
@@ -203,19 +204,50 @@
                                                     <i class="fas fa-image me-2"></i>
                                                     Ảnh đại diện
                                                 </label>
-                                                <input type="file" class="modern-form-control" id="anhDaiDienFile" name="anhDaiDienFile" 
-                                                       accept="image/*" onchange="previewImage(this, 'featuredImagePreview')">
-                                                <div class="form-hint">Chọn ảnh đại diện cho bài viết (JPG, PNG, GIF)</div>
-                                                <div class="mt-3" id="featuredImagePreview">
-                                                    <img th:if="${baiViet.anhDaiDien != null}" 
-                                                         th:src="${baiViet.anhDaiDien}" 
-                                                         class="img-thumbnail" 
-                                                         style="max-width: 200px; max-height: 150px; object-fit: cover;">
+                                                
+                                                <!-- Current Image Display -->
+                                                <div th:if="${baiViet.anhDaiDien != null and !baiViet.anhDaiDien.isEmpty()}" class="current-image-container mb-3">
+                                                    <div class="current-image-wrapper">
+                                                        <img th:src="${baiViet.anhDaiDien}" alt="Ảnh đại diện hiện tại" class="current-image">
+                                                        <div class="image-overlay">
+                                                            <span class="image-label">Ảnh đại diện hiện tại</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- File Upload with Drag & Drop -->
+                                                <div class="upload-container">
+                                                    <input type="file" class="modern-file-input" id="anhDaiDienFile" name="anhDaiDienFile" 
+                                                           accept="image/*" onchange="previewFeaturedImage(this)">
+                                                    <label for="anhDaiDienFile" class="upload-label" id="featuredUploadLabel">
+                                                        <div class="upload-content">
+                                                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                                            <div class="upload-text">
+                                                                <span class="upload-title">Chọn ảnh đại diện</span>
+                                                                <span class="upload-subtitle">hoặc kéo thả file vào đây</span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                
+                                                <!-- Image Preview -->
+                                                <div id="featuredImagePreview" class="image-preview-container" style="display: none;">
+                                                    <div class="preview-wrapper">
+                                                        <img id="featuredPreviewImg" src="" alt="Preview" class="preview-image">
+                                                        <button type="button" class="remove-preview-btn" onclick="removeFeaturedImagePreview()">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="form-hint">
+                                                    Chọn ảnh đại diện cho bài viết (JPG, PNG, GIF - tối đa 10MB)
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Hình ảnh bổ sung với drag & drop -->
                                     <div class="row g-4 mt-2">
                                         <div class="col-12">
                                             <div class="modern-form-group">
@@ -223,21 +255,40 @@
                                                     <i class="fas fa-images me-2"></i>
                                                     Hình ảnh bổ sung
                                                 </label>
-                                                <input type="file" class="modern-form-control" id="hinhAnhFiles" name="hinhAnhFiles" 
-                                                       accept="image/*" multiple onchange="previewMultipleImages(this, 'additionalImagesPreview')">
-                                                <div class="form-hint">Chọn nhiều hình ảnh để bổ sung cho bài viết</div>
-                                                <div class="mt-3" id="additionalImagesPreview">
-                                                    <div th:if="${!baiViet.danhSachHinhAnh.empty}" class="row">
-                                                        <div th:each="image : ${baiViet.danhSachHinhAnh}" class="col-md-3 mb-2">
-                                                            <img th:src="${image}" class="img-thumbnail" 
-                                                                 style="width: 100%; height: 100px; object-fit: cover;">
-                                                        </div>
+                                                
+                                                <!-- Current Images Display -->
+                                                <div th:if="${!baiViet.danhSachHinhAnh.empty}" class="current-images-grid mb-3">
+                                                    <div th:each="image : ${baiViet.danhSachHinhAnh}" class="current-image-item">
+                                                        <img th:src="${image}" alt="Hình ảnh hiện tại" class="current-image-small">
                                                     </div>
+                                                </div>
+                                                
+                                                <!-- File Upload with Drag & Drop -->
+                                                <div class="upload-container">
+                                                    <input type="file" class="modern-file-input" id="hinhAnhFiles" name="hinhAnhFiles" 
+                                                           accept="image/*" multiple onchange="previewAdditionalImages(this)">
+                                                    <label for="hinhAnhFiles" class="upload-label" id="additionalUploadLabel">
+                                                        <div class="upload-content">
+                                                            <i class="fas fa-images upload-icon"></i>
+                                                            <div class="upload-text">
+                                                                <span class="upload-title">Chọn nhiều hình ảnh</span>
+                                                                <span class="upload-subtitle">hoặc kéo thả nhiều file vào đây</span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                
+                                                <!-- Images Preview -->
+                                                <div id="additionalImagesPreview" class="images-preview-grid" style="display: none;"></div>
+                                                
+                                                <div class="form-hint">
+                                                    Chọn nhiều hình ảnh để bổ sung cho bài viết (JPG, PNG, GIF - tối đa 5MB mỗi ảnh)
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Video với drag & drop -->
                                     <div class="row g-4 mt-2">
                                         <div class="col-12">
                                             <div class="modern-form-group">
@@ -245,9 +296,28 @@
                                                     <i class="fas fa-video me-2"></i>
                                                     Video
                                                 </label>
-                                                <input type="file" class="modern-form-control" id="videoFiles" name="videoFiles" 
-                                                       accept="video/*" multiple>
-                                                <div class="form-hint">Chọn video để bổ sung cho bài viết (MP4, AVI, MOV)</div>
+                                                
+                                                <!-- File Upload with Drag & Drop -->
+                                                <div class="upload-container">
+                                                    <input type="file" class="modern-file-input" id="videoFiles" name="videoFiles" 
+                                                           accept="video/*" multiple onchange="previewVideos(this)">
+                                                    <label for="videoFiles" class="upload-label" id="videoUploadLabel">
+                                                        <div class="upload-content">
+                                                            <i class="fas fa-film upload-icon"></i>
+                                                            <div class="upload-text">
+                                                                <span class="upload-title">Chọn video</span>
+                                                                <span class="upload-subtitle">hoặc kéo thả file vào đây</span>
+                                                            </div>
+                                                        </div>
+                                                    </label>
+                                                </div>
+                                                
+                                                <!-- Videos Preview -->
+                                                <div id="videosPreview" class="videos-preview-list" style="display: none;"></div>
+                                                
+                                                <div class="form-hint">
+                                                    Chọn video để bổ sung cho bài viết (MP4, AVI, MOV - tối đa 50MB mỗi video)
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1046,6 +1116,261 @@
             font-weight: 600;
             letter-spacing: 0.5px;
         }
+
+        /* Image Upload Styles - Drag & Drop */
+        .current-image-container {
+            margin-bottom: 1rem;
+        }
+        
+        .current-image-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .current-image {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .current-image-small {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .current-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .current-image-item {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            color: white;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        
+        .image-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .upload-container {
+            position: relative;
+        }
+        
+        .modern-file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 1;
+        }
+        
+        .upload-label {
+            display: block;
+            padding: 2rem;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            background: #f7fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+        
+        .upload-label:hover,
+        .upload-label.drag-over {
+            border-color: #667eea;
+            background: #edf2f7;
+            transform: translateY(-2px);
+        }
+        
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #a0aec0;
+            transition: color 0.3s ease;
+        }
+        
+        .upload-label:hover .upload-icon,
+        .upload-label.drag-over .upload-icon {
+            color: #667eea;
+        }
+        
+        .upload-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .upload-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+        
+        .upload-subtitle {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+        
+        .image-preview-container {
+            margin-top: 1rem;
+        }
+        
+        .preview-wrapper {
+            position: relative;
+            display: inline-block;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-image {
+            width: 200px;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .preview-image-small {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .remove-preview-btn,
+        .remove-preview-btn-small {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 30px;
+            height: 30px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+        
+        .remove-preview-btn:hover,
+        .remove-preview-btn-small:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+        
+        .images-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .videos-preview-list {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .video-preview-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .video-preview-item i {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+        
+        .video-name {
+            flex: 1;
+            font-weight: 500;
+            color: #2d3748;
+        }
+        
+        .video-size {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+        
+        .remove-video-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .remove-video-btn:hover {
+            background: rgba(239, 68, 68, 1);
+            transform: scale(1.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .current-image,
+            .preview-image {
+                width: 150px;
+                height: 112px;
+            }
+            
+            .upload-label {
+                padding: 1.5rem;
+            }
+            
+            .upload-icon {
+                font-size: 2rem;
+            }
+            
+            .current-images-grid,
+            .images-preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            }
+        }
     </style>
     
     <script>
@@ -1180,40 +1505,193 @@
             document.getElementById('slugPreview').textContent = '/tin-tuc/' + slug;
         }
 
-        // Preview image
-        function previewImage(input, previewId) {
-            const preview = document.getElementById(previewId);
-            if (input.files && input.files[0]) {
+        // Preview featured image with drag & drop
+        function previewFeaturedImage(input) {
+            const file = input.files[0];
+            if (file) {
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Vui lòng chọn file hình ảnh!');
+                    input.value = '';
+                    return;
+                }
+                
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('Kích thước file không được vượt quá 10MB!');
+                    input.value = '';
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="max-width: 200px; max-height: 150px; object-fit: cover;">`;
+                    const previewContainer = document.getElementById('featuredImagePreview');
+                    const previewImg = document.getElementById('featuredPreviewImg');
+                    
+                    previewImg.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    
+                    // Hide current image if exists
+                    const currentImageContainer = document.querySelector('.current-image-container');
+                    if (currentImageContainer) {
+                        currentImageContainer.style.display = 'none';
+                    }
                 };
-                reader.readAsDataURL(input.files[0]);
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function removeFeaturedImagePreview() {
+            const input = document.getElementById('anhDaiDienFile');
+            const previewContainer = document.getElementById('featuredImagePreview');
+            
+            input.value = '';
+            previewContainer.style.display = 'none';
+            
+            // Show current image if exists
+            const currentImageContainer = document.querySelector('.current-image-container');
+            if (currentImageContainer) {
+                currentImageContainer.style.display = 'block';
             }
         }
 
-        // Preview multiple images
-        function previewMultipleImages(input, previewId) {
-            const preview = document.getElementById(previewId);
+        // Preview additional images with drag & drop
+        function previewAdditionalImages(input) {
+            const preview = document.getElementById('additionalImagesPreview');
             preview.innerHTML = '';
             
-            if (input.files) {
-                const row = document.createElement('div');
-                row.className = 'row';
+            if (input.files && input.files.length > 0) {
+                preview.style.display = 'grid';
                 
-                Array.from(input.files).forEach(file => {
+                Array.from(input.files).forEach((file, index) => {
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        return;
+                    }
+                    
+                    // Validate file size (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        alert(`File "${file.name}" quá lớn! Tối đa 5MB mỗi ảnh.`);
+                        return;
+                    }
+                    
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        const col = document.createElement('div');
-                        col.className = 'col-md-3 mb-2';
-                        col.innerHTML = `<img src="${e.target.result}" class="img-thumbnail" style="width: 100%; height: 100px; object-fit: cover;">`;
-                        row.appendChild(col);
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'preview-wrapper';
+                        wrapper.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview ${index + 1}" class="preview-image-small">
+                            <button type="button" class="remove-preview-btn-small" onclick="removeAdditionalImage(${index})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        preview.appendChild(wrapper);
                     };
                     reader.readAsDataURL(file);
                 });
-                
-                preview.appendChild(row);
+            } else {
+                preview.style.display = 'none';
             }
+        }
+        
+        function removeAdditionalImage(index) {
+            // This is a simplified version - in production you'd need to manage file list properly
+            const input = document.getElementById('hinhAnhFiles');
+            input.value = '';
+            document.getElementById('additionalImagesPreview').innerHTML = '';
+            document.getElementById('additionalImagesPreview').style.display = 'none';
+        }
+
+        // Preview videos with drag & drop
+        function previewVideos(input) {
+            const preview = document.getElementById('videosPreview');
+            preview.innerHTML = '';
+            
+            if (input.files && input.files.length > 0) {
+                preview.style.display = 'block';
+                
+                Array.from(input.files).forEach((file, index) => {
+                    // Validate file type
+                    if (!file.type.startsWith('video/')) {
+                        return;
+                    }
+                    
+                    // Validate file size (50MB)
+                    if (file.size > 50 * 1024 * 1024) {
+                        alert(`File "${file.name}" quá lớn! Tối đa 50MB mỗi video.`);
+                        return;
+                    }
+                    
+                    const item = document.createElement('div');
+                    item.className = 'video-preview-item';
+                    item.innerHTML = `
+                        <i class="fas fa-file-video"></i>
+                        <span class="video-name">${file.name}</span>
+                        <span class="video-size">(${(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                        <button type="button" class="remove-video-btn" onclick="removeVideo(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    preview.appendChild(item);
+                });
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+        
+        function removeVideo(index) {
+            const input = document.getElementById('videoFiles');
+            input.value = '';
+            document.getElementById('videosPreview').innerHTML = '';
+            document.getElementById('videosPreview').style.display = 'none';
+        }
+        
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Featured image drag & drop
+            setupDragDrop('featuredUploadLabel', 'anhDaiDienFile', previewFeaturedImage);
+            
+            // Additional images drag & drop
+            setupDragDrop('additionalUploadLabel', 'hinhAnhFiles', previewAdditionalImages);
+            
+            // Videos drag & drop
+            setupDragDrop('videoUploadLabel', 'videoFiles', previewVideos);
+        });
+        
+        function setupDragDrop(labelId, inputId, previewFunction) {
+            const uploadLabel = document.getElementById(labelId);
+            const fileInput = document.getElementById(inputId);
+            
+            if (!uploadLabel || !fileInput) return;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, () => {
+                    uploadLabel.classList.add('drag-over');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadLabel.addEventListener(eventName, () => {
+                    uploadLabel.classList.remove('drag-over');
+                }, false);
+            });
+            
+            uploadLabel.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                fileInput.files = files;
+                previewFunction(fileInput);
+            }, false);
         }
         
         // Load all danh muc
