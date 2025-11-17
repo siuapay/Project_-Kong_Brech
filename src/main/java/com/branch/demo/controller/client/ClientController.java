@@ -352,6 +352,7 @@ public class ClientController {
 
             com.branch.demo.domain.ChapSu chapSuChinh = null;
             java.util.List<com.branch.demo.domain.ChapSu> phuTaQuanNhiem = new java.util.ArrayList<>();
+            java.util.List<com.branch.demo.domain.ChapSu> congSu = new java.util.ArrayList<>();
             java.util.List<com.branch.demo.domain.ChapSu> banChapSu = new java.util.ArrayList<>();
 
             for (com.branch.demo.domain.ChapSu cs : allChapSu) {
@@ -365,6 +366,10 @@ public class ClientController {
                     // Find Phụ tá quản nhiệm
                     else if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.PHU_TA_QUAN_NHIEM) {
                         phuTaQuanNhiem.add(cs);
+                    }
+                    // Find Cộng sự
+                    else if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.CONG_SU) {
+                        congSu.add(cs);
                     }
                     // Find all other Chấp sự members
                     else if (cs.getChucVu() == com.branch.demo.domain.ChapSu.ChucVu.THU_KY_1 ||
@@ -383,6 +388,9 @@ public class ClientController {
 
             // Sort phụ tá by name
             phuTaQuanNhiem.sort((a, b) -> a.getHoTen().compareToIgnoreCase(b.getHoTen()));
+
+            // Sort cộng sự by name
+            congSu.sort((a, b) -> a.getHoTen().compareToIgnoreCase(b.getHoTen()));
 
             // Sort ban chấp sự by chức vụ priority
             banChapSu.sort((a, b) -> {
@@ -450,6 +458,7 @@ public class ClientController {
             // Chấp sự data
             model.addAttribute("chapSuChinh", chapSuChinh);
             model.addAttribute("phuTaQuanNhiem", phuTaQuanNhiem);
+            model.addAttribute("congSu", congSu);
             model.addAttribute("banChapSu", banChapSu);
             model.addAttribute("totalChapSu", allChapSu.size());
 
@@ -467,6 +476,7 @@ public class ClientController {
             // Set default values on error
             model.addAttribute("chapSuChinh", null);
             model.addAttribute("phuTaQuanNhiem", java.util.Collections.emptyList());
+            model.addAttribute("congSu", java.util.Collections.emptyList());
             model.addAttribute("banChapSu", java.util.Collections.emptyList());
             model.addAttribute("totalChapSu", 0);
             model.addAttribute("lanhDaoNhanSu", java.util.Collections.emptyList());
@@ -499,6 +509,8 @@ public class ClientController {
                 return 7;
             case CHAP_SU:
                 return 8;
+            case CONG_SU:
+                return 9;    
             default:
                 return 999;
         }

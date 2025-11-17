@@ -297,6 +297,17 @@
                                                     Video
                                                 </label>
                                                 
+                                                <!-- Current Videos Display -->
+                                                <div th:if="${!baiViet.danhSachVideo.empty}" class="current-videos-list mb-3">
+                                                    <div th:each="video, iterStat : ${baiViet.danhSachVideo}" class="current-video-item">
+                                                        <i class="fas fa-file-video"></i>
+                                                        <span class="video-name" th:text="'Video ' + ${iterStat.index + 1}">Video 1</span>
+                                                        <a th:href="${video}" target="_blank" class="video-link">
+                                                            <i class="fas fa-external-link-alt"></i> Xem
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                                
                                                 <!-- File Upload with Drag & Drop -->
                                                 <div class="upload-container">
                                                     <input type="file" class="modern-file-input" id="videoFiles" name="videoFiles" 
@@ -1298,6 +1309,53 @@
             margin-top: 1rem;
         }
         
+        .current-videos-list {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .current-video-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .current-video-item i.fa-file-video {
+            font-size: 1.5rem;
+            color: #0284c7;
+        }
+        
+        .current-video-item .video-name {
+            flex: 1;
+            font-weight: 500;
+            color: #0c4a6e;
+        }
+        
+        .video-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #0284c7;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        .video-link:hover {
+            background: #0369a1;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
         .videos-preview-list {
             margin-top: 1rem;
             display: flex;
@@ -1348,6 +1406,26 @@
         .remove-video-btn:hover {
             background: rgba(239, 68, 68, 1);
             transform: scale(1.1);
+        }
+
+        /* Invalid state for dropdown */
+        #danhMucDropdown.is-invalid {
+            border: 2px solid #dc3545 !important;
+            border-radius: 0.5rem;
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Add red asterisk style */
+        .required-star {
+            color: #dc3545;
+            font-weight: bold;
+            margin-left: 2px;
         }
 
         /* Responsive Design */
@@ -1427,6 +1505,18 @@
                     danhMucDropdown.setValue(currentDanhMucValue);
                 }, 500);
             }
+            
+            // Remove red border when user selects a category
+            const danhMucInput = document.getElementById('danhMuc');
+            const danhMucDropdownEl = document.getElementById('danhMucDropdown');
+            if (danhMucInput) {
+                danhMucInput.addEventListener('change', function() {
+                    if (this.value && danhMucDropdownEl) {
+                        danhMucDropdownEl.classList.remove('is-invalid');
+                        danhMucDropdownEl.style.border = '';
+                    }
+                });
+            }
         });
 
         // Editor mode toggle
@@ -1449,44 +1539,97 @@
         });
 
         // Form validation before submit
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const simpleMode = document.getElementById('simpleMode').checked;
-            const richMode = document.getElementById('richMode').checked;
-            const noiDung = document.getElementById('noiDung').value.trim();
-            const richContent = tinymce.get('richContent') ? tinymce.get('richContent').getContent() : '';
-            const danhMucValue = document.getElementById('danhMuc').value;
-            
-            // Validate danh muc
-            if (!danhMucValue) {
-                e.preventDefault();
-                alert('Vui lòng chọn danh mục cho bài viết!');
-                return false;
-            }
-            
-            // Validate content based on mode
-            if (simpleMode && !noiDung) {
-                e.preventDefault();
-                alert('Vui lòng nhập nội dung bài viết!');
-                document.getElementById('noiDung').focus();
-                return false;
-            }
-            
-            if (richMode && !richContent.trim()) {
-                e.preventDefault();
-                alert('Vui lòng nhập nội dung rich text!');
-                if (tinymce.get('richContent')) {
-                    tinymce.get('richContent').focus();
+        const baiVietForm = document.getElementById('baiVietForm');
+        if (baiVietForm) {
+            baiVietForm.addEventListener('submit', function(e) {
+                console.log('Form submit triggered');
+                
+                const simpleMode = document.getElementById('simpleMode').checked;
+                const richMode = document.getElementById('richMode').checked;
+                const noiDung = document.getElementById('noiDung').value.trim();
+                const richContent = tinymce.get('richContent') ? tinymce.get('richContent').getContent() : '';
+                const danhMucValue = document.getElementById('danhMuc').value;
+                const danhMucDropdownEl = document.getElementById('danhMucDropdown');
+                
+                console.log('Danh muc value:', danhMucValue);
+                console.log('Dropdown element:', danhMucDropdownEl);
+                
+                // Validate danh muc FIRST
+                if (!danhMucValue || danhMucValue === '' || danhMucValue === 'null') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('Danh muc validation failed');
+                    
+                    // Add red border to dropdown - target the actual dropdown input
+                    const dropdownInput = danhMucDropdownEl ? danhMucDropdownEl.querySelector('.dropdown-input') : null;
+                    const dropdownContainer = danhMucDropdownEl ? danhMucDropdownEl.querySelector('.searchable-dropdown') : null;
+                    
+                    if (dropdownInput) {
+                        dropdownInput.classList.add('is-invalid');
+                        dropdownInput.style.border = '2px solid #dc3545';
+                        dropdownInput.style.borderRadius = '0.5rem';
+                    }
+                    
+                    if (dropdownContainer) {
+                        dropdownContainer.classList.add('is-invalid');
+                        dropdownContainer.style.border = '2px solid #dc3545';
+                        dropdownContainer.style.borderRadius = '0.5rem';
+                    }
+                    
+                    // Scroll to danh muc field
+                    if (danhMucDropdownEl) {
+                        setTimeout(() => {
+                            danhMucDropdownEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                    }
+                    
+                    alert('Vui lòng chọn danh mục cho bài viết!');
+                    return false;
+                } else {
+                    // Remove red border if valid
+                    const dropdownInput = danhMucDropdownEl ? danhMucDropdownEl.querySelector('.dropdown-input') : null;
+                    const dropdownContainer = danhMucDropdownEl ? danhMucDropdownEl.querySelector('.searchable-dropdown') : null;
+                    
+                    if (dropdownInput) {
+                        dropdownInput.classList.remove('is-invalid');
+                        dropdownInput.style.border = '';
+                    }
+                    
+                    if (dropdownContainer) {
+                        dropdownContainer.classList.remove('is-invalid');
+                        dropdownContainer.style.border = '';
+                    }
                 }
-                return false;
-            }
             
-            // If using rich editor, clear simple content to avoid confusion
-            if (richMode && richContent.trim()) {
-                document.getElementById('noiDung').value = '';
-            }
-            
-            return true;
-        });
+                // Validate content based on mode
+                if (simpleMode && !noiDung) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Vui lòng nhập nội dung bài viết!');
+                    document.getElementById('noiDung').focus();
+                    return false;
+                }
+                
+                if (richMode && !richContent.trim()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('Vui lòng nhập nội dung rich text!');
+                    if (tinymce.get('richContent')) {
+                        tinymce.get('richContent').focus();
+                    }
+                    return false;
+                }
+                
+                // If using rich editor, clear simple content to avoid confusion
+                if (richMode && richContent.trim()) {
+                    document.getElementById('noiDung').value = '';
+                }
+                
+                console.log('Form validation passed');
+                return true;
+            });
+        }
 
         // Generate slug from title
         function generateSlug() {

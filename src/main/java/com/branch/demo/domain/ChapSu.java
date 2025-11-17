@@ -268,7 +268,8 @@ public class ChapSu extends BaseAuditableEntity {
         THU_QUY_1("Thủ quỹ 1"),
         THU_QUY_2("Thủ quỹ 2"),
         UY_VIEN("Ủy viên"),
-        CHAP_SU("Chấp sự");
+        CHAP_SU("Chấp sự"),
+        CONG_SU("Cộng sự");
 
         private final String displayName;
 

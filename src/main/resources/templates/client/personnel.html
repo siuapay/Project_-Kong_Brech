@@ -168,6 +168,57 @@
           </div>
         </div>
 
+        <!-- Cộng Sự -->
+        <div th:if="${congSu != null and !congSu.empty}" class="row mb-5">
+          <div class="col-12">
+            <div class="section-header text-center mb-4">
+              <h2 class="section-title">Cộng Sự</h2>
+              <p class="section-subtitle">Đội ngũ cộng tác viên của chi hội</p>
+            </div>
+            <div class="row g-4 justify-content-center">
+              <div th:each="cs : ${congSu}" 
+                   th:class="${#lists.size(congSu) == 1} ? 'col-lg-6' : (${#lists.size(congSu) == 2} ? 'col-lg-6' : 'col-lg-4')">
+                <div class="deputy-card">
+                  <div class="deputy-avatar">
+                    <img th:if="${cs.avatarUrl != null and !cs.avatarUrl.isEmpty()}"
+                         th:src="${cs.avatarUrl}" 
+                         th:alt="${cs.hoTen}"
+                         class="deputy-avatar-img"
+                         style="object-fit: cover;">
+                    <div th:unless="${cs.avatarUrl != null and !cs.avatarUrl.isEmpty()}"
+                         class="deputy-avatar-placeholder">
+                      <span th:text="${#strings.substring(cs.hoTen, 0, 1)}">C</span>
+                    </div>
+                  </div>
+                  <div class="deputy-content">
+                    <h5 class="deputy-name" th:text="${cs.hoTen}">Họ Tên</h5>
+                    <p class="deputy-position" th:text="${cs.chucVu?.displayName ?: 'Cộng sự'}">Cộng sự</p>
+                    
+                    <div class="deputy-info">
+                      <div class="info-row" th:if="${cs.nhiemKy}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span th:text="${cs.nhiemKy}">Nhiệm kỳ</span>
+                      </div>
+                      <div class="info-row" th:if="${cs.ngaySinh}">
+                        <i class="fas fa-birthday-cake"></i>
+                        <span th:text="'Năm sinh: ' + ${#temporals.year(cs.ngaySinh)}">Năm sinh: 1980</span>
+                      </div>
+                      <div class="info-row" th:if="${cs.dienThoai}">
+                        <i class="fas fa-phone"></i>
+                        <span th:text="${cs.dienThoai}">Điện thoại</span>
+                      </div>
+                    </div>
+                    
+                    <div th:if="${cs.tieuSu}" class="deputy-bio">
+                      <p th:text="${#strings.abbreviate(cs.tieuSu, 120)}">Tiểu sử...</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Thành Viên Ban Chấp Sự -->
         <div class="row">
           <div class="col-12">

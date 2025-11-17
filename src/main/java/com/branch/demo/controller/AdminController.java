@@ -1686,6 +1686,7 @@ public class AdminController {
     public String saveBaiViet(@ModelAttribute com.branch.demo.domain.BaiViet baiViet,
             @RequestParam(value = "anhDaiDienFile", required = false) MultipartFile anhDaiDienFile,
             @RequestParam(value = "hinhAnhFiles", required = false) MultipartFile[] hinhAnhFiles,
+            @RequestParam(value = "videoFiles", required = false) MultipartFile[] videoFiles,
             RedirectAttributes redirectAttributes) {
         try {
             // Nếu đang update (có ID), preserve các thông tin quan trọng
@@ -1734,9 +1735,29 @@ public class AdminController {
                     }
                 }
 
-                // Preserve video list
-                if (baiViet.getDanhSachVideo() == null || baiViet.getDanhSachVideo().isEmpty()) {
+                // Preserve video list nếu không upload video mới
+                if (videoFiles == null || videoFiles.length == 0 ||
+                        (videoFiles.length == 1 && videoFiles[0].isEmpty())) {
                     baiViet.setDanhSachVideo(existingBaiViet.getDanhSachVideo());
+                } else {
+                    // Xử lý upload video mới
+                    java.util.List<String> videoUrls = new java.util.ArrayList<>();
+                    for (MultipartFile file : videoFiles) {
+                        if (!file.isEmpty()) {
+                            try {
+                                String videoUrl = fileUploadService.uploadVideo(file);
+                                videoUrls.add(videoUrl);
+                            } catch (Exception e) {
+                                System.err.println("Could not upload video: " + e.getMessage());
+                            }
+                        }
+                    }
+                    if (!videoUrls.isEmpty()) {
+                        baiViet.setDanhSachVideo(videoUrls);
+                    } else {
+                        // Giữ lại video cũ nếu không có video mới
+                        baiViet.setDanhSachVideo(existingBaiViet.getDanhSachVideo());
+                    }
                 }
             } else {
                 // Bài viết mới - xử lý upload bình thường
@@ -1756,6 +1777,24 @@ public class AdminController {
                     }
                     if (!hinhAnhUrls.isEmpty()) {
                         baiViet.setDanhSachHinhAnh(hinhAnhUrls);
+                    }
+                }
+
+                // Xử lý upload video
+                if (videoFiles != null && videoFiles.length > 0) {
+                    java.util.List<String> videoUrls = new java.util.ArrayList<>();
+                    for (MultipartFile file : videoFiles) {
+                        if (!file.isEmpty()) {
+                            try {
+                                String videoUrl = fileUploadService.uploadVideo(file);
+                                videoUrls.add(videoUrl);
+                            } catch (Exception e) {
+                                System.err.println("Could not upload video: " + e.getMessage());
+                            }
+                        }
+                    }
+                    if (!videoUrls.isEmpty()) {
+                        baiViet.setDanhSachVideo(videoUrls);
                     }
                 }
             }
