@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/admin-layout :: head}"></head>
+  <body class="modern-admin-page">
+    <!-- Sidebar -->
+    <nav th:replace="~{fragments/admin-layout :: sidebar}"></nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Navigation -->
+      <nav th:replace="~{fragments/admin-layout :: topnav}"></nav>
+
+      <!-- Content -->
+      <div class="container-fluid py-4">
+        <!-- Flash Messages -->
+        <div th:replace="~{fragments/admin-layout :: messages}"></div>
+
+        <!-- Modern Page Header -->
+        <div class="modern-page-header">
+          <div class="header-content">
+            <div class="header-info">
+              <div class="header-icon">
+                <i class="fas fa-file-import"></i>
+              </div>
+              <div class="header-text">
+                <h1 class="header-title">Import Tín Hữu</h1>
+                <p class="header-subtitle">
+                  Import danh sách tín hữu từ file Excel
+                </p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <a
+                th:href="@{/admin/tin-huu/export}"
+                class="btn-modern btn-modern-success me-2"
+              >
+                <i class="fas fa-file-export me-2"></i>Export/Backup
+              </a>
+              <a
+                th:href="@{/admin/tin-huu}"
+                class="btn-modern btn-modern-outline"
+              >
+                <i class="fas fa-arrow-left me-2"></i>Quay Lại
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Upload Form -->
+          <div class="col-lg-8">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-upload"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Upload File Excel</h5>
+                    <p>Chọn file Excel chứa danh sách tín hữu</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <form
+                  th:action="@{/admin/tin-huu/import}"
+                  method="post"
+                  enctype="multipart/form-data"
+                >
+                  <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                      <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Kéo thả file Excel vào đây</h4>
+                    <p>hoặc</p>
+                    <label for="fileInput" class="btn btn-primary">
+                      <i class="fas fa-folder-open me-2"></i>Chọn File
+                    </label>
+                    <input
+                      type="file"
+                      id="fileInput"
+                      name="file"
+                      accept=".xlsx,.xls"
+                      style="display: none"
+                      required
+                    />
+                    <p class="mt-3 text-muted">
+                      Chỉ chấp nhận file .xlsx hoặc .xls
+                    </p>
+                  </div>
+
+                  <div id="fileInfo" class="file-info" style="display: none">
+                    <div class="file-details">
+                      <i class="fas fa-file-excel text-success"></i>
+                      <div class="file-name-size">
+                        <span class="file-name" id="fileName"></span>
+                        <span class="file-size" id="fileSize"></span>
+                      </div>
+                      <button
+                        type="button"
+                        class="btn-remove"
+                        onclick="removeFile()"
+                      >
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-2 mt-4">
+                    <button
+                      type="submit"
+                      class="btn btn-success btn-lg"
+                      id="submitBtn"
+                      disabled
+                    >
+                      <i class="fas fa-file-import me-2"></i>Import Dữ Liệu
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="col-lg-4">
+            <div class="modern-card">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-info-circle"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>Hướng Dẫn</h5>
+                    <p>Cách import dữ liệu</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="instruction-list">
+                  <div class="instruction-item">
+                    <div class="instruction-number">1</div>
+                    <div class="instruction-text">
+                      <strong>Chuẩn bị file Excel</strong>
+                      <p>File Excel phải có định dạng như mẫu</p>
+                    </div>
+                  </div>
+                  <div class="instruction-item">
+                    <div class="instruction-number">2</div>
+                    <div class="instruction-text">
+                      <strong>Các cột dữ liệu</strong>
+                      <ul>
+                        <li>Cột 4: Họ và tên (bắt buộc)</li>
+                        <li>Cột 5: Năm sinh (Nam)</li>
+                        <li>Cột 6: Năm sinh (Nữ)</li>
+                        <li>Cột 7: Nhập sinh</li>
+                        <li>Cột 8: Năm tín Chúa</li>
+                        <li>Cột 9: Năm Báp tem</li>
+                        <li>Cột 10: Dân tộc</li>
+                        <li>Cột 18: Ghi chú</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="instruction-item">
+                    <div class="instruction-number">3</div>
+                    <div class="instruction-text">
+                      <strong>Upload file</strong>
+                      <p>Chọn file và nhấn Import</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="alert alert-warning mt-3">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  <strong>Lưu ý:</strong> Dữ liệu bắt đầu từ dòng 4 (sau header)
+                </div>
+              </div>
+            </div>
+
+            <!-- Sample Template -->
+            <div class="modern-card mt-4">
+              <div class="card-header">
+                <div class="header-left">
+                  <div class="card-icon">
+                    <i class="fas fa-download"></i>
+                  </div>
+                  <div class="card-title">
+                    <h5>File Mẫu</h5>
+                    <p>Tải về file mẫu</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-content">
+                <p>Tải về file Excel mẫu để xem định dạng chuẩn</p>
+                <a href="#" class="btn btn-outline-primary w-100">
+                  <i class="fas fa-file-excel me-2"></i>Tải File Mẫu
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/admin-layout :: scripts}"></div>
+
+    <style>
+      .upload-area {
+        border: 3px dashed #dee2e6;
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+      }
+
+      .upload-area:hover {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+      }
+
+      .upload-area.dragover {
+        border-color: #0d6efd;
+        background: #e7f1ff;
+        transform: scale(1.02);
+      }
+
+      .upload-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+      }
+
+      .upload-area h4 {
+        color: #495057;
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-area p {
+        color: #6c757d;
+        margin: 0.5rem 0;
+      }
+
+      .file-info {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #e7f1ff;
+        border-radius: 8px;
+        border: 1px solid #0d6efd;
+      }
+
+      .file-details {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .file-details i {
+        font-size: 2rem;
+      }
+
+      .file-name-size {
+        flex: 1;
+        text-align: left;
+      }
+
+      .file-name {
+        display: block;
+        font-weight: 600;
+        color: #212529;
+      }
+
+      .file-size {
+        display: block;
+        font-size: 0.875rem;
+        color: #6c757d;
+      }
+
+      .btn-remove {
+        background: #dc3545;
+        color: white;
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-remove:hover {
+        background: #c82333;
+        transform: scale(1.1);
+      }
+
+      .instruction-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .instruction-item {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+
+      .instruction-number {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .instruction-text {
+        flex: 1;
+      }
+
+      .instruction-text strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #212529;
+      }
+
+      .instruction-text p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.875rem;
+      }
+
+      .instruction-text ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.25rem;
+        font-size: 0.875rem;
+        color: #6c757d;
+      }
+
+      .instruction-text li {
+        margin-bottom: 0.25rem;
+      }
+
+      .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        border: 2px solid transparent;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-modern-outline {
+        background: transparent;
+        color: #0d6efd;
+        border-color: #0d6efd;
+      }
+
+      .btn-modern-outline:hover {
+        background: #0d6efd;
+        color: white;
+      }
+
+      .btn-modern-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+      }
+
+      .btn-modern-success:hover {
+        background: linear-gradient(135deg, #20c997, #28a745);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+      }
+    </style>
+
+    <script>
+      const uploadArea = document.getElementById("uploadArea");
+      const fileInput = document.getElementById("fileInput");
+      const fileInfo = document.getElementById("fileInfo");
+      const fileName = document.getElementById("fileName");
+      const fileSize = document.getElementById("fileSize");
+      const submitBtn = document.getElementById("submitBtn");
+
+      // Drag and drop
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          fileInput.files = files;
+          handleFileSelect(files[0]);
+        }
+      });
+
+      // File input change
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files.length > 0) {
+          handleFileSelect(e.target.files[0]);
+        }
+      });
+
+      function handleFileSelect(file) {
+        // Validate file type
+        if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
+          alert("Vui lòng chọn file Excel (.xlsx hoặc .xls)");
+          return;
+        }
+
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = "block";
+        uploadArea.style.display = "none";
+        submitBtn.disabled = false;
+      }
+
+      function removeFile() {
+        fileInput.value = "";
+        fileInfo.style.display = "none";
+        uploadArea.style.display = "block";
+        submitBtn.disabled = true;
+      }
+
+      function formatFileSize(bytes) {
+        if (bytes === 0) return "0 Bytes";
+        const k = 1024;
+        const sizes = ["Bytes", "KB", "MB", "GB"];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return (
+          Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i]
+        );
+      }
+    </script>
+  </body>
+</html>
