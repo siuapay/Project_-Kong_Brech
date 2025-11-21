@@ -71,7 +71,7 @@
                     </div>
                     <div class="col-md-8">
                       <h3 class="leader-name" th:text="${chapSuChinh.hoTen}">Họ Tên</h3>
-                      <p class="leader-position" th:text="${chapSuChinh.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</p>
+                      <p class="leader-position" th:text="${chapSuChinh.chucVu?.displayName ?: 'Đặc Trách'}">Chức vụ</p>
                       
                       <div class="leader-info">
                         <div class="row g-3">
@@ -141,7 +141,7 @@
                   </div>
                   <div class="deputy-content">
                     <h5 class="deputy-name" th:text="${phuTa.hoTen}">Họ Tên</h5>
-                    <p class="deputy-position" th:text="${phuTa.chucVu?.displayName ?: 'Nhân viên'}">Phụ Tá Quản Nhiệm</p>
+                    <p class="deputy-position" th:text="${phuTa.chucVu?.displayName ?: 'Đặc Trách'}">Phụ Tá Quản Nhiệm</p>
                     
                     <div class="deputy-info">
                       <div class="info-row" th:if="${phuTa.nhiemKy}">
@@ -250,7 +250,7 @@
                               <h6 class="mb-2 text-primary" th:text="${member.hoTen}">Họ Tên</h6>
                               <p class="text-muted mb-1">
                                 <i class="fas fa-briefcase me-1"></i>
-                                <span th:text="${member.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
+                                <span th:text="${member.chucVu?.displayName ?: 'Đặc Trách'}">Chức vụ</span>
                               </p>
                               <p class="text-muted mb-1" th:if="${member.nhiemKy}">
                                 <i class="fas fa-calendar me-1"></i>
@@ -323,7 +323,7 @@
                               <h6 class="mb-2 text-primary" th:text="${nhanSu.hoTen}">Họ Tên</h6>
                               <p class="text-muted mb-1">
                                 <i class="fas fa-briefcase me-1"></i>
-                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
+                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Đặc Trách'}">Chức vụ</span>
                               </p>
                               <p class="text-muted mb-1" th:if="${nhanSu.banNganh}">
                                 <i class="fas fa-sitemap me-1"></i>
@@ -361,7 +361,7 @@
                               <h6 class="mb-2 text-primary" th:text="${nhanSu.hoTen}">Họ Tên</h6>
                               <p class="text-muted mb-1">
                                 <i class="fas fa-briefcase me-1"></i>
-                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Nhân viên'}">Chức vụ</span>
+                                <span th:text="${nhanSu.chucVu?.displayName ?: 'Đặc Trách'}">Chức vụ</span>
                               </p>
                               <p class="text-muted mb-1" th:if="${nhanSu.banNganh}">
                                 <i class="fas fa-sitemap me-1"></i>
